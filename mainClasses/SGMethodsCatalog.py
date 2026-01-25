@@ -35,6 +35,7 @@ USAGE EXAMPLES:
 """
 
 import ast
+import html
 import json
 import os
 from typing import Dict, List, Any, Optional
@@ -810,6 +811,35 @@ class SGMethodsCatalog:
         print(f"HTML catalog saved to {output_file}")
         return output_file
     
+    def _escape_html(self, value: str) -> str:
+        """Escape text for safe HTML output."""
+        return html.escape(value or "", quote=True)
+    
+    def _escape_js_string(self, value: str) -> str:
+        """Escape text for safe JavaScript single-quoted strings."""
+        if value is None:
+            return ""
+        return (
+            value
+            .replace("\\", "\\\\")
+            .replace("'", "\\'")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+        )
+    
+    def _build_copy_onclick(self, method: Dict[str, Any], class_name: str, include_params: bool) -> str:
+        """Build safe onclick handler for copy buttons."""
+        signature = self._escape_js_string(method.get('signature', ''))
+        name = self._escape_js_string(method.get('name', ''))
+        class_name_safe = self._escape_js_string(class_name or "")
+        parameters = json.dumps(method.get('parameters', []), ensure_ascii=True)
+        include_params_js = "true" if include_params else "false"
+        
+        return (
+            "event.stopPropagation(); "
+            f"copyMethodSyntax('{signature}', '{name}', '{class_name_safe}', {parameters}, {include_params_js})"
+        )
+    
     def _generate_html_content(self) -> str:
         """Generate HTML content for the catalog with improved UX"""
         metadata = self.catalog_data.get("metadata", {})
@@ -1040,13 +1070,20 @@ class SGMethodsCatalog:
                     has_examples = "with-examples" if method.get('examples') else "without-examples"
                     has_params = "with-params" if method.get('parameters') else "without-params"
                     
+                    method_name = self._escape_html(method.get('name', ''))
+                    method_signature = self._escape_html(method.get('signature', ''))
+                    method_description = self._escape_html(method.get('description', ''))
+                    method_returns = self._escape_html(method.get('returns', ''))
+                    onclick_no_params = self._escape_html(self._build_copy_onclick(method, class_name, include_params=False))
+                    onclick_with_params = self._escape_html(self._build_copy_onclick(method, class_name, include_params=True))
+                    
                     html += f"""
                 <div class="method-card" data-category="{category}" data-class="{class_name}" data-examples="{has_examples}" data-parameters="{has_params}">
                     <div class="method-header" onclick="toggleMethod(this)">
-                        <h4>{method['name']}</h4>
+                        <h4>{method_name}</h4>
                         <div class="method-header-controls">
-                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax('{method['signature']}', '{method['name']}', '{class_name}', {method.get('parameters', [])}, false)" title="Copy method syntax without parameters">📋</button>
-                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax('{method['signature']}', '{method['name']}', '{class_name}', {method.get('parameters', [])}, true)" title="Copy method syntax with parameters">📝</button>
+                            <button class="copy-btn" onclick="{onclick_no_params}" title="Copy method syntax without parameters">📋</button>
+                            <button class="copy-btn" onclick="{onclick_with_params}" title="Copy method syntax with parameters">📝</button>
                             <span class="method-toggle">+</span>
                         </div>
                     </div>
@@ -1058,27 +1095,31 @@ class SGMethodsCatalog:
                     if original_class and original_class != class_name:
                         html += f'                        <div class="inherited-from" style="color: #7f8c8d; font-size: 0.8em; margin: 5px 0;">(from {original_class})</div>\n'
                     
-                    html += f'                        <div class="method-signature">{method["signature"]}</div>\n'
-                    html += f'                        <p><strong>Description:</strong> {method["description"]}</p>\n'
+                    html += f'                        <div class="method-signature">{method_signature}</div>\n'
+                    html += f'                        <p><strong>Description:</strong> {method_description}</p>\n'
                     
                     if method.get('parameters'):
                         html += "<p><strong>Parameters:</strong></p><ul>"
                         for param in method['parameters']:
                             if param.get('description'):
                                 # Convert newlines to <br> for HTML display
-                                description = param['description'].replace('\n', '<br>')
-                                html += f"<li><strong>{param['name']}</strong> ({param['type']}): {description}</li>"
+                                description = self._escape_html(param['description']).replace('\n', '<br>')
+                                param_name = self._escape_html(param.get('name', ''))
+                                param_type = self._escape_html(param.get('type', ''))
+                                html += f"<li><strong>{param_name}</strong> ({param_type}): {description}</li>"
                             else:
-                                html += f"<li><strong>{param['name']}</strong> ({param['type']})</li>"
+                                param_name = self._escape_html(param.get('name', ''))
+                                param_type = self._escape_html(param.get('type', ''))
+                                html += f"<li><strong>{param_name}</strong> ({param_type})</li>"
                         html += "</ul>"
                     
                     if method.get('returns'):
-                        html += f"<p><strong>Returns:</strong> {method['returns']}</p>"
+                        html += f"<p><strong>Returns:</strong> {method_returns}</p>"
                     
                     if method.get('examples'):
                         html += "<div class='examples'><strong>Examples:</strong><pre>"
                         for example in method['examples']:
-                            html += f"{example}\n"
+                            html += f"{self._escape_html(example)}\n"
                         html += "</pre></div>"
                     
                     html += """
@@ -1896,8 +1937,9 @@ if __name__ == "__main__":
     #         appears in SGAgentType, SGCellType, SGTileType)
     catalog.generate_catalog(exclude_classes=["SGEntity", "SGEntityType", "SGGameSpace", "SGMethodsCatalog", "SGVoid"])
     
-    # Save files to docs/SGE_methods/ directory
-    output_dir = "docs/SGE_methods"
+    # Save files to docs/SGE_methods/ directory (relative to repo root)
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    output_dir = os.path.join(repo_root, "docs", "SGE_methods")
     os.makedirs(output_dir, exist_ok=True)
     
     # Save to JSON

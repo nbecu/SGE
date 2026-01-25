@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "generated_date": "2024-12-19",
     "total_classes": 19,
-    "total_methods": 480
+    "total_methods": 490
   },
   "classes": {
     "SGAgent": {
@@ -24,7 +24,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 208,
+            "line_number": 219,
             "parent_classes": [
               "SGEntity"
             ]
@@ -39,7 +39,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 213,
+            "line_number": 224,
             "parent_classes": [
               "SGEntity"
             ]
@@ -54,7 +54,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 217,
+            "line_number": 228,
             "parent_classes": [
               "SGEntity"
             ]
@@ -75,7 +75,7 @@
             ],
             "returns": "list[SGAgent]: Agents in the same cell.",
             "examples": [],
-            "line_number": 223,
+            "line_number": 234,
             "parent_classes": [
               "SGEntity"
             ]
@@ -96,7 +96,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 244,
+            "line_number": 255,
             "parent_classes": [
               "SGEntity"
             ]
@@ -122,7 +122,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 248,
+            "line_number": 259,
             "parent_classes": [
               "SGEntity"
             ]
@@ -163,7 +163,7 @@
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
             "examples": [],
-            "line_number": 257,
+            "line_number": 268,
             "parent_classes": [
               "SGEntity"
             ]
@@ -184,7 +184,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 298,
+            "line_number": 309,
             "parent_classes": [
               "SGEntity"
             ]
@@ -205,7 +205,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 305,
+            "line_number": 316,
             "parent_classes": [
               "SGEntity"
             ]
@@ -226,7 +226,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 312,
+            "line_number": 323,
             "parent_classes": [
               "SGEntity"
             ]
@@ -247,7 +247,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 319,
+            "line_number": 330,
             "parent_classes": [
               "SGEntity"
             ]
@@ -337,7 +337,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 294,
+            "line_number": 305,
             "parent_classes": [
               "SGEntity"
             ]
@@ -358,7 +358,7 @@
             ],
             "returns": "int: Number of matching agents in the same cell.",
             "examples": [],
-            "line_number": 560,
+            "line_number": 589,
             "parent_classes": [
               "SGEntity"
             ]
@@ -381,7 +381,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 342,
+            "line_number": 353,
             "parent_classes": [
               "SGEntity"
             ]
@@ -454,7 +454,7 @@
             ],
             "returns": "bool: True if at least one matching agent is in the same cell, False otherwise.",
             "examples": [],
-            "line_number": 346,
+            "line_number": 357,
             "parent_classes": [
               "SGEntity"
             ]
@@ -477,7 +477,7 @@
             ],
             "returns": "self: The agent (for chaining operations)",
             "examples": [],
-            "line_number": 368,
+            "line_number": 379,
             "parent_classes": [
               "SGEntity"
             ]
@@ -513,7 +513,7 @@
             ],
             "returns": "self: The agent (for chaining operations)",
             "examples": [],
-            "line_number": 424,
+            "line_number": 453,
             "parent_classes": [
               "SGEntity"
             ]
@@ -539,7 +539,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 505,
+            "line_number": 534,
             "parent_classes": [
               "SGEntity"
             ]
@@ -565,7 +565,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 516,
+            "line_number": 545,
             "parent_classes": [
               "SGEntity"
             ]
@@ -593,7 +593,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 581,
+            "line_number": 610,
             "parent_classes": [
               "SGEntity"
             ]
@@ -619,7 +619,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 544,
+            "line_number": 573,
             "parent_classes": [
               "SGEntity"
             ]
@@ -814,7 +814,7 @@
     "SGCell": {
       "class_name": "SGCell",
       "description": "SGCell model class for SGE framework",
-      "total_methods": 43,
+      "total_methods": 50,
       "categories": {
         "NEW": [
           {
@@ -1038,6 +1038,164 @@
             ]
           },
           {
+            "name": "getCellsInRow",
+            "signature": "def getCellsInRow(self, condition=None):",
+            "description": "Get all cells in the same row as the current cell.",
+            "docstring": "Get all cells in the same row as the current cell.\n\nArgs:\n    condition (callable, optional): A function that takes a cell and returns True \n        if the cell should be included. If None, all cells in the row are returned.\n\nReturns:\n    list[SGCell]: List of cells in the same row (including self), optionally filtered by condition.\n\nExamples:\n    # Get all cells in the same row\n    row_cells = cell.getCellsInRow()\n    \n    # Get only cells with tiles in the same row\n    row_cells_with_tiles = cell.getCellsInRow(condition=lambda c: c.hasTile())",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "A function that takes a cell and returns True\nif the cell should be included. If None, all cells in the row are returned."
+              }
+            ],
+            "returns": "list[SGCell]: List of cells in the same row (including self), optionally filtered by condition. Examples: # Get all cells in the same row row_cells = cell.getCellsInRow() # Get only cells with tiles in the same row row_cells_with_tiles = cell.getCellsInRow(condition=lambda c: c.hasTile())",
+            "examples": [
+              "# Get all cells in the same row\nrow_cells = cell.getCellsInRow()\n\n# Get only cells with tiles in the same row\nrow_cells_with_tiles = cell.getCellsInRow(condition=lambda c: c.hasTile())"
+            ],
+            "line_number": 578,
+            "parent_classes": [
+              "SGEntity"
+            ]
+          },
+          {
+            "name": "getCellsInColumn",
+            "signature": "def getCellsInColumn(self, condition=None):",
+            "description": "Get all cells in the same column as the current cell.",
+            "docstring": "Get all cells in the same column as the current cell.\n\nArgs:\n    condition (callable, optional): A function that takes a cell and returns True \n        if the cell should be included. If None, all cells in the column are returned.\n\nReturns:\n    list[SGCell]: List of cells in the same column (including self), optionally filtered by condition.\n\nExamples:\n    # Get all cells in the same column\n    column_cells = cell.getCellsInColumn()\n    \n    # Get only cells with tiles in the same column\n    column_cells_with_tiles = cell.getCellsInColumn(condition=lambda c: c.hasTile())",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "A function that takes a cell and returns True\nif the cell should be included. If None, all cells in the column are returned."
+              }
+            ],
+            "returns": "list[SGCell]: List of cells in the same column (including self), optionally filtered by condition. Examples: # Get all cells in the same column column_cells = cell.getCellsInColumn() # Get only cells with tiles in the same column column_cells_with_tiles = cell.getCellsInColumn(condition=lambda c: c.hasTile())",
+            "examples": [
+              "# Get all cells in the same column\ncolumn_cells = cell.getCellsInColumn()\n\n# Get only cells with tiles in the same column\ncolumn_cells_with_tiles = cell.getCellsInColumn(condition=lambda c: c.hasTile())"
+            ],
+            "line_number": 598,
+            "parent_classes": [
+              "SGEntity"
+            ]
+          },
+          {
+            "name": "getMaxRangeOfCells_inRow",
+            "signature": "def getMaxRangeOfCells_inRow(self, condition, includingSelf=False):",
+            "description": "Get the maximum range (distance) between cells in the same row that satisfy a condition.",
+            "docstring": "Get the maximum range (distance) between cells in the same row that satisfy a condition.\n\nArgs:\n    condition (callable): REQUIRED - A function that takes a cell and returns True if it should be included.\n    includingSelf (bool, optional): If True, includes the current cell in the range calculation.\n        This is useful when checking if placing a tile on the current cell would exceed a maximum range.\n        Defaults to False.\n\nReturns:\n    int: The range (max_coord - min_coord + 1), or 0 if no cells satisfy the condition.\n\nExamples:\n    # Get the range of cells with tiles in the same row\n    range = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile())\n    # Returns the distance between the leftmost and rightmost cells with tiles\n    \n    # Get the range including current cell (useful to check if placing a tile would exceed max range)\n    range = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile(), includingSelf=True)",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "callable",
+                "description": "REQUIRED - A function that takes a cell and returns True if it should be included."
+              },
+              {
+                "name": "includingSelf",
+                "type": "bool, optional",
+                "description": "If True, includes the current cell in the range calculation.\nThis is useful when checking if placing a tile on the current cell would exceed a maximum range.\nDefaults to False."
+              }
+            ],
+            "returns": "int: The range (max_coord - min_coord + 1), or 0 if no cells satisfy the condition. Examples: # Get the range of cells with tiles in the same row range = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile()) # Returns the distance between the leftmost and rightmost cells with tiles # Get the range including current cell (useful to check if placing a tile would exceed max range) range = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile(), includingSelf=True)",
+            "examples": [
+              "# Get the range of cells with tiles in the same row\nrange = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile())\n# Returns the distance between the leftmost and rightmost cells with tiles\n\n# Get the range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile(), includingSelf=True)"
+            ],
+            "line_number": 618,
+            "parent_classes": [
+              "SGEntity"
+            ]
+          },
+          {
+            "name": "getMaxRangeOfCells_inColumn",
+            "signature": "def getMaxRangeOfCells_inColumn(self, condition, includingSelf=False):",
+            "description": "Get the maximum range (distance) between cells in the same column that satisfy a condition.",
+            "docstring": "Get the maximum range (distance) between cells in the same column that satisfy a condition.\n\nArgs:\n    condition (callable): REQUIRED - A function that takes a cell and returns True if it should be included.\n    includingSelf (bool, optional): If True, includes the current cell in the range calculation.\n        This is useful when checking if placing a tile on the current cell would exceed a maximum range.\n        Defaults to False.\n\nReturns:\n    int: The range (max_coord - min_coord + 1), or 0 if no cells satisfy the condition.\n\nExamples:\n    # Get the range of cells with tiles in the same column\n    range = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile())\n    # Returns the distance between the topmost and bottommost cells with tiles\n    \n    # Get the range including current cell (useful to check if placing a tile would exceed max range)\n    range = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile(), includingSelf=True)",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "callable",
+                "description": "REQUIRED - A function that takes a cell and returns True if it should be included."
+              },
+              {
+                "name": "includingSelf",
+                "type": "bool, optional",
+                "description": "If True, includes the current cell in the range calculation.\nThis is useful when checking if placing a tile on the current cell would exceed a maximum range.\nDefaults to False."
+              }
+            ],
+            "returns": "int: The range (max_coord - min_coord + 1), or 0 if no cells satisfy the condition. Examples: # Get the range of cells with tiles in the same column range = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile()) # Returns the distance between the topmost and bottommost cells with tiles # Get the range including current cell (useful to check if placing a tile would exceed max range) range = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile(), includingSelf=True)",
+            "examples": [
+              "# Get the range of cells with tiles in the same column\nrange = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile())\n# Returns the distance between the topmost and bottommost cells with tiles\n\n# Get the range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile(), includingSelf=True)"
+            ],
+            "line_number": 656,
+            "parent_classes": [
+              "SGEntity"
+            ]
+          },
+          {
+            "name": "getMaxRangeOfCells_horizontally",
+            "signature": "def getMaxRangeOfCells_horizontally(self, condition, includingSelf=False):",
+            "description": "Get the maximum horizontal range (distance) across the entire grid width (all rows) for cells that satisfy a condition.",
+            "docstring": "Get the maximum horizontal range (distance) across the entire grid width (all rows) for cells that satisfy a condition.\nThis calculates the horizontal range between the leftmost and rightmost cells satisfying the condition,\nregardless of which row they are in.\n\nArgs:\n    condition (callable): REQUIRED - A function that takes a cell and returns True if it should be included.\n    includingSelf (bool, optional): If True, includes the current cell in the range calculation.\n        This is useful when checking if placing a tile on the current cell would exceed a maximum range.\n        Defaults to False.\n\nReturns:\n    int: The horizontal range (max_x_coord - min_x_coord + 1), or 0 if no cells satisfy the condition.\n\nExamples:\n    # Get the horizontal range of cells with tiles across the entire grid width\n    range = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile())\n    # Returns the distance between the leftmost and rightmost cells with tiles (any row)\n    \n    # Get the horizontal range including current cell (useful to check if placing a tile would exceed max range)\n    range = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True)",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "callable",
+                "description": "REQUIRED - A function that takes a cell and returns True if it should be included."
+              },
+              {
+                "name": "includingSelf",
+                "type": "bool, optional",
+                "description": "If True, includes the current cell in the range calculation.\nThis is useful when checking if placing a tile on the current cell would exceed a maximum range.\nDefaults to False."
+              }
+            ],
+            "returns": "int: The horizontal range (max_x_coord - min_x_coord + 1), or 0 if no cells satisfy the condition. Examples: # Get the horizontal range of cells with tiles across the entire grid width range = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile()) # Returns the distance between the leftmost and rightmost cells with tiles (any row) # Get the horizontal range including current cell (useful to check if placing a tile would exceed max range) range = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True)",
+            "examples": [
+              "# Get the horizontal range of cells with tiles across the entire grid width\nrange = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile())\n# Returns the distance between the leftmost and rightmost cells with tiles (any row)\n\n# Get the horizontal range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True)"
+            ],
+            "line_number": 694,
+            "parent_classes": [
+              "SGEntity"
+            ]
+          },
+          {
+            "name": "getMaxRangeOfCells_vertically",
+            "signature": "def getMaxRangeOfCells_vertically(self, condition, includingSelf=False):",
+            "description": "Get the maximum vertical range (distance) across the entire grid height (all columns) for cells that satisfy a condition.",
+            "docstring": "Get the maximum vertical range (distance) across the entire grid height (all columns) for cells that satisfy a condition.\nThis calculates the vertical range between the topmost and bottommost cells satisfying the condition,\nregardless of which column they are in.\n\nArgs:\n    condition (callable): REQUIRED - A function that takes a cell and returns True if it should be included.\n    includingSelf (bool, optional): If True, includes the current cell in the range calculation.\n        This is useful when checking if placing a tile on the current cell would exceed a maximum range.\n        Defaults to False.\n\nReturns:\n    int: The vertical range (max_y_coord - min_y_coord + 1), or 0 if no cells satisfy the condition.\n\nExamples:\n    # Get the vertical range of cells with tiles across the entire grid height\n    range = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile())\n    # Returns the distance between the topmost and bottommost cells with tiles (any column)\n    \n    # Get the vertical range including current cell (useful to check if placing a tile would exceed max range)\n    range = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True)",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "callable",
+                "description": "REQUIRED - A function that takes a cell and returns True if it should be included."
+              },
+              {
+                "name": "includingSelf",
+                "type": "bool, optional",
+                "description": "If True, includes the current cell in the range calculation.\nThis is useful when checking if placing a tile on the current cell would exceed a maximum range.\nDefaults to False."
+              }
+            ],
+            "returns": "int: The vertical range (max_y_coord - min_y_coord + 1), or 0 if no cells satisfy the condition. Examples: # Get the vertical range of cells with tiles across the entire grid height range = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile()) # Returns the distance between the topmost and bottommost cells with tiles (any column) # Get the vertical range including current cell (useful to check if placing a tile would exceed max range) range = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True)",
+            "examples": [
+              "# Get the vertical range of cells with tiles across the entire grid height\nrange = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile())\n# Returns the distance between the topmost and bottommost cells with tiles (any column)\n\n# Get the vertical range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True)"
+            ],
+            "line_number": 735,
+            "parent_classes": [
+              "SGEntity"
+            ]
+          },
+          {
             "name": "getNeighborN",
             "signature": "def getNeighborN(self):",
             "description": "Get neighbor to the North",
@@ -1047,7 +1205,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 578,
+            "line_number": 776,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1062,7 +1220,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 583,
+            "line_number": 781,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1077,7 +1235,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 588,
+            "line_number": 786,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1092,7 +1250,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 593,
+            "line_number": 791,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1123,7 +1281,7 @@
             ],
             "returns": "list[SGCell]: List of matching neighbor cells (excluding self).",
             "examples": [],
-            "line_number": 598,
+            "line_number": 796,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1154,7 +1312,7 @@
             ],
             "returns": "SGCell | None: The closest matching cell, or None if no match found.",
             "examples": [],
-            "line_number": 663,
+            "line_number": 861,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1195,7 +1353,7 @@
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
             "examples": [],
-            "line_number": 701,
+            "line_number": 899,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1210,7 +1368,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 764,
+            "line_number": 962,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1231,7 +1389,7 @@
             ],
             "returns": "list: List of tiles",
             "examples": [],
-            "line_number": 768,
+            "line_number": 966,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1257,7 +1415,7 @@
             ],
             "returns": "list: List of tiles at the specified position",
             "examples": [],
-            "line_number": 783,
+            "line_number": 981,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1280,7 +1438,7 @@
             "examples": [
               "# Get first tile among all tiles\nfirst = cell.getFirstTile()\n\n# Get first tile of a specific type\nfirst_card = cell.getFirstTile(CardType)"
             ],
-            "line_number": 801,
+            "line_number": 999,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1301,7 +1459,7 @@
             ],
             "returns": "SGTile or None: A random tile of this type, or None if not found",
             "examples": [],
-            "line_number": 829,
+            "line_number": 1027,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1322,7 +1480,7 @@
             ],
             "returns": "SGStack: A Stack object representing all tiles of this type",
             "examples": [],
-            "line_number": 846,
+            "line_number": 1044,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1393,7 +1551,7 @@
             ],
             "returns": "bool: True if the agent is in this cell, False otherwise",
             "examples": [],
-            "line_number": 870,
+            "line_number": 1068,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1414,7 +1572,7 @@
             ],
             "returns": "bool: True if the cell contains agents of the specified type, False otherwise",
             "examples": [],
-            "line_number": 882,
+            "line_number": 1080,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1442,7 +1600,7 @@
             "examples": [
               "# Check if cell has any tile\ncell.hasTile()\n\n# Check if cell has a tile of specific type\ncell.hasTile(SeaTile)\n\n# Check if cell has a tile matching a condition\ncell.hasTile(condition=lambda tile: tile.getValue(\"category\") == \"biodiv\")\n\n# Check if cell has a tile of specific type matching a condition\ncell.hasTile(SeaTile, condition=lambda tile: tile.isFaceFront())"
             ],
-            "line_number": 896,
+            "line_number": 1094,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1463,7 +1621,7 @@
             ],
             "returns": "bool: True if the cell contains tiles of the specified type, False otherwise",
             "examples": [],
-            "line_number": 937,
+            "line_number": 1135,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1486,7 +1644,7 @@
             ],
             "returns": "bool: True if the cell is empty of agents and tiles (of the specified type if provided), False otherwise",
             "examples": [],
-            "line_number": 950,
+            "line_number": 1148,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1559,7 +1717,30 @@
             ],
             "returns": "float: Euclidean distance between the two cells.",
             "examples": [],
-            "line_number": 1004,
+            "line_number": 1202,
+            "parent_classes": [
+              "SGEntity"
+            ]
+          },
+          {
+            "name": "distanceToInGrid",
+            "signature": "def distanceToInGrid(self, otherCell):",
+            "description": "Compute grid distance (Manhattan distance) to another cell.",
+            "docstring": "Compute grid distance (Manhattan distance) to another cell.\nThis is the sum of absolute differences in x and y coordinates.\n\nArgs:\n    otherCell (SGCell): The target cell.\n\nReturns:\n    int: Manhattan distance (|dx| + |dy|) between the two cells.\n\nExamples:\n    # Get grid distance between two cells\n    distance = cell1.distanceToInGrid(cell2)\n    # Returns the sum of horizontal and vertical differences",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "otherCell",
+                "type": "SGCell",
+                "description": "The target cell."
+              }
+            ],
+            "returns": "int: Manhattan distance (|dx| + |dy|) between the two cells. Examples: # Get grid distance between two cells distance = cell1.distanceToInGrid(cell2) # Returns the sum of horizontal and vertical differences",
+            "examples": [
+              "# Get grid distance between two cells\ndistance = cell1.distanceToInGrid(cell2)\n# Returns the sum of horizontal and vertical differences"
+            ],
+            "line_number": 1217,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1582,7 +1763,7 @@
             ],
             "returns": "int: Number of agents of the specified type, or total count if type_name is None",
             "examples": [],
-            "line_number": 1019,
+            "line_number": 1237,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1603,7 +1784,7 @@
             ],
             "returns": "int: Number of tiles",
             "examples": [],
-            "line_number": 1038,
+            "line_number": 1256,
             "parent_classes": [
               "SGEntity"
             ]
@@ -3324,7 +3505,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1242,
+            "line_number": 1248,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3347,7 +3528,7 @@
             "examples": [
               "grid.setLayoutOrder(1)  # Set grid as first in layout\nlegend.setLayoutOrder(3)  # Set legend as third in layout\ndashboard.setLayoutOrder(None)  # Reset to auto-assignment"
             ],
-            "line_number": 1398,
+            "line_number": 1432,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4128,7 +4309,7 @@
             ],
             "returns": "object or None: The cell object if found within the grid boundaries, otherwise None. Notes: - Coordinates are 1-indexed: valid ranges are 1 ≤ x ≤ grid.columns and 1 ≤ y ≤ grid.rows. - If coordinates are outside this range, returns None. - Supports passing coordinates as a tuple or list: e.g. getCell((4, 2)).",
             "examples": [],
-            "line_number": 1249,
+            "line_number": 1255,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4154,7 +4335,7 @@
             ],
             "returns": "SGCell: The entity at the specified coordinates, or None if not found",
             "examples": [],
-            "line_number": 1285,
+            "line_number": 1291,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4175,7 +4356,7 @@
             ],
             "returns": "list[SGCell]: List of empty cells matching the condition, or all empty cells if condition is None",
             "examples": [],
-            "line_number": 1298,
+            "line_number": 1304,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4196,16 +4377,16 @@
             ],
             "returns": "SGCell or None: The first empty cell matching the condition, or None if no empty cell is found",
             "examples": [],
-            "line_number": 1314,
+            "line_number": 1320,
             "parent_classes": [
               "SGEntityType"
             ]
           },
           {
             "name": "getEntities_withRow",
-            "signature": "def getEntities_withRow(self, aRowNumber):",
+            "signature": "def getEntities_withRow(self, aRowNumber, condition=None):",
             "description": "Get all entities (cells) in a specific row.",
-            "docstring": "Get all entities (cells) in a specific row.\n\nArgs:\n    aRowNumber (int): Row number to retrieve entities from\n    \nReturns:\n    list[SGCell]: List of entities in the specified row",
+            "docstring": "Get all entities (cells) in a specific row.\n\nArgs:\n    aRowNumber (int): Row number to retrieve entities from\n    condition (callable, optional): A function that takes a cell and returns True \n        if the cell should be included. If None, all cells in the row are returned.\n    \nReturns:\n    list[SGCell]: List of entities in the specified row, optionally filtered by condition.\n\nExamples:\n    # Get all cells in row 5\n    cells = cellDef.getEntities_withRow(5)\n    \n    # Get only cells with tiles in row 5\n    cells_with_tiles = cellDef.getEntities_withRow(5, condition=lambda c: c.hasTile())",
             "category": "GET",
             "class_name": "SGCellType",
             "parameters": [
@@ -4213,20 +4394,27 @@
                 "name": "aRowNumber",
                 "type": "int",
                 "description": "Row number to retrieve entities from"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "A function that takes a cell and returns True\nif the cell should be included. If None, all cells in the row are returned."
               }
             ],
-            "returns": "list[SGCell]: List of entities in the specified row",
-            "examples": [],
-            "line_number": 1331,
+            "returns": "list[SGCell]: List of entities in the specified row, optionally filtered by condition. Examples: # Get all cells in row 5 cells = cellDef.getEntities_withRow(5) # Get only cells with tiles in row 5 cells_with_tiles = cellDef.getEntities_withRow(5, condition=lambda c: c.hasTile())",
+            "examples": [
+              "# Get all cells in row 5\ncells = cellDef.getEntities_withRow(5)\n\n# Get only cells with tiles in row 5\ncells_with_tiles = cellDef.getEntities_withRow(5, condition=lambda c: c.hasTile())"
+            ],
+            "line_number": 1337,
             "parent_classes": [
               "SGEntityType"
             ]
           },
           {
             "name": "getEntities_withColumn",
-            "signature": "def getEntities_withColumn(self, aColumnNumber):",
+            "signature": "def getEntities_withColumn(self, aColumnNumber, condition=None):",
             "description": "Get all entities (cells) in a specific column.",
-            "docstring": "Get all entities (cells) in a specific column.\n\nArgs:\n    aColumnNumber (int): Column number to retrieve entities from\n    \nReturns:\n    list[SGCell]: List of entities in the specified column",
+            "docstring": "Get all entities (cells) in a specific column.\n\nArgs:\n    aColumnNumber (int): Column number to retrieve entities from\n    condition (callable, optional): A function that takes a cell and returns True \n        if the cell should be included. If None, all cells in the column are returned.\n    \nReturns:\n    list[SGCell]: List of entities in the specified column, optionally filtered by condition.\n\nExamples:\n    # Get all cells in column 3\n    cells = cellDef.getEntities_withColumn(3)\n    \n    # Get only cells with tiles in column 3\n    cells_with_tiles = cellDef.getEntities_withColumn(3, condition=lambda c: c.hasTile())",
             "category": "GET",
             "class_name": "SGCellType",
             "parameters": [
@@ -4234,11 +4422,18 @@
                 "name": "aColumnNumber",
                 "type": "int",
                 "description": "Column number to retrieve entities from"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "A function that takes a cell and returns True\nif the cell should be included. If None, all cells in the column are returned."
               }
             ],
-            "returns": "list[SGCell]: List of entities in the specified column",
-            "examples": [],
-            "line_number": 1343,
+            "returns": "list[SGCell]: List of entities in the specified column, optionally filtered by condition. Examples: # Get all cells in column 3 cells = cellDef.getEntities_withColumn(3) # Get only cells with tiles in column 3 cells_with_tiles = cellDef.getEntities_withColumn(3, condition=lambda c: c.hasTile())",
+            "examples": [
+              "# Get all cells in column 3\ncells = cellDef.getEntities_withColumn(3)\n\n# Get only cells with tiles in column 3\ncells_with_tiles = cellDef.getEntities_withColumn(3, condition=lambda c: c.hasTile())"
+            ],
+            "line_number": 1363,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4264,7 +4459,7 @@
             ],
             "returns": "SGCell: A random cell from the grid, or False if no cells found",
             "examples": [],
-            "line_number": 1356,
+            "line_number": 1390,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4553,7 +4748,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1373,
+            "line_number": 1407,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5107,7 +5302,7 @@
             ],
             "returns": "SGAgent: The created agent model, or None if creation failed",
             "examples": [],
-            "line_number": 1469,
+            "line_number": 1519,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5138,7 +5333,7 @@
             ],
             "returns": "None: Agents are created and added to the agentType",
             "examples": [],
-            "line_number": 1498,
+            "line_number": 1548,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5184,7 +5379,7 @@
             ],
             "returns": "a agent",
             "examples": [],
-            "line_number": 1513,
+            "line_number": 1563,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5225,7 +5420,7 @@
             ],
             "returns": "agents",
             "examples": [],
-            "line_number": 1555,
+            "line_number": 1605,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5256,7 +5451,7 @@
             ],
             "returns": "a agent",
             "examples": [],
-            "line_number": 1596,
+            "line_number": 1646,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5292,7 +5487,7 @@
             ],
             "returns": "a list of agents",
             "examples": [],
-            "line_number": 1625,
+            "line_number": 1675,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5453,7 +5648,7 @@
             ],
             "returns": "SGAgent: A random agent from the list bool: False if no agents found",
             "examples": [],
-            "line_number": 1664,
+            "line_number": 1714,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5769,7 +5964,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1679,
+            "line_number": 1729,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5813,7 +6008,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1712,
+            "line_number": 1762,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -6974,7 +7169,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 1996,
+            "line_number": 2062,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7037,7 +7232,7 @@
             "examples": [
               "# Create a stack of 30 tiles with random images on the back face\nimages = model.loadImagesFromDirectory(\"path/to/images\")\nstack = Tile.newStackOnCell(cell, 30, backImages=images)\n\n# Create a stack with random images on both faces\nstack = Tile.newStackOnCell(cell, 10, frontImages=front_images, backImages=back_images)\n\n# Create a stack with the same image for all tiles\nstack = Tile.newStackOnCell(cell, 10, backImage=my_image)\n\n# Create a stack without images (uses defaults)\nstack = Tile.newStackOnCell(cell, 5)"
             ],
-            "line_number": 2040,
+            "line_number": 2106,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7080,7 +7275,7 @@
             "examples": [
               "# Create stack with paired images and attributes\nimages = [img1, img2, img3]\nattrs = [{\"name\": \"tile1\"}, {\"name\": \"tile2\"}, {\"name\": \"tile3\"}]\nstack = Tile.newStackOnCellWithPairedData(cell, frontImages=images, attributesList=attrs)\n\n# Create stack with only images (no attributes)\nstack = Tile.newStackOnCellWithPairedData(cell, frontImages=images)\n\n# Create stack with only attributes (uses default images)\nstack = Tile.newStackOnCellWithPairedData(cell, attributesList=attrs)"
             ],
-            "line_number": 2123,
+            "line_number": 2189,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7128,7 +7323,7 @@
             "examples": [
               "# With explicit image column in CSV\ncolumns_mapping = {\n'name': ('attribute', 'tile_name'),\n'category': ('attribute', 'category'),\n'image': 'frontImage',\n'nb': 'quantity'\n}\nstack = Tile.newStackOnCellFromCSV(cell, {'path': 'tiles.csv', 'delimiter': ';'}, columns_mapping, image_dir='images/')\n\n# With image column in CSV\ncolumns_mapping = {\n'name': ('attribute', 'tile_name'),\n'category': ('attribute', 'category'),\n'image': 'frontImage',\n'nb': 'quantity'\n}\nstack = Tile.newStackOnCellFromCSV(cell, {'path': 'tiles.csv', 'delimiter': ';'}, columns_mapping, image_dir='images/')"
             ],
-            "line_number": 2202,
+            "line_number": 2268,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7179,7 +7374,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 2423,
+            "line_number": 2489,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7220,7 +7415,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 2478,
+            "line_number": 2544,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7268,7 +7463,7 @@
             "examples": [
               "# Create Memory game tiles with image pairs (8 pairs = 16 tiles)\ncells = [Cell.getCell(x, y) for x in range(1, 5) for y in range(1, 5)]\ntiles = CardTile.newTilesWithImages(\ncells=cells,\nimages_directory=\"./images/memory\",\nnum_images=8,\nrepetitions=2,  # Pairs\nshuffle=True,\nface=\"back\"\n)\n\n# Create tiles with triplets (5 images × 3 = 15 tiles)\ntiles = CardTile.newTilesWithImages(\ncells=cells[:15],\nimages_directory=\"./images/memory\",\nnum_images=5,\nrepetitions=3,  # Triplets\nshuffle=True\n)\n\n# Use all available images as simplets (each image once)\ntiles = CardTile.newTilesWithImages(\ncells=cells,\nimages_directory=\"./images/memory\",\nrepetitions=1,  # Singlets\nshuffle=True\n)"
             ],
-            "line_number": 2531,
+            "line_number": 2597,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7418,7 +7613,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 2655,
+            "line_number": 2721,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7439,7 +7634,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2659,
+            "line_number": 2725,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7460,7 +7655,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2666,
+            "line_number": 2732,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7475,7 +7670,7 @@
             "parameters": [],
             "returns": "dict: Dictionary mapping (cell, position) tuples to lists of tiles",
             "examples": [],
-            "line_number": 2674,
+            "line_number": 2740,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7818,7 +8013,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2694,
+            "line_number": 2760,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7839,7 +8034,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2716,
+            "line_number": 2782,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -8979,7 +9174,7 @@
     "SGGrid": {
       "class_name": "SGGrid",
       "description": "SGGrid model class for SGE framework",
-      "total_methods": 11,
+      "total_methods": 14,
       "categories": {
         "SET": [
           {
@@ -9000,7 +9195,81 @@
             "examples": [
               "grid.setOwners(player1)  # Single owner\ngrid.setOwners([player1, player2])  # Multiple owners\ngrid.setOwners(\"Player 1\")  # Single owner by name\ngrid.setOwners([\"Player 1\", \"Player 2\"])  # Multiple owners by name"
             ],
-            "line_number": 370,
+            "line_number": 996,
+            "parent_classes": [
+              "SGGameSpace"
+            ]
+          },
+          {
+            "name": "setZoomMode",
+            "signature": "def setZoomMode(self, zoomMode):",
+            "description": "Set the zoom mode for this grid.",
+            "docstring": "Set the zoom mode for this grid.\n\nArgs:\n    zoomMode (str): \"resize\" or \"magnifier\"\n        - \"resize\": Zoom changes the physical size of the grid widget (default)\n        - \"magnifier\": Zoom creates a magnifying glass effect, keeping widget size fixed\n\nExamples:\n    grid.setZoomMode(\"magnifier\")  # Enable magnifier mode\n    grid.setZoomMode(\"resize\")    # Use default resize mode",
+            "category": "SET",
+            "class_name": "SGGrid",
+            "parameters": [
+              {
+                "name": "zoomMode",
+                "type": "str",
+                "description": "\"resize\" or \"magnifier\""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "grid.setZoomMode(\"magnifier\")  # Enable magnifier mode\ngrid.setZoomMode(\"resize\")    # Use default resize mode"
+            ],
+            "line_number": 1037,
+            "parent_classes": [
+              "SGGameSpace"
+            ]
+          },
+          {
+            "name": "setMagnifierOnArea",
+            "signature": "def setMagnifierOnArea(self, cellA, cellB):",
+            "description": "Set the magnifier viewport to show a rectangular area between two cells.",
+            "docstring": "Set the magnifier viewport to show a rectangular area between two cells.\n\nArgs:\n    cellA (SGCell): First cell defining the area\n    cellB (SGCell): Second cell defining the area\n\nExamples:\n    cellA = grid.getCell_withCoords(5, 5)\n    cellB = grid.getCell_withCoords(15, 15)\n    grid.setMagnifierOnArea(cellA, cellB)",
+            "category": "SET",
+            "class_name": "SGGrid",
+            "parameters": [
+              {
+                "name": "cellA",
+                "type": "SGCell",
+                "description": "First cell defining the area"
+              },
+              {
+                "name": "cellB",
+                "type": "SGCell",
+                "description": "Second cell defining the area\nExamples:\ncellA = grid.getCell_withCoords(5, 5)\ncellB = grid.getCell_withCoords(15, 15)\ngrid.setMagnifierOnArea(cellA, cellB)"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "cellA = grid.getCell_withCoords(5, 5)\ncellB = grid.getCell_withCoords(15, 15)\ngrid.setMagnifierOnArea(cellA, cellB)"
+            ],
+            "line_number": 1157,
+            "parent_classes": [
+              "SGGameSpace"
+            ]
+          },
+          {
+            "name": "setMagnifierToCoverAllCellsWith",
+            "signature": "def setMagnifierToCoverAllCellsWith(self, condition):",
+            "description": "Adjust magnifier zoom and position to show all cells matching a condition.",
+            "docstring": "Adjust magnifier zoom and position to show all cells matching a condition.\n\nArgs:\n    condition (callable): Function that takes a cell and returns True if it should be included\n\nExamples:\n    # Show all cells with terrain=\"forest\"\n    grid.setMagnifierToCoverAllCellsWith(lambda cell: cell.isValue(\"terrain\", \"forest\"))\n    \n    # Show all cells with agents\n    grid.setMagnifierToCoverAllCellsWith(lambda cell: cell.hasAgent())",
+            "category": "SET",
+            "class_name": "SGGrid",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "callable",
+                "description": "Function that takes a cell and returns True if it should be included\nExamples:\n# Show all cells with terrain=\"forest\""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Show all cells with terrain=\"forest\"\ngrid.setMagnifierToCoverAllCellsWith(lambda cell: cell.isValue(\"terrain\", \"forest\"))\n\n# Show all cells with agents\ngrid.setMagnifierToCoverAllCellsWith(lambda cell: cell.hasAgent())"
+            ],
+            "line_number": 1239,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9017,7 +9286,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 418,
+            "line_number": 1074,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9032,7 +9301,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 422,
+            "line_number": 1078,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9047,7 +9316,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 426,
+            "line_number": 1082,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9062,7 +9331,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 430,
+            "line_number": 1086,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9083,7 +9352,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 434,
+            "line_number": 1090,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9109,7 +9378,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 441,
+            "line_number": 1097,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9130,7 +9399,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 446,
+            "line_number": 1102,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9151,7 +9420,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 455,
+            "line_number": 1111,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9179,7 +9448,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 438,
+            "line_number": 1094,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9204,7 +9473,7 @@
             "examples": [
               "grid.isOwnedBy(player1)  # Check by player instance\ngrid.isOwnedBy(\"Player 1\")  # Check by player name"
             ],
-            "line_number": 469,
+            "line_number": 1125,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9271,9 +9540,9 @@
         "NEW": [
           {
             "name": "newCellsOnGrid",
-            "signature": "def newCellsOnGrid(self, columns=10, rows=10, format=\"square\", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open') -> SGCellType:",
+            "signature": "def newCellsOnGrid(self, columns=10, rows=10, format=\"square\", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open', zoomMode=\"magnifier\") -> SGCellType:",
             "description": "Create a grid that contains cells.",
-            "docstring": "Create a grid that contains cells.\n\nFor better clarity, consider using newGridWithCells() instead.\n\nArgs:\n    columns (int): number of columns (width).\n    rows (int): number of rows (height).\n    format (\"square\", \"hexagonal\"): shape of the cells.\n        - Defaults to \"square\".\n        - Note that the hexagonal grid is \"Pointy-top hex grid with even-r offset\".\n    size (int, optional): size of the cells. Defaults to 30.\n    gap (int, optional): gap size between cells. Defaults to 0.\n    backgroundColor (Qt.Color, optional): background color of the grid. Defaults to Qt.gray.\n    borderColor (Qt.Color, optional): border color of the grid. Defaults to Qt.black.\n    moveable (bool) : grid can be moved by clic and drage. Defaults to \"True\".\n    name (st): name of the grid.\n    backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.\n    defaultCellColor (Qt.Color, optional): Default color for each cell as a Qt.Color. If None, cells are displayed with background image.\n    defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.\n    neighborhood (\"moore\",\"neumann\"): Neighborhood type for cell os the grid. Defaults to \"moore\".\n        - \"moore\": Moore neighborhood (8 neighbors for square cells, 6 for hexagonal cells).\n        - \"neumann\": Von Neumann neighborhood (4 neighbors for square cells) , 3 or 4 for hexagonal cells, depending on orientation).\n    boundaries (\"mopen\",\"closed\"): Boundary condition of the grid. Defaults to \"open\".\n        - \"open\": The grid is toroidal (no boundaries); edges are connected (wrap-around), so every cell has the same number of neighbors.\n        - \"closed\": The grid has finite boundaries; Cells on the edge have fewer neighbors (no wrap-around).\n\nReturns:\n    SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid. \n               Note: This is NOT a SGGrid object, but the CellDef that manages the cells on the grid.",
+            "docstring": "Create a grid that contains cells.\n\nFor better clarity, consider using newGridWithCells() instead.\n\nArgs:\n    columns (int): number of columns (width).\n    rows (int): number of rows (height).\n    format (\"square\", \"hexagonal\"): shape of the cells.\n        - Defaults to \"square\".\n        - Note that the hexagonal grid is \"Pointy-top hex grid with even-r offset\".\n    size (int, optional): size of the cells. Defaults to 30.\n    gap (int, optional): gap size between cells. Defaults to 0.\n    backgroundColor (Qt.Color, optional): background color of the grid. Defaults to Qt.gray.\n    borderColor (Qt.Color, optional): border color of the grid. Defaults to Qt.black.\n    moveable (bool) : grid can be moved by clic and drage. Defaults to \"True\".\n    name (st): name of the grid.\n    backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.\n    defaultCellColor (Qt.Color, optional): Default color for each cell as a Qt.Color. If None, cells are displayed with background image.\n    defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.\n    neighborhood (\"moore\",\"neumann\"): Neighborhood type for cell os the grid. Defaults to \"moore\".\n        - \"moore\": Moore neighborhood (8 neighbors for square cells, 6 for hexagonal cells).\n        - \"neumann\": Von Neumann neighborhood (4 neighbors for square cells) , 3 or 4 for hexagonal cells, depending on orientation).\n    boundaries (\"mopen\",\"closed\"): Boundary condition of the grid. Defaults to \"open\".\n        - \"open\": The grid is toroidal (no boundaries); edges are connected (wrap-around), so every cell has the same number of neighbors.\n        - \"closed\": The grid has finite boundaries; Cells on the edge have fewer neighbors (no wrap-around).\n    zoomMode (\"magnifier\", \"resize\"): Zoom behavior mode. Defaults to \"magnifier\".\n        - \"magnifier\": Zoom creates a magnifying glass effect, keeping widget size fixed but zooming content.\n        - \"resize\": Zoom changes the physical size of the grid widget (current behavior).\n\nReturns:\n    SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid. \n               Note: This is NOT a SGGrid object, but the CellDef that manages the cells on the grid.",
             "category": "NEW",
             "class_name": "SGModel",
             "parameters": [
@@ -9346,11 +9615,16 @@
                 "name": "boundaries",
                 "type": "\"mopen\",\"closed\"",
                 "description": "Boundary condition of the grid. Defaults to \"open\"."
+              },
+              {
+                "name": "zoomMode",
+                "type": "\"magnifier\", \"resize\"",
+                "description": "Zoom behavior mode. Defaults to \"magnifier\".\n- \"magnifier\": Zoom creates a magnifying glass effect, keeping widget size fixed but zooming content."
               }
             ],
             "returns": "SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid.",
             "examples": [],
-            "line_number": 1866,
+            "line_number": 1898,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9432,7 +9706,7 @@
             ],
             "returns": "SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid.",
             "examples": [],
-            "line_number": 1922,
+            "line_number": 1964,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9484,7 +9758,7 @@
             ],
             "returns": "a agentType",
             "examples": [],
-            "line_number": 1955,
+            "line_number": 1997,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9563,7 +9837,7 @@
             "examples": [
               "# Create a simple tile type\ntileType = model.newTileType(\"Forest\", shape=\"rectTile\", frontColor=Qt.green)\n\n# Create a tile type with stack rendering\ncardType = model.newTileType(\n\"Card\",\nshape=\"rectTile\",\nfrontColor=Qt.blue,\nbackColor=Qt.red,\nstackRendering={\"mode\": \"offset\", \"showCounter\": True, \"counterPosition\": \"topLeft\"}\n)"
             ],
-            "line_number": 1976,
+            "line_number": 2018,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9590,7 +9864,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2086,
+            "line_number": 2128,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9642,7 +9916,7 @@
             ],
             "returns": "The created play phase (an instance of SGPlayPhase)",
             "examples": [],
-            "line_number": 2111,
+            "line_number": 2153,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9709,7 +9983,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2149,
+            "line_number": 2191,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9771,7 +10045,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2167,
+            "line_number": 2209,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9833,7 +10107,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2184,
+            "line_number": 2226,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9885,7 +10159,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2206,
+            "line_number": 2248,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9947,7 +10221,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2221,
+            "line_number": 2263,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9999,7 +10273,7 @@
             ],
             "returns": "SGFlip: The created flip action",
             "examples": [],
-            "line_number": 2240,
+            "line_number": 2282,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10056,7 +10330,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2260,
+            "line_number": 2302,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10103,7 +10377,7 @@
             ],
             "returns": "SGTimePhase: The created time phase",
             "examples": [],
-            "line_number": 2296,
+            "line_number": 2338,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10135,7 +10409,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2321,
+            "line_number": 2363,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10167,7 +10441,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2336,
+            "line_number": 2378,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10204,7 +10478,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2350,
+            "line_number": 2392,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10241,7 +10515,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2365,
+            "line_number": 2407,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10288,7 +10562,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2518,
+            "line_number": 2581,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10395,7 +10669,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2544,
+            "line_number": 2607,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10427,7 +10701,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2590,
+            "line_number": 2653,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10509,7 +10783,7 @@
             ],
             "returns": "SGProgressGauge: The created SGProgressGauge instance.",
             "examples": [],
-            "line_number": 2609,
+            "line_number": 2672,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10536,7 +10810,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2678,
+            "line_number": 2741,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10563,7 +10837,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2699,
+            "line_number": 2762,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10630,7 +10904,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2727,
+            "line_number": 2790,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10692,7 +10966,7 @@
             ],
             "returns": "SGTextBox: The created text box widget",
             "examples": [],
-            "line_number": 2779,
+            "line_number": 2842,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10749,7 +11023,7 @@
             ],
             "returns": "SGLabel: An instance of SGLabel with the specified properties.",
             "examples": [],
-            "line_number": 2816,
+            "line_number": 2879,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10841,7 +11115,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2839,
+            "line_number": 2902,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10973,7 +11247,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2874,
+            "line_number": 2937,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11000,7 +11274,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2962,
+            "line_number": 3025,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11027,7 +11301,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2971,
+            "line_number": 3034,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11037,9 +11311,9 @@
         "OTHER MODELER METHODS": [
           {
             "name": "enableDistributedGame",
-            "signature": "def enableDistributedGame(self, num_players, session_id=None, shared_seed=None, broker_host=\"localhost\", broker_port=1883, mqtt_update_type=\"Instantaneous\", seed_sync_timeout=1.0):",
+            "signature": "def enableDistributedGame(self, num_players, session_id=None, shared_seed=None, broker_host=\"localhost\", broker_port=1883, additional_brokers=None, broker_servers=None, mqtt_update_type=\"Instantaneous\", seed_sync_timeout=1.0):",
             "description": "Enable distributed multiplayer game mode.",
-            "docstring": "Enable distributed multiplayer game mode.\nOpens minimal dialog for user to connect to broker and synchronize seed.\nPlayer selection happens later in completeDistributedGameSetup().\n\nIMPORTANT: Call this method BEFORE any random operations in your model script.\nThe seed will be synchronized and applied immediately after this call returns.\n\nArgs:\n    num_players (int or tuple): Number of players. Can be:\n        - int: Fixed number of players (e.g., 2)\n        - tuple: Range of players (min, max) (e.g., (2, 4) for 2-4 players)\n        Game can start when number of connected instances is within this range.\n    session_id (str, optional): Session ID. Auto-generated if None.\n    shared_seed (int, optional): Shared seed. Auto-generated and synced if None.\n    broker_host (str): MQTT broker host (default: \"localhost\")\n    broker_port (int): MQTT broker port (default: 1883)\n    mqtt_update_type (str): \"Instantaneous\" or \"Phase\" (default: \"Instantaneous\")\n    seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed \n        before becoming leader (default: 1.0). Increase this value if you need more time \n        to detect an existing seed from other instances.\n\nReturns:\n    SGDistributedGameConfig or None: Configuration object if distributed mode enabled,\n                                     None if cancelled or local mode.",
+            "docstring": "Enable distributed multiplayer game mode.\nOpens minimal dialog for user to connect to broker and synchronize seed.\nPlayer selection happens later in completeDistributedGameSetup().\n\nIMPORTANT: Call this method BEFORE any random operations in your model script.\nThe seed will be synchronized and applied immediately after this call returns.\n\nArgs:\n    num_players (int or tuple): Number of players. Can be:\n        - int: Fixed number of players (e.g., 2)\n        - tuple: Range of players (min, max) (e.g., (2, 4) for 2-4 players)\n        Game can start when number of connected instances is within this range.\n    session_id (str, optional): Session ID. Auto-generated if None.\n    shared_seed (int, optional): Shared seed. Auto-generated and synced if None.\n    broker_host (str): MQTT broker host (default: \"localhost\")\n    broker_port (int): MQTT broker port (default: 1883)\n    additional_brokers (list, optional): List of additional brokers (dicts with name, host, port)\n    broker_servers (list, optional): Deprecated alias for additional_brokers\n    mqtt_update_type (str): \"Instantaneous\" or \"Phase\" (default: \"Instantaneous\")\n    seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed \n        before becoming leader (default: 1.0). Increase this value if you need more time \n        to detect an existing seed from other instances.\n\nReturns:\n    SGDistributedGameConfig or None: Configuration object if distributed mode enabled,\n                                     None if cancelled or local mode.",
             "category": "OTHER MODELER METHODS",
             "class_name": "SGModel",
             "parameters": [
@@ -11069,6 +11343,16 @@
                 "description": "MQTT broker port (default: 1883)"
               },
               {
+                "name": "additional_brokers",
+                "type": "list, optional",
+                "description": "List of additional brokers (dicts with name, host, port)"
+              },
+              {
+                "name": "broker_servers",
+                "type": "list, optional",
+                "description": "Deprecated alias for additional_brokers"
+              },
+              {
                 "name": "mqtt_update_type",
                 "type": "str",
                 "description": "\"Instantaneous\" or \"Phase\" (default: \"Instantaneous\")"
@@ -11081,7 +11365,7 @@
             ],
             "returns": "SGDistributedGameConfig or None: Configuration object if distributed mode enabled, None if cancelled or local mode.",
             "examples": [],
-            "line_number": 2374,
+            "line_number": 2416,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11097,7 +11381,7 @@
             "parameters": [],
             "returns": "bool: True if setup completed successfully, False if cancelled or not in distributed mode",
             "examples": [],
-            "line_number": 2444,
+            "line_number": 2507,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11129,7 +11413,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2949,
+            "line_number": 3012,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11145,7 +11429,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3088,
+            "line_number": 3151,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11161,7 +11445,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3092,
+            "line_number": 3155,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11185,7 +11469,7 @@
             "examples": [
               "# Apply a saved theme configuration (will be applied when launch() is called)\nmodel.applyThemeConfig(\"my_theme_setup\")\nmodel.launch()  # Theme will be applied after all GameSpaces are created\n\n# Check before applying\nif model.hasThemeConfig(\"setup1\"):\nmodel.applyThemeConfig(\"setup1\")"
             ],
-            "line_number": 3209,
+            "line_number": 3272,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11212,7 +11496,7 @@
             ],
             "returns": "str: Path to exported file",
             "examples": [],
-            "line_number": 3277,
+            "line_number": 3340,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11241,7 +11525,7 @@
             "examples": [
               "# Save automatically to a specific directory\nmyModel.enableAutoSaveGameActionLogs(format=\"csv\", save_path=\"/path/to/logs\")\n\n# Save with user choosing the location\nmyModel.enableAutoSaveGameActionLogs(format=\"json\")\n\n# Save CSV to current directory\nmyModel.enableAutoSaveGameActionLogs(save_path=\".\")"
             ],
-            "line_number": 3304,
+            "line_number": 3367,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11265,7 +11549,7 @@
             "examples": [
               "# Load images from directory\nimages = myModel.loadImagesFromDirectory(\"./images\")\n\n# Use random image for a tile\nimport random\ntile = TileType.newTileOnCell(cell, backImage=random.choice(images))"
             ],
-            "line_number": 3336,
+            "line_number": 3399,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11289,7 +11573,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2987,
+            "line_number": 3050,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11326,7 +11610,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3012,
+            "line_number": 3075,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11350,7 +11634,7 @@
             "examples": [
               "# Disable icons in context menu\nmyModel.setShowIconsInContextMenu(False)"
             ],
-            "line_number": 3245,
+            "line_number": 3308,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11368,7 +11652,7 @@
             "parameters": [],
             "returns": "bool: True if distributed mode is enabled, False otherwise",
             "examples": [],
-            "line_number": 3048,
+            "line_number": 3111,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11394,7 +11678,7 @@
             "examples": [
               "count = myModel.getConnectedInstancesCount()\nif count >= 2:\nprint(\"Minimum players reached!\")\n\n# With custom default value\ncount = myModel.getConnectedInstancesCount(default=1)"
             ],
-            "line_number": 3057,
+            "line_number": 3120,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11410,7 +11694,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3096,
+            "line_number": 3159,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11432,7 +11716,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3099,
+            "line_number": 3162,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11454,7 +11738,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3109,
+            "line_number": 3172,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11470,7 +11754,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3113,
+            "line_number": 3176,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11492,7 +11776,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3117,
+            "line_number": 3180,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11508,7 +11792,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3121,
+            "line_number": 3184,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11524,7 +11808,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3130,
+            "line_number": 3193,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11546,7 +11830,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3141,
+            "line_number": 3204,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11573,7 +11857,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3147,
+            "line_number": 3210,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11589,7 +11873,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3152,
+            "line_number": 3215,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11611,7 +11895,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3159,
+            "line_number": 3222,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11627,7 +11911,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3164,
+            "line_number": 3227,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11649,7 +11933,7 @@
             ],
             "returns": "list: List of grids (SGGrid instances) owned by the specified owner",
             "examples": [],
-            "line_number": 3168,
+            "line_number": 3231,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11671,7 +11955,7 @@
             ],
             "returns": "SGGrid or None: The first grid owned by the specified owner, or None if no grid is owned",
             "examples": [],
-            "line_number": 3179,
+            "line_number": 3242,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11689,7 +11973,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3197,
+            "line_number": 3260,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11713,7 +11997,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3258,
+            "line_number": 3321,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11729,7 +12013,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3269,
+            "line_number": 3332,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -13235,7 +13519,7 @@
             ],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 141,
+            "line_number": 147,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13256,7 +13540,7 @@
             ],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 193,
+            "line_number": 199,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13455,7 +13739,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 220,
+            "line_number": 226,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13472,7 +13756,7 @@
             "parameters": [],
             "returns": "SGCell: The cell containing this tile, or None if not placed",
             "examples": [],
-            "line_number": 257,
+            "line_number": 263,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13487,7 +13771,7 @@
             "parameters": [],
             "returns": "tuple: (x, y) coordinates of the cell (1-indexed), or None if tile is not placed",
             "examples": [],
-            "line_number": 266,
+            "line_number": 272,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13502,7 +13786,7 @@
             "parameters": [],
             "returns": "int: The layer number (1-based)",
             "examples": [],
-            "line_number": 277,
+            "line_number": 283,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13517,7 +13801,7 @@
             "parameters": [],
             "returns": "str: \"front\" or \"back\" indicating which face is currently visible",
             "examples": [],
-            "line_number": 289,
+            "line_number": 295,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13532,7 +13816,7 @@
             "parameters": [],
             "returns": "list: List of SGAgent objects on the same cell as this tile",
             "examples": [],
-            "line_number": 298,
+            "line_number": 304,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13611,7 +13895,7 @@
             "parameters": [],
             "returns": "bool: True if front face is visible, False if back face is visible",
             "examples": [],
-            "line_number": 316,
+            "line_number": 322,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13626,7 +13910,7 @@
             "parameters": [],
             "returns": "bool: True if back face is visible, False if front face is visible",
             "examples": [],
-            "line_number": 325,
+            "line_number": 331,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13641,7 +13925,7 @@
             "parameters": [],
             "returns": "bool: True if at least one agent is on the same cell, False otherwise",
             "examples": [],
-            "line_number": 335,
+            "line_number": 341,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13714,7 +13998,7 @@
             ],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 353,
+            "line_number": 359,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13735,7 +14019,7 @@
             ],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 513,
+            "line_number": 545,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13750,7 +14034,7 @@
             "parameters": [],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 529,
+            "line_number": 561,
             "parent_classes": [
               "SGEntity"
             ]

@@ -262,6 +262,20 @@
     ],
     "description": "Get all agents in this cell."
   },
+  "SGCell.getCellsInColumn": {
+    "prefix": "sgcell.getCellsInColumn",
+    "body": [
+      "${1:result} = ${2:instance}.getCellsInColumn(${3:condition})"
+    ],
+    "description": "Get all cells in the same column as the current cell."
+  },
+  "SGCell.getCellsInRow": {
+    "prefix": "sgcell.getCellsInRow",
+    "body": [
+      "${1:result} = ${2:instance}.getCellsInRow(${3:condition})"
+    ],
+    "description": "Get all cells in the same row as the current cell."
+  },
   "SGCell.getClosestAgentMatching": {
     "prefix": "sgcell.getClosestAgentMatching",
     "body": [
@@ -310,6 +324,34 @@
       "${1:result} = ${2:instance}.getId()"
     ],
     "description": "Get cell identifier using numeric ID consistent with cellIdFromCoords"
+  },
+  "SGCell.getMaxRangeOfCells_horizontally": {
+    "prefix": "sgcell.getMaxRangeOfCells_horizontally",
+    "body": [
+      "${1:result} = ${2:instance}.getMaxRangeOfCells_horizontally(${3:condition}, ${4:includingSelf})"
+    ],
+    "description": "Get the maximum horizontal range (distance) across the entire grid width (all rows) for cells that satisfy a condition."
+  },
+  "SGCell.getMaxRangeOfCells_inColumn": {
+    "prefix": "sgcell.getMaxRangeOfCells_inColumn",
+    "body": [
+      "${1:result} = ${2:instance}.getMaxRangeOfCells_inColumn(${3:condition}, ${4:includingSelf})"
+    ],
+    "description": "Get the maximum range (distance) between cells in the same column that satisfy a condition."
+  },
+  "SGCell.getMaxRangeOfCells_inRow": {
+    "prefix": "sgcell.getMaxRangeOfCells_inRow",
+    "body": [
+      "${1:result} = ${2:instance}.getMaxRangeOfCells_inRow(${3:condition}, ${4:includingSelf})"
+    ],
+    "description": "Get the maximum range (distance) between cells in the same row that satisfy a condition."
+  },
+  "SGCell.getMaxRangeOfCells_vertically": {
+    "prefix": "sgcell.getMaxRangeOfCells_vertically",
+    "body": [
+      "${1:result} = ${2:instance}.getMaxRangeOfCells_vertically(${3:condition}, ${4:includingSelf})"
+    ],
+    "description": "Get the maximum vertical range (distance) across the entire grid height (all columns) for cells that satisfy a condition."
   },
   "SGCell.getNeighborCells": {
     "prefix": "sgcell.getNeighborCells",
@@ -485,6 +527,13 @@
       "${1:result} = ${2:instance}.distanceTo(${3:otherCell})"
     ],
     "description": "Compute Euclidean distance to another cell."
+  },
+  "SGCell.distanceToInGrid": {
+    "prefix": "sgcell.distanceToInGrid",
+    "body": [
+      "${1:result} = ${2:instance}.distanceToInGrid(${3:otherCell})"
+    ],
+    "description": "Compute grid distance (Manhattan distance) to another cell."
   },
   "SGCell.nbAgents": {
     "prefix": "sgcell.nbAgents",
@@ -1063,14 +1112,14 @@
   "SGCellType.getEntities_withColumn": {
     "prefix": "sgcelltype.getEntities_withColumn",
     "body": [
-      "${1:result} = ${2:instance}.getEntities_withColumn(${3:aColumnNumber})"
+      "${1:result} = ${2:instance}.getEntities_withColumn(${3:aColumnNumber}, ${4:condition})"
     ],
     "description": "Get all entities (cells) in a specific column."
   },
   "SGCellType.getEntities_withRow": {
     "prefix": "sgcelltype.getEntities_withRow",
     "body": [
-      "${1:result} = ${2:instance}.getEntities_withRow(${3:aRowNumber})"
+      "${1:result} = ${2:instance}.getEntities_withRow(${3:aRowNumber}, ${4:condition})"
     ],
     "description": "Get all entities (cells) in a specific row."
   },
@@ -2172,12 +2221,33 @@
     ],
     "description": "Tests if the the value of an attribut if equal to a value"
   },
+  "SGGrid.setMagnifierOnArea": {
+    "prefix": "sggrid.setMagnifierOnArea",
+    "body": [
+      "${1:instance}.setMagnifierOnArea(${2:cellA}, ${3:cellB})"
+    ],
+    "description": "Set the magnifier viewport to show a rectangular area between two cells."
+  },
+  "SGGrid.setMagnifierToCoverAllCellsWith": {
+    "prefix": "sggrid.setMagnifierToCoverAllCellsWith",
+    "body": [
+      "${1:instance}.setMagnifierToCoverAllCellsWith(${2:value})"
+    ],
+    "description": "Adjust magnifier zoom and position to show all cells matching a condition."
+  },
   "SGGrid.setOwners": {
     "prefix": "sggrid.setOwners",
     "body": [
       "${1:instance}.setOwners(${2:value})"
     ],
     "description": "Set the owners of this grid."
+  },
+  "SGGrid.setZoomMode": {
+    "prefix": "sggrid.setZoomMode",
+    "body": [
+      "${1:instance}.setZoomMode(${2:value})"
+    ],
+    "description": "Set the zoom mode for this grid."
   },
   "SGGrid.getCell_withCoords": {
     "prefix": "sggrid.getCell_withCoords",
@@ -2512,7 +2582,7 @@
   "SGModel.enableDistributedGame": {
     "prefix": "sgmodel.enableDistributedGame",
     "body": [
-      "${1:result} = ${2:instance}.enableDistributedGame(${3:num_players}, ${4:session_id}, ${5:shared_seed}, ${6:broker_host}, ${7:broker_port}, ${8:mqtt_update_type}, ${9:seed_sync_timeout})"
+      "${1:result} = ${2:instance}.enableDistributedGame(${3:num_players}, ${4:session_id}, ${5:shared_seed}, ${6:broker_host}, ${7:broker_port}, ${8:additional_brokers}, ${9:broker_servers}, ${10:mqtt_update_type}, ${11:seed_sync_timeout})"
     ],
     "description": "Enable distributed multiplayer game mode."
   },
