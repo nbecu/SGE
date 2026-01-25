@@ -2,6 +2,7 @@
 import socket
 
 # --- Third-party imports ---
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -76,6 +77,12 @@ class SGDistributedBrokerSettingsDialog(QDialog):
         for entry in self.config.broker_servers:
             self.broker_combo.addItem(entry.get("name"), entry)
         self.broker_combo.addItem("Custom broker", {"custom": True})
+        custom_index = self.broker_combo.count() - 1
+        self.broker_combo.setItemData(
+            custom_index,
+            "Use a custom broker address and port.",
+            Qt.ToolTipRole
+        )
 
         if self.config.use_custom_broker:
             self._selectCustom()
