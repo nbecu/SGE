@@ -10562,7 +10562,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2581,
+            "line_number": 2578,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10669,7 +10669,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2607,
+            "line_number": 2604,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10701,7 +10701,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2653,
+            "line_number": 2650,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10783,7 +10783,7 @@
             ],
             "returns": "SGProgressGauge: The created SGProgressGauge instance.",
             "examples": [],
-            "line_number": 2672,
+            "line_number": 2669,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10810,7 +10810,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2741,
+            "line_number": 2738,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10837,7 +10837,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2762,
+            "line_number": 2759,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10904,7 +10904,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2790,
+            "line_number": 2787,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10966,7 +10966,7 @@
             ],
             "returns": "SGTextBox: The created text box widget",
             "examples": [],
-            "line_number": 2842,
+            "line_number": 2839,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11023,7 +11023,7 @@
             ],
             "returns": "SGLabel: An instance of SGLabel with the specified properties.",
             "examples": [],
-            "line_number": 2879,
+            "line_number": 2876,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11115,7 +11115,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2902,
+            "line_number": 2899,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11247,7 +11247,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2937,
+            "line_number": 2934,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11274,7 +11274,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3025,
+            "line_number": 3022,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11301,7 +11301,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3034,
+            "line_number": 3031,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11311,9 +11311,9 @@
         "OTHER MODELER METHODS": [
           {
             "name": "enableDistributedGame",
-            "signature": "def enableDistributedGame(self, num_players, session_id=None, shared_seed=None, broker_host=\"localhost\", broker_port=1883, additional_brokers=None, broker_servers=None, mqtt_update_type=\"Instantaneous\", seed_sync_timeout=1.0):",
+            "signature": "def enableDistributedGame(self, num_players, session_id=None, shared_seed=None, broker_host=\"localhost\", broker_port=1883, additional_brokers=None, mqtt_update_type=\"Instantaneous\", seed_sync_timeout=1.0):",
             "description": "Enable distributed multiplayer game mode.",
-            "docstring": "Enable distributed multiplayer game mode.\nOpens minimal dialog for user to connect to broker and synchronize seed.\nPlayer selection happens later in completeDistributedGameSetup().\n\nIMPORTANT: Call this method BEFORE any random operations in your model script.\nThe seed will be synchronized and applied immediately after this call returns.\n\nArgs:\n    num_players (int or tuple): Number of players. Can be:\n        - int: Fixed number of players (e.g., 2)\n        - tuple: Range of players (min, max) (e.g., (2, 4) for 2-4 players)\n        Game can start when number of connected instances is within this range.\n    session_id (str, optional): Session ID. Auto-generated if None.\n    shared_seed (int, optional): Shared seed. Auto-generated and synced if None.\n    broker_host (str): MQTT broker host (default: \"localhost\")\n    broker_port (int): MQTT broker port (default: 1883)\n    additional_brokers (list, optional): List of additional brokers (dicts with name, host, port)\n    broker_servers (list, optional): Deprecated alias for additional_brokers\n    mqtt_update_type (str): \"Instantaneous\" or \"Phase\" (default: \"Instantaneous\")\n    seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed \n        before becoming leader (default: 1.0). Increase this value if you need more time \n        to detect an existing seed from other instances.\n\nReturns:\n    SGDistributedGameConfig or None: Configuration object if distributed mode enabled,\n                                     None if cancelled or local mode.",
+            "docstring": "Enable distributed multiplayer game mode.\nOpens minimal dialog for user to connect to broker and synchronize seed.\nPlayer selection happens later in completeDistributedGameSetup().\n\nIMPORTANT: Call this method BEFORE any random operations in your model script.\nThe seed will be synchronized and applied immediately after this call returns.\n\nArgs:\n    num_players (int or tuple): Number of players. Can be:\n        - int: Fixed number of players (e.g., 2)\n        - tuple: Range of players (min, max) (e.g., (2, 4) for 2-4 players)\n        Game can start when number of connected instances is within this range.\n    session_id (str, optional): Session ID. Auto-generated if None.\n    shared_seed (int, optional): Shared seed. Auto-generated and synced if None.\n    broker_host (str): MQTT broker host (default: \"localhost\")\n    broker_port (int): MQTT broker port (default: 1883)\n    additional_brokers (list, optional): List of additional brokers (dicts with name, host, port)\n    mqtt_update_type (str): \"Instantaneous\" or \"Phase\" (default: \"Instantaneous\")\n    seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed \n        before becoming leader (default: 1.0). Increase this value if you need more time \n        to detect an existing seed from other instances.\n\nReturns:\n    SGDistributedGameConfig or None: Configuration object if distributed mode enabled,\n                                     None if cancelled or local mode.",
             "category": "OTHER MODELER METHODS",
             "class_name": "SGModel",
             "parameters": [
@@ -11348,11 +11348,6 @@
                 "description": "List of additional brokers (dicts with name, host, port)"
               },
               {
-                "name": "broker_servers",
-                "type": "list, optional",
-                "description": "Deprecated alias for additional_brokers"
-              },
-              {
                 "name": "mqtt_update_type",
                 "type": "str",
                 "description": "\"Instantaneous\" or \"Phase\" (default: \"Instantaneous\")"
@@ -11381,7 +11376,7 @@
             "parameters": [],
             "returns": "bool: True if setup completed successfully, False if cancelled or not in distributed mode",
             "examples": [],
-            "line_number": 2507,
+            "line_number": 2504,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11413,7 +11408,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3012,
+            "line_number": 3009,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11429,7 +11424,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3151,
+            "line_number": 3148,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11445,7 +11440,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3155,
+            "line_number": 3152,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11469,7 +11464,7 @@
             "examples": [
               "# Apply a saved theme configuration (will be applied when launch() is called)\nmodel.applyThemeConfig(\"my_theme_setup\")\nmodel.launch()  # Theme will be applied after all GameSpaces are created\n\n# Check before applying\nif model.hasThemeConfig(\"setup1\"):\nmodel.applyThemeConfig(\"setup1\")"
             ],
-            "line_number": 3272,
+            "line_number": 3269,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11496,7 +11491,7 @@
             ],
             "returns": "str: Path to exported file",
             "examples": [],
-            "line_number": 3340,
+            "line_number": 3337,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11525,7 +11520,7 @@
             "examples": [
               "# Save automatically to a specific directory\nmyModel.enableAutoSaveGameActionLogs(format=\"csv\", save_path=\"/path/to/logs\")\n\n# Save with user choosing the location\nmyModel.enableAutoSaveGameActionLogs(format=\"json\")\n\n# Save CSV to current directory\nmyModel.enableAutoSaveGameActionLogs(save_path=\".\")"
             ],
-            "line_number": 3367,
+            "line_number": 3364,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11549,7 +11544,7 @@
             "examples": [
               "# Load images from directory\nimages = myModel.loadImagesFromDirectory(\"./images\")\n\n# Use random image for a tile\nimport random\ntile = TileType.newTileOnCell(cell, backImage=random.choice(images))"
             ],
-            "line_number": 3399,
+            "line_number": 3396,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11573,7 +11568,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3050,
+            "line_number": 3047,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11610,7 +11605,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3075,
+            "line_number": 3072,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11634,7 +11629,7 @@
             "examples": [
               "# Disable icons in context menu\nmyModel.setShowIconsInContextMenu(False)"
             ],
-            "line_number": 3308,
+            "line_number": 3305,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11652,7 +11647,7 @@
             "parameters": [],
             "returns": "bool: True if distributed mode is enabled, False otherwise",
             "examples": [],
-            "line_number": 3111,
+            "line_number": 3108,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11678,7 +11673,7 @@
             "examples": [
               "count = myModel.getConnectedInstancesCount()\nif count >= 2:\nprint(\"Minimum players reached!\")\n\n# With custom default value\ncount = myModel.getConnectedInstancesCount(default=1)"
             ],
-            "line_number": 3120,
+            "line_number": 3117,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11694,7 +11689,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3159,
+            "line_number": 3156,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11716,7 +11711,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3162,
+            "line_number": 3159,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11738,7 +11733,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3172,
+            "line_number": 3169,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11754,7 +11749,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3176,
+            "line_number": 3173,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11776,7 +11771,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3180,
+            "line_number": 3177,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11792,7 +11787,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3184,
+            "line_number": 3181,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11808,7 +11803,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3193,
+            "line_number": 3190,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11830,7 +11825,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3204,
+            "line_number": 3201,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11857,7 +11852,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3210,
+            "line_number": 3207,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11873,7 +11868,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3215,
+            "line_number": 3212,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11895,7 +11890,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3222,
+            "line_number": 3219,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11911,7 +11906,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3227,
+            "line_number": 3224,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11933,7 +11928,7 @@
             ],
             "returns": "list: List of grids (SGGrid instances) owned by the specified owner",
             "examples": [],
-            "line_number": 3231,
+            "line_number": 3228,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11955,7 +11950,7 @@
             ],
             "returns": "SGGrid or None: The first grid owned by the specified owner, or None if no grid is owned",
             "examples": [],
-            "line_number": 3242,
+            "line_number": 3239,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11973,7 +11968,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3260,
+            "line_number": 3257,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11997,7 +11992,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3321,
+            "line_number": 3318,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12013,7 +12008,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3332,
+            "line_number": 3329,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"

@@ -2582,7 +2582,7 @@
   "SGModel.enableDistributedGame": {
     "prefix": "sgmodel.enableDistributedGame",
     "body": [
-      "${1:result} = ${2:instance}.enableDistributedGame(${3:num_players}, ${4:session_id}, ${5:shared_seed}, ${6:broker_host}, ${7:broker_port}, ${8:additional_brokers}, ${9:broker_servers}, ${10:mqtt_update_type}, ${11:seed_sync_timeout})"
+      "${1:result} = ${2:instance}.enableDistributedGame(${3:num_players}, ${4:session_id}, ${5:shared_seed}, ${6:broker_host}, ${7:broker_port}, ${8:additional_brokers}, ${9:mqtt_update_type}, ${10:seed_sync_timeout})"
     ],
     "description": "Enable distributed multiplayer game mode."
   },
