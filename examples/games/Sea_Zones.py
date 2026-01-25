@@ -1,9 +1,5 @@
 import sys
-import random
 from pathlib import Path
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QColor, QPixmap
-
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 

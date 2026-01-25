@@ -23,6 +23,7 @@ __all__ = [
     "position_dialog_to_right",
     "getResourceBasePath",
     "getResourcePath",
+    "copyValue",
 ]
 
 def drawTextAutoSized(self, aleft, atop, text, font=None, align=0, padding_width=0, padding_height=0):
@@ -263,6 +264,17 @@ def getResourcePath(relative_path=None, base_path=None):
     if rel.is_absolute():
         return rel
     return base / rel
+
+def copyValue(source_att, target_att):
+    """
+    Build a callable that copies an attribute value on an entity.
+    
+    Usage:
+        Cells.newModelAction(copyValue("bufferState", "state"))
+    """
+    def _action(aEntity):
+        aEntity.copyValue(source_att, target_att)
+    return _action
 
 def fillTransparentAreas(pixmap, fillColor):
     """

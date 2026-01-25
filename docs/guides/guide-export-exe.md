@@ -60,6 +60,8 @@ builder.build_exe("mon_jeu.py", icon="mon_jeu/icone.ico")
 
 Si votre modèle utilise des fichiers externes (CSV, images, sons, config, etc.), vous devez les inclure dans l'exe et adapter votre code pour qu'il fonctionne à la fois en mode développement et en mode exe.
 
+**Avant de créer l'exe** : vérifiez si votre modèle dépend de fichiers d'import (CSV, images, fichiers de paramètres, etc.). Si oui, ajoutez-les explicitement via `add_custom_resources()` (voir ci-dessous).
+
 #### Étape 1 : Ajouter les fichiers avec `add_custom_resources()`
 
 Utilisez la méthode `add_custom_resources()` pour inclure vos fichiers :
@@ -86,22 +88,15 @@ builder.build_exe("examples/games/mon_jeu.py", output_name="MonJeu")
 Dans votre script Python, vous devez gérer les chemins différemment selon que vous êtes en mode développement ou en mode exe :
 
 ```python
-import sys
-from pathlib import Path
+from mainClasses.SGSGE import *
 
-# Gérer les chemins pour développement ET exe
-if getattr(sys, 'frozen', False):
-    # Mode exe : PyInstaller crée un dossier temporaire dans sys._MEIPASS
-    base_path = Path(sys._MEIPASS)
-else:
-    # Mode développement : utiliser le chemin relatif normal
-    base_path = Path(__file__).parent.parent.parent
-
-# Utiliser base_path pour construire vos chemins
-csv_path = base_path / "data" / "import" / "mon_jeu" / "donnees.csv"
-images_dir = base_path / "data" / "import" / "mon_jeu"
-config_file = base_path / "config" / "settings.json"
+# Utiliser getResourcePath pour gérer dev + exe automatiquement
+csv_path = getResourcePath("data/import/mon_jeu/donnees.csv")
+images_dir = getResourcePath("data/import/mon_jeu")
+config_file = getResourcePath("config/settings.json")
 ```
+
+**Note** : `getResourcePath()` gère automatiquement le mode exe (`sys._MEIPASS`) et le mode script.
 
 
 #### Notes importantes
