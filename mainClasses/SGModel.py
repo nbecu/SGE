@@ -2419,6 +2419,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                              shared_seed=None,
                              broker_host="localhost",
                              broker_port=1883,
+                             additional_brokers=None,
                              broker_servers=None,
                              mqtt_update_type="Instantaneous",
                              seed_sync_timeout=1.0):
@@ -2439,7 +2440,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             shared_seed (int, optional): Shared seed. Auto-generated and synced if None.
             broker_host (str): MQTT broker host (default: "localhost")
             broker_port (int): MQTT broker port (default: 1883)
-            broker_servers (list, optional): List of alternative brokers (dicts with name, host, port)
+            additional_brokers (list, optional): List of additional brokers (dicts with name, host, port)
+            broker_servers (list, optional): Deprecated alias for additional_brokers
             mqtt_update_type (str): "Instantaneous" or "Phase" (default: "Instantaneous")
             seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed 
                 before becoming leader (default: 1.0). Increase this value if you need more time 
@@ -2458,8 +2460,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         config.seed_sync_timeout = seed_sync_timeout
 
         broker_entries = [{"name": "main", "host": broker_host, "port": broker_port}]
-        if broker_servers:
-            filtered_servers = [entry for entry in broker_servers if entry.get("name") != "main"]
+        broker_list = additional_brokers if additional_brokers is not None else broker_servers
+        if broker_list:
+            filtered_servers = [entry for entry in broker_list if entry.get("name") != "main"]
             broker_entries.extend(filtered_servers)
         config.set_broker_servers(broker_entries)
         config.selected_broker_name = "main"

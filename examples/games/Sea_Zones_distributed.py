@@ -23,7 +23,7 @@ myModel.displayTimeInWindowTitle()
 # 2. Seed is synchronized and applied immediately after this call
 # 3. Player selection happens later when the game window opens
 
-myModel.enableDistributedGame(num_players=(2,4))
+myModel.enableDistributedGame(num_players=(2,4),additional_brokers=[{"name": "freebox", "host": "91.173.78.45", "port": 18883}])
 nb_players = myModel.getConnectedInstancesCount(default=4) 
 
 # The seed is synchronized and applied automatically by enableDistributedGame()
@@ -31,8 +31,16 @@ nb_players = myModel.getConnectedInstancesCount(default=4)
 # ============================================================================
 # Paths configuration
 # ============================================================================
-csv_path = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zones" / "tiles.csv"
-images_dir = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zones"
+# Handle both development mode (Python) and executable mode (PyInstaller)
+if getattr(sys, 'frozen', False):
+    # Running as compiled executable (PyInstaller)
+    base_path = Path(sys._MEIPASS)
+else:
+    # Running as Python script
+    base_path = Path(__file__).parent.parent.parent
+
+csv_path = base_path / "data" / "import" / "sea_zones" / "tiles.csv"
+images_dir = base_path / "data" / "import" / "sea_zones"
 
 # ============================================================================
 # Create game board (13x13 grid)

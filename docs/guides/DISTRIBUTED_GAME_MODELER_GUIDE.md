@@ -164,10 +164,10 @@ Le dialog `SGDistributedConnectionDialog` s'ouvre automatiquement lors de l'appe
 **Interface** :
 - Radio button "Join existing session"
 - Liste "Available Sessions" : Affiche les sessions disponibles avec :
-  - Session ID (tronqué)
+  - Nom du modèle
   - Nombre d'instances connectées
-  - Nombre de joueurs enregistrés
   - Statut de la session (ouverte, fermée, etc.)
+  - **Session ID en tooltip** (au survol de la session)
 - Bouton "🔄" : Rafraîchir la liste des sessions
 - Bouton "Connect" : Rejoindre la session sélectionnée (activé uniquement après sélection d'une session)
 
@@ -367,6 +367,29 @@ myModel.enableDistributedGame(num_players=4, broker_port=1883)
 # Port personnalisé
 myModel.enableDistributedGame(num_players=4, broker_port=8883)
 ```
+
+#### `additional_brokers` (list, optionnel)
+
+Permet de fournir **une liste de brokers alternatifs** visibles dans l'interface "Broker Parameters".
+Chaque entrée doit contenir un `name`, un `host`, et un `port`.
+
+```python
+myModel.enableDistributedGame(
+    num_players=(2, 4),
+    broker_host="localhost",
+    broker_port=1883,
+    additional_brokers=[
+        {"name": "backup", "host": "192.168.1.50", "port": 1883},
+        {"name": "lab", "host": "mqtt.example.com", "port": 8883},
+    ],
+)
+```
+
+**Comportement côté joueur** :
+- Le joueur voit **uniquement les noms** des brokers (pas les adresses IP).
+- Un bouton ⚙ ouvre "Broker Parameters" pour choisir un broker ou saisir un broker custom.
+- Le broker `"main"` correspond toujours à `broker_host`/`broker_port`.
+- L'adresse IP n'est affichée **que pour `localhost`**.
 
 ### Type de mise à jour MQTT
 

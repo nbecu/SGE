@@ -117,6 +117,10 @@ class SGDistributedBrokerSettingsDialog(QDialog):
         data = self.broker_combo.currentData()
         is_custom = bool(isinstance(data, dict) and data.get("custom"))
         self.custom_group.setEnabled(is_custom)
+        if is_custom:
+            self.custom_group.setStyleSheet("")
+        else:
+            self.custom_group.setStyleSheet("QGroupBox { color: #888; }")
 
     def _isLocalhostHost(self, host):
         return host in ["localhost", "127.0.0.1", "::1"]

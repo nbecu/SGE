@@ -41,6 +41,7 @@ Vous avez deux options :
 1. Sélectionnez **"Join existing session"** (rejoindre une session existante).
 2. La liste des sessions disponibles s'affiche automatiquement.
 3. Cliquez sur la session que vous voulez rejoindre dans la liste.
+   - **Astuce** : survolez une session pour voir son **Session ID** en tooltip.
 4. Cliquez sur **"Connect"**.
 
 
@@ -75,6 +76,13 @@ Une fois que tous les joueurs ont sélectionné leur rôle, le jeu démarre auto
 ---
 
 ## Comportements et cas particuliers
+
+### Paramètres de broker (bouton ⚙)
+
+Dans la fenêtre de connexion, un bouton ⚙ permet d'ouvrir **"Broker Parameters"** :
+- Choisir un broker dans la liste (noms uniquement)
+- Ou saisir un **broker custom** (adresse + port)
+- L'adresse IP n'est affichée que pour `localhost`
 
 ### Que faire si je ne peux pas me connecter ?
 
