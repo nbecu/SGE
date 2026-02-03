@@ -380,6 +380,23 @@ for i, player in enumerate(Players.values(), start=1):
     PlayerMoveActions[i] = player_move_action
 
 # ============================================================================
+# Create a marker move action
+# ============================================================================
+doubleMarkerActions = {}
+for player in Players.values():
+    doubleMarkerAction = myModel.newCreateAction(
+        Marker,{"owner": player.name},    uses_per_round=1,conditions=[
+            lambda cell: cell.getFirstAgent(Marker).value("owner") == player.name
+        ],
+        action_controler={"controlPanel": True}
+    )
+    player.addGameAction(doubleMarkerAction)
+    pCP = player.newControlPanel(defaultActionSelected=doubleMarkerAction)
+    pCP.moveToCoords(780, 180 + (i - 1) * 140)
+# ition player boards
+#     y_position = 180 + (i - 1) * 140
+#     player_board.grid.moveToCoords(780, y_position)
+# ============================================================================
 # Create score dashboard
 # ============================================================================
 scoreDashboard = myModel.newDashBoard()

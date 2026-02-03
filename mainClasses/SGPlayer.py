@@ -33,40 +33,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.history["value"]=defaultdict(list)
         self.initAttributes(attributesAndValues)
 
-    def newControlPanel(self, title=None, defaultActionSelected = None):
-        """
-        To create an Player Control Panel (only with the GameActions related elements)
-
-        Args:
-        Name (str): name of the Control Panel, displayed
-
-        """
-        if title==None: title = (self.name +' actions')
-
-        self.controlPanel=SGControlPanel(self,title,defaultActionSelected=defaultActionSelected)
-        self.model.gameSpaces[title] = self.controlPanel
-        
-        # Auto-configure visibility in distributed mode
-        if self.model.isDistributed():
-            self.controlPanel.setVisibilityForPlayers(self.name)
-        
-        # Realocation of the position thanks to the layout
-        newPos = self.model.layoutOfModel.addGameSpace(self.controlPanel)
-        self.controlPanel.setStartXBase(newPos[0])
-        self.controlPanel.setStartYBase(newPos[1])
-        if (self.model.typeOfLayout == "vertical"):
-            self.controlPanel.move(self.controlPanel.startXBase, self.controlPanel.startYBase+20 *
-                         self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel))
-        elif (self.model.typeOfLayout == "horizontal"):
-            self.controlPanel.move(self.controlPanel.startXBase+20 *
-                         self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel), self.controlPanel.startYBase)
-        else:
-            pos = self.model.layoutOfModel.foundInLayout(self.controlPanel)
-            self.controlPanel.move( self.controlPanel.startXBase + 20 * pos[0],
-                                    self.controlPanel.startYBase + 20 * pos[1])
-        # self.model.applyAutomaticLayout()
-        return self.controlPanel
-
+    
     # To handle attributesAndValues
     # setter
     def setValue(self,aAttribut,valueToSet):
@@ -558,6 +525,39 @@ class SGPlayer(AttributeAndValueFunctionalities):
         return action
 
 
+    def newControlPanel(self, title=None, defaultActionSelected = None):
+        """
+        To create an Player Control Panel (only with the GameActions related elements)
+
+        Args:
+        Name (str): name of the Control Panel, displayed
+
+        """
+        if title==None: title = (self.name +' actions')
+
+        self.controlPanel=SGControlPanel(self,title,defaultActionSelected=defaultActionSelected)
+        self.model.gameSpaces[title] = self.controlPanel
+        
+        # Auto-configure visibility in distributed mode
+        if self.model.isDistributed():
+            self.controlPanel.setVisibilityForPlayers(self.name)
+        
+        # Realocation of the position thanks to the layout
+        newPos = self.model.layoutOfModel.addGameSpace(self.controlPanel)
+        self.controlPanel.setStartXBase(newPos[0])
+        self.controlPanel.setStartYBase(newPos[1])
+        if (self.model.typeOfLayout == "vertical"):
+            self.controlPanel.move(self.controlPanel.startXBase, self.controlPanel.startYBase+20 *
+                         self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel))
+        elif (self.model.typeOfLayout == "horizontal"):
+            self.controlPanel.move(self.controlPanel.startXBase+20 *
+                         self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel), self.controlPanel.startYBase)
+        else:
+            pos = self.model.layoutOfModel.foundInLayout(self.controlPanel)
+            self.controlPanel.move( self.controlPanel.startXBase + 20 * pos[0],
+                                    self.controlPanel.startYBase + 20 * pos[1])
+        # self.model.applyAutomaticLayout()
+        return self.controlPanel
 
   
 # ============================================================================
