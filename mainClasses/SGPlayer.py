@@ -525,7 +525,13 @@ class SGPlayer(AttributeAndValueFunctionalities):
         return action
 
 
-    def newControlPanel(self, title=None, defaultActionSelected = None):
+    def newControlPanel(
+        self,
+        title=None,
+        defaultActionSelected=None,
+        show_title=True,
+        show_section_titles=True
+    ) -> SGControlPanel:
         """
         To create an Player Control Panel (only with the GameActions related elements)
 
@@ -535,7 +541,13 @@ class SGPlayer(AttributeAndValueFunctionalities):
         """
         if title==None: title = (self.name +' actions')
 
-        self.controlPanel=SGControlPanel(self,title,defaultActionSelected=defaultActionSelected)
+        self.controlPanel=SGControlPanel(
+            self,
+            title,
+            defaultActionSelected=defaultActionSelected,
+            show_title=show_title,
+            show_section_titles=show_section_titles
+        )
         self.model.gameSpaces[title] = self.controlPanel
         
         # Auto-configure visibility in distributed mode

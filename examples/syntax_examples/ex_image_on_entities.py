@@ -49,7 +49,7 @@ AgentsB.newAgentAtCoords(CellsHex, 2, 2, {"category": "cat_2"})
 
 
 ####################
-# aLegend=myModel.newLegend()
+aLegend=myModel.newLegend()
 
 myModel.newModelPhase([lambda: AgentsA.moveRandomly(),lambda: AgentsB.moveRandomly()])
 myModel.launch() 

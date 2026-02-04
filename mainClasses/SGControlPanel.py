@@ -8,7 +8,16 @@ from mainClasses.SGAspect import SGAspect
 #Class who is responsible of the creation of a ControlPanel
 #A ControlPanel is an interface that permits to operate the game actions of a player
 class SGControlPanel(SGGameSpace):
-    def __init__(self, aPlayer, panelTitle, backgroundColor=Qt.transparent, borderColor=Qt.black, defaultActionSelected=None):
+    def __init__(
+        self,
+        aPlayer,
+        panelTitle,
+        backgroundColor=Qt.transparent,
+        borderColor=Qt.black,
+        defaultActionSelected=None,
+        show_title=True,
+        show_section_titles=True
+    ):
         """
         Initialize a ControlPanel for a specific player.
         
@@ -18,6 +27,8 @@ class SGControlPanel(SGGameSpace):
             backgroundColor: Background color (default: transparent)
             borderColor: Border color (default: black)
             defaultActionSelected: Default game action to select (optional)
+            show_title (bool): Whether to display the main title (Title1)
+            show_section_titles (bool): Whether to display section titles (Title2)
         """
         # Initialize the parent SGGameSpace
         super().__init__(aPlayer.model, 0, 60, 0, 0, backgroundColor=backgroundColor)
@@ -31,6 +42,9 @@ class SGControlPanel(SGGameSpace):
         self.legendItems = []
         self.isActive = False
         self.selected = None  # To handle the selection of an item in the legend
+        self.show_title = show_title
+        self.show_section_titles = show_section_titles
+        self.defaultActionSelected = defaultActionSelected
         
         # Configure border using gs_aspect
         self.gs_aspect.border_color = borderColor
@@ -58,15 +72,51 @@ class SGControlPanel(SGGameSpace):
         self.initUI_withGameActions(gameActions)
         
         # Handle default action selection
-        if defaultActionSelected is not None:
+        if self.defaultActionSelected is not None:
             from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
-            if not isinstance(defaultActionSelected, SGAbstractAction):
-                raise ValueError(f'defaultActionSelected should be gameAction but {defaultActionSelected} is not one')
-            self.defaultSelection = next((item for item in self.legendItems if item.gameAction == defaultActionSelected), None)
+            if not isinstance(self.defaultActionSelected, SGAbstractAction):
+                raise ValueError(
+                    f'defaultActionSelected should be gameAction but {self.defaultActionSelected} is not one'
+                )
+            self.defaultSelection = next(
+                (item for item in self.legendItems if item.gameAction == self.defaultActionSelected),
+                None
+            )
         elif len(self.getLegendItemsOfGameActions()) == 1:
             self.defaultSelection = self.getLegendItemsOfGameActions()[0]
         else:
             self.defaultSelection = None
+
+
+    def _clearLegendItems(self):
+        for item in self.legendItems:
+            try:
+                item.setParent(None)
+                item.deleteLater()
+            except Exception:
+                pass
+        self.legendItems = []
+
+
+    def _rebuildWithCurrentActions(self):
+        selected_action = self.selected.gameAction if self.selected else None
+        self._clearLegendItems()
+        self.initUI_withGameActions(self.player.gameActions)
+        if self.defaultActionSelected is not None:
+            self.defaultSelection = next(
+                (item for item in self.legendItems if item.gameAction == self.defaultActionSelected),
+                None
+            )
+        elif len(self.getLegendItemsOfGameActions()) == 1:
+            self.defaultSelection = self.getLegendItemsOfGameActions()[0]
+        else:
+            self.defaultSelection = None
+        if selected_action is not None:
+            self.selected = next(
+                (item for item in self.legendItems if item.gameAction == selected_action),
+                None
+            )
+        self.update()
 
 
     def initUI_withGameActions(self,gameActions):
@@ -74,9 +124,10 @@ class SGControlPanel(SGGameSpace):
         self.legendItems = []
         # Vertical spacing between items; also controls top margin feel
         self.heightOfLabels = 22  # slightly larger to increase top margin perception
-        anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
-        # Ensure Title1 participates in width/size computations
-        self.legendItems.append(anItem)
+        if self.show_title:
+            anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
+            # Ensure Title1 participates in width/size computations
+            self.legendItems.append(anItem)
         
         # Separate model actions from entity actions
         modelActions = []
@@ -107,7 +158,7 @@ class SGControlPanel(SGGameSpace):
             # Move actions should only be skipped if controlPanel is explicitly False
             if aGameAction.actionType == "Move" and not aGameAction.action_controler.get("controlPanel", True):
                 continue
-            if lastEntDefTitle != aGameAction.targetType.name:
+            if self.show_section_titles and lastEntDefTitle != aGameAction.targetType.name:
                 anItem=SGLegendItem(self,'Title2',aGameAction.targetType.name)
                 self.legendItems.append(anItem)
                 lastEntDefTitle = aGameAction.targetType.name
@@ -303,16 +354,39 @@ class SGControlPanel(SGGameSpace):
         self.setStyleSheet(self.gs_aspect.getExtendedStyle())
         self.update()
         
-    def setBackgroundColor(self, color):
+    def setBackgroundColor(self, color, color_when_inactive=None):
         """
         Set the background color of the control panel.
         
         Args:
             color (QColor or Qt.GlobalColor): The background color
+            color_when_inactive (QColor or Qt.GlobalColor, optional): Background color when inactive
         """
         self.gs_aspect.background_color = color
+        if color_when_inactive is not None:
+            self.setInactiveThemeColor(color_when_inactive)
         self.setStyleSheet(self.gs_aspect.getExtendedStyle())
         self.update()
+
+    def setShowTitle(self, show):
+        """
+        Enable or disable the main title display.
+        
+        Args:
+            show (bool): True to display the title, False to hide it
+        """
+        self.show_title = bool(show)
+        self._rebuildWithCurrentActions()
+
+    def setShowSectionTitles(self, show):
+        """
+        Enable or disable section titles display.
+        
+        Args:
+            show (bool): True to display section titles, False to hide them
+        """
+        self.show_section_titles = bool(show)
+        self._rebuildWithCurrentActions()
         
     def setBorderSize(self, size):
         """

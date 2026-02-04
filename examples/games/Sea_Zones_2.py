@@ -357,7 +357,7 @@ moveActionTemplate = myModel.newMoveAction(
         # Check that placing a tile would not exceed vertical range of 7 across entire grid
         lambda tile, cell: cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True) <= 7
     ],
-    action_controler={"directClick": True},
+    action_controler={"directClick": True, "controlPanel": False},
     feedbacks=[
         lambda aTile: placeMarker(aTile.cell),
         lambda aTile: adjustMagnifyToCoverAllTiles(aTile)
@@ -383,19 +383,23 @@ for i, player in enumerate(Players.values(), start=1):
 # Create a marker move action
 # ============================================================================
 doubleMarkerActions = {}
-for player in Players.values():
+for i in range(1, nb_players + 1):
+    aPlayer=Players[i]
+# for aPlayer in Players.values():
     doubleMarkerAction = myModel.newCreateAction(
-        Marker,{"owner": player.name},    uses_per_round=1,conditions=[
-            lambda cell: cell.getFirstAgent(Marker).value("owner") == player.name
-        ],
-        action_controler={"controlPanel": True}
+        Marker,
+        # {"owner": player.name},
+        uses_per_round=1,
+        conditions=[ lambda cell: cell.getFirstAgent(Marker).value("owner") == aPlayer.name ],
+        action_controler={"controlPanel": True},
+        label=""
     )
-    player.addGameAction(doubleMarkerAction)
-    pCP = player.newControlPanel(defaultActionSelected=doubleMarkerAction)
-    pCP.moveToCoords(780, 180 + (i - 1) * 140)
-# ition player boards
-#     y_position = 180 + (i - 1) * 140
-#     player_board.grid.moveToCoords(780, y_position)
+    aPlayer.addGameAction(doubleMarkerAction)
+    pCP = aPlayer.newControlPanel(defaultActionSelected=doubleMarkerAction, show_title=False, show_section_titles=False)
+    # pCP.setBackgroundColor(Qt.transparent, color_when_inactive=Qt.transparent)
+    pCP.setBorderColor(Qt.transparent)
+    pCP.moveToCoords(735, 180 + (i - 1) * 140)
+
 # ============================================================================
 # Create score dashboard
 # ============================================================================
