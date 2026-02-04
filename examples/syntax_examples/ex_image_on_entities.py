@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(700,350, windowTitle="Use image for cells and agents")
+myModel=SGModel(733,350, windowTitle="Use image for cells and agents")
 
 #A first square grid with triangle agents
 Cells=myModel.newCellsOnGrid(4,4,"square",gap=2,size=70)

@@ -371,32 +371,46 @@ def placeMarker(cell):
     calculateScores()
 
 # Create a copy of moveAction for each player (each with a distinct ID)
-PlayerMoveActions = {}
+PlayersMoveAction = {}
 for i, player in enumerate(Players.values(), start=1):
     # Create a copy of the action with a new distinct ID
     player_move_action = moveActionTemplate.copy()
     # Add the action to the player
     player.addGameAction(player_move_action)
-    PlayerMoveActions[i] = player_move_action
+    PlayersMoveAction[i] = player_move_action
 
 # ============================================================================
 # Create a marker move action
 # ============================================================================
-doubleMarkerActions = {}
+PlayersMarkerAction = {}
 for i in range(1, nb_players + 1):
     aPlayer=Players[i]
 # for aPlayer in Players.values():
+    player_name = aPlayer.name
     doubleMarkerAction = myModel.newCreateAction(
         Marker,
-        # {"owner": player.name},
+        {"owner": player_name},
         uses_per_round=1,
-        conditions=[ lambda cell: cell.getFirstAgent(Marker).value("owner") == aPlayer.name ],
+        conditions=[
+            lambda cell: cell.type == Board,
+            lambda cell: cell.hasAgents(Marker),
+            lambda cell, player_name=player_name: (
+                cell.getFirstAgent(Marker).value("owner") == player_name
+            )
+        ],
         action_controler={"controlPanel": True},
         label=""
     )
     aPlayer.addGameAction(doubleMarkerAction)
-    pCP = aPlayer.newControlPanel(defaultActionSelected=doubleMarkerAction, show_title=False, show_section_titles=False)
-    # pCP.setBackgroundColor(Qt.transparent, color_when_inactive=Qt.transparent)
+    PlayersMarkerAction[i] = doubleMarkerAction
+
+    pCP = aPlayer.newControlPanel(
+        defaultActionSelected=doubleMarkerAction,
+        show_title=False,
+        show_section_titles=False,
+        show_selection_border=False
+    )
+    pCP.setBackgroundColor(Qt.transparent, color_when_inactive=Qt.transparent)
     pCP.setBorderColor(Qt.transparent)
     pCP.moveToCoords(735, 180 + (i - 1) * 140)
 
@@ -435,11 +449,11 @@ pickTileTemplate = myModel.newActivateAction(
 )
 
 # Add pick tile action to all players
-PlayerPickActions = {}
+PlayersPickAction = {}
 for i, player in enumerate(Players.values(), start=1):
     player_pick_action = pickTileTemplate.copy()
     player.addGameAction(player_pick_action)
-    PlayerPickActions[i] = player_pick_action
+    PlayersPickAction[i] = player_pick_action
 
 # ============================================================================
 # Create play phases (one Turn phase and one Pick phase for each player)
@@ -447,10 +461,10 @@ for i, player in enumerate(Players.values(), start=1):
 
 for i in range(1, nb_players + 1):
     # Turn phase: only moveAction is allowed
-    myModel.newPlayPhase(f"Player {i} Turn", [Players[i]], authorizedActions=[PlayerMoveActions[i]],
+    myModel.newPlayPhase(f"Player {i} Turn", [Players[i]], authorizedActions=[PlayersMoveAction[i], PlayersMarkerAction[i]],
             autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
     # Pick phase: only pickTile is allowed
-    myModel.newPlayPhase(f"Player {i} Pick", [Players[i]], authorizedActions=[PlayerPickActions[i]],
+    myModel.newPlayPhase(f"Player {i} Pick", [Players[i]], authorizedActions=[PlayersPickAction[i]],
             autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
     # Add a model phase to refill the river slots automatically
     myModel.newModelPhase(

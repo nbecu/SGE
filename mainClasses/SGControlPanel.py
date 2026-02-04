@@ -16,7 +16,8 @@ class SGControlPanel(SGGameSpace):
         borderColor=Qt.black,
         defaultActionSelected=None,
         show_title=True,
-        show_section_titles=True
+        show_section_titles=True,
+        show_selection_border=True
     ):
         """
         Initialize a ControlPanel for a specific player.
@@ -29,6 +30,7 @@ class SGControlPanel(SGGameSpace):
             defaultActionSelected: Default game action to select (optional)
             show_title (bool): Whether to display the main title (Title1)
             show_section_titles (bool): Whether to display section titles (Title2)
+            show_selection_border (bool): Whether to display selection border on items
         """
         # Initialize the parent SGGameSpace
         super().__init__(aPlayer.model, 0, 60, 0, 0, backgroundColor=backgroundColor)
@@ -44,6 +46,7 @@ class SGControlPanel(SGGameSpace):
         self.selected = None  # To handle the selection of an item in the legend
         self.show_title = show_title
         self.show_section_titles = show_section_titles
+        self.showSelectionBorder = show_selection_border
         self.defaultActionSelected = defaultActionSelected
         
         # Configure border using gs_aspect
@@ -387,6 +390,16 @@ class SGControlPanel(SGGameSpace):
         """
         self.show_section_titles = bool(show)
         self._rebuildWithCurrentActions()
+
+    def setShowSelectionBorder(self, show):
+        """
+        Enable or disable the selection border on items.
+        
+        Args:
+            show (bool): True to display selection border, False to hide it
+        """
+        self.showSelectionBorder = bool(show)
+        self.update()
         
     def setBorderSize(self, size):
         """

@@ -334,9 +334,14 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
                     if not action.canBeUsed():
                         continue
                     
-                    # Special handling for CreateActions: they target cells but create agents/tiles
+                    # Special handling for CreateActions: they target cells but may be triggered via other entities
                     if isinstance(action, SGCreate):
-                        if entity_model.type.isCellType and action.checkAuthorization(entity_model):
+                        target_for_auth = None
+                        if entity_model.type.isCellType:
+                            target_for_auth = entity_model
+                        elif hasattr(entity_model, "cell") and entity_model.cell is not None:
+                            target_for_auth = entity_model.cell
+                        if target_for_auth is not None and action.checkAuthorization(target_for_auth):
                             return action
                     # For all other actions, check that targetType matches entity type
                     elif action.targetType == entityDef:
@@ -350,8 +355,17 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
                 selected_action = aLegendItem.gameAction
                 if selected_action is not None and not isinstance(selected_action, SGMove):
                     # Check authorization before returning
-                    if selected_action.checkAuthorization(entity_model):
-                        return selected_action
+                    if isinstance(selected_action, SGCreate):
+                        target_for_auth = None
+                        if entity_model.type.isCellType:
+                            target_for_auth = entity_model
+                        elif hasattr(entity_model, "cell") and entity_model.cell is not None:
+                            target_for_auth = entity_model.cell
+                        if target_for_auth is not None and selected_action.checkAuthorization(target_for_auth):
+                            return selected_action
+                    else:
+                        if selected_action.checkAuthorization(entity_model):
+                            return selected_action
         except (ValueError, AttributeError):
             # Current player not defined yet or not a valid player object, skip
             pass

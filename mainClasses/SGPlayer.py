@@ -530,7 +530,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
         title=None,
         defaultActionSelected=None,
         show_title=True,
-        show_section_titles=True
+        show_section_titles=True,
+        show_selection_border=True
     ) -> SGControlPanel:
         """
         To create an Player Control Panel (only with the GameActions related elements)
@@ -546,7 +547,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
             title,
             defaultActionSelected=defaultActionSelected,
             show_title=show_title,
-            show_section_titles=show_section_titles
+            show_section_titles=show_section_titles,
+            show_selection_border=show_selection_border
         )
         self.model.gameSpaces[title] = self.controlPanel
         

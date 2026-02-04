@@ -413,7 +413,11 @@ class SGTileView(SGEntityView):
                 )
                 
                 # Execute the action
-                self.pending_click_action.perform_with(self.tile_model)
+                from mainClasses.gameAction.SGCreate import SGCreate
+                if isinstance(self.pending_click_action, SGCreate):
+                    self.pending_click_action.perform_with(self.tile_model.cell)
+                else:
+                    self.pending_click_action.perform_with(self.tile_model)
                 
                 # If action was triggered via directClick, update ControlPanel selection
                 if action_was_directclick:
