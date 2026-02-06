@@ -42,6 +42,7 @@ class SGAbstractAction():
         
         self.numberUsed=0
         self.totalNumberUsed=0
+        self.actionPointsCost = 0
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
         self.feedbacks=copy.deepcopy(feedbacks)
@@ -91,12 +92,21 @@ class SGAbstractAction():
         # print(f"action {self.name} is performed")
         if self.checkAuthorization(aTargetEntity):
             resAction = self.executeAction(aTargetEntity)
+            try:
+                print(
+                    f"[DEBUG ACTION] type={self.actionType} "
+                    f"name={self.nameToDisplay} "
+                    f"target={getattr(self.targetType, 'name', self.targetType)}"
+                )
+            except Exception:
+                print("[DEBUG ACTION] action performed")
             if self.feedbacks:
                 aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,resAction]) # Previously Three choices aTargetEntity,aParameterHolder,resAction
                 if self.checkFeedbackAuhorization(aFeedbackTarget):
                     resFeedback = self.executeFeedbacks(aFeedbackTarget)
             else : resFeedback = None
             self.incNbUsed()
+            self._consumeActionPointsIfNeeded()
             self.savePerformedActionInHistory(aTargetEntity, resAction, resFeedback)
 
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
@@ -145,6 +155,14 @@ class SGAbstractAction():
                 return False 
         if self.numberUsed >= self.number:
             return False
+        if self.actionPointsCost and self.actionPointsCost > 0:
+            try:
+                player = self.model.getCurrentPlayer()
+                if not getattr(player, "isAdmin", False):
+                    if hasattr(player, "hasEnoughActionPoints"):
+                        return player.hasEnoughActionPoints(self.actionPointsCost)
+            except Exception:
+                return False
         return True
     
     def checkAuthorization(self,aTargetEntity):
@@ -228,6 +246,7 @@ class SGAbstractAction():
         action_copy.action_controler = copy.deepcopy(self.action_controler)  # Deep copy action controller
         action_copy.nameToDisplay = self.nameToDisplay
         action_copy.history = {"performed": []}  # Reset history
+        action_copy.actionPointsCost = self.actionPointsCost
         
         # Copy subclass-specific attributes if they exist
         if hasattr(self, 'method'):
@@ -258,6 +277,40 @@ class SGAbstractAction():
         
     def getNbRemainingActions(self):
         return self.number-self.numberUsed
+
+    def _consumeActionPointsIfNeeded(self):
+        if not self.actionPointsCost or self.actionPointsCost <= 0:
+            return
+        try:
+            player = self.model.getCurrentPlayer()
+            if getattr(player, "isAdmin", False):
+                return
+            if hasattr(player, "spendActionPoints"):
+                player.spendActionPoints(self.actionPointsCost)
+        except Exception:
+            pass
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    # ============================================================================
+    # SET METHODS
+    # ============================================================================
+    def setActionPointsCost(self, cost):
+        """
+        Set the action points cost for this action.
+
+        Args:
+            cost (int): Action points cost (0 means no cost)
+        """
+        try:
+            self.actionPointsCost = int(cost)
+        except Exception:
+            self.actionPointsCost = 0
+
+    def getActionPointsCost(self):
+        """Get the action points cost for this action."""
+        return self.actionPointsCost
         # thePlayer.remainActions[self.name]=remainNumber
     
     def getGraphIdentifier(self):

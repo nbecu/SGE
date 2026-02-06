@@ -80,17 +80,24 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
 
             def _pixmap_rect_for_shape(shape):
+                scale = getattr(self.legend, "symbolScale", 1.0)
+                try:
+                    scale = float(scale)
+                except Exception:
+                    scale = 1.0
+                def _s(v):
+                    return max(1, int(v * scale))
                 if shape == "hexagonal":
-                    return QRect(0, 0, 30, 20)
+                    return QRect(0, 0, _s(30), _s(20))
                 if shape in (
                     "circleAgent", "squareAgent", "ellipseAgent1", "ellipseAgent2",
                     "rectAgent1", "rectAgent2", "triangleAgent1", "triangleAgent2",
                     "arrowAgent1", "arrowAgent2"
                 ):
-                    return QRect(0, 0, 20, 20)
+                    return QRect(0, 0, _s(20), _s(20))
                 if shape in ("circleTile", "ellipseTile"):
-                    return QRect(0, 0, 18, 18)
-                return QRect(0, 0, 18, 18)
+                    return QRect(0, 0, _s(18), _s(18))
+                return QRect(0, 0, _s(18), _s(18))
 
             def _draw_pixmap(rect):
                 if not is_pixmap:
@@ -113,91 +120,102 @@ class SGLegendItem(QtWidgets.QWidget):
                     painter.drawRect(rect.x(), rect.y(), rect.width() - 1, rect.height() - 1)
                 return True
 
+            scale = getattr(self.legend, "symbolScale", 1.0)
+            try:
+                scale = float(scale)
+            except Exception:
+                scale = 1.0
+
+            def _s(v):
+                return max(1, int(v * scale))
+
+            symbol_rect = _pixmap_rect_for_shape(self.shape)
+
             #Square cell
             if(self.shape=="square") :   
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawRect(0, 0, 18, 18)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawRect(0, 0, _s(18), _s(18))
                 if self.type == 'delete':
                     # draw a red cross inside
                     pen = QPen(Qt.red, 2)
                     painter.setPen(pen)
-                    painter.drawLine(5, 5, 15, 15)
-                    painter.drawLine(15, 5, 5, 15)
+                    painter.drawLine(_s(5), _s(5), _s(15), _s(15))
+                    painter.drawLine(_s(15), _s(5), _s(5), _s(15))
             #agent
             elif self.shape=="circleAgent":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawEllipse(0, 0, 20, 20)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawEllipse(0, 0, _s(20), _s(20))
             elif self.shape=="squareAgent":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawRect(0, 0, 20, 20)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawRect(0, 0, _s(20), _s(20))
             elif self.shape=="ellipseAgent1":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawEllipse(0, 5, 20, 10)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawEllipse(0, _s(5), _s(20), _s(10))
             elif self.shape=="ellipseAgent2":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawEllipse(5, 0, 10, 20)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawEllipse(_s(5), 0, _s(10), _s(20))
             elif self.shape=="rectAgent1":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawRect(0, 5, 20, 10)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawRect(0, _s(5), _s(20), _s(10))
             elif self.shape=="rectAgent2":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawRect(5, 0, 10, 20)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawRect(_s(5), 0, _s(10), _s(20))
             elif self.shape=="triangleAgent1": 
                 points = QPolygon([
-                QPoint(10,5),
-                QPoint(5,15),
-                QPoint(15,15)
+                QPoint(_s(10), _s(5)),
+                QPoint(_s(5), _s(15)),
+                QPoint(_s(15), _s(15))
                 ])
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
+                if not _draw_pixmap(symbol_rect):
                     painter.drawPolygon(points)
             elif self.shape=="triangleAgent2": 
                 points = QPolygon([           
-                QPoint(15,5),
-                QPoint(5,5),
-                QPoint(10,15)
+                QPoint(_s(15), _s(5)),
+                QPoint(_s(5), _s(5)),
+                QPoint(_s(10), _s(15))
                 ])
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
+                if not _draw_pixmap(symbol_rect):
                     painter.drawPolygon(points)
             elif self.shape=="arrowAgent1": 
                 points = QPolygon([
-                QPoint(20,7),
-                QPoint(15,17),
-                QPoint(20,14),
-                QPoint(25,17)
+                QPoint(_s(20), _s(7)),
+                QPoint(_s(15), _s(17)),
+                QPoint(_s(20), _s(14)),
+                QPoint(_s(25), _s(17))
                 ])
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
+                if not _draw_pixmap(symbol_rect):
                     painter.drawPolygon(points)
             elif self.shape=="arrowAgent2": 
                 points = QPolygon([           
-                QPoint(25,7),
-                QPoint(20,10),
-                QPoint(15,7),
-                QPoint(20,17)
+                QPoint(_s(25), _s(7)),
+                QPoint(_s(20), _s(10)),
+                QPoint(_s(15), _s(7)),
+                QPoint(_s(20), _s(17))
                 ])
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
+                if not _draw_pixmap(symbol_rect):
                     painter.drawPolygon(points)
             #Hexagonal square
             elif self.shape=="hexagonal":
                 points = QPolygon([
-                QPoint(20,  0),
-                QPoint(30,  7),
-                QPoint(30,  14),
-                QPoint(20, 20),
-                QPoint(10, 14),
-                QPoint(10,  7)
+                QPoint(_s(20),  0),
+                QPoint(_s(30),  _s(7)),
+                QPoint(_s(30),  _s(14)),
+                QPoint(_s(20), _s(20)),
+                QPoint(_s(10), _s(14)),
+                QPoint(_s(10),  _s(7))
                 ])
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
+                if not _draw_pixmap(symbol_rect):
                     painter.drawPolygon(points)
             #Tiles
             elif self.shape=="rectTile" or self.shape=="imageTile":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawRect(0, 0, 18, 18)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawRect(0, 0, _s(18), _s(18))
             elif self.shape=="circleTile":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawEllipse(0, 0, 18, 18)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawEllipse(0, 0, _s(18), _s(18))
             elif self.shape=="ellipseTile":
-                if not _draw_pixmap(_pixmap_rect_for_shape(self.shape)):
-                    painter.drawEllipse(0, 3, 18, 9)
+                if not _draw_pixmap(symbol_rect):
+                    painter.drawEllipse(0, _s(3), _s(18), _s(9))
             
             # Text styling derived from legend's gs_aspect text aspects
             def apply_font_from_aspect(font: QFont, aspect):
@@ -315,7 +333,10 @@ class SGLegendItem(QtWidgets.QWidget):
             elif self.type =='delete':
                 aFont = QFont()
                 aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'text1_aspect', type('x', (), {})()))
-                base_x = 30
+                if self.type == "symbol":
+                    base_x = symbol_rect.width() + 10
+                else:
+                    base_x = 30
                 align = Qt.AlignLeft
                 try:
                     al = getattr(self.legend, 'text1_aspect').alignment

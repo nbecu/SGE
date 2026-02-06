@@ -42,6 +42,7 @@ class SGTimeManager():
             #reset GameActions count
             for action in self.model.getAllGameActions():
                 action.reset()
+            self._resetActionPointsForAllPlayers("round")
             # Update end game conditions text after round change
             # This ensures countdown is updated correctly when entering final round
             for aCond in self.conditionOfEndGame:
@@ -58,6 +59,13 @@ class SGTimeManager():
 
         # Get current phase before processing
         currentPhase = self.getCurrentPhase()
+        try:
+            print(
+                f"[DEBUG PHASE] round={self.currentRoundNumber} "
+                f"phase={self.currentPhaseNumber} name={getattr(currentPhase, 'name', 'unknown')}"
+            )
+        except Exception:
+            print("[DEBUG PHASE] entered new phase")
         
         # Process the useSelector widgets for this next phase/round
         if self.model.userSelector is not None:
@@ -74,6 +82,9 @@ class SGTimeManager():
 
         # Update control panels based on current phase type
         self.updateControlPanelsForCurrentPhase()
+
+        # Reset action points if needed for phase-based reset
+        self._resetActionPointsForPhase(currentPhase)
 
         # execute the actions of the phase
         self.getCurrentPhase().execPhase()
@@ -100,6 +111,23 @@ class SGTimeManager():
             for controlPanel in self.model.getControlPanels():
                 is_active = controlPanel.playerName == self.model.currentPlayerName
                 controlPanel.setActivation(is_active)
+
+    def _resetActionPointsForAllPlayers(self, mode):
+        try:
+            for player in self.model.players.values():
+                if hasattr(player, "resetActionPoints"):
+                    player.resetActionPoints(mode)
+        except Exception:
+            pass
+
+    def _resetActionPointsForPhase(self, phase):
+        try:
+            if isinstance(phase, SGPlayPhase):
+                for player in phase.authorizedPlayers:
+                    if hasattr(player, "resetActionPoints"):
+                        player.resetActionPoints("phase")
+        except Exception:
+            pass
 
     def isItTheLastPhase(self):
         return (self.currentPhaseNumber + 1) > self.numberOfPhases() 
@@ -151,7 +179,7 @@ class SGTimeManager():
 
     # To add a new Game Phase
 
-    def newPlayPhase(self, name, activePlayers=None, modelActions=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+    def newPlayPhase(self, name, activePlayers=None, modelActions=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, autoForwardWhenNoMoreActionPoints=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         To add a Game Phase in a round.
 
@@ -168,6 +196,7 @@ class SGTimeManager():
                 - []: no actions are allowed
                 - [action1, action2, ...]: only these actions are allowed
             autoForwardWhenAllActionsUsed (bool): Whether to automatically forward to next phase when all players have used their actions
+            autoForwardWhenNoMoreActionPoints (bool): Whether to automatically forward when all players have no action points
             message_auto_forward (bool): Whether to show a message when automatically forwarding to the next phase
             show_message_box_at_start (bool): Whether to show a message box at the start of the phase
         """
@@ -201,11 +230,17 @@ class SGTimeManager():
         
         activePlayers = processedPlayers
 
-        aPhase = SGPlayPhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
-                           authorizedActions=authorizedActions,
-                           autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
-                           message_auto_forward=message_auto_forward,
-                           show_message_box_at_start=show_message_box_at_start)
+        aPhase = SGPlayPhase(
+            self,
+            modelActions=modelActions,
+            name=name,
+            authorizedPlayers=activePlayers,
+            authorizedActions=authorizedActions,
+            autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
+            autoForwardWhenNoMoreActionPoints=autoForwardWhenNoMoreActionPoints,
+            message_auto_forward=message_auto_forward,
+            show_message_box_at_start=show_message_box_at_start
+        )
         self.phases = self.phases + [aPhase]
         return aPhase
 

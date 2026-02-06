@@ -180,7 +180,7 @@ class SGModelPhase(SGTimePhase):
 
 
 class SGPlayPhase(SGTimePhase):
-    def __init__(self, timeManager, modelActions=[], name='', authorizedPlayers=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+    def __init__(self, timeManager, modelActions=[], name='', authorizedPlayers=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, autoForwardWhenNoMoreActionPoints=False, message_auto_forward=True, show_message_box_at_start=False):
         super().__init__(timeManager, name, modelActions=modelActions, show_message_box_at_start=show_message_box_at_start, message_auto_forward=message_auto_forward)
         self._authorizedPlayers = authorizedPlayers if authorizedPlayers else []
         self.authorizedPlayers = self._authorizedPlayers
@@ -188,6 +188,7 @@ class SGPlayPhase(SGTimePhase):
         self._authorizedActions = authorizedActions if authorizedActions is not None else None
         self.authorizedActions = self._authorizedActions
         self.autoForwardWhenAllActionsUsed = autoForwardWhenAllActionsUsed
+        self.autoForwardWhenNoMoreActionPoints = autoForwardWhenNoMoreActionPoints
 
     def addAuthorizedPlayer(self, player):
         """Ajoute un joueur à la liste des joueurs autorisés"""
@@ -266,11 +267,60 @@ class SGPlayPhase(SGTimePhase):
                 return False
         return True
 
+    def hasAllPlayersNoMoreActionPoints(self):
+        """Check if all authorized players have no more action points"""
+        for player in self._authorizedPlayers:
+            if not getattr(player, "actionPointsEnabled", False):
+                return False
+            if player.getActionPoints() > 0:
+                return False
+        return True
+
     def shouldForwardAutomatically(self):
         """Détermine si la phase doit passer automatiquement à la suivante"""
         if self.auto_forward:
             return True
         if self.autoForwardWhenAllActionsUsed:
-            return self.hasAllPlayersUsedAllActions()
+            try:
+                debug_players = []
+                for p in self._authorizedPlayers:
+                    try:
+                        nb_remaining = sum(
+                            1 for a in getattr(p, "gameActions", []) if a.canBeUsed()
+                        )
+                    except Exception:
+                        nb_remaining = "na"
+                    debug_players.append(
+                        f"{getattr(p, 'name', 'unknown')}:{nb_remaining}"
+                    )
+                print(
+                    f"[DEBUG AAU] phase={self.name} players="
+                    + ",".join(debug_players)
+                )
+            except Exception:
+                print("[DEBUG AAU] phase actions debug failed")
+            if self.hasAllPlayersUsedAllActions():
+                print("[DEBUG AAU] forward: all actions used")
+                return True
+            else:
+                print("[DEBUG AAU] no forward: actions still available")
+        if self.autoForwardWhenNoMoreActionPoints:
+            try:
+                debug_players = []
+                for p in self._authorizedPlayers:
+                    debug_players.append(
+                        f"{getattr(p, 'name', 'unknown')}:{getattr(p, 'actionPointsCurrent', 'na')}"
+                    )
+                print(
+                    f"[DEBUG AP] phase={self.name} players="
+                    + ",".join(debug_players)
+                )
+            except Exception:
+                print("[DEBUG AP] phase action points debug failed")
+            if self.hasAllPlayersNoMoreActionPoints():
+                print("[DEBUG AP] forward: no more action points")
+                return True
+            else:
+                print("[DEBUG AP] no forward: action points still available")
         return False
 

@@ -28,6 +28,10 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.remainActions = {}
         self.controlPanel= None
         self.watchers={}
+        self.actionPointsEnabled = False
+        self.actionPointsMax = 0
+        self.actionPointsCurrent = 0
+        self.actionPointsResetMode = "round"
         #Define variables to handle the history 
         self.history={}
         self.history["value"]=defaultdict(list)
@@ -280,7 +284,83 @@ class SGPlayer(AttributeAndValueFunctionalities):
         else:
             raise ValueError("wrong format")
 
-    def newActivateAction(self, object_type=None, method=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+    def enableActionPoints(self, max_points, current_points=None, reset_mode="round"):
+        """
+        Enable action points for this player.
+
+        Args:
+            max_points (int): Maximum action points for the player
+            current_points (int, optional): Current points. Defaults to max_points.
+            reset_mode (str): "round", "phase", or "none"
+        """
+        try:
+            self.actionPointsMax = int(max_points)
+        except Exception:
+            self.actionPointsMax = 0
+        if current_points is None:
+            self.actionPointsCurrent = self.actionPointsMax
+        else:
+            try:
+                self.actionPointsCurrent = int(current_points)
+            except Exception:
+                self.actionPointsCurrent = self.actionPointsMax
+        self.actionPointsResetMode = reset_mode
+        self.actionPointsEnabled = True
+
+    def disableActionPoints(self):
+        """Disable action points for this player."""
+        self.actionPointsEnabled = False
+
+    def getActionPoints(self):
+        """Get current action points."""
+        return self.actionPointsCurrent
+
+    def getActionPointsMax(self):
+        """Get maximum action points."""
+        return self.actionPointsMax
+
+    def setActionPoints(self, value):
+        """Set current action points."""
+        try:
+            self.actionPointsCurrent = int(value)
+        except Exception:
+            return
+
+    def addActionPoints(self, value):
+        """Add action points (can be negative)."""
+        try:
+            self.actionPointsCurrent += int(value)
+        except Exception:
+            return
+
+    def hasEnoughActionPoints(self, cost):
+        if not self.actionPointsEnabled:
+            return True
+        try:
+            return self.actionPointsCurrent >= int(cost)
+        except Exception:
+            return True
+
+    def spendActionPoints(self, cost):
+        if not self.actionPointsEnabled:
+            return True
+        try:
+            cost = int(cost)
+        except Exception:
+            return False
+        if self.actionPointsCurrent < cost:
+            return False
+        self.actionPointsCurrent -= cost
+        return True
+
+    def resetActionPoints(self, mode="round"):
+        if not self.actionPointsEnabled:
+            return
+        if self.actionPointsResetMode != mode:
+            return
+        self.actionPointsCurrent = self.actionPointsMax
+
+    def newActivateAction(self, object_type=None, method=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):
         """
         Create a new ActivateAction and automatically add it to this player.
         
@@ -314,13 +394,14 @@ class SGPlayer(AttributeAndValueFunctionalities):
             feedbacks=feedbacks,
             conditionsOfFeedback=conditionsOfFeedback,
             label=label,
-            action_controler=action_controler
+            action_controler=action_controler,
+            action_points_cost=action_points_cost
         )
         # Automatically add it to this player
         self.addGameAction(action)
         return action
 
-    def newCreateAction(self, entity_type, dictAttributes=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, create_several_at_each_click=False, writeAttributeInLabel=False, action_controler=None):
+    def newCreateAction(self, entity_type, dictAttributes=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, create_several_at_each_click=False, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):
         """
         Create a new CreateAction and automatically add it to this player.
         
@@ -352,12 +433,13 @@ class SGPlayer(AttributeAndValueFunctionalities):
             label=label,
             create_several_at_each_click=create_several_at_each_click,
             writeAttributeInLabel=writeAttributeInLabel,
-            action_controler=action_controler
+            action_controler=action_controler,
+            action_points_cost=action_points_cost
         )
         self.addGameAction(action)
         return action
 
-    def newModifyAction(self, entity_type, dictAttributes={}, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):
+    def newModifyAction(self, entity_type, dictAttributes={}, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):
         """
         Create a new ModifyAction and automatically add it to this player.
         
@@ -387,12 +469,13 @@ class SGPlayer(AttributeAndValueFunctionalities):
             conditionsOfFeedback=conditionsOfFeedback,
             label=label,
             writeAttributeInLabel=writeAttributeInLabel,
-            action_controler=action_controler
+            action_controler=action_controler,
+            action_points_cost=action_points_cost
         )
         self.addGameAction(action)
         return action
 
-    def newModifyActionWithDialog(self, entity_type, attribute, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):
+    def newModifyActionWithDialog(self, entity_type, attribute, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):
         """
         Create a new ModifyActionWithDialog and automatically add it to this player.
         
@@ -422,12 +505,13 @@ class SGPlayer(AttributeAndValueFunctionalities):
             conditionsOfFeedback=conditionsOfFeedback,
             label=label,
             writeAttributeInLabel=writeAttributeInLabel,
-            action_controler=action_controler
+            action_controler=action_controler,
+            action_points_cost=action_points_cost
         )
         self.addGameAction(action)
         return action
 
-    def newDeleteAction(self, entity_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+    def newDeleteAction(self, entity_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):
         """
         Create a new DeleteAction and automatically add it to this player.
         
@@ -453,12 +537,13 @@ class SGPlayer(AttributeAndValueFunctionalities):
             feedbacks=feedbacks,
             conditionsOfFeedback=conditionsOfFeedback,
             label=label,
-            action_controler=action_controler
+            action_controler=action_controler,
+            action_points_cost=action_points_cost
         )
         self.addGameAction(action)
         return action
 
-    def newMoveAction(self, agent_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[], label=None, action_controler=None):
+    def newMoveAction(self, agent_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[], label=None, action_controler=None, action_points_cost=None):
         """
         Create a new MoveAction and automatically add it to this player.
         
@@ -488,12 +573,13 @@ class SGPlayer(AttributeAndValueFunctionalities):
             feedbacksAgent=feedbacksAgent,
             conditionsOfFeedBackAgent=conditionsOfFeedBackAgent,
             label=label,
-            action_controler=action_controler
+            action_controler=action_controler,
+            action_points_cost=action_points_cost
         )
         self.addGameAction(action)
         return action
 
-    def newFlipAction(self, tile_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+    def newFlipAction(self, tile_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):
         """
         Create a new FlipAction and automatically add it to this player.
         
@@ -519,7 +605,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
             feedbacks=feedbacks,
             conditionsOfFeedback=conditionsOfFeedback,
             label=label,
-            action_controler=action_controler
+            action_controler=action_controler,
+            action_points_cost=action_points_cost
         )
         self.addGameAction(action)
         return action
@@ -531,7 +618,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
         defaultActionSelected=None,
         show_title=True,
         show_section_titles=True,
-        show_selection_border=True
+        show_selection_border=True,
+        symbol_scale=1.0
     ) -> SGControlPanel:
         """
         To create an Player Control Panel (only with the GameActions related elements)
@@ -548,7 +636,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
             defaultActionSelected=defaultActionSelected,
             show_title=show_title,
             show_section_titles=show_section_titles,
-            show_selection_border=show_selection_border
+            show_selection_border=show_selection_border,
+            symbol_scale=symbol_scale
         )
         self.model.gameSpaces[title] = self.controlPanel
         

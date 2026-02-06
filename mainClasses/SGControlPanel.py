@@ -17,7 +17,8 @@ class SGControlPanel(SGGameSpace):
         defaultActionSelected=None,
         show_title=True,
         show_section_titles=True,
-        show_selection_border=True
+        show_selection_border=True,
+        symbol_scale=1.0
     ):
         """
         Initialize a ControlPanel for a specific player.
@@ -31,6 +32,7 @@ class SGControlPanel(SGGameSpace):
             show_title (bool): Whether to display the main title (Title1)
             show_section_titles (bool): Whether to display section titles (Title2)
             show_selection_border (bool): Whether to display selection border on items
+            symbol_scale (float): Scale factor for symbol size in the control panel
         """
         # Initialize the parent SGGameSpace
         super().__init__(aPlayer.model, 0, 60, 0, 0, backgroundColor=backgroundColor)
@@ -47,6 +49,7 @@ class SGControlPanel(SGGameSpace):
         self.show_title = show_title
         self.show_section_titles = show_section_titles
         self.showSelectionBorder = show_selection_border
+        self.symbolScale = symbol_scale
         self.defaultActionSelected = defaultActionSelected
         
         # Configure border using gs_aspect
@@ -126,7 +129,12 @@ class SGControlPanel(SGGameSpace):
         self.posYOfItems = 0
         self.legendItems = []
         # Vertical spacing between items; also controls top margin feel
-        self.heightOfLabels = 22  # slightly larger to increase top margin perception
+        scale = getattr(self, "symbolScale", 1.0)
+        try:
+            scale = float(scale)
+        except Exception:
+            scale = 1.0
+        self.heightOfLabels = max(22, int(22 * scale))
         if self.show_title:
             anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
             # Ensure Title1 participates in width/size computations
@@ -400,6 +408,19 @@ class SGControlPanel(SGGameSpace):
         """
         self.showSelectionBorder = bool(show)
         self.update()
+
+    def setSymbolScale(self, scale):
+        """
+        Set the symbol scale for items in the control panel.
+
+        Args:
+            scale (float): Scale factor for symbol size
+        """
+        try:
+            self.symbolScale = float(scale)
+        except Exception:
+            self.symbolScale = 1.0
+        self._rebuildWithCurrentActions()
         
     def setBorderSize(self, size):
         """

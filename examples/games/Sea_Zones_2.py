@@ -155,7 +155,9 @@ deck_stack.refillAvailableSlots()
 # ============================================================================
 # Create marker agent
 # ============================================================================
-Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,locationInEntity="topRight")
+Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,
+locationInEntity="topRight"
+)
 # Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.newPov("default", "owner", {
     "Player 1":QPixmap(f"{images_dir}/jeton_bleu.png"),
@@ -294,6 +296,7 @@ for i in range(1, nb_players + 1):
     player = myModel.newPlayer(f"Player {i}")
     Players[i] = player
     player.setValue("score", 0)  # Initialize score to 0
+    player.enableActionPoints(max_points=2, reset_mode="round")
     
     # Set the player as owner of their board
     player_board = PlayerBoards[i]
@@ -377,6 +380,7 @@ for i, player in enumerate(Players.values(), start=1):
     player_move_action = moveActionTemplate.copy()
     # Add the action to the player
     player.addGameAction(player_move_action)
+    player_move_action.setActionPointsCost(1)
     PlayersMoveAction[i] = player_move_action
 
 # ============================================================================
@@ -393,7 +397,7 @@ for i in range(1, nb_players + 1):
         uses_per_round=1,
         conditions=[
             lambda cell: cell.type == Board,
-            lambda cell: cell.hasAgents(Marker),
+            lambda cell: cell.nbAgents(Marker) ==1,
             lambda cell, player_name=player_name: (
                 cell.getFirstAgent(Marker).value("owner") == player_name
             )
@@ -402,13 +406,15 @@ for i in range(1, nb_players + 1):
         label=""
     )
     aPlayer.addGameAction(doubleMarkerAction)
+    doubleMarkerAction.setActionPointsCost(2)
     PlayersMarkerAction[i] = doubleMarkerAction
 
     pCP = aPlayer.newControlPanel(
         defaultActionSelected=doubleMarkerAction,
         show_title=False,
         show_section_titles=False,
-        show_selection_border=False
+        show_selection_border=False,
+        symbol_scale=2
     )
     pCP.setBackgroundColor(Qt.transparent, color_when_inactive=Qt.transparent)
     pCP.setBorderColor(Qt.transparent)
@@ -453,6 +459,7 @@ PlayersPickAction = {}
 for i, player in enumerate(Players.values(), start=1):
     player_pick_action = pickTileTemplate.copy()
     player.addGameAction(player_pick_action)
+    player_pick_action.setActionPointsCost(1)
     PlayersPickAction[i] = player_pick_action
 
 # ============================================================================
@@ -461,11 +468,23 @@ for i, player in enumerate(Players.values(), start=1):
 
 for i in range(1, nb_players + 1):
     # Turn phase: only moveAction is allowed
-    myModel.newPlayPhase(f"Player {i} Turn", [Players[i]], authorizedActions=[PlayersMoveAction[i], PlayersMarkerAction[i]],
-            autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
+    myModel.newPlayPhase(
+        f"Player {i} Turn",
+        [Players[i]],
+        authorizedActions=[PlayersMoveAction[i], PlayersMarkerAction[i]],
+        autoForwardWhenAllActionsUsed=True,
+        autoForwardWhenNoMoreActionPoints=True,
+        message_auto_forward=False
+    )
     # Pick phase: only pickTile is allowed
-    myModel.newPlayPhase(f"Player {i} Pick", [Players[i]], authorizedActions=[PlayersPickAction[i]],
-            autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
+    myModel.newPlayPhase(
+        f"Player {i} Pick",
+        [Players[i]],
+        authorizedActions=[PlayersPickAction[i]],
+        autoForwardWhenAllActionsUsed=True,
+        autoForwardWhenNoMoreActionPoints=True,
+        message_auto_forward=False
+    )
     # Add a model phase to refill the river slots automatically
     myModel.newModelPhase(
         refill_action,

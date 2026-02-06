@@ -26,12 +26,21 @@ class SGMove(SGAbstractAction):
             aOriginEntity = aMovingEntity.cell
             newCopyOfAgent = self.executeAction(aMovingEntity,aDestinationEntity)
             aMovingEntity = newCopyOfAgent
+            try:
+                print(
+                    f"[DEBUG ACTION] type={self.actionType} "
+                    f"name={self.nameToDisplay} "
+                    f"target={getattr(self.targetType, 'name', self.targetType)}"
+                )
+            except Exception:
+                print("[DEBUG ACTION] action performed")
             if self.feedbacks:
                 aFeedbackTarget = self.chooseFeedbackTargetAmong([aMovingEntity,aDestinationEntity,aOriginEntity])
                 if self.checkFeedbackAuhorization(aFeedbackTarget):
                     resFeedback = self.executeFeedbacks(aFeedbackTarget)
             else : resFeedback = None
             self.incNbUsed()
+            self._consumeActionPointsIfNeeded()
             self.savePerformedActionInHistory(aTargetEntity, aMovingEntity, resFeedback, aDestinationEntity)
 
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity,aDestinationEntity)
