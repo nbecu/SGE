@@ -87,6 +87,20 @@ class SGAgentView(SGEntityView):
             relY = max(0, relY)  # Don't go negative
         else:
             raise ValueError("Error in entry for locationInEntity")
+
+        # Apply stack offset if configured on the agent type
+        if getattr(self.type, "stackOffset", None):
+            try:
+                dx, dy = self.type.stackOffset
+            except Exception:
+                dx, dy = 0, 0
+            try:
+                same_type_agents = [a for a in current_cell.agents if a.type == self.type]
+                stack_index = same_type_agents.index(self.agent_model) if self.agent_model in same_type_agents else 0
+            except Exception:
+                stack_index = 0
+            relX += int(dx) * stack_index
+            relY += int(dy) * stack_index
         
         # Always use current cell position for accurate positioning
         cell_x = current_cell.view.x()
@@ -184,6 +198,7 @@ class SGAgentView(SGEntityView):
                     QPoint(round(self.size / 2), self.size)
                 ])
                 painter.drawPolygon(points)
+        
             elif(agentShape == "hexagonAgent"):
                 self.setGeometry(x, y, self.size, self.size)
                 side = self.size / 2
@@ -197,6 +212,52 @@ class SGAgentView(SGEntityView):
                     QPoint(0, round(height / 4))                     # Coin supérieur gauche
                 ])
                 painter.drawPolygon(points)
+
+        # Draw stack counter if configured
+        try:
+            stackCounter = getattr(self.type, "stackCounter", None)
+            if stackCounter and self.cell is not None:
+                min_count = stackCounter.get("min_count", 2)
+                fmt = stackCounter.get("format", "x{n}")
+                position = stackCounter.get("position", "center")
+                same_type_agents = [a for a in self.cell.agents if a.type == self.type]
+                count = len(same_type_agents)
+                if count >= min_count:
+                    try:
+                        is_last = (same_type_agents and same_type_agents[-1] == self.agent_model)
+                    except Exception:
+                        is_last = True
+                    if is_last:
+                        try:
+                            text = fmt.format(n=count)
+                        except Exception:
+                            text = f"x{count}"
+                        font = QFont()
+                        font.setPixelSize(12)
+                        painter.setFont(font)
+                        painter.setPen(QPen(Qt.black))
+                        text_rect = painter.boundingRect(QRect(0, 0, self.size, self.size), Qt.AlignLeft, text)
+                        if position == "topLeft":
+                            tx = 0
+                            ty = text_rect.height()
+                        elif position == "center":
+                            tx = int((self.size - text_rect.width()) / 2)
+                            ty = int((self.size + text_rect.height()) / 2)
+                        elif position == "bottomLeft":
+                            tx = 0
+                            ty = self.size
+                        elif position == "bottomRight":
+                            tx = self.size - text_rect.width()
+                            ty = self.size
+                        else:  # topRight
+                            tx = self.size - text_rect.width()
+                            ty = text_rect.height()
+                        # Draw a small background for readability
+                        bg_rect = QRect(tx - 2, ty - text_rect.height(), text_rect.width() + 4, text_rect.height() + 2)
+                        painter.fillRect(bg_rect, QColor(255, 255, 255, 200))
+                        painter.drawText(tx, ty, text)
+        except Exception:
+            pass
                 
         painter.end()
     

@@ -637,7 +637,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             margin (int): New margin in pixels
         """
         self.size_manager.set_right_margin(margin)
-    
+       
+
 
     def __MODELER_METHODS__(self):
         pass
@@ -646,19 +647,6 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
 # ============================================================================
 #Definiton of the methods who the modeler will use
 
-    #Funtion to have the global size of a gameSpace  
-    def setDraggability(self,aBoolean):
-        self.isDraggable=aBoolean
-        
-        
-    #Function to change the order in the layout
-    def setInPosition(self,x,y):
-        x=x-1
-        y=y-1
-        self.posXInLayout=x
-        self.posYInLayout=y
-
-
 
 # ============================================================================
 # SET METHODS
@@ -666,6 +654,15 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     def __MODELER_METHODS__SET__(self):
         pass
 
+    def setDraggable(self, is_draggable):
+        """
+        Set whether the gameSpace is draggable.
+        
+        Args:
+            is_draggable (bool): True to allow dragging, False to disable it
+        """
+        self.isDraggable = bool(is_draggable)
+        
     def setVisibilityForPlayers(self, players):
         """
         Set which players can see this GameSpace.

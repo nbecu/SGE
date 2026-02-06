@@ -1994,7 +1994,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
 
     # To create a New kind of agents
-    def newAgentType(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random",defaultImage=None):
+    def newAgentType(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random", defaultImage=None, stackOffset=None, stackCounter=None):
         """
         Create a new specie of Agents.
 
@@ -2005,13 +2005,26 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             defaultSize (int) : the agentType shape size (Default=10)
             locationInEntity (str, optional) : topRight, topLeft, center, bottomRight, bottomLeft, random 
             defaultImage (str, optional) : link to image
+            stackOffset (tuple, optional) : (dx, dy) offset per stacked agent in the same cell
+            stackCounter (dict, optional) : {"min_count": 2, "format": "x{n}", "position": "topRight"}
         Return:
             a agentType
 
         """
         if shape not in ["circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2","hexagonAgent"]:
             raise ValueError(f"Invalid shape: {shape}")
-        aAgentType = SGAgentType(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,defaultImage)
+        aAgentType = SGAgentType(
+            self,
+            name,
+            shape,
+            defaultSize,
+            entDefAttributesAndValues,
+            defaultColor,
+            locationInEntity,
+            defaultImage,
+            stackOffset=stackOffset,
+            stackCounter=stackCounter
+        )
         self.agentTypes[name]=aAgentType
         return aAgentType
 
@@ -3117,7 +3130,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Update "draggability" for selected elements
         for element in elements_to_change:
-            element.setDraggability(value)
+            element.setDraggable(value)
 # ============================================================================
 # GET/NB METHODS
 # ============================================================================

@@ -121,29 +121,37 @@ class SGAgent(SGEntity):
         if self.type.locationInEntity == "random":
             self.xCoord = self.getRandomX()
             self.yCoord = self.getRandomY()
-            return
-        if self.type.locationInEntity == "topRight":
+        elif self.type.locationInEntity == "topRight":
             self.xCoord = startX + maxSize - 10
             self.yCoord = startY + 5
-            return
-        if self.type.locationInEntity == "topLeft":
+        elif self.type.locationInEntity == "topLeft":
             self.xCoord = startX + 5
             self.yCoord = startY + 5
-            return
-        if self.type.locationInEntity == "bottomLeft":
+        elif self.type.locationInEntity == "bottomLeft":
             self.xCoord = startX + 5
             self.yCoord = startY + maxSize - 10
-            return
-        if self.type.locationInEntity == "bottomRight":
+        elif self.type.locationInEntity == "bottomRight":
             self.xCoord = startX + maxSize - 10
             self.yCoord = startY + maxSize - 10
-            return
-        if self.type.locationInEntity == "center":
+        elif self.type.locationInEntity == "center":
             self.xCoord = startX + int(maxSize/2) - int(self.size/2)
             self.yCoord = startY + int(maxSize/2) - int(self.size/2)
-            return
         else:
             raise ValueError("Error in entry for locationInEntity")
+
+        # Apply stack offset if configured on the agent type
+        if getattr(self.type, "stackOffset", None):
+            try:
+                dx, dy = self.type.stackOffset
+            except Exception:
+                dx, dy = 0, 0
+            try:
+                same_type_agents = [a for a in self.cell.agents if a.type == self.type]
+                stack_index = same_type_agents.index(self) if self in same_type_agents else 0
+            except Exception:
+                stack_index = 0
+            self.xCoord += int(dx) * stack_index
+            self.yCoord += int(dy) * stack_index
 
     # ============================================================================
     # ZOOM METHODS

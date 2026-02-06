@@ -1449,13 +1449,15 @@ class SGCellType(SGEntityType):
 
 
 class SGAgentType(SGEntityType):
-    def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, locationInEntity="random", defaultImage=None, popupImage=None):
+    def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, locationInEntity="random", defaultImage=None, popupImage=None, stackOffset=None, stackCounter=None):
         super().__init__(sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
         # Type identification attribute
         self.isAgentType = True
         self.locationInEntity = locationInEntity
         self.defaultImage = defaultImage
         self.popupImage = popupImage
+        self.stackOffset = stackOffset
+        self.stackCounter = stackCounter
 
     # ===================NEW/ADD/SET METHODS DEVELOPER METHODS==============================================  
     def newAgentOnCellWithModelView(self, aCell, attributesAndValues=None, image=None, popupImage=None):

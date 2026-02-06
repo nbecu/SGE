@@ -156,7 +156,7 @@ deck_stack.refillAvailableSlots()
 # Create marker agent
 # ============================================================================
 Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,
-locationInEntity="topRight"
+locationInEntity="topRight",stackOffset=(0, 35)
 )
 # Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.newPov("default", "owner", {
@@ -414,11 +414,12 @@ for i in range(1, nb_players + 1):
         show_title=False,
         show_section_titles=False,
         show_selection_border=False,
-        symbol_scale=2
+        symbol_scale=3
     )
     pCP.setBackgroundColor(Qt.transparent, color_when_inactive=Qt.transparent)
     pCP.setBorderColor(Qt.transparent)
-    pCP.moveToCoords(735, 180 + (i - 1) * 140)
+    pCP.setDraggable(False)
+    pCP.moveToCoords(710, 200 + (i - 1) * 140)
 
 # ============================================================================
 # Create score dashboard
