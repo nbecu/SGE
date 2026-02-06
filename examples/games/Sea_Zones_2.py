@@ -414,10 +414,10 @@ for i in range(1, nb_players + 1):
         show_title=False,
         show_section_titles=False,
         show_selection_border=False,
-        symbol_scale=3
+        symbol_scale=2.5
     )
     pCP.setBackgroundColor(Qt.transparent, color_when_inactive=Qt.transparent)
-    pCP.setBorderColor(Qt.transparent)
+    # pCP.setBorderColor(Qt.transparent)
     pCP.setDraggable(False)
     pCP.moveToCoords(710, 200 + (i - 1) * 140)
 

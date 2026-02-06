@@ -319,12 +319,18 @@ class SGControlPanel(SGGameSpace):
             
             # Check if the clicked item is a SGLegendItem and is in our legendItems list
             if clickedItem is None or not hasattr(clickedItem, 'gameAction') or clickedItem not in self.legendItems:
+                if not getattr(self, "isDraggable", False):
+                    QMouseEvent.ignore()
+                    return  # No valid item clicked and no drag
                 # Still call parent for drag & drop functionality
                 super().mousePressEvent(QMouseEvent)
                 return # No valid item clicked
             
             # Check if the clicked item is selectable (has gameAction)
             if not clickedItem.isSelectable():
+                if not getattr(self, "isDraggable", False):
+                    QMouseEvent.ignore()
+                    return  # Item not selectable and no drag
                 # Still call parent for drag & drop functionality
                 super().mousePressEvent(QMouseEvent)
                 return # Exit because the item is not selectable (no gameAction)

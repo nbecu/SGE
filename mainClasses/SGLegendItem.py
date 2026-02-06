@@ -365,7 +365,10 @@ class SGLegendItem(QtWidgets.QWidget):
                 aColor = getattr(getattr(self.legend, 'text1_aspect', None), 'color', None)
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
-                base_x = 30
+                if self.type == "symbol":
+                    base_x = symbol_rect.width() + 10
+                else:
+                    base_x = 30
                 align = Qt.AlignLeft
                 try:
                     al = getattr(self.legend, 'text1_aspect').alignment
@@ -390,7 +393,11 @@ class SGLegendItem(QtWidgets.QWidget):
                 text_w = fm.boundingRect(self.text).width()
             # Compute minimum width from measured text + base_x and a small padding
             try:
-                right_pad = 6
+                if self.type == "symbol" and (self.text is None or str(self.text) == ""):
+                    base_x = symbol_rect.width() + 2
+                    right_pad = 2
+                else:
+                    right_pad = 6
                 min_w = int(base_x + max(0, text_w) + right_pad)
             except Exception:
                 min_w = 60
