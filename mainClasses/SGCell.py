@@ -101,11 +101,31 @@ class SGCell(SGEntity):
         """Update when an agent enters this cell"""
         if agent not in self.agents:
             self.agents.append(agent)
+        # Refresh all agents in this cell (stack counters/offsets)
+        try:
+            for a in list(self.agents):
+                if hasattr(a, "view") and a.view:
+                    a.view.updatePositionInEntity()
+                    a.view.update()
+                else:
+                    a.updatePositionInEntity()
+        except Exception:
+            pass
 
     def removeAgent(self, agent):
         """Remove an agent from this cell"""
         if agent in self.agents:
             self.agents.remove(agent)
+        # Refresh remaining agents in this cell (stack counters/offsets)
+        try:
+            for a in list(self.agents):
+                if hasattr(a, "view") and a.view:
+                    a.view.updatePositionInEntity()
+                    a.view.update()
+                else:
+                    a.updatePositionInEntity()
+        except Exception:
+            pass
     
     # ============================================================================
     # TILE MANAGEMENT METHODS

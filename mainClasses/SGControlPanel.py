@@ -198,7 +198,7 @@ class SGControlPanel(SGGameSpace):
                         anItem.setFixedWidth(content_width)
                 except:
                     pass
-        self.setMinimumSize(self.getSizeXGlobal(),10)
+        self.updateSizeFromItems()
 
     def getLegendItemsOfGameActions(self):
         return [item for item in self.legendItems if item.gameAction is not None]
@@ -240,7 +240,10 @@ class SGControlPanel(SGGameSpace):
                 widths = []
                 for it in self.legendItems:
                     try:
-                        w = it.minimumSize().width()
+                        if hasattr(it, "getRequiredWidth"):
+                            w = it.getRequiredWidth()
+                        else:
+                            w = it.minimumSize().width()
                     except Exception:
                         w = it.sizeHint().width()
                     widths.append(w)
@@ -253,6 +256,16 @@ class SGControlPanel(SGGameSpace):
     
     def getSizeYGlobal(self):
         return (self.heightOfLabels)*(len(self.legendItems)+1)
+
+    def updateSizeFromItems(self):
+        """Update widget size based on current items."""
+        content_width = max(0, self.getSizeX_fromAllWidgets())
+        drawn_width = int(self.leftPadding + content_width + max(0, getattr(self, 'rightMargin', 0)))
+        items_count = len(self.legendItems)
+        content_height = int(self.heightOfLabels * items_count)
+        drawn_height = int(self.topPadding + content_height + max(0, getattr(self, 'bottomPadding', 0)))
+        self.setMinimumSize(drawn_width, drawn_height)
+        self.resize(drawn_width, drawn_height)
 
     #Drawing the Legend
     def paintEvent(self,event):
@@ -283,7 +296,6 @@ class SGControlPanel(SGGameSpace):
             items_count = len(self.legendItems)
             content_height = int(self.heightOfLabels * items_count)
             drawn_height = int(self.topPadding + content_height + max(0, getattr(self, 'bottomPadding', 0)))
-            self.setMinimumSize(drawn_width, drawn_height)
             painter.drawRect(0,0, drawn_width-1, drawn_height-1)
 
             painter.end()

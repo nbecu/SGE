@@ -558,6 +558,20 @@ class SGGrid(SGGameSpace):
                         relX = 0
                         relY = 0
                     
+                    # Apply stack offset if configured on the agent type
+                    if getattr(agent.type, "stackOffset", None):
+                        try:
+                            dx, dy = agent.type.stackOffset
+                        except Exception:
+                            dx, dy = 0, 0
+                        try:
+                            same_type_agents = [a for a in cell.getAgents() if a.type == agent.type]
+                            stack_index = same_type_agents.index(agent) if agent in same_type_agents else 0
+                        except Exception:
+                            stack_index = 0
+                        relX += int(dx) * stack_index
+                        relY += int(dy) * stack_index
+                    
                     # Calculate absolute position in widget coordinates
                     agent_widget_x = widget_x + round(relX)
                     agent_widget_y = widget_y + round(relY)

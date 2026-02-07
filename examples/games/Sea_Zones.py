@@ -11,7 +11,7 @@ myModel = SGModel(1200, 850, windowTitle="Sea Zones")
 myModel.displayTimeInWindowTitle()
 
 
-nb_players = 4
+nb_players = 2
 
 # ============================================================================
 # Paths configuration
@@ -155,7 +155,9 @@ deck_stack.refillAvailableSlots()
 # ============================================================================
 # Create marker agent
 # ============================================================================
-Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,locationInEntity="topRight")
+Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,
+locationInEntity="topRight",stackOffset=(0, 35)
+)
 # Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.newPov("default", "owner", {
     "Player 1":QPixmap(f"{images_dir}/jeton_bleu.png"),
@@ -294,6 +296,7 @@ for i in range(1, nb_players + 1):
     player = myModel.newPlayer(f"Player {i}")
     Players[i] = player
     player.setValue("score", 0)  # Initialize score to 0
+    player.enableActionPoints(max_points=2, reset_mode="round")
     
     # Set the player as owner of their board
     player_board = PlayerBoards[i]
@@ -352,12 +355,14 @@ moveActionTemplate = myModel.newMoveAction(
         lambda tile: tile.getGrid().isOwnedBy(myModel.getCurrentPlayer()),  # Can only move from current player's board
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
         lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0,
+        # Prevent placement if cell already has 2 markers
+        lambda tile, cell: cell.nbAgents(Marker) < 2,
         # Check that placing a tile would not exceed horizontal range of 7 across entire grid
         lambda tile, cell: cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True) <= 7,
         # Check that placing a tile would not exceed vertical range of 7 across entire grid
         lambda tile, cell: cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True) <= 7
     ],
-    action_controler={"directClick": True},
+    action_controler={"directClick": True, "controlPanel": False},
     feedbacks=[
         lambda aTile: placeMarker(aTile.cell),
         lambda aTile: adjustMagnifyToCoverAllTiles(aTile)
@@ -371,13 +376,53 @@ def placeMarker(cell):
     calculateScores()
 
 # Create a copy of moveAction for each player (each with a distinct ID)
-PlayerMoveActions = {}
+PlayersMoveAction = {}
 for i, player in enumerate(Players.values(), start=1):
     # Create a copy of the action with a new distinct ID
     player_move_action = moveActionTemplate.copy()
     # Add the action to the player
     player.addGameAction(player_move_action)
-    PlayerMoveActions[i] = player_move_action
+    player_move_action.setActionPointsCost(1)
+    PlayersMoveAction[i] = player_move_action
+
+# ============================================================================
+# Create a double marker action
+# ============================================================================
+PlayersMarkerAction = {}
+for i in range(1, nb_players + 1):
+    aPlayer=Players[i]
+# for aPlayer in Players.values():
+    player_name = aPlayer.name
+    doubleMarkerAction = myModel.newCreateAction(
+        Marker,
+        {"owner": player_name},
+        uses_per_round=1,
+        conditions=[
+            lambda cell: cell.type == Board,
+            lambda cell: cell.nbAgents(Marker) ==1,
+            lambda cell, player_name=player_name: (
+                cell.getFirstAgent(Marker).value("owner") == player_name
+            ),
+            lambda cell: cell.getStack(SeaTile).topTile().getValue("category") == "biodiv" 
+           ],
+        action_controler={"controlPanel": True},
+        label=""
+    )
+    aPlayer.addGameAction(doubleMarkerAction)
+    doubleMarkerAction.setActionPointsCost(2)
+    PlayersMarkerAction[i] = doubleMarkerAction
+
+    pCP = aPlayer.newControlPanel(
+        defaultActionSelected=doubleMarkerAction,
+        show_title=False,
+        show_section_titles=False,
+        show_selection_border=False,
+        symbol_scale=2.5
+    )
+    pCP.setBackgroundColor(Qt.transparent, color_when_inactive=Qt.transparent)
+    pCP.setBorderColor(Qt.transparent)
+    pCP.setDraggable(False)
+    pCP.moveToCoords(710, 200 + (i - 1) * 140)
 
 # ============================================================================
 # Create score dashboard
@@ -385,7 +430,7 @@ for i, player in enumerate(Players.values(), start=1):
 scoreDashboard = myModel.newDashBoard()
 for player in Players.values():
     scoreDashboard.addIndicatorOnEntity(player, "score",title= f'Score of {player.name}')
-scoreDashboard.moveToCoords(520, 700)
+scoreDashboard.moveToCoords(545, 710)
 
 # ============================================================================
 # Create pick tile action: Pick a tile from river to player's board
@@ -414,11 +459,12 @@ pickTileTemplate = myModel.newActivateAction(
 )
 
 # Add pick tile action to all players
-PlayerPickActions = {}
+PlayersPickAction = {}
 for i, player in enumerate(Players.values(), start=1):
     player_pick_action = pickTileTemplate.copy()
     player.addGameAction(player_pick_action)
-    PlayerPickActions[i] = player_pick_action
+    player_pick_action.setActionPointsCost(1)
+    PlayersPickAction[i] = player_pick_action
 
 # ============================================================================
 # Create play phases (one Turn phase and one Pick phase for each player)
@@ -426,11 +472,23 @@ for i, player in enumerate(Players.values(), start=1):
 
 for i in range(1, nb_players + 1):
     # Turn phase: only moveAction is allowed
-    myModel.newPlayPhase(f"Player {i} Turn", [Players[i]], authorizedActions=[PlayerMoveActions[i]],
-            autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
+    myModel.newPlayPhase(
+        f"Player {i} Turn",
+        [Players[i]],
+        authorizedActions=[PlayersMoveAction[i], PlayersMarkerAction[i]],
+        autoForwardWhenAllActionsUsed=True,
+        autoForwardWhenNoMoreActionPoints=True,
+        message_auto_forward=False
+    )
     # Pick phase: only pickTile is allowed
-    myModel.newPlayPhase(f"Player {i} Pick", [Players[i]], authorizedActions=[PlayerPickActions[i]],
-            autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
+    myModel.newPlayPhase(
+        f"Player {i} Pick",
+        [Players[i]],
+        authorizedActions=[PlayersPickAction[i]],
+        autoForwardWhenAllActionsUsed=True,
+        autoForwardWhenNoMoreActionPoints=True,
+        message_auto_forward=False
+    )
     # Add a model phase to refill the river slots automatically
     myModel.newModelPhase(
         refill_action,

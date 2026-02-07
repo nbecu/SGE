@@ -26,6 +26,7 @@ class SGMove(SGAbstractAction):
             aOriginEntity = aMovingEntity.cell
             newCopyOfAgent = self.executeAction(aMovingEntity,aDestinationEntity)
             aMovingEntity = newCopyOfAgent
+            aDestinationEntity = aMovingEntity.cell
             try:
                 print(
                     f"[DEBUG ACTION] type={self.actionType} "
@@ -34,6 +35,28 @@ class SGMove(SGAbstractAction):
                 )
             except Exception:
                 print("[DEBUG ACTION] action performed")
+            # Refresh agent positions and counters on origin/destination cells
+            try:
+                for cell in [aOriginEntity, aDestinationEntity]:
+                    if cell is None:
+                        continue
+                    for agent in list(getattr(cell, "agents", [])):
+                        try:
+                            if hasattr(agent, "view") and agent.view:
+                                agent.view.updatePositionInEntity()
+                                agent.view.update()
+                            else:
+                                agent.updatePositionInEntity()
+                        except Exception:
+                            pass
+                # Ensure moved agent is on top
+                if hasattr(aMovingEntity, "view") and aMovingEntity.view:
+                    try:
+                        aMovingEntity.view.raise_()
+                    except Exception:
+                        pass
+            except Exception:
+                pass
             if self.feedbacks:
                 aFeedbackTarget = self.chooseFeedbackTargetAmong([aMovingEntity,aDestinationEntity,aOriginEntity])
                 if self.checkFeedbackAuhorization(aFeedbackTarget):

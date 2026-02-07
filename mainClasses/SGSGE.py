@@ -4,6 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from mainClasses.SGModel import SGModel
 from mainClasses.SGExtensions import *
+import mainClasses.SGExtensions as _SGExtensions
 from mainClasses.SGCell import SGCell
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -29,9 +30,6 @@ __all__ = [
     "QPixmap",
     "QInputDialog",
     "QPoint",
-    "getResourceBasePath",
-    "getResourcePath",
-    "copyValue",
     "random",
     "randint",
     "inf",
@@ -39,3 +37,9 @@ __all__ = [
     "Path",
     "sys",
 ]
+
+# Export all SGExtensions helpers in __all__
+try:
+    __all__ = list(dict.fromkeys(__all__ + list(getattr(_SGExtensions, "__all__", []))))
+except Exception:
+    pass

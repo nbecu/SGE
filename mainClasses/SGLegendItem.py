@@ -64,6 +64,67 @@ class SGLegendItem(QtWidgets.QWidget):
     def isSymbolOnAgent(self):
         return self.type == 'symbol' and self.typeDef.category() =='Agent' # in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
 
+    def _getSymbolRectWidth(self):
+        scale = getattr(self.legend, "symbolScale", 1.0)
+        try:
+            scale = float(scale)
+        except Exception:
+            scale = 1.0
+        if self.shape == "hexagonal":
+            return int(30 * scale)
+        if self.shape in (
+            "circleAgent", "squareAgent", "ellipseAgent1", "ellipseAgent2",
+            "rectAgent1", "rectAgent2", "triangleAgent1", "triangleAgent2",
+            "arrowAgent1", "arrowAgent2"
+        ):
+            return int(20 * scale)
+        if self.shape in ("circleTile", "ellipseTile"):
+            return int(18 * scale)
+        return int(18 * scale)
+
+    def _fontFromAspect(self, aspect):
+        font = QFont()
+        if getattr(aspect, "font", None):
+            font.setFamily(aspect.font)
+        if getattr(aspect, "size", None):
+            try:
+                font.setPixelSize(int(aspect.size))
+            except Exception:
+                pass
+        try:
+            if hasattr(self.legend, "applyFontWeightToQFont"):
+                self.legend.applyFontWeightToQFont(font, getattr(aspect, "font_weight", None))
+        except Exception:
+            pass
+        return font
+
+    def getRequiredWidth(self):
+        text = "" if self.text is None else str(self.text)
+        if self.type == "Title1":
+            aspect = getattr(self.legend, "title1_aspect", None)
+            base_x = 15
+        elif self.type in ("Title2", "None"):
+            aspect = getattr(self.legend, "title2_aspect", None)
+            base_x = 15
+        else:
+            aspect = getattr(self.legend, "text1_aspect", None)
+            if self.type == "symbol":
+                base_x = self._getSymbolRectWidth() + 10
+            else:
+                base_x = 30
+        try:
+            font = self._fontFromAspect(aspect if aspect is not None else type("x", (), {})())
+            fm = QFontMetrics(font)
+            text_w = fm.boundingRect(text).width()
+        except Exception:
+            text_w = 0
+        if self.type == "symbol" and text == "":
+            base_x = self._getSymbolRectWidth() + 2
+            right_pad = 2
+        else:
+            right_pad = 6
+        return int(base_x + max(0, text_w) + right_pad)
+
     #Drawing function
     def paintEvent(self,event):
         if self.legend.isLegend or (self.legend.isControlPanel and self.legend.checkDisplay()):

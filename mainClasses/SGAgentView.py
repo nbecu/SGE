@@ -54,6 +54,7 @@ class SGAgentView(SGEntityView):
         """Update the absolute position of the agent within its cell"""
         # Use the agent model's current cell, not the view's cached cell
         current_cell = self.agent_model.cell
+        self.cell = current_cell
         
         # Use grid size for consistent zoom behavior (like SGCellView)
         grid_size = current_cell.grid.size

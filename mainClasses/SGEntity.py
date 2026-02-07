@@ -263,6 +263,66 @@ class SGEntity(AttributeAndValueFunctionalities):
     # ============================================================================
 
     # ============================================================================
+    # SET METHODS
+    # ============================================================================
+    def __MODELER_METHODS__SET__(self):
+        pass
+
+    def setImage(self, image, face=None):
+        """
+        Set the image for this entity instance.
+
+        For tiles, you can optionally specify face="front" or "back".
+        If face is None, the current tile face is used.
+        """
+        # Tiles have two faces (front/back)
+        if getattr(self, "isTile", False):
+            target_face = face if face is not None else getattr(self, "face", "front")
+            if target_face not in ("front", "back"):
+                raise ValueError("setImage: face must be 'front' or 'back'")
+
+            # Fill transparent areas like in SGTile.__init__
+            try:
+                from PyQt5.QtGui import QPixmap
+                from mainClasses.SGExtensions import fillTransparentAreas
+                if image is not None and isinstance(image, QPixmap):
+                    if target_face == "front":
+                        image = fillTransparentAreas(image, self.frontColor)
+                    else:
+                        image = fillTransparentAreas(image, self.backColor)
+            except Exception:
+                pass
+
+            if target_face == "front":
+                self.frontImage = image
+            else:
+                self.backImage = image
+
+            if self.view:
+                if hasattr(self.view, "updateFromModel"):
+                    self.view.updateFromModel()
+                else:
+                    if target_face == "front" and hasattr(self.view, "frontImage"):
+                        self.view.frontImage = image
+                    elif target_face == "back" and hasattr(self.view, "backImage"):
+                        self.view.backImage = image
+                    self.view.update()
+            return
+
+        # Cells and agents use defaultImage
+        if hasattr(self, "defaultImage"):
+            self.defaultImage = image
+            if self.view:
+                if hasattr(self.view, "defaultImage"):
+                    self.view.defaultImage = image
+                self.view.update()
+            return
+
+        # Fallback: just refresh view
+        if self.view:
+            self.view.update()
+
+    # ============================================================================
     # GET/NB METHODS
     # ============================================================================
     def __MODELER_METHODS__GET__(self):

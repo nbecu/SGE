@@ -23,6 +23,7 @@ __all__ = [
     "position_dialog_to_right",
     "getResourceBasePath",
     "getResourcePath",
+    "listImagePaths",
     "copyValue",
 ]
 
@@ -264,6 +265,38 @@ def getResourcePath(relative_path=None, base_path=None):
     if rel.is_absolute():
         return rel
     return base / rel
+
+def listImagePaths(paths, extensions=None, base_path=None):
+    """
+    Collect image paths from one or more directories.
+
+    Args:
+        paths (str | Path | list[str | Path]): Directory or list of directories to scan.
+        extensions (tuple[str], optional): Glob patterns. Defaults to common image extensions.
+        base_path (str | Path, optional): Base path for relative dirs (uses getResourceBasePath by default).
+
+    Returns:
+        list[Path]: List of matching image paths (may be empty).
+    """
+    if extensions is None:
+        extensions = ("*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.svg")
+    if isinstance(paths, (str, Path)):
+        paths = [paths]
+
+    results = []
+    for p in paths:
+        if isinstance(p, str):
+            dir_path = getResourcePath(p, base_path=base_path)
+        else:
+            dir_path = Path(p)
+
+        if not dir_path.exists():
+            continue
+
+        for ext in extensions:
+            results.extend(dir_path.glob(ext))
+
+    return results
 
 def copyValue(source_att, target_att):
     """

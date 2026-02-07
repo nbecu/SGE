@@ -77,8 +77,7 @@ class SGLegend(SGGameSpace):
             anItem.adjustSize()  #NEW
             anItem.show()
         self.adjustSize()
-        # self.setMinimumSize(self.getSizeXGlobal(),10)
-        self.setMinimumSize(self.getSizeX_fromAllWidgets(),10)
+        self.updateSizeFromItems()
 
     def showLegendItem(self, typeOfPov, aAttribut, aValue, color, aKeyOfGamespace, added_items, added_colors):
         item_key=aAttribut +' '+ str(aValue)
@@ -103,15 +102,36 @@ class SGLegend(SGGameSpace):
         return lMax*12+10
     
     def getSizeX_fromAllWidgets(self):
-        if self.legendItems:  # Vérifier si la liste n'est pas vide
-            max_size_item = max(self.legendItems, key=lambda item: item.geometry().size().width())
-            max_width = max_size_item.geometry().size().width()
+        if self.legendItems:
+            widths = []
+            for item in self.legendItems:
+                try:
+                    if hasattr(item, "getRequiredWidth"):
+                        w = item.getRequiredWidth()
+                    else:
+                        w = item.geometry().size().width()
+                except Exception:
+                    w = 30
+                widths.append(w)
+            max_width = max(widths) if widths else 30
         else:
-            max_width = 30  # Ou une autre valeur par défaut
+            max_width = 30
         return max_width + 10
     
     def getSizeYGlobal(self):
         return (self.heightOfLabels)*(len(self.legendItems)+1)
+
+    def updateSizeFromItems(self):
+        """Update widget size based on current items."""
+        w = max(0, self.getSizeX_fromAllWidgets())
+        h = max(0, self.getSizeYGlobal()+3)
+        try:
+            self.sizeXGlobal = w
+            self.sizeYGlobal = h
+        except Exception:
+            pass
+        self.setMinimumSize(w, h)
+        self.resize(w, h)
     
     #Funtion to handle the zoom
     def zoomIn(self):
@@ -162,7 +182,6 @@ class SGLegend(SGGameSpace):
             self.sizeYGlobal = h
         except Exception:
             pass
-        self.setMinimumSize(w, h)
 
         radius = getattr(self.gs_aspect, 'border_radius', None) or 0
         if radius > 0:

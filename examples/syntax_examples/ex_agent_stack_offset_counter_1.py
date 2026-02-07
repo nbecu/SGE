@@ -10,7 +10,7 @@ myModel = SGModel(600, 400, windowTitle="Stack offset and counter demo")
 # Create a small grid
 Cells = myModel.newCellsOnGrid(2, 2, "square", size=120, gap=6)
 
-# Agent type with stack offset and stack counter
+# Agent types with stack offset and stack counter
 Marker = myModel.newAgentType(
     "Marker",
     "squareAgent",
@@ -18,7 +18,7 @@ Marker = myModel.newAgentType(
     defaultColor=Qt.lightBlue,
     locationInEntity="topRight",
     stackOffset=(-8, 10),
-    stackCounter={"format": "{n}", "min_count": 2, "position": "topRight"}
+    stackCounter={"format": "{n}", "min_count": 2, "position": "center"}
 )
 
 MarkerSmall = myModel.newAgentType(
