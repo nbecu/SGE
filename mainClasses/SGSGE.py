@@ -6,6 +6,7 @@ from mainClasses.SGModel import SGModel
 from mainClasses.SGExtensions import *
 import mainClasses.SGExtensions as _SGExtensions
 from mainClasses.SGCell import SGCell
+from mainClasses.SGBotPlayer import SGBotPlayer
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -24,6 +25,7 @@ import copy
 __all__ = [
     "SGModel",
     "SGCell",
+    "SGBotPlayer",
     "QtWidgets",
     "Qt",
     "QColor",

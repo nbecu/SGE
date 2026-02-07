@@ -168,6 +168,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.shouldDisplayAdminControlPanel = False
         else:
             self.users = []
+        # Bot players bound to existing SGPlayers
+        self.bot_players = {}
         # self.users = ["Admin"]
         
         # Auto-save gameAction logs on application close (None = disabled, string = format)
@@ -3365,6 +3367,41 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.shouldDisplayAdminControlPanel = True
         if not self.timeManager.isInitialization():
             self.show_adminControlPanel()
+
+    def enableBotPlayer(self, player_name, adapter, strategy="random", **kwargs):
+        """
+        Enable a BotPlayer for an existing player.
+
+        Args:
+            player_name (str or SGPlayer): Player name or player instance to replace.
+            adapter: Game adapter providing state and valid targets.
+            strategy (str): Bot strategy ("random", "policy", etc.).
+            **kwargs: Additional args forwarded to SGBotPlayer.
+        """
+        from mainClasses.SGBotPlayer import SGBotPlayer
+        player = player_name
+        if isinstance(player_name, str):
+            player = self.players.get(player_name)
+        if player is None:
+            raise ValueError(f"Player not found: {player_name}")
+        bot = SGBotPlayer(player, adapter, strategy=strategy, **kwargs)
+        self.bot_players[player.name] = bot
+        return bot
+
+    def disableBotPlayer(self, player_name):
+        """Disable a BotPlayer for a player (if any)."""
+        name = player_name.name if hasattr(player_name, "name") else player_name
+        if name in self.bot_players:
+            del self.bot_players[name]
+
+    def getBotPlayer(self, player_name):
+        """Get the BotPlayer for a player, or None."""
+        name = player_name.name if hasattr(player_name, "name") else player_name
+        return self.bot_players.get(name)
+
+    def getBotPlayers(self):
+        """Return all BotPlayers as a dict {player_name: bot}."""
+        return dict(self.bot_players)
 
     def exportGameActionLogs(self, filename=None, format="csv"):
         """

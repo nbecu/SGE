@@ -55,7 +55,18 @@ def check_victory():
         return True
     return False
 
+def check_draw():
+    # Match nul si aucune case vide et pas de victoire
+    if check_victory():
+        return False
+    for i in range(1, 4):
+        for j in range(1, 4):
+            if Cell.getCell(i, j).value("state") == "empty":
+                return False
+    return True
+
 endGameRule.addEndGameCondition_onLambda(lambda: check_victory(), name="Victoire")
+endGameRule.addEndGameCondition_onLambda(lambda: check_draw(), name="Match nul")
 
 #affichage des phases de jeu
 time_label = myModel.newTimeLabel()
