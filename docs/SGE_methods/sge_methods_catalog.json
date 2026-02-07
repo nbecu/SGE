@@ -4,14 +4,14 @@
     "description": "Comprehensive catalog of SGE modeler methods",
     "version": "1.0.0",
     "generated_date": "2024-12-19",
-    "total_classes": 19,
-    "total_methods": 490
+    "total_classes": 20,
+    "total_methods": 516
   },
   "classes": {
     "SGAgent": {
       "class_name": "SGAgent",
       "description": "SGAgent model class for SGE framework",
-      "total_methods": 34,
+      "total_methods": 35,
       "categories": {
         "GET": [
           {
@@ -24,7 +24,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 219,
+            "line_number": 227,
             "parent_classes": [
               "SGEntity"
             ]
@@ -39,7 +39,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 224,
+            "line_number": 232,
             "parent_classes": [
               "SGEntity"
             ]
@@ -54,7 +54,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 228,
+            "line_number": 236,
             "parent_classes": [
               "SGEntity"
             ]
@@ -75,7 +75,7 @@
             ],
             "returns": "list[SGAgent]: Agents in the same cell.",
             "examples": [],
-            "line_number": 234,
+            "line_number": 242,
             "parent_classes": [
               "SGEntity"
             ]
@@ -96,7 +96,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 255,
+            "line_number": 263,
             "parent_classes": [
               "SGEntity"
             ]
@@ -122,7 +122,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 259,
+            "line_number": 267,
             "parent_classes": [
               "SGEntity"
             ]
@@ -163,7 +163,7 @@
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
             "examples": [],
-            "line_number": 268,
+            "line_number": 276,
             "parent_classes": [
               "SGEntity"
             ]
@@ -184,7 +184,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 309,
+            "line_number": 317,
             "parent_classes": [
               "SGEntity"
             ]
@@ -205,7 +205,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 316,
+            "line_number": 324,
             "parent_classes": [
               "SGEntity"
             ]
@@ -226,7 +226,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 323,
+            "line_number": 331,
             "parent_classes": [
               "SGEntity"
             ]
@@ -247,7 +247,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 330,
+            "line_number": 338,
             "parent_classes": [
               "SGEntity"
             ]
@@ -262,7 +262,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 271,
+            "line_number": 331,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -276,7 +276,7 @@
             "parameters": [],
             "returns": "The entity type (SGEntityType instance)",
             "examples": [],
-            "line_number": 275,
+            "line_number": 335,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -290,7 +290,7 @@
             "parameters": [],
             "returns": "SGGrid: The grid instance, or None if not available",
             "examples": [],
-            "line_number": 284,
+            "line_number": 344,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -337,7 +337,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 305,
+            "line_number": 313,
             "parent_classes": [
               "SGEntity"
             ]
@@ -358,7 +358,7 @@
             ],
             "returns": "int: Number of matching agents in the same cell.",
             "examples": [],
-            "line_number": 589,
+            "line_number": 597,
             "parent_classes": [
               "SGEntity"
             ]
@@ -381,7 +381,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 353,
+            "line_number": 361,
             "parent_classes": [
               "SGEntity"
             ]
@@ -454,7 +454,7 @@
             ],
             "returns": "bool: True if at least one matching agent is in the same cell, False otherwise.",
             "examples": [],
-            "line_number": 357,
+            "line_number": 365,
             "parent_classes": [
               "SGEntity"
             ]
@@ -477,7 +477,7 @@
             ],
             "returns": "self: The agent (for chaining operations)",
             "examples": [],
-            "line_number": 379,
+            "line_number": 387,
             "parent_classes": [
               "SGEntity"
             ]
@@ -513,7 +513,7 @@
             ],
             "returns": "self: The agent (for chaining operations)",
             "examples": [],
-            "line_number": 453,
+            "line_number": 461,
             "parent_classes": [
               "SGEntity"
             ]
@@ -539,7 +539,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 534,
+            "line_number": 542,
             "parent_classes": [
               "SGEntity"
             ]
@@ -565,7 +565,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 545,
+            "line_number": 553,
             "parent_classes": [
               "SGEntity"
             ]
@@ -593,7 +593,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 610,
+            "line_number": 618,
             "parent_classes": [
               "SGEntity"
             ]
@@ -619,13 +619,38 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 573,
+            "line_number": 581,
             "parent_classes": [
               "SGEntity"
             ]
           }
         ],
         "SET": [
+          {
+            "name": "setImage",
+            "signature": "def setImage(self, image, face=None):",
+            "description": "Set the image for this entity instance.",
+            "docstring": "Set the image for this entity instance.\n\nFor tiles, you can optionally specify face=\"front\" or \"back\".\nIf face is None, the current tile face is used.",
+            "category": "SET",
+            "class_name": "SGEntity",
+            "parameters": [
+              {
+                "name": "image",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "face",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 271,
+            "parent_classes": null,
+            "original_class": "SGEntity"
+          },
           {
             "name": "setValue",
             "signature": "def setValue(self, aAttribut, valueToSet):",
@@ -814,7 +839,7 @@
     "SGCell": {
       "class_name": "SGCell",
       "description": "SGCell model class for SGE framework",
-      "total_methods": 50,
+      "total_methods": 51,
       "categories": {
         "NEW": [
           {
@@ -840,7 +865,7 @@
             "examples": [
               "# Create a sheep agent with default attributes\nsheep = cell.newAgentHere(sheepType)\n\n# Create a sheep agent with custom attributes\nsheep = cell.newAgentHere(sheepType, {\"health\": \"good\", \"age\": 2})"
             ],
-            "line_number": 231,
+            "line_number": 251,
             "parent_classes": [
               "SGEntity"
             ]
@@ -857,7 +882,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 258,
+            "line_number": 278,
             "parent_classes": [
               "SGEntity"
             ]
@@ -874,7 +899,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 274,
+            "line_number": 294,
             "parent_classes": [
               "SGEntity"
             ]
@@ -889,7 +914,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 278,
+            "line_number": 298,
             "parent_classes": [
               "SGEntity"
             ]
@@ -912,7 +937,7 @@
             "examples": [
               "# Get all agents in the cell\nall_agents = cell.getAgents()\n\n# Get only sheep agents\nsheep_agents = cell.getAgents(\"Sheeps\")\n\n# Get agents using agent type object\nsheep_agents = cell.getAgents(sheepType)"
             ],
-            "line_number": 282,
+            "line_number": 302,
             "parent_classes": [
               "SGEntity"
             ]
@@ -935,7 +960,7 @@
             "examples": [
               "# Get oldest agent among all agents\noldest = cell.getOldestAgent()\n\n# Get oldest agent of a specific type\noldest_sheep = cell.getOldestAgent(\"Sheeps\")"
             ],
-            "line_number": 310,
+            "line_number": 330,
             "parent_classes": [
               "SGEntity"
             ]
@@ -958,7 +983,7 @@
             "examples": [
               "# Get youngest agent among all agents\nyoungest = cell.getYoungestAgent()\n\n# Get youngest agent of a specific type\nyoungest_sheep = cell.getYoungestAgent(\"Sheeps\")"
             ],
-            "line_number": 345,
+            "line_number": 365,
             "parent_classes": [
               "SGEntity"
             ]
@@ -981,7 +1006,7 @@
             "examples": [
               "# Get first agent among all agents\nfirst = cell.getFirstAgent()\n\n# Get first agent of a specific type\nfirst_sheep = cell.getFirstAgent(\"Sheeps\")"
             ],
-            "line_number": 380,
+            "line_number": 400,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1004,7 +1029,7 @@
             "examples": [
               "# Get random agent among all agents\nrandom_agent = cell.getRandomAgent()\n\n# Get random agent of a specific type\nrandom_sheep = cell.getRandomAgent(\"Sheeps\")"
             ],
-            "line_number": 411,
+            "line_number": 431,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1032,7 +1057,7 @@
             "examples": [
               "# Get all neighboring cells\nneighbors = cell.getNeighborCells()\n\n# Get only forest cells\nforest_neighbors = cell.getNeighborCells(condition=lambda c: c.getValue(\"terrain\") == \"forest\")\n\n# Get neighbors using Moore neighborhood\nmoore_neighbors = cell.getNeighborCells(neighborhood=\"moore\")"
             ],
-            "line_number": 446,
+            "line_number": 466,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1055,7 +1080,7 @@
             "examples": [
               "# Get all cells in the same row\nrow_cells = cell.getCellsInRow()\n\n# Get only cells with tiles in the same row\nrow_cells_with_tiles = cell.getCellsInRow(condition=lambda c: c.hasTile())"
             ],
-            "line_number": 578,
+            "line_number": 598,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1078,7 +1103,7 @@
             "examples": [
               "# Get all cells in the same column\ncolumn_cells = cell.getCellsInColumn()\n\n# Get only cells with tiles in the same column\ncolumn_cells_with_tiles = cell.getCellsInColumn(condition=lambda c: c.hasTile())"
             ],
-            "line_number": 598,
+            "line_number": 618,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1106,7 +1131,7 @@
             "examples": [
               "# Get the range of cells with tiles in the same row\nrange = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile())\n# Returns the distance between the leftmost and rightmost cells with tiles\n\n# Get the range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile(), includingSelf=True)"
             ],
-            "line_number": 618,
+            "line_number": 638,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1134,7 +1159,7 @@
             "examples": [
               "# Get the range of cells with tiles in the same column\nrange = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile())\n# Returns the distance between the topmost and bottommost cells with tiles\n\n# Get the range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile(), includingSelf=True)"
             ],
-            "line_number": 656,
+            "line_number": 676,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1162,7 +1187,7 @@
             "examples": [
               "# Get the horizontal range of cells with tiles across the entire grid width\nrange = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile())\n# Returns the distance between the leftmost and rightmost cells with tiles (any row)\n\n# Get the horizontal range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True)"
             ],
-            "line_number": 694,
+            "line_number": 714,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1190,7 +1215,7 @@
             "examples": [
               "# Get the vertical range of cells with tiles across the entire grid height\nrange = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile())\n# Returns the distance between the topmost and bottommost cells with tiles (any column)\n\n# Get the vertical range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True)"
             ],
-            "line_number": 735,
+            "line_number": 755,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1205,7 +1230,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 776,
+            "line_number": 796,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1220,7 +1245,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 781,
+            "line_number": 801,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1235,7 +1260,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 786,
+            "line_number": 806,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1250,7 +1275,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 791,
+            "line_number": 811,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1281,7 +1306,7 @@
             ],
             "returns": "list[SGCell]: List of matching neighbor cells (excluding self).",
             "examples": [],
-            "line_number": 796,
+            "line_number": 816,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1312,7 +1337,7 @@
             ],
             "returns": "SGCell | None: The closest matching cell, or None if no match found.",
             "examples": [],
-            "line_number": 861,
+            "line_number": 881,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1353,7 +1378,7 @@
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
             "examples": [],
-            "line_number": 899,
+            "line_number": 919,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1368,7 +1393,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 962,
+            "line_number": 982,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1389,7 +1414,7 @@
             ],
             "returns": "list: List of tiles",
             "examples": [],
-            "line_number": 966,
+            "line_number": 986,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1415,7 +1440,7 @@
             ],
             "returns": "list: List of tiles at the specified position",
             "examples": [],
-            "line_number": 981,
+            "line_number": 1001,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1438,7 +1463,7 @@
             "examples": [
               "# Get first tile among all tiles\nfirst = cell.getFirstTile()\n\n# Get first tile of a specific type\nfirst_card = cell.getFirstTile(CardType)"
             ],
-            "line_number": 999,
+            "line_number": 1019,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1459,7 +1484,7 @@
             ],
             "returns": "SGTile or None: A random tile of this type, or None if not found",
             "examples": [],
-            "line_number": 1027,
+            "line_number": 1047,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1480,7 +1505,7 @@
             ],
             "returns": "SGStack: A Stack object representing all tiles of this type",
             "examples": [],
-            "line_number": 1044,
+            "line_number": 1064,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1495,7 +1520,7 @@
             "parameters": [],
             "returns": "The entity type (SGEntityType instance)",
             "examples": [],
-            "line_number": 275,
+            "line_number": 335,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -1509,7 +1534,7 @@
             "parameters": [],
             "returns": "SGGrid: The grid instance, or None if not available",
             "examples": [],
-            "line_number": 284,
+            "line_number": 344,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -1551,7 +1576,7 @@
             ],
             "returns": "bool: True if the agent is in this cell, False otherwise",
             "examples": [],
-            "line_number": 1068,
+            "line_number": 1088,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1572,7 +1597,7 @@
             ],
             "returns": "bool: True if the cell contains agents of the specified type, False otherwise",
             "examples": [],
-            "line_number": 1080,
+            "line_number": 1100,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1600,7 +1625,7 @@
             "examples": [
               "# Check if cell has any tile\ncell.hasTile()\n\n# Check if cell has a tile of specific type\ncell.hasTile(SeaTile)\n\n# Check if cell has a tile matching a condition\ncell.hasTile(condition=lambda tile: tile.getValue(\"category\") == \"biodiv\")\n\n# Check if cell has a tile of specific type matching a condition\ncell.hasTile(SeaTile, condition=lambda tile: tile.isFaceFront())"
             ],
-            "line_number": 1094,
+            "line_number": 1114,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1621,7 +1646,7 @@
             ],
             "returns": "bool: True if the cell contains tiles of the specified type, False otherwise",
             "examples": [],
-            "line_number": 1135,
+            "line_number": 1155,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1644,7 +1669,7 @@
             ],
             "returns": "bool: True if the cell is empty of agents and tiles (of the specified type if provided), False otherwise",
             "examples": [],
-            "line_number": 1148,
+            "line_number": 1168,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1717,7 +1742,7 @@
             ],
             "returns": "float: Euclidean distance between the two cells.",
             "examples": [],
-            "line_number": 1202,
+            "line_number": 1222,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1740,7 +1765,7 @@
             "examples": [
               "# Get grid distance between two cells\ndistance = cell1.distanceToInGrid(cell2)\n# Returns the sum of horizontal and vertical differences"
             ],
-            "line_number": 1217,
+            "line_number": 1237,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1763,7 +1788,7 @@
             ],
             "returns": "int: Number of agents of the specified type, or total count if type_name is None",
             "examples": [],
-            "line_number": 1237,
+            "line_number": 1257,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1784,13 +1809,38 @@
             ],
             "returns": "int: Number of tiles",
             "examples": [],
-            "line_number": 1256,
+            "line_number": 1276,
             "parent_classes": [
               "SGEntity"
             ]
           }
         ],
         "SET": [
+          {
+            "name": "setImage",
+            "signature": "def setImage(self, image, face=None):",
+            "description": "Set the image for this entity instance.",
+            "docstring": "Set the image for this entity instance.\n\nFor tiles, you can optionally specify face=\"front\" or \"back\".\nIf face is None, the current tile face is used.",
+            "category": "SET",
+            "class_name": "SGEntity",
+            "parameters": [
+              {
+                "name": "image",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "face",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 271,
+            "parent_classes": null,
+            "original_class": "SGEntity"
+          },
           {
             "name": "setValue",
             "signature": "def setValue(self, aAttribut, valueToSet):",
@@ -1979,7 +2029,7 @@
     "SGControlPanel": {
       "class_name": "SGControlPanel",
       "description": "SGControlPanel model class for SGE framework",
-      "total_methods": 4,
+      "total_methods": 8,
       "categories": {
         "SET": [
           {
@@ -1998,16 +2048,16 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 295,
+            "line_number": 375,
             "parent_classes": [
               "SGGameSpace"
             ]
           },
           {
             "name": "setBackgroundColor",
-            "signature": "def setBackgroundColor(self, color):",
+            "signature": "def setBackgroundColor(self, color, color_when_inactive=None):",
             "description": "Set the background color of the control panel.",
-            "docstring": "Set the background color of the control panel.\n\nArgs:\n    color (QColor or Qt.GlobalColor): The background color",
+            "docstring": "Set the background color of the control panel.\n\nArgs:\n    color (QColor or Qt.GlobalColor): The background color\n    color_when_inactive (QColor or Qt.GlobalColor, optional): Background color when inactive",
             "category": "SET",
             "class_name": "SGControlPanel",
             "parameters": [
@@ -2015,11 +2065,100 @@
                 "name": "color",
                 "type": "QColor or Qt.GlobalColor",
                 "description": "The background color"
+              },
+              {
+                "name": "color_when_inactive",
+                "type": "QColor or Qt.GlobalColor, optional",
+                "description": "Background color when inactive"
               }
             ],
             "returns": "",
             "examples": [],
-            "line_number": 306,
+            "line_number": 386,
+            "parent_classes": [
+              "SGGameSpace"
+            ]
+          },
+          {
+            "name": "setShowTitle",
+            "signature": "def setShowTitle(self, show):",
+            "description": "Enable or disable the main title display.",
+            "docstring": "Enable or disable the main title display.\n\nArgs:\n    show (bool): True to display the title, False to hide it",
+            "category": "SET",
+            "class_name": "SGControlPanel",
+            "parameters": [
+              {
+                "name": "show",
+                "type": "bool",
+                "description": "True to display the title, False to hide it"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 400,
+            "parent_classes": [
+              "SGGameSpace"
+            ]
+          },
+          {
+            "name": "setShowSectionTitles",
+            "signature": "def setShowSectionTitles(self, show):",
+            "description": "Enable or disable section titles display.",
+            "docstring": "Enable or disable section titles display.\n\nArgs:\n    show (bool): True to display section titles, False to hide them",
+            "category": "SET",
+            "class_name": "SGControlPanel",
+            "parameters": [
+              {
+                "name": "show",
+                "type": "bool",
+                "description": "True to display section titles, False to hide them"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 410,
+            "parent_classes": [
+              "SGGameSpace"
+            ]
+          },
+          {
+            "name": "setShowSelectionBorder",
+            "signature": "def setShowSelectionBorder(self, show):",
+            "description": "Enable or disable the selection border on items.",
+            "docstring": "Enable or disable the selection border on items.\n\nArgs:\n    show (bool): True to display selection border, False to hide it",
+            "category": "SET",
+            "class_name": "SGControlPanel",
+            "parameters": [
+              {
+                "name": "show",
+                "type": "bool",
+                "description": "True to display selection border, False to hide it"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 420,
+            "parent_classes": [
+              "SGGameSpace"
+            ]
+          },
+          {
+            "name": "setSymbolScale",
+            "signature": "def setSymbolScale(self, scale):",
+            "description": "Set the symbol scale for items in the control panel.",
+            "docstring": "Set the symbol scale for items in the control panel.\n\nArgs:\n    scale (float): Scale factor for symbol size",
+            "category": "SET",
+            "class_name": "SGControlPanel",
+            "parameters": [
+              {
+                "name": "scale",
+                "type": "float",
+                "description": "Scale factor for symbol size"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 430,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -2040,7 +2179,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 317,
+            "line_number": 443,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -2061,7 +2200,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 328,
+            "line_number": 454,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -5302,7 +5441,7 @@
             ],
             "returns": "SGAgent: The created agent model, or None if creation failed",
             "examples": [],
-            "line_number": 1519,
+            "line_number": 1521,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5333,7 +5472,7 @@
             ],
             "returns": "None: Agents are created and added to the agentType",
             "examples": [],
-            "line_number": 1548,
+            "line_number": 1550,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5379,7 +5518,7 @@
             ],
             "returns": "a agent",
             "examples": [],
-            "line_number": 1563,
+            "line_number": 1565,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5420,7 +5559,7 @@
             ],
             "returns": "agents",
             "examples": [],
-            "line_number": 1605,
+            "line_number": 1607,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5451,7 +5590,7 @@
             ],
             "returns": "a agent",
             "examples": [],
-            "line_number": 1646,
+            "line_number": 1648,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5487,7 +5626,7 @@
             ],
             "returns": "a list of agents",
             "examples": [],
-            "line_number": 1675,
+            "line_number": 1677,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5648,7 +5787,7 @@
             ],
             "returns": "SGAgent: A random agent from the list bool: False if no agents found",
             "examples": [],
-            "line_number": 1714,
+            "line_number": 1716,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5964,7 +6103,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1729,
+            "line_number": 1731,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -6008,7 +6147,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1762,
+            "line_number": 1764,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7169,7 +7308,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 2062,
+            "line_number": 2064,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7232,7 +7371,7 @@
             "examples": [
               "# Create a stack of 30 tiles with random images on the back face\nimages = model.loadImagesFromDirectory(\"path/to/images\")\nstack = Tile.newStackOnCell(cell, 30, backImages=images)\n\n# Create a stack with random images on both faces\nstack = Tile.newStackOnCell(cell, 10, frontImages=front_images, backImages=back_images)\n\n# Create a stack with the same image for all tiles\nstack = Tile.newStackOnCell(cell, 10, backImage=my_image)\n\n# Create a stack without images (uses defaults)\nstack = Tile.newStackOnCell(cell, 5)"
             ],
-            "line_number": 2106,
+            "line_number": 2108,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7275,7 +7414,7 @@
             "examples": [
               "# Create stack with paired images and attributes\nimages = [img1, img2, img3]\nattrs = [{\"name\": \"tile1\"}, {\"name\": \"tile2\"}, {\"name\": \"tile3\"}]\nstack = Tile.newStackOnCellWithPairedData(cell, frontImages=images, attributesList=attrs)\n\n# Create stack with only images (no attributes)\nstack = Tile.newStackOnCellWithPairedData(cell, frontImages=images)\n\n# Create stack with only attributes (uses default images)\nstack = Tile.newStackOnCellWithPairedData(cell, attributesList=attrs)"
             ],
-            "line_number": 2189,
+            "line_number": 2191,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7323,7 +7462,7 @@
             "examples": [
               "# With explicit image column in CSV\ncolumns_mapping = {\n'name': ('attribute', 'tile_name'),\n'category': ('attribute', 'category'),\n'image': 'frontImage',\n'nb': 'quantity'\n}\nstack = Tile.newStackOnCellFromCSV(cell, {'path': 'tiles.csv', 'delimiter': ';'}, columns_mapping, image_dir='images/')\n\n# With image column in CSV\ncolumns_mapping = {\n'name': ('attribute', 'tile_name'),\n'category': ('attribute', 'category'),\n'image': 'frontImage',\n'nb': 'quantity'\n}\nstack = Tile.newStackOnCellFromCSV(cell, {'path': 'tiles.csv', 'delimiter': ';'}, columns_mapping, image_dir='images/')"
             ],
-            "line_number": 2268,
+            "line_number": 2270,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7374,7 +7513,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 2489,
+            "line_number": 2491,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7415,7 +7554,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 2544,
+            "line_number": 2546,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7463,7 +7602,7 @@
             "examples": [
               "# Create Memory game tiles with image pairs (8 pairs = 16 tiles)\ncells = [Cell.getCell(x, y) for x in range(1, 5) for y in range(1, 5)]\ntiles = CardTile.newTilesWithImages(\ncells=cells,\nimages_directory=\"./images/memory\",\nnum_images=8,\nrepetitions=2,  # Pairs\nshuffle=True,\nface=\"back\"\n)\n\n# Create tiles with triplets (5 images × 3 = 15 tiles)\ntiles = CardTile.newTilesWithImages(\ncells=cells[:15],\nimages_directory=\"./images/memory\",\nnum_images=5,\nrepetitions=3,  # Triplets\nshuffle=True\n)\n\n# Use all available images as simplets (each image once)\ntiles = CardTile.newTilesWithImages(\ncells=cells,\nimages_directory=\"./images/memory\",\nrepetitions=1,  # Singlets\nshuffle=True\n)"
             ],
-            "line_number": 2597,
+            "line_number": 2599,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7613,7 +7752,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 2721,
+            "line_number": 2723,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7634,7 +7773,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2725,
+            "line_number": 2727,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7655,7 +7794,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2732,
+            "line_number": 2734,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7670,7 +7809,7 @@
             "parameters": [],
             "returns": "dict: Dictionary mapping (cell, position) tuples to lists of tiles",
             "examples": [],
-            "line_number": 2740,
+            "line_number": 2742,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -8013,7 +8152,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2760,
+            "line_number": 2762,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -8034,7 +8173,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2782,
+            "line_number": 2784,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -9195,7 +9334,7 @@
             "examples": [
               "grid.setOwners(player1)  # Single owner\ngrid.setOwners([player1, player2])  # Multiple owners\ngrid.setOwners(\"Player 1\")  # Single owner by name\ngrid.setOwners([\"Player 1\", \"Player 2\"])  # Multiple owners by name"
             ],
-            "line_number": 996,
+            "line_number": 1015,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9218,7 +9357,7 @@
             "examples": [
               "grid.setZoomMode(\"magnifier\")  # Enable magnifier mode\ngrid.setZoomMode(\"resize\")    # Use default resize mode"
             ],
-            "line_number": 1037,
+            "line_number": 1056,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9246,7 +9385,7 @@
             "examples": [
               "cellA = grid.getCell_withCoords(5, 5)\ncellB = grid.getCell_withCoords(15, 15)\ngrid.setMagnifierOnArea(cellA, cellB)"
             ],
-            "line_number": 1157,
+            "line_number": 1176,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9269,7 +9408,7 @@
             "examples": [
               "# Show all cells with terrain=\"forest\"\ngrid.setMagnifierToCoverAllCellsWith(lambda cell: cell.isValue(\"terrain\", \"forest\"))\n\n# Show all cells with agents\ngrid.setMagnifierToCoverAllCellsWith(lambda cell: cell.hasAgent())"
             ],
-            "line_number": 1239,
+            "line_number": 1258,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9286,7 +9425,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 1074,
+            "line_number": 1093,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9301,7 +9440,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 1078,
+            "line_number": 1097,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9316,7 +9455,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 1082,
+            "line_number": 1101,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9331,7 +9470,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 1086,
+            "line_number": 1105,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9352,7 +9491,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1090,
+            "line_number": 1109,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9378,7 +9517,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1097,
+            "line_number": 1116,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9399,7 +9538,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1102,
+            "line_number": 1121,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9420,7 +9559,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1111,
+            "line_number": 1130,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9448,7 +9587,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1094,
+            "line_number": 1113,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9473,7 +9612,7 @@
             "examples": [
               "grid.isOwnedBy(player1)  # Check by player instance\ngrid.isOwnedBy(\"Player 1\")  # Check by player name"
             ],
-            "line_number": 1125,
+            "line_number": 1144,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9503,7 +9642,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 200,
+            "line_number": 219,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9524,7 +9663,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 209,
+            "line_number": 228,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9714,9 +9853,9 @@
           },
           {
             "name": "newAgentType",
-            "signature": "def newAgentType(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity=\"random\",defaultImage=None):",
+            "signature": "def newAgentType(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity=\"random\", defaultImage=None, stackOffset=None, stackCounter=None):",
             "description": "Create a new specie of Agents.",
-            "docstring": "Create a new specie of Agents.\n\nArgs:\n    name (str) : the agentType name\n    shape (str) : the agentType shape (\"circleAgent\",\"squareAgent\", \"ellipseAgent1\",\"ellipseAgent2\", \"rectAgent1\",\"rectAgent2\", \"triangleAgent1\",\"triangleAgent2\", \"arrowAgent1\",\"arrowAgent2\",\"hexagonAgent\")\n    dictAttributes (dict) : all the agentType attributs with all the values\n    defaultSize (int) : the agentType shape size (Default=10)\n    locationInEntity (str, optional) : topRight, topLeft, center, bottomRight, bottomLeft, random \n    defaultImage (str, optional) : link to image\nReturn:\n    a agentType",
+            "docstring": "Create a new specie of Agents.\n\nArgs:\n    name (str) : the agentType name\n    shape (str) : the agentType shape (\"circleAgent\",\"squareAgent\", \"ellipseAgent1\",\"ellipseAgent2\", \"rectAgent1\",\"rectAgent2\", \"triangleAgent1\",\"triangleAgent2\", \"arrowAgent1\",\"arrowAgent2\",\"hexagonAgent\")\n    dictAttributes (dict) : all the agentType attributs with all the values\n    defaultSize (int) : the agentType shape size (Default=10)\n    locationInEntity (str, optional) : topRight, topLeft, center, bottomRight, bottomLeft, random \n    defaultImage (str, optional) : link to image\n    stackOffset (tuple, optional) : (dx, dy) offset per stacked agent in the same cell\n    stackCounter (dict, optional) : {\"min_count\": 2, \"format\": \"x{n}\", \"position\": \"topRight\"}\nReturn:\n    a agentType",
             "category": "NEW",
             "class_name": "SGModel",
             "parameters": [
@@ -9753,7 +9892,17 @@
               {
                 "name": "defaultImage",
                 "type": "str, optional",
-                "description": "link to image\nReturn:\na agentType"
+                "description": "link to image"
+              },
+              {
+                "name": "stackOffset",
+                "type": "tuple, optional",
+                "description": "(dx, dy) offset per stacked agent in the same cell"
+              },
+              {
+                "name": "stackCounter",
+                "type": "dict, optional",
+                "description": "{\"min_count\": 2, \"format\": \"x{n}\", \"position\": \"topRight\"}\nReturn:\na agentType"
               }
             ],
             "returns": "a agentType",
@@ -9837,7 +9986,7 @@
             "examples": [
               "# Create a simple tile type\ntileType = model.newTileType(\"Forest\", shape=\"rectTile\", frontColor=Qt.green)\n\n# Create a tile type with stack rendering\ncardType = model.newTileType(\n\"Card\",\nshape=\"rectTile\",\nfrontColor=Qt.blue,\nbackColor=Qt.red,\nstackRendering={\"mode\": \"offset\", \"showCounter\": True, \"counterPosition\": \"topLeft\"}\n)"
             ],
-            "line_number": 2018,
+            "line_number": 2031,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9864,7 +10013,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2128,
+            "line_number": 2141,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9872,7 +10021,7 @@
           },
           {
             "name": "newPlayPhase",
-            "signature": "def newPlayPhase(self, phaseName, activePlayers=None, modelActions=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):",
+            "signature": "def newPlayPhase(self, phaseName, activePlayers=None, modelActions=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, autoForwardWhenNoMoreActionPoints=False, message_auto_forward=True, show_message_box_at_start=False):",
             "description": "Create a new play phase for the game.",
             "docstring": "Create a new play phase for the game.\n\nArgs:\n    phaseName (str): Name of the phase\n    activePlayers (list): List of players active in this phase. Can contain:\n        - Player instances (SGPlayer objects)\n        - Player names (str) - will be automatically converted to instances\n        - 'Admin' (str) - will be converted to the Admin player instance\n        - None (default:all users)\n    modelActions (list, optional): Actions the model performs at the beginning of the phase (add, delete, move...)\n        - SGModelAction objects\n        - lambda functions\n        - list of SGModelAction objects or lambda functions\n    authorizedActions (list, optional): List of game actions authorized in this phase. Can contain:\n        - None (default): all actions are allowed\n        - []: no actions are allowed\n        - [action1, action2, ...]: only these actions are allowed\n    autoForwardWhenAllActionsUsed (bool, optional): Whether to automatically forward to next phase when all players have used their actions\n        - False (default): the phase will not be executed automatically when all players have used their actions\n        - True: the phase will be executed automatically when all players have used their actions\n    message_auto_forward (bool, optional): Whether to show a message when automatically forwarding to the next phase\n        - True (default): a message will be displayed when auto-forwarding\n        - False: no message will be displayed when auto-forwarding\n    show_message_box_at_start (bool, optional): Whether to show a message box at the start of the phase\n        - False (default): no message box will be shown at the start of the phase\n        - True: a message box will be shown at the start of the phase\n        \n    \nReturns:\n    The created play phase (an instance of SGPlayPhase)",
             "category": "NEW",
@@ -9904,6 +10053,11 @@
                 "description": "Whether to automatically forward to next phase when all players have used their actions"
               },
               {
+                "name": "autoForwardWhenNoMoreActionPoints",
+                "type": "Any",
+                "description": ""
+              },
+              {
                 "name": "message_auto_forward",
                 "type": "bool, optional",
                 "description": "Whether to show a message when automatically forwarding to the next phase"
@@ -9916,7 +10070,7 @@
             ],
             "returns": "The created play phase (an instance of SGPlayPhase)",
             "examples": [],
-            "line_number": 2153,
+            "line_number": 2166,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9924,7 +10078,7 @@
           },
           {
             "name": "newCreateAction",
-            "signature": "def newCreateAction(self, entity_type, dictAttributes=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, create_several_at_each_click=False, writeAttributeInLabel=False, action_controler=None):",
+            "signature": "def newCreateAction(self, entity_type, dictAttributes=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, create_several_at_each_click=False, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):",
             "description": "Add a Create GameAction to the game.",
             "docstring": "Add a Create GameAction to the game.\n\nArgs:\n- entity_type : a type of entity (agentType, cellType or name of the entity type)\n- uses_per_round (int) : number of uses per round, could use \"infinite\"\n- dictAttributes (dict) : attribute with value concerned, could be None\n- label (str): custom label to display\n- create_several_at_each_click (bool): whether to create several entities at each click\n- writeAttributeInLabel (bool): whether to show attribute in label\n- action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)",
             "category": "NEW",
@@ -9979,11 +10133,16 @@
                 "name": "action_controler",
                 "type": "Any",
                 "description": ""
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
               }
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2191,
+            "line_number": 2204,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9991,7 +10150,7 @@
           },
           {
             "name": "newModifyAction",
-            "signature": "def newModifyAction(self, entity_type, dictAttributes={}, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):",
+            "signature": "def newModifyAction(self, entity_type, dictAttributes={}, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):",
             "description": "Add a Modify GameAction to the game.",
             "docstring": "Add a Modify GameAction to the game.\n\nArgs:\n- entity_type : a type of entity (agentType, cellType or name of the entity type)\n- uses_per_round (int) : number of uses per round, could use \"infinite\"\n- dictAttributes (dict) : attribute with value concerned, could be None\n- label (str): custom label to display\n- writeAttributeInLabel (bool): whether to show attribute in label\n- action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)",
             "category": "NEW",
@@ -10041,11 +10200,16 @@
                 "name": "action_controler",
                 "type": "Any",
                 "description": ""
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
               }
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2209,
+            "line_number": 2225,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10053,7 +10217,7 @@
           },
           {
             "name": "newModifyActionWithDialog",
-            "signature": "def newModifyActionWithDialog(self, entity_type, attribute, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):",
+            "signature": "def newModifyActionWithDialog(self, entity_type, attribute, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):",
             "description": "Add a Modify GameAction to the game that opens a dialog to ask for the value to use.",
             "docstring": "Add a Modify GameAction to the game that opens a dialog to ask for the value to use.\n\nArgs:\n    entity_type : a type of entity (agentType, cellType or name of the entity type)\n    attribute (str): the attribute to modify\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after modification\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    writeAttributeInLabel (bool): whether to show attribute in label\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)",
             "category": "NEW",
@@ -10103,11 +10267,16 @@
                 "name": "action_controler",
                 "type": "dict",
                 "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
               }
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2226,
+            "line_number": 2245,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10115,7 +10284,7 @@
           },
           {
             "name": "newDeleteAction",
-            "signature": "def newDeleteAction(self, entity_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):",
+            "signature": "def newDeleteAction(self, entity_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):",
             "description": "Add a Delete GameAction to the game.",
             "docstring": "Add a Delete GameAction to the game.\n\nArgs:\n- entity_type : a type of entity (agentType, cellType or name of the entity type)\n- uses_per_round (int) : number of uses per round, could use \"infinite\"\n- label (str): custom label to display\n- action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)",
             "category": "NEW",
@@ -10155,11 +10324,16 @@
                 "name": "action_controler",
                 "type": "Any",
                 "description": ""
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
               }
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2248,
+            "line_number": 2270,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10167,7 +10341,7 @@
           },
           {
             "name": "newMoveAction",
-            "signature": "def newMoveAction(self, agent_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[], label=None, action_controler=None):",
+            "signature": "def newMoveAction(self, agent_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[], label=None, action_controler=None, action_points_cost=None):",
             "description": "Add a MoveAction to the game.",
             "docstring": "Add a MoveAction to the game.\n\nArgs:\n- agent_type : a type of agent (agentType or name of the agent type)\n- uses_per_round (int) : number of uses per round, could use \"infinite\"\n- conditions (list of lambda functions) : conditions on the moving Entity\n- feedbacks (list): feedback actions\n- conditionsOfFeedback (list): conditions for feedback execution\n- feedbacksAgent (list): agent feedback actions\n- conditionsOfFeedBackAgent (list): conditions for agent feedback execution\n- label (str): custom label to display\n- action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)",
             "category": "NEW",
@@ -10217,11 +10391,16 @@
                 "name": "action_controler",
                 "type": "Any",
                 "description": ""
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
               }
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2263,
+            "line_number": 2288,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10229,7 +10408,7 @@
           },
           {
             "name": "newFlipAction",
-            "signature": "def newFlipAction(self, tile_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):",
+            "signature": "def newFlipAction(self, tile_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):",
             "description": "Create a new Flip action for tiles",
             "docstring": "Create a new Flip action for tiles\n\nArgs:\n    tile_type: The tile type (SGTileType) to flip\n    uses_per_round: Number of times the action can be used per round (default: 'infinite')\n    conditions: List of conditions that must be met\n    feedbacks: List of feedback actions\n    conditionsOfFeedback: List of conditions for feedbacks\n    label: Custom label to display (default: \"🔄 Flip\")\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n    \nReturns:\n    SGFlip: The created flip action",
             "category": "NEW",
@@ -10269,11 +10448,16 @@
                 "name": "action_controler",
                 "type": "dict",
                 "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
               }
             ],
             "returns": "SGFlip: The created flip action",
             "examples": [],
-            "line_number": 2282,
+            "line_number": 2310,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10281,7 +10465,7 @@
           },
           {
             "name": "newActivateAction",
-            "signature": "def newActivateAction(self, object_type=None, method=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):",
+            "signature": "def newActivateAction(self, object_type=None, method=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):",
             "description": "Add a ActivateAction to the game",
             "docstring": "Add a ActivateAction to the game\nArgs:\n- object_type : the model itself or a type of entity (agentType, cellType or name of the entity type)\n- method (lambda function) : the method to activate\n- uses_per_round (int) : number of uses per round, could use \"infinite\"\n- conditions (list of lambda functions) : conditions on the activating entity\n- feedbacks (list of lambda functions) : feedbacks to execute after activation\n- conditionsOfFeedback (list of lambda functions) : conditions for feedback execution\n- label (str) : custom label to display\n- action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, button, directClick)\n    - button (bool): whether to create a button\n    - buttonPosition (tuple, optional): coordinates of the button to set in the controller. If button=True but buttonPosition is not specified, a default position (50, 50) will be used.",
             "category": "NEW",
@@ -10326,11 +10510,16 @@
                 "name": "action_controler",
                 "type": "Any",
                 "description": ""
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
               }
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2302,
+            "line_number": 2332,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10377,7 +10566,7 @@
             ],
             "returns": "SGTimePhase: The created time phase",
             "examples": [],
-            "line_number": 2338,
+            "line_number": 2370,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10409,7 +10598,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2363,
+            "line_number": 2395,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10441,7 +10630,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2378,
+            "line_number": 2410,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10478,7 +10667,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2392,
+            "line_number": 2424,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10515,7 +10704,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2407,
+            "line_number": 2439,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10562,7 +10751,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2578,
+            "line_number": 2610,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10669,7 +10858,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2604,
+            "line_number": 2636,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10701,7 +10890,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2650,
+            "line_number": 2682,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10783,7 +10972,7 @@
             ],
             "returns": "SGProgressGauge: The created SGProgressGauge instance.",
             "examples": [],
-            "line_number": 2669,
+            "line_number": 2701,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10810,7 +10999,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2738,
+            "line_number": 2770,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10837,7 +11026,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2759,
+            "line_number": 2791,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10904,7 +11093,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2787,
+            "line_number": 2819,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10966,7 +11155,7 @@
             ],
             "returns": "SGTextBox: The created text box widget",
             "examples": [],
-            "line_number": 2839,
+            "line_number": 2871,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11023,7 +11212,7 @@
             ],
             "returns": "SGLabel: An instance of SGLabel with the specified properties.",
             "examples": [],
-            "line_number": 2876,
+            "line_number": 2908,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11115,7 +11304,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2899,
+            "line_number": 2931,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11247,7 +11436,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2934,
+            "line_number": 2966,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11274,7 +11463,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3022,
+            "line_number": 3054,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11301,7 +11490,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3031,
+            "line_number": 3063,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11360,7 +11549,7 @@
             ],
             "returns": "SGDistributedGameConfig or None: Configuration object if distributed mode enabled, None if cancelled or local mode.",
             "examples": [],
-            "line_number": 2416,
+            "line_number": 2448,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11376,7 +11565,7 @@
             "parameters": [],
             "returns": "bool: True if setup completed successfully, False if cancelled or not in distributed mode",
             "examples": [],
-            "line_number": 2504,
+            "line_number": 2536,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11408,7 +11597,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3009,
+            "line_number": 3041,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11424,7 +11613,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3148,
+            "line_number": 3180,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11440,7 +11629,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3152,
+            "line_number": 3184,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11464,7 +11653,7 @@
             "examples": [
               "# Apply a saved theme configuration (will be applied when launch() is called)\nmodel.applyThemeConfig(\"my_theme_setup\")\nmodel.launch()  # Theme will be applied after all GameSpaces are created\n\n# Check before applying\nif model.hasThemeConfig(\"setup1\"):\nmodel.applyThemeConfig(\"setup1\")"
             ],
-            "line_number": 3269,
+            "line_number": 3301,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11491,7 +11680,7 @@
             ],
             "returns": "str: Path to exported file",
             "examples": [],
-            "line_number": 3337,
+            "line_number": 3369,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11520,7 +11709,7 @@
             "examples": [
               "# Save automatically to a specific directory\nmyModel.enableAutoSaveGameActionLogs(format=\"csv\", save_path=\"/path/to/logs\")\n\n# Save with user choosing the location\nmyModel.enableAutoSaveGameActionLogs(format=\"json\")\n\n# Save CSV to current directory\nmyModel.enableAutoSaveGameActionLogs(save_path=\".\")"
             ],
-            "line_number": 3364,
+            "line_number": 3396,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11544,7 +11733,7 @@
             "examples": [
               "# Load images from directory\nimages = myModel.loadImagesFromDirectory(\"./images\")\n\n# Use random image for a tile\nimport random\ntile = TileType.newTileOnCell(cell, backImage=random.choice(images))"
             ],
-            "line_number": 3396,
+            "line_number": 3428,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11568,7 +11757,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3047,
+            "line_number": 3079,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11605,7 +11794,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3072,
+            "line_number": 3104,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11629,7 +11818,7 @@
             "examples": [
               "# Disable icons in context menu\nmyModel.setShowIconsInContextMenu(False)"
             ],
-            "line_number": 3305,
+            "line_number": 3337,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11647,7 +11836,7 @@
             "parameters": [],
             "returns": "bool: True if distributed mode is enabled, False otherwise",
             "examples": [],
-            "line_number": 3108,
+            "line_number": 3140,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11673,7 +11862,7 @@
             "examples": [
               "count = myModel.getConnectedInstancesCount()\nif count >= 2:\nprint(\"Minimum players reached!\")\n\n# With custom default value\ncount = myModel.getConnectedInstancesCount(default=1)"
             ],
-            "line_number": 3117,
+            "line_number": 3149,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11689,7 +11878,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3156,
+            "line_number": 3188,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11711,7 +11900,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3159,
+            "line_number": 3191,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11733,7 +11922,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3169,
+            "line_number": 3201,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11749,7 +11938,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3173,
+            "line_number": 3205,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11771,7 +11960,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3177,
+            "line_number": 3209,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11787,7 +11976,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3181,
+            "line_number": 3213,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11803,7 +11992,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3190,
+            "line_number": 3222,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11825,7 +12014,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3201,
+            "line_number": 3233,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11852,7 +12041,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3207,
+            "line_number": 3239,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11868,7 +12057,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3212,
+            "line_number": 3244,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11890,7 +12079,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3219,
+            "line_number": 3251,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11906,7 +12095,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3224,
+            "line_number": 3256,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11928,7 +12117,7 @@
             ],
             "returns": "list: List of grids (SGGrid instances) owned by the specified owner",
             "examples": [],
-            "line_number": 3228,
+            "line_number": 3260,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11950,7 +12139,7 @@
             ],
             "returns": "SGGrid or None: The first grid owned by the specified owner, or None if no grid is owned",
             "examples": [],
-            "line_number": 3239,
+            "line_number": 3271,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11968,7 +12157,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3257,
+            "line_number": 3289,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11992,7 +12181,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3318,
+            "line_number": 3350,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12008,7 +12197,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3329,
+            "line_number": 3361,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12020,7 +12209,7 @@
     "SGPlayer": {
       "class_name": "SGPlayer",
       "description": "SGPlayer model class for SGE framework",
-      "total_methods": 21,
+      "total_methods": 31,
       "categories": {
         "ADD": [
           {
@@ -12039,7 +12228,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 296,
+            "line_number": 267,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -12060,422 +12249,154 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 307,
+            "line_number": 278,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "addActionPoints",
+            "signature": "def addActionPoints(self, value):",
+            "description": "Add action points (can be negative).",
+            "docstring": "Add action points (can be negative).",
+            "category": "ADD",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "value",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 329,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
           }
         ],
-        "NEW": [
+        "OTHER MODELER METHODS": [
           {
-            "name": "newActivateAction",
-            "signature": "def newActivateAction(self, object_type=None, method=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):",
-            "description": "Create a new ActivateAction and automatically add it to this player.",
-            "docstring": "Create a new ActivateAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    object_type: the model itself or a type of entity (agentType, cellType or name of the entity type)\n    method (lambda function): the method to activate\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list of lambda functions): conditions on the activating entity\n    feedbacks (list of lambda functions): feedbacks to execute after activation\n    conditionsOfFeedback (list of lambda functions): conditions for feedback execution\n    label (str): label to display for this action in the interface\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, button, directClick)\n        - controlPanel: bool (default True)\n        - contextMenu: bool (default False)\n        - button: bool (default False) - whether to create a button\n        - buttonPosition: tuple (optional) - coordinates of the button. If button=True but buttonPosition is not specified, a default position (50, 50) will be used.\n        - directClick: bool (default False)\n\nReturns:\n    SGActivate: The created activate action (already added to player)",
-            "category": "NEW",
+            "name": "enableActionPoints",
+            "signature": "def enableActionPoints(self, max_points, current_points=None, reset_mode=\"round\"):",
+            "description": "Enable action points for this player.",
+            "docstring": "Enable action points for this player.\n\nArgs:\n    max_points (int): Maximum action points for the player\n    current_points (int, optional): Current points. Defaults to max_points.\n    reset_mode (str): \"round\", \"phase\", or \"none\"",
+            "category": "OTHER MODELER METHODS",
             "class_name": "SGPlayer",
             "parameters": [
               {
-                "name": "object_type",
-                "type": "Any",
-                "description": "the model itself or a type of entity (agentType, cellType or name of the entity type)"
-              },
-              {
-                "name": "method",
-                "type": "lambda function",
-                "description": "the method to activate"
-              },
-              {
-                "name": "uses_per_round",
+                "name": "max_points",
                 "type": "int",
-                "description": "number of uses per round, could use \"infinite\""
+                "description": "Maximum action points for the player"
               },
               {
-                "name": "conditions",
-                "type": "list of lambda functions",
-                "description": "conditions on the activating entity"
+                "name": "current_points",
+                "type": "int, optional",
+                "description": "Current points. Defaults to max_points."
               },
               {
-                "name": "feedbacks",
-                "type": "list of lambda functions",
-                "description": "feedbacks to execute after activation"
-              },
-              {
-                "name": "conditionsOfFeedback",
-                "type": "list of lambda functions",
-                "description": "conditions for feedback execution"
-              },
-              {
-                "name": "label",
+                "name": "reset_mode",
                 "type": "str",
-                "description": "label to display for this action in the interface"
-              },
-              {
-                "name": "action_controler",
-                "type": "dict",
-                "description": "Interaction modes configuration (controlPanel, contextMenu, button, directClick)"
+                "description": "\"round\", \"phase\", or \"none\""
               }
             ],
-            "returns": "SGActivate: The created activate action (already added to player)",
+            "returns": "",
             "examples": [],
-            "line_number": 316,
+            "line_number": 287,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
           },
           {
-            "name": "newCreateAction",
-            "signature": "def newCreateAction(self, entity_type, dictAttributes=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, create_several_at_each_click=False, writeAttributeInLabel=False, action_controler=None):",
-            "description": "Create a new CreateAction and automatically add it to this player.",
-            "docstring": "Create a new CreateAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    entity_type: a type of entity (agentType, cellType or name of the entity type)\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    dictAttributes (dict): attribute with value concerned, could be None\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after creation\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    create_several_at_each_click (bool): whether to create several entities at each click\n    writeAttributeInLabel (bool): whether to show attribute in label\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGCreate: The created create action (already added to player)",
-            "category": "NEW",
+            "name": "disableActionPoints",
+            "signature": "def disableActionPoints(self):",
+            "description": "Disable action points for this player.",
+            "docstring": "Disable action points for this player.",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGPlayer",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 310,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "spendActionPoints",
+            "signature": "def spendActionPoints(self, cost):",
+            "description": "",
+            "docstring": "",
+            "category": "OTHER MODELER METHODS",
             "class_name": "SGPlayer",
             "parameters": [
               {
-                "name": "entity_type",
+                "name": "cost",
                 "type": "Any",
-                "description": "a type of entity (agentType, cellType or name of the entity type)"
-              },
-              {
-                "name": "dictAttributes",
-                "type": "dict",
-                "description": "attribute with value concerned, could be None"
-              },
-              {
-                "name": "uses_per_round",
-                "type": "int",
-                "description": "number of uses per round, could use \"infinite\""
-              },
-              {
-                "name": "conditions",
-                "type": "list",
-                "description": "conditions that must be met"
-              },
-              {
-                "name": "feedbacks",
-                "type": "list",
-                "description": "actions to execute after creation"
-              },
-              {
-                "name": "conditionsOfFeedback",
-                "type": "list",
-                "description": "conditions for feedback execution"
-              },
-              {
-                "name": "label",
-                "type": "str",
-                "description": "custom label to display"
-              },
-              {
-                "name": "create_several_at_each_click",
-                "type": "bool",
-                "description": "whether to create several entities at each click"
-              },
-              {
-                "name": "writeAttributeInLabel",
-                "type": "bool",
-                "description": "whether to show attribute in label"
-              },
-              {
-                "name": "action_controler",
-                "type": "dict",
-                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+                "description": ""
               }
             ],
-            "returns": "SGCreate: The created create action (already added to player)",
+            "returns": "",
+            "examples": [],
+            "line_number": 344,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "resetActionPoints",
+            "signature": "def resetActionPoints(self, mode=\"round\"):",
+            "description": "",
+            "docstring": "",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "mode",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
             "examples": [],
             "line_number": 356,
-            "parent_classes": [
-              "AttributeAndValueFunctionalities"
-            ]
-          },
-          {
-            "name": "newModifyAction",
-            "signature": "def newModifyAction(self, entity_type, dictAttributes={}, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):",
-            "description": "Create a new ModifyAction and automatically add it to this player.",
-            "docstring": "Create a new ModifyAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    entity_type: a type of entity (agentType, cellType or name of the entity type)\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    dictAttributes (dict): attribute with value concerned, could be None\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after modification\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    writeAttributeInLabel (bool): whether to show attribute in label\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGModify: The created modify action (already added to player)",
-            "category": "NEW",
-            "class_name": "SGPlayer",
-            "parameters": [
-              {
-                "name": "entity_type",
-                "type": "Any",
-                "description": "a type of entity (agentType, cellType or name of the entity type)"
-              },
-              {
-                "name": "dictAttributes",
-                "type": "dict",
-                "description": "attribute with value concerned, could be None"
-              },
-              {
-                "name": "uses_per_round",
-                "type": "int",
-                "description": "number of uses per round, could use \"infinite\""
-              },
-              {
-                "name": "conditions",
-                "type": "list",
-                "description": "conditions that must be met"
-              },
-              {
-                "name": "feedbacks",
-                "type": "list",
-                "description": "actions to execute after modification"
-              },
-              {
-                "name": "conditionsOfFeedback",
-                "type": "list",
-                "description": "conditions for feedback execution"
-              },
-              {
-                "name": "label",
-                "type": "str",
-                "description": "custom label to display"
-              },
-              {
-                "name": "writeAttributeInLabel",
-                "type": "bool",
-                "description": "whether to show attribute in label"
-              },
-              {
-                "name": "action_controler",
-                "type": "dict",
-                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
-              }
-            ],
-            "returns": "SGModify: The created modify action (already added to player)",
-            "examples": [],
-            "line_number": 393,
-            "parent_classes": [
-              "AttributeAndValueFunctionalities"
-            ]
-          },
-          {
-            "name": "newModifyActionWithDialog",
-            "signature": "def newModifyActionWithDialog(self, entity_type, attribute, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):",
-            "description": "Create a new ModifyActionWithDialog and automatically add it to this player.",
-            "docstring": "Create a new ModifyActionWithDialog and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list. The action opens a dialog to ask for the value to use.\n\nArgs:\n    entity_type: a type of entity (agentType, cellType or name of the entity type)\n    attribute (str): the attribute to modify\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after modification\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    writeAttributeInLabel (bool): whether to show attribute in label\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGModifyActionWithDialog: The created modify action with dialog (already added to player)",
-            "category": "NEW",
-            "class_name": "SGPlayer",
-            "parameters": [
-              {
-                "name": "entity_type",
-                "type": "Any",
-                "description": "a type of entity (agentType, cellType or name of the entity type)"
-              },
-              {
-                "name": "attribute",
-                "type": "str",
-                "description": "the attribute to modify"
-              },
-              {
-                "name": "uses_per_round",
-                "type": "int",
-                "description": "number of uses per round, could use \"infinite\""
-              },
-              {
-                "name": "conditions",
-                "type": "list",
-                "description": "conditions that must be met"
-              },
-              {
-                "name": "feedbacks",
-                "type": "list",
-                "description": "actions to execute after modification"
-              },
-              {
-                "name": "conditionsOfFeedback",
-                "type": "list",
-                "description": "conditions for feedback execution"
-              },
-              {
-                "name": "label",
-                "type": "str",
-                "description": "custom label to display"
-              },
-              {
-                "name": "writeAttributeInLabel",
-                "type": "bool",
-                "description": "whether to show attribute in label"
-              },
-              {
-                "name": "action_controler",
-                "type": "dict",
-                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
-              }
-            ],
-            "returns": "SGModifyActionWithDialog: The created modify action with dialog (already added to player)",
-            "examples": [],
-            "line_number": 428,
-            "parent_classes": [
-              "AttributeAndValueFunctionalities"
-            ]
-          },
-          {
-            "name": "newDeleteAction",
-            "signature": "def newDeleteAction(self, entity_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):",
-            "description": "Create a new DeleteAction and automatically add it to this player.",
-            "docstring": "Create a new DeleteAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    entity_type: a type of entity (agentType, cellType or name of the entity type)\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after deletion\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGDelete: The created delete action (already added to player)",
-            "category": "NEW",
-            "class_name": "SGPlayer",
-            "parameters": [
-              {
-                "name": "entity_type",
-                "type": "Any",
-                "description": "a type of entity (agentType, cellType or name of the entity type)"
-              },
-              {
-                "name": "uses_per_round",
-                "type": "int",
-                "description": "number of uses per round, could use \"infinite\""
-              },
-              {
-                "name": "conditions",
-                "type": "list",
-                "description": "conditions that must be met"
-              },
-              {
-                "name": "feedbacks",
-                "type": "list",
-                "description": "actions to execute after deletion"
-              },
-              {
-                "name": "conditionsOfFeedback",
-                "type": "list",
-                "description": "conditions for feedback execution"
-              },
-              {
-                "name": "label",
-                "type": "str",
-                "description": "custom label to display"
-              },
-              {
-                "name": "action_controler",
-                "type": "dict",
-                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
-              }
-            ],
-            "returns": "SGDelete: The created delete action (already added to player)",
-            "examples": [],
-            "line_number": 463,
-            "parent_classes": [
-              "AttributeAndValueFunctionalities"
-            ]
-          },
-          {
-            "name": "newMoveAction",
-            "signature": "def newMoveAction(self, agent_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[], label=None, action_controler=None):",
-            "description": "Create a new MoveAction and automatically add it to this player.",
-            "docstring": "Create a new MoveAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    agent_type: a type of agent (agentType or name of the agent type)\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list of lambda functions): conditions on the moving Entity\n    feedbacks (list): feedback actions\n    conditionsOfFeedback (list): conditions for feedback execution\n    feedbacksAgent (list): agent feedback actions\n    conditionsOfFeedBackAgent (list): conditions for agent feedback execution\n    label (str): custom label to display\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGMove: The created move action (already added to player)",
-            "category": "NEW",
-            "class_name": "SGPlayer",
-            "parameters": [
-              {
-                "name": "agent_type",
-                "type": "Any",
-                "description": "a type of agent (agentType or name of the agent type)"
-              },
-              {
-                "name": "uses_per_round",
-                "type": "int",
-                "description": "number of uses per round, could use \"infinite\""
-              },
-              {
-                "name": "conditions",
-                "type": "list of lambda functions",
-                "description": "conditions on the moving Entity"
-              },
-              {
-                "name": "feedbacks",
-                "type": "list",
-                "description": "feedback actions"
-              },
-              {
-                "name": "conditionsOfFeedback",
-                "type": "list",
-                "description": "conditions for feedback execution"
-              },
-              {
-                "name": "feedbacksAgent",
-                "type": "list",
-                "description": "agent feedback actions"
-              },
-              {
-                "name": "conditionsOfFeedBackAgent",
-                "type": "list",
-                "description": "conditions for agent feedback execution"
-              },
-              {
-                "name": "label",
-                "type": "str",
-                "description": "custom label to display"
-              },
-              {
-                "name": "action_controler",
-                "type": "dict",
-                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
-              }
-            ],
-            "returns": "SGMove: The created move action (already added to player)",
-            "examples": [],
-            "line_number": 494,
-            "parent_classes": [
-              "AttributeAndValueFunctionalities"
-            ]
-          },
-          {
-            "name": "newFlipAction",
-            "signature": "def newFlipAction(self, tile_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):",
-            "description": "Create a new FlipAction and automatically add it to this player.",
-            "docstring": "Create a new FlipAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    tile_type: The tile type (SGTileType) to flip\n    uses_per_round: Number of times the action can be used per round (default: 'infinite')\n    conditions: List of conditions that must be met\n    feedbacks: List of feedback actions\n    conditionsOfFeedback: List of conditions for feedbacks\n    label: Custom label to display (default: \"🔄 Flip\")\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGFlip: The created flip action (already added to player)",
-            "category": "NEW",
-            "class_name": "SGPlayer",
-            "parameters": [
-              {
-                "name": "tile_type",
-                "type": "Any",
-                "description": "The tile type (SGTileType) to flip"
-              },
-              {
-                "name": "uses_per_round",
-                "type": "Any",
-                "description": "Number of times the action can be used per round (default: 'infinite')\nconditions: List of conditions that must be met\nfeedbacks: List of feedback actions\nconditionsOfFeedback: List of conditions for feedbacks"
-              },
-              {
-                "name": "conditions",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "feedbacks",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "conditionsOfFeedback",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "label",
-                "type": "Any",
-                "description": "Custom label to display (default: \"🔄 Flip\")"
-              },
-              {
-                "name": "action_controler",
-                "type": "dict",
-                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
-              }
-            ],
-            "returns": "SGFlip: The created flip action (already added to player)",
-            "examples": [],
-            "line_number": 529,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
           }
         ],
         "GET": [
+          {
+            "name": "getActionPoints",
+            "signature": "def getActionPoints(self):",
+            "description": "Get current action points.",
+            "docstring": "Get current action points.",
+            "category": "GET",
+            "class_name": "SGPlayer",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 314,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "getActionPointsMax",
+            "signature": "def getActionPointsMax(self):",
+            "description": "Get maximum action points.",
+            "docstring": "Get maximum action points.",
+            "category": "GET",
+            "class_name": "SGPlayer",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 318,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
           {
             "name": "controlPanel",
             "signature": "def controlPanel(self):",
@@ -12486,7 +12407,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 570,
+            "line_number": 673,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -12512,24 +12433,28 @@
             "original_class": "AttributeAndValueFunctionalities"
           }
         ],
-        "HAS": [
+        "SET": [
           {
-            "name": "hasActionsToUse",
-            "signature": "def hasActionsToUse(self):",
-            "description": "",
-            "docstring": "",
-            "category": "HAS",
+            "name": "setActionPoints",
+            "signature": "def setActionPoints(self, value):",
+            "description": "Set current action points.",
+            "docstring": "Set current action points.",
+            "category": "SET",
             "class_name": "SGPlayer",
-            "parameters": [],
+            "parameters": [
+              {
+                "name": "value",
+                "type": "Any",
+                "description": ""
+              }
+            ],
             "returns": "",
             "examples": [],
-            "line_number": 583,
+            "line_number": 322,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
-          }
-        ],
-        "SET": [
+          },
           {
             "name": "setValue",
             "signature": "def setValue(self, aAttribut, valueToSet):",
@@ -12711,6 +12636,534 @@
             "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
+          }
+        ],
+        "HAS": [
+          {
+            "name": "hasEnoughActionPoints",
+            "signature": "def hasEnoughActionPoints(self, cost):",
+            "description": "",
+            "docstring": "",
+            "category": "HAS",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "cost",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 336,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "hasActionsToUse",
+            "signature": "def hasActionsToUse(self):",
+            "description": "",
+            "docstring": "",
+            "category": "HAS",
+            "class_name": "SGPlayer",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 686,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          }
+        ],
+        "NEW": [
+          {
+            "name": "newActivateAction",
+            "signature": "def newActivateAction(self, object_type=None, method=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):",
+            "description": "Create a new ActivateAction and automatically add it to this player.",
+            "docstring": "Create a new ActivateAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    object_type: the model itself or a type of entity (agentType, cellType or name of the entity type)\n    method (lambda function): the method to activate\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list of lambda functions): conditions on the activating entity\n    feedbacks (list of lambda functions): feedbacks to execute after activation\n    conditionsOfFeedback (list of lambda functions): conditions for feedback execution\n    label (str): label to display for this action in the interface\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, button, directClick)\n        - controlPanel: bool (default True)\n        - contextMenu: bool (default False)\n        - button: bool (default False) - whether to create a button\n        - buttonPosition: tuple (optional) - coordinates of the button. If button=True but buttonPosition is not specified, a default position (50, 50) will be used.\n        - directClick: bool (default False)\n\nReturns:\n    SGActivate: The created activate action (already added to player)",
+            "category": "NEW",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "object_type",
+                "type": "Any",
+                "description": "the model itself or a type of entity (agentType, cellType or name of the entity type)"
+              },
+              {
+                "name": "method",
+                "type": "lambda function",
+                "description": "the method to activate"
+              },
+              {
+                "name": "uses_per_round",
+                "type": "int",
+                "description": "number of uses per round, could use \"infinite\""
+              },
+              {
+                "name": "conditions",
+                "type": "list of lambda functions",
+                "description": "conditions on the activating entity"
+              },
+              {
+                "name": "feedbacks",
+                "type": "list of lambda functions",
+                "description": "feedbacks to execute after activation"
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "list of lambda functions",
+                "description": "conditions for feedback execution"
+              },
+              {
+                "name": "label",
+                "type": "str",
+                "description": "label to display for this action in the interface"
+              },
+              {
+                "name": "action_controler",
+                "type": "dict",
+                "description": "Interaction modes configuration (controlPanel, contextMenu, button, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "SGActivate: The created activate action (already added to player)",
+            "examples": [],
+            "line_number": 363,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "newCreateAction",
+            "signature": "def newCreateAction(self, entity_type, dictAttributes=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, create_several_at_each_click=False, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):",
+            "description": "Create a new CreateAction and automatically add it to this player.",
+            "docstring": "Create a new CreateAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    entity_type: a type of entity (agentType, cellType or name of the entity type)\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    dictAttributes (dict): attribute with value concerned, could be None\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after creation\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    create_several_at_each_click (bool): whether to create several entities at each click\n    writeAttributeInLabel (bool): whether to show attribute in label\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGCreate: The created create action (already added to player)",
+            "category": "NEW",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "entity_type",
+                "type": "Any",
+                "description": "a type of entity (agentType, cellType or name of the entity type)"
+              },
+              {
+                "name": "dictAttributes",
+                "type": "dict",
+                "description": "attribute with value concerned, could be None"
+              },
+              {
+                "name": "uses_per_round",
+                "type": "int",
+                "description": "number of uses per round, could use \"infinite\""
+              },
+              {
+                "name": "conditions",
+                "type": "list",
+                "description": "conditions that must be met"
+              },
+              {
+                "name": "feedbacks",
+                "type": "list",
+                "description": "actions to execute after creation"
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "list",
+                "description": "conditions for feedback execution"
+              },
+              {
+                "name": "label",
+                "type": "str",
+                "description": "custom label to display"
+              },
+              {
+                "name": "create_several_at_each_click",
+                "type": "bool",
+                "description": "whether to create several entities at each click"
+              },
+              {
+                "name": "writeAttributeInLabel",
+                "type": "bool",
+                "description": "whether to show attribute in label"
+              },
+              {
+                "name": "action_controler",
+                "type": "dict",
+                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "SGCreate: The created create action (already added to player)",
+            "examples": [],
+            "line_number": 404,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "newModifyAction",
+            "signature": "def newModifyAction(self, entity_type, dictAttributes={}, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):",
+            "description": "Create a new ModifyAction and automatically add it to this player.",
+            "docstring": "Create a new ModifyAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    entity_type: a type of entity (agentType, cellType or name of the entity type)\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    dictAttributes (dict): attribute with value concerned, could be None\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after modification\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    writeAttributeInLabel (bool): whether to show attribute in label\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGModify: The created modify action (already added to player)",
+            "category": "NEW",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "entity_type",
+                "type": "Any",
+                "description": "a type of entity (agentType, cellType or name of the entity type)"
+              },
+              {
+                "name": "dictAttributes",
+                "type": "dict",
+                "description": "attribute with value concerned, could be None"
+              },
+              {
+                "name": "uses_per_round",
+                "type": "int",
+                "description": "number of uses per round, could use \"infinite\""
+              },
+              {
+                "name": "conditions",
+                "type": "list",
+                "description": "conditions that must be met"
+              },
+              {
+                "name": "feedbacks",
+                "type": "list",
+                "description": "actions to execute after modification"
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "list",
+                "description": "conditions for feedback execution"
+              },
+              {
+                "name": "label",
+                "type": "str",
+                "description": "custom label to display"
+              },
+              {
+                "name": "writeAttributeInLabel",
+                "type": "bool",
+                "description": "whether to show attribute in label"
+              },
+              {
+                "name": "action_controler",
+                "type": "dict",
+                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "SGModify: The created modify action (already added to player)",
+            "examples": [],
+            "line_number": 442,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "newModifyActionWithDialog",
+            "signature": "def newModifyActionWithDialog(self, entity_type, attribute, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None, action_points_cost=None):",
+            "description": "Create a new ModifyActionWithDialog and automatically add it to this player.",
+            "docstring": "Create a new ModifyActionWithDialog and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list. The action opens a dialog to ask for the value to use.\n\nArgs:\n    entity_type: a type of entity (agentType, cellType or name of the entity type)\n    attribute (str): the attribute to modify\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after modification\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    writeAttributeInLabel (bool): whether to show attribute in label\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGModifyActionWithDialog: The created modify action with dialog (already added to player)",
+            "category": "NEW",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "entity_type",
+                "type": "Any",
+                "description": "a type of entity (agentType, cellType or name of the entity type)"
+              },
+              {
+                "name": "attribute",
+                "type": "str",
+                "description": "the attribute to modify"
+              },
+              {
+                "name": "uses_per_round",
+                "type": "int",
+                "description": "number of uses per round, could use \"infinite\""
+              },
+              {
+                "name": "conditions",
+                "type": "list",
+                "description": "conditions that must be met"
+              },
+              {
+                "name": "feedbacks",
+                "type": "list",
+                "description": "actions to execute after modification"
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "list",
+                "description": "conditions for feedback execution"
+              },
+              {
+                "name": "label",
+                "type": "str",
+                "description": "custom label to display"
+              },
+              {
+                "name": "writeAttributeInLabel",
+                "type": "bool",
+                "description": "whether to show attribute in label"
+              },
+              {
+                "name": "action_controler",
+                "type": "dict",
+                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "SGModifyActionWithDialog: The created modify action with dialog (already added to player)",
+            "examples": [],
+            "line_number": 478,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "newDeleteAction",
+            "signature": "def newDeleteAction(self, entity_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):",
+            "description": "Create a new DeleteAction and automatically add it to this player.",
+            "docstring": "Create a new DeleteAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    entity_type: a type of entity (agentType, cellType or name of the entity type)\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after deletion\n    conditionsOfFeedback (list): conditions for feedback execution\n    label (str): custom label to display\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGDelete: The created delete action (already added to player)",
+            "category": "NEW",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "entity_type",
+                "type": "Any",
+                "description": "a type of entity (agentType, cellType or name of the entity type)"
+              },
+              {
+                "name": "uses_per_round",
+                "type": "int",
+                "description": "number of uses per round, could use \"infinite\""
+              },
+              {
+                "name": "conditions",
+                "type": "list",
+                "description": "conditions that must be met"
+              },
+              {
+                "name": "feedbacks",
+                "type": "list",
+                "description": "actions to execute after deletion"
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "list",
+                "description": "conditions for feedback execution"
+              },
+              {
+                "name": "label",
+                "type": "str",
+                "description": "custom label to display"
+              },
+              {
+                "name": "action_controler",
+                "type": "dict",
+                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "SGDelete: The created delete action (already added to player)",
+            "examples": [],
+            "line_number": 514,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "newMoveAction",
+            "signature": "def newMoveAction(self, agent_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[], label=None, action_controler=None, action_points_cost=None):",
+            "description": "Create a new MoveAction and automatically add it to this player.",
+            "docstring": "Create a new MoveAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    agent_type: a type of agent (agentType or name of the agent type)\n    uses_per_round (int): number of uses per round, could use \"infinite\"\n    conditions (list of lambda functions): conditions on the moving Entity\n    feedbacks (list): feedback actions\n    conditionsOfFeedback (list): conditions for feedback execution\n    feedbacksAgent (list): agent feedback actions\n    conditionsOfFeedBackAgent (list): conditions for agent feedback execution\n    label (str): custom label to display\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGMove: The created move action (already added to player)",
+            "category": "NEW",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "agent_type",
+                "type": "Any",
+                "description": "a type of agent (agentType or name of the agent type)"
+              },
+              {
+                "name": "uses_per_round",
+                "type": "int",
+                "description": "number of uses per round, could use \"infinite\""
+              },
+              {
+                "name": "conditions",
+                "type": "list of lambda functions",
+                "description": "conditions on the moving Entity"
+              },
+              {
+                "name": "feedbacks",
+                "type": "list",
+                "description": "feedback actions"
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "list",
+                "description": "conditions for feedback execution"
+              },
+              {
+                "name": "feedbacksAgent",
+                "type": "list",
+                "description": "agent feedback actions"
+              },
+              {
+                "name": "conditionsOfFeedBackAgent",
+                "type": "list",
+                "description": "conditions for agent feedback execution"
+              },
+              {
+                "name": "label",
+                "type": "str",
+                "description": "custom label to display"
+              },
+              {
+                "name": "action_controler",
+                "type": "dict",
+                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "SGMove: The created move action (already added to player)",
+            "examples": [],
+            "line_number": 546,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "newFlipAction",
+            "signature": "def newFlipAction(self, tile_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, action_points_cost=None):",
+            "description": "Create a new FlipAction and automatically add it to this player.",
+            "docstring": "Create a new FlipAction and automatically add it to this player.\n\nThis is a convenience method that creates the action via the model and automatically\nadds it to the player's gameActions list.\n\nArgs:\n    tile_type: The tile type (SGTileType) to flip\n    uses_per_round: Number of times the action can be used per round (default: 'infinite')\n    conditions: List of conditions that must be met\n    feedbacks: List of feedback actions\n    conditionsOfFeedback: List of conditions for feedbacks\n    label: Custom label to display (default: \"🔄 Flip\")\n    action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)\n\nReturns:\n    SGFlip: The created flip action (already added to player)",
+            "category": "NEW",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "tile_type",
+                "type": "Any",
+                "description": "The tile type (SGTileType) to flip"
+              },
+              {
+                "name": "uses_per_round",
+                "type": "Any",
+                "description": "Number of times the action can be used per round (default: 'infinite')\nconditions: List of conditions that must be met\nfeedbacks: List of feedback actions\nconditionsOfFeedback: List of conditions for feedbacks"
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "feedbacks",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "label",
+                "type": "Any",
+                "description": "Custom label to display (default: \"🔄 Flip\")"
+              },
+              {
+                "name": "action_controler",
+                "type": "dict",
+                "description": "Interaction modes configuration (controlPanel, contextMenu, directClick)"
+              },
+              {
+                "name": "action_points_cost",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "SGFlip: The created flip action (already added to player)",
+            "examples": [],
+            "line_number": 582,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "newControlPanel",
+            "signature": "def newControlPanel( self, title=None, defaultActionSelected=None, show_title=True, show_section_titles=True, show_selection_border=True, symbol_scale=1.0 ) -> SGControlPanel:",
+            "description": "To create an Player Control Panel (only with the GameActions related elements)",
+            "docstring": "To create an Player Control Panel (only with the GameActions related elements)\n\nArgs:\nName (str): name of the Control Panel, displayed",
+            "category": "NEW",
+            "class_name": "SGPlayer",
+            "parameters": [
+              {
+                "name": "title",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "defaultActionSelected",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "show_title",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "show_section_titles",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "show_selection_border",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "symbol_scale",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 615,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
           }
         ],
         "IS": [
@@ -13495,7 +13948,7 @@
     "SGTile": {
       "class_name": "SGTile",
       "description": "SGTile model class for SGE framework",
-      "total_methods": 27,
+      "total_methods": 28,
       "categories": {
         "SET": [
           {
@@ -13539,6 +13992,31 @@
             "parent_classes": [
               "SGEntity"
             ]
+          },
+          {
+            "name": "setImage",
+            "signature": "def setImage(self, image, face=None):",
+            "description": "Set the image for this entity instance.",
+            "docstring": "Set the image for this entity instance.\n\nFor tiles, you can optionally specify face=\"front\" or \"back\".\nIf face is None, the current tile face is used.",
+            "category": "SET",
+            "class_name": "SGEntity",
+            "parameters": [
+              {
+                "name": "image",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "face",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 271,
+            "parent_classes": null,
+            "original_class": "SGEntity"
           },
           {
             "name": "setValue",
@@ -13826,7 +14304,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 271,
+            "line_number": 331,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -13840,7 +14318,7 @@
             "parameters": [],
             "returns": "The entity type (SGEntityType instance)",
             "examples": [],
-            "line_number": 275,
+            "line_number": 335,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -13854,7 +14332,7 @@
             "parameters": [],
             "returns": "SGGrid: The grid instance, or None if not available",
             "examples": [],
-            "line_number": 284,
+            "line_number": 344,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -14334,6 +14812,270 @@
           }
         ]
       }
+    },
+    "SGExtensions": {
+      "class_name": "SGExtensions",
+      "description": "SGExtensions model class for SGE framework",
+      "total_methods": 9,
+      "categories": {
+        "GET": [
+          {
+            "name": "getResourcePath",
+            "signature": "def getResourcePath(relative_path=None, base_path=None):",
+            "description": "Resolve a resource path that works in dev and exported exe.",
+            "docstring": "Resolve a resource path that works in dev and exported exe.\n\nArgs:\n    relative_path (str, optional): Path relative to the project root (or base_path).\n        Example: \"examples/syntax_examples/images\".\n    base_path (str or Path, optional): Custom base path override.\n\nReturns:\n    Path: Absolute path to the resource folder or file.\n\nExample:\n    # Get a path that works in dev or exe\n    images_dir = getResourcePath(\"examples/syntax_examples/images\")",
+            "category": "GET",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "relative_path",
+                "type": "str, optional",
+                "description": "Path relative to the project root (or base_path)."
+              },
+              {
+                "name": "base_path",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "Path: Absolute path to the resource folder or file.",
+            "examples": [
+              "base_path (str or Path, optional): Custom base path override.\n\nReturns:\nPath: Absolute path to the resource folder or file.",
+              "# Get a path that works in dev or exe\nimages_dir = getResourcePath(\"examples/syntax_examples/images\")"
+            ],
+            "line_number": 251,
+            "parent_classes": null
+          },
+          {
+            "name": "listImagePaths",
+            "signature": "def listImagePaths(paths, extensions=None, base_path=None):",
+            "description": "Collect image paths from one or more directories.",
+            "docstring": "Collect image paths from one or more directories.\n\nArgs:\n    paths (str | Path | list[str | Path]): Directory or list of directories to scan.\n    extensions (tuple[str], optional): Glob patterns. Defaults to common image extensions.\n    base_path (str | Path, optional): Base path for relative dirs (uses getResourceBasePath by default).\n\nReturns:\n    list[Path]: List of matching image paths (may be empty).",
+            "category": "GET",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "paths",
+                "type": "str | Path | list[str | Path]",
+                "description": "Directory or list of directories to scan."
+              },
+              {
+                "name": "extensions",
+                "type": "tuple[str], optional",
+                "description": "Glob patterns. Defaults to common image extensions."
+              },
+              {
+                "name": "base_path",
+                "type": "str | Path, optional",
+                "description": "Base path for relative dirs (uses getResourceBasePath by default)."
+              }
+            ],
+            "returns": "list[Path]: List of matching image paths (may be empty).",
+            "examples": [],
+            "line_number": 276,
+            "parent_classes": null
+          },
+          {
+            "name": "first_value",
+            "signature": "def first_value(d, default=None):",
+            "description": "Return the first value of a dictionary according to insertion order.",
+            "docstring": "Return the first value of a dictionary according to insertion order.\n- Does not materialize a list (O(1) extra memory).\n- Returns `default` if the dictionary is empty.\n\n:param d: dictionary to read from\n:param default: value to return if dict is empty (default: None)\n:return: the first value or `default` if empty",
+            "category": "GET",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "d",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "default",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 354,
+            "parent_classes": null
+          },
+          {
+            "name": "first_key",
+            "signature": "def first_key(d, default=None):",
+            "description": "Return the first key of a dictionary according to insertion order.",
+            "docstring": "Return the first key of a dictionary according to insertion order.\n- O(1) extra memory.\n- Returns `default` if the dictionary is empty.\n\n:param d: dictionary to read from\n:param default: value to return if dict is empty (default: None)\n:return: the first key or `default` if empty",
+            "category": "GET",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "d",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "default",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 368,
+            "parent_classes": null
+          },
+          {
+            "name": "first_item",
+            "signature": "def first_item(d, default=None):",
+            "description": "Return the first (key, value) pair of a dictionary according to insertion order.",
+            "docstring": "Return the first (key, value) pair of a dictionary according to insertion order.\n- O(1) extra memory.\n- Returns `default` if the dictionary is empty.\n\n:param d: dictionary to read from\n:param default: value to return if dict is empty (default: None)\n:return: the first (key, value) tuple or `default` if empty",
+            "category": "GET",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "d",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "default",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 382,
+            "parent_classes": null
+          }
+        ],
+        "DO": [
+          {
+            "name": "copyValue",
+            "signature": "def copyValue(source_att, target_att):",
+            "description": "Build a callable that copies an attribute value on an entity.",
+            "docstring": "Build a callable that copies an attribute value on an entity.\n\nUsage:\n    Cells.newModelAction(copyValue(\"bufferState\", \"state\"))",
+            "category": "DO",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "source_att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "target_att",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "Cells.newModelAction(copyValue(\"bufferState\", \"state\"))"
+            ],
+            "line_number": 309,
+            "parent_classes": null
+          },
+          {
+            "name": "fillTransparentAreas",
+            "signature": "def fillTransparentAreas(pixmap, fillColor):",
+            "description": "Fill transparent areas of a QPixmap with a given color.",
+            "docstring": "Fill transparent areas of a QPixmap with a given color.\n\nThis utility function creates a new pixmap with transparent areas filled\nwith the specified color, useful for ensuring images have solid backgrounds.\n\nArgs:\n    pixmap: QPixmap image with potential transparent areas\n    fillColor: QColor to fill transparent areas with\n    \nReturns:\n    QPixmap: New pixmap with transparent areas filled, or original pixmap if None/invalid",
+            "category": "DO",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "pixmap",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "fillColor",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "QPixmap: New pixmap with transparent areas filled, or original pixmap if None/invalid",
+            "examples": [],
+            "line_number": 321,
+            "parent_classes": null
+          },
+          {
+            "name": "execute_callable_with_entity",
+            "signature": "def execute_callable_with_entity(callable_func, entity=None):",
+            "description": "Execute a callable function with appropriate arguments based on its signature.",
+            "docstring": "Execute a callable function with appropriate arguments based on its signature.\n- If callable has 0 arguments: execute with no arguments\n- If callable has 1 argument: execute with the provided entity\n- If callable has more than 1 argument: raise ValueError\n\nThis utility method is used by SGModelAction and SGActivate to handle\nlambda functions with different argument counts.\n\n:param callable_func: The callable function to execute\n:param entity: The entity to pass as argument (if callable expects 1 argument)\n:raises ValueError: If callable has more than 1 argument",
+            "category": "DO",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "callable_func",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "entity",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 396,
+            "parent_classes": null
+          },
+          {
+            "name": "generate_color_gradient",
+            "signature": "def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradient=False, mapping=None, as_dict=False, as_ranges=False):",
+            "description": "Generate a color gradient as a list of QColor objects, a dict (mapping mode), or a list of (start, end, color) ranges.",
+            "docstring": "Generate a color gradient as a list of QColor objects, a dict (mapping mode), or a list of (start, end, color) ranges.\n\nModes\n-----\n1) Basic mode (no mapping):\n   - Two colors: gradient from color1 → color2 with `steps` samples.\n   - Single color (color2 is None): gradient light → color1 → dark (never pure white/black).\n     Extremes are trimmed to keep the reference hue visible.\n\n2) Mapping mode (with `mapping`):\n   - mapping = {\"values\": [...], \"value_min\": x, \"value_max\": y}\n   - If two colors: each value is mapped linearly between color1 and color2.\n   - If single color: each value is mapped along light → color1 → dark.\n   - reverse_gradient flips the mapping (i.e., t → 1-t).\n\nOutput\n------\n- Default: list[QColor]\n- as_dict=True: dict {value: QColor}  (mapping mode only)\n- as_ranges=True: list[(start, end, QColor)] with the last end = float('inf') (mapping mode only)\n  Ranges are: [vmin, v1), [v1, v2), ..., [v_last, inf)\n\nAccepted color formats\n----------------------\nQColor, color name (\"red\"), hex \"#RRGGBB[AA]\", (R,G,B) or (R,G,B,A), Qt.GlobalColor (e.g., Qt.red)\n\nExamples\n--------\ngenerate_color_gradient(\"green\", steps=6)\ngenerate_color_gradient(\"red\", \"blue\", steps=8)\ngenerate_color_gradient(\"red\", \"blue\", mapping={\"values\":[0,50,100], \"value_min\":0, \"value_max\":100}, as_dict=True)\ngenerate_color_gradient(\"green\", mapping={\"values\":[1,3,5], \"value_min\":0, \"value_max\":7}, as_ranges=True)",
+            "category": "DO",
+            "class_name": "SGExtensions",
+            "parameters": [
+              {
+                "name": "color1",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "color2",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "steps",
+                "type": "int",
+                "description": ""
+              },
+              {
+                "name": "reverse_gradient",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "mapping",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "as_dict",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "as_ranges",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "--------\ngenerate_color_gradient(\"green\", steps=6)\ngenerate_color_gradient(\"red\", \"blue\", steps=8)\ngenerate_color_gradient(\"red\", \"blue\", mapping={\"values\":[0,50,100], \"value_min\":0, \"value_max\":100}, as_dict=True)\ngenerate_color_gradient(\"green\", mapping={\"values\":[1,3,5], \"value_min\":0, \"value_max\":7}, as_ranges=True)"
+            ],
+            "line_number": 440,
+            "parent_classes": null
+          }
+        ]
+      }
     }
   },
   "inheritance": {
@@ -14391,6 +15133,7 @@
     "SGUserSelector": [
       "SGGameSpace"
     ],
+    "SGExtensions": null,
     "SGEntityType": [
       "AttributeAndValueFunctionalities"
     ]

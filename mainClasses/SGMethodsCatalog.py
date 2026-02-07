@@ -673,6 +673,11 @@ class SGMethodsCatalog:
                 all_methods_data.update(methods_data)
             else:
                 print(f"No modeler methods found in {file_path}")
+
+        # Add SGExtensions utility functions as a pseudo-class
+        extensions_methods = self._extract_sgextensions_methods()
+        if extensions_methods:
+            all_methods_data.update(extensions_methods)
         
         # Merge inherited methods data for inheritance resolution
         # This allows excluded classes to still contribute methods via inheritance
@@ -680,6 +685,62 @@ class SGMethodsCatalog:
         
         self.catalog_data = self._generate_catalog_structure(all_methods_data, all_methods_for_inheritance)
         return self.catalog_data
+
+    def _extract_sgextensions_methods(self) -> Dict[str, List[MethodInfo]]:
+        """Extract SGExtensions utilities as catalog methods"""
+        file_path = os.path.join("mainClasses", "SGExtensions.py")
+        if not os.path.exists(file_path):
+            return {}
+
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        try:
+            tree = ast.parse(content)
+        except SyntaxError as e:
+            print(f"Error parsing {file_path}: {e}")
+            return {}
+
+        exported = self._extract_dunder_all(tree)
+        if not exported:
+            return {}
+
+        methods = []
+        for node in tree.body:
+            if isinstance(node, ast.FunctionDef) and node.name in exported:
+                # Only include SGExtensions utilities explicitly tagged with @CATEGORY
+                if not self._has_explicit_category_tag(node, content):
+                    continue
+                method_info = self.extractor._extract_method_info(node, "SGExtensions", content)
+                if method_info and self.extractor._is_modeler_method(method_info):
+                    methods.append(method_info)
+
+        return {"SGExtensions": methods} if methods else {}
+
+    def _extract_dunder_all(self, tree: ast.AST) -> List[str]:
+        """Extract __all__ list from a module AST"""
+        for node in tree.body:
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and target.id == "__all__":
+                        try:
+                            value = ast.literal_eval(node.value)
+                            if isinstance(value, (list, tuple)):
+                                return [v for v in value if isinstance(v, str)]
+                        except Exception:
+                            return []
+        return []
+
+    def _has_explicit_category_tag(self, node: ast.FunctionDef, content: str) -> bool:
+        """Check if a function has an explicit @CATEGORY tag (comment or docstring)."""
+        line_number = node.lineno
+        if self.extractor._find_category_tag_in_comments(content, line_number):
+            return True
+        docstring = ast.get_docstring(node) or ""
+        for line in docstring.split('\n'):
+            if '@CATEGORY:' in line:
+                return True
+        return False
     
     def _get_all_sge_classes(self) -> List[str]:
         """Get all SGE class files from mainClasses directory"""

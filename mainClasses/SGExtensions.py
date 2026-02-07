@@ -247,16 +247,22 @@ def getResourceBasePath(base_path=None):
         return Path(sys._MEIPASS)
     return Path(__file__).resolve().parent.parent
 
+# @CATEGORY: GET
 def getResourcePath(relative_path=None, base_path=None):
     """
-    Resolve a resource path for both dev and exe modes.
+    Resolve a resource path that works in dev and exported exe.
     
     Args:
-        relative_path (str, optional): Path relative to the base path.
+        relative_path (str, optional): Path relative to the project root (or base_path).
+            Example: "examples/syntax_examples/images".
         base_path (str or Path, optional): Custom base path override.
     
     Returns:
-        Path: Resolved resource path.
+        Path: Absolute path to the resource folder or file.
+
+    Example:
+        # Get a path that works in dev or exe
+        images_dir = getResourcePath("examples/syntax_examples/images")
     """
     base = getResourceBasePath(base_path)
     if relative_path in (None, ""):
@@ -266,6 +272,7 @@ def getResourcePath(relative_path=None, base_path=None):
         return rel
     return base / rel
 
+# @CATEGORY: GET
 def listImagePaths(paths, extensions=None, base_path=None):
     """
     Collect image paths from one or more directories.
@@ -298,6 +305,7 @@ def listImagePaths(paths, extensions=None, base_path=None):
 
     return results
 
+# @CATEGORY: DO
 def copyValue(source_att, target_att):
     """
     Build a callable that copies an attribute value on an entity.
@@ -309,6 +317,7 @@ def copyValue(source_att, target_att):
         aEntity.copyValue(source_att, target_att)
     return _action
 
+# @CATEGORY: DO
 def fillTransparentAreas(pixmap, fillColor):
     """
     Fill transparent areas of a QPixmap with a given color.
@@ -341,6 +350,7 @@ def fillTransparentAreas(pixmap, fillColor):
     
     return filled_pixmap
 
+# @CATEGORY: GET
 def first_value(d, default=None):
     """
     Return the first value of a dictionary according to insertion order.
@@ -354,6 +364,7 @@ def first_value(d, default=None):
     return next(iter(d.values()), default)
 
 
+# @CATEGORY: GET
 def first_key(d, default=None):
     """
     Return the first key of a dictionary according to insertion order.
@@ -367,6 +378,7 @@ def first_key(d, default=None):
     return next(iter(d), default)
 
 
+# @CATEGORY: GET
 def first_item(d, default=None):
     """
     Return the first (key, value) pair of a dictionary according to insertion order.
@@ -380,6 +392,7 @@ def first_item(d, default=None):
     return next(iter(d.items()), default)
 
 
+# @CATEGORY: DO
 def execute_callable_with_entity(callable_func, entity=None):
     """
     Execute a callable function with appropriate arguments based on its signature.
@@ -423,6 +436,7 @@ def normalize_type_name(type_name):
     return type_name
 
 
+# @CATEGORY: DO
 def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradient=False, mapping=None, as_dict=False, as_ranges=False):
     """
     Generate a color gradient as a list of QColor objects, a dict (mapping mode), or a list of (start, end, color) ranges.

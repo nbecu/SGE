@@ -220,6 +220,13 @@
     ],
     "description": "Increase the value of an attribut with an additional value"
   },
+  "SGAgent.setImage": {
+    "prefix": "sgagent.setImage",
+    "body": [
+      "${1:instance}.setImage(${2:image}, ${3:face})"
+    ],
+    "description": "Set the image for this entity instance."
+  },
   "SGAgent.setValue": {
     "prefix": "sgagent.setValue",
     "body": [
@@ -577,6 +584,13 @@
     ],
     "description": "Increase the value of an attribut with an additional value"
   },
+  "SGCell.setImage": {
+    "prefix": "sgcell.setImage",
+    "body": [
+      "${1:instance}.setImage(${2:image}, ${3:face})"
+    ],
+    "description": "Set the image for this entity instance."
+  },
   "SGCell.setValue": {
     "prefix": "sgcell.setValue",
     "body": [
@@ -601,7 +615,7 @@
   "SGControlPanel.setBackgroundColor": {
     "prefix": "sgcontrolpanel.setBackgroundColor",
     "body": [
-      "${1:instance}.setBackgroundColor(${2:value})"
+      "${1:instance}.setBackgroundColor(${2:color}, ${3:color_when_inactive})"
     ],
     "description": "Set the background color of the control panel."
   },
@@ -625,6 +639,34 @@
       "${1:instance}.setInactiveThemeColor(${2:value})"
     ],
     "description": "Set the inactive theme background color."
+  },
+  "SGControlPanel.setShowSectionTitles": {
+    "prefix": "sgcontrolpanel.setShowSectionTitles",
+    "body": [
+      "${1:instance}.setShowSectionTitles(${2:value})"
+    ],
+    "description": "Enable or disable section titles display."
+  },
+  "SGControlPanel.setShowSelectionBorder": {
+    "prefix": "sgcontrolpanel.setShowSelectionBorder",
+    "body": [
+      "${1:instance}.setShowSelectionBorder(${2:value})"
+    ],
+    "description": "Enable or disable the selection border on items."
+  },
+  "SGControlPanel.setShowTitle": {
+    "prefix": "sgcontrolpanel.setShowTitle",
+    "body": [
+      "${1:instance}.setShowTitle(${2:value})"
+    ],
+    "description": "Enable or disable the main title display."
+  },
+  "SGControlPanel.setSymbolScale": {
+    "prefix": "sgcontrolpanel.setSymbolScale",
+    "body": [
+      "${1:instance}.setSymbolScale(${2:value})"
+    ],
+    "description": "Set the symbol scale for items in the control panel."
   },
   "SGDashBoard.setTitleText": {
     "prefix": "sgdashboard.setTitleText",
@@ -2769,6 +2811,13 @@
     ],
     "description": "Set whether to display the time (Round number and Phase number) in the window title."
   },
+  "SGPlayer.addActionPoints": {
+    "prefix": "sgplayer.addActionPoints",
+    "body": [
+      "${1:result} = ${2:instance}.addActionPoints(${3:value})"
+    ],
+    "description": "Add action points (can be negative)."
+  },
   "SGPlayer.addGameAction": {
     "prefix": "sgplayer.addGameAction",
     "body": [
@@ -2783,12 +2832,147 @@
     ],
     "description": ""
   },
+  "SGPlayer.disableActionPoints": {
+    "prefix": "sgplayer.disableActionPoints",
+    "body": [
+      "${1:result} = ${2:instance}.disableActionPoints()"
+    ],
+    "description": "Disable action points for this player."
+  },
+  "SGPlayer.enableActionPoints": {
+    "prefix": "sgplayer.enableActionPoints",
+    "body": [
+      "${1:result} = ${2:instance}.enableActionPoints(${3:max_points}, ${4:current_points}, ${5:reset_mode})"
+    ],
+    "description": "Enable action points for this player."
+  },
+  "SGPlayer.resetActionPoints": {
+    "prefix": "sgplayer.resetActionPoints",
+    "body": [
+      "${1:result} = ${2:instance}.resetActionPoints(${3:mode})"
+    ],
+    "description": ""
+  },
+  "SGPlayer.spendActionPoints": {
+    "prefix": "sgplayer.spendActionPoints",
+    "body": [
+      "${1:result} = ${2:instance}.spendActionPoints(${3:cost})"
+    ],
+    "description": ""
+  },
+  "SGPlayer.controlPanel": {
+    "prefix": "sgplayer.controlPanel",
+    "body": [
+      "${1:result} = ${2:instance}.controlPanel()"
+    ],
+    "description": ""
+  },
+  "SGPlayer.getActionPoints": {
+    "prefix": "sgplayer.getActionPoints",
+    "body": [
+      "${1:result} = ${2:instance}.getActionPoints()"
+    ],
+    "description": "Get current action points."
+  },
+  "SGPlayer.getActionPointsMax": {
+    "prefix": "sgplayer.getActionPointsMax",
+    "body": [
+      "${1:result} = ${2:instance}.getActionPointsMax()"
+    ],
+    "description": "Get maximum action points."
+  },
+  "SGPlayer.getValue": {
+    "prefix": "sgplayer.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut"
+  },
+  "SGPlayer.calcValue": {
+    "prefix": "sgplayer.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function"
+  },
+  "SGPlayer.copyValue": {
+    "prefix": "sgplayer.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
+  },
+  "SGPlayer.decValue": {
+    "prefix": "sgplayer.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value"
+  },
+  "SGPlayer.incValue": {
+    "prefix": "sgplayer.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value"
+  },
+  "SGPlayer.setActionPoints": {
+    "prefix": "sgplayer.setActionPoints",
+    "body": [
+      "${1:instance}.setActionPoints(${2:value})"
+    ],
+    "description": "Set current action points."
+  },
+  "SGPlayer.setValue": {
+    "prefix": "sgplayer.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut"
+  },
+  "SGPlayer.setValue_randomChoice": {
+    "prefix": "sgplayer.setValue_randomChoice",
+    "body": [
+      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
+    ],
+    "description": "Set a random value for an attribute from a list of choices."
+  },
+  "SGPlayer.setValues": {
+    "prefix": "sgplayer.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once."
+  },
+  "SGPlayer.hasActionsToUse": {
+    "prefix": "sgplayer.hasActionsToUse",
+    "body": [
+      "if ${1:instance}.hasActionsToUse():",
+      "    ${2:pass}"
+    ],
+    "description": ""
+  },
+  "SGPlayer.hasEnoughActionPoints": {
+    "prefix": "sgplayer.hasEnoughActionPoints",
+    "body": [
+      "if ${1:instance}.hasEnoughActionPoints(${2:cost}):",
+      "    ${3:pass}"
+    ],
+    "description": ""
+  },
   "SGPlayer.newActivateAction": {
     "prefix": "sgplayer.newActivateAction",
     "body": [
       "${1:result} = ${2:instance}.newActivateAction(${3:})"
     ],
     "description": "Create a new ActivateAction and automatically add it to this player."
+  },
+  "SGPlayer.newControlPanel": {
+    "prefix": "sgplayer.newControlPanel",
+    "body": [
+      "${1:result} = ${2:instance}.newControlPanel(${3:})"
+    ],
+    "description": "To create an Player Control Panel (only with the GameActions related elements)"
   },
   "SGPlayer.newCreateAction": {
     "prefix": "sgplayer.newCreateAction",
@@ -2831,77 +3015,6 @@
       "${1:result} = ${2:instance}.newMoveAction(${3:})"
     ],
     "description": "Create a new MoveAction and automatically add it to this player."
-  },
-  "SGPlayer.controlPanel": {
-    "prefix": "sgplayer.controlPanel",
-    "body": [
-      "${1:result} = ${2:instance}.controlPanel()"
-    ],
-    "description": ""
-  },
-  "SGPlayer.getValue": {
-    "prefix": "sgplayer.getValue",
-    "body": [
-      "${1:result} = ${2:instance}.getValue(${3:att})"
-    ],
-    "description": "Return the value of a cell Attribut"
-  },
-  "SGPlayer.hasActionsToUse": {
-    "prefix": "sgplayer.hasActionsToUse",
-    "body": [
-      "if ${1:instance}.hasActionsToUse():",
-      "    ${2:pass}"
-    ],
-    "description": ""
-  },
-  "SGPlayer.calcValue": {
-    "prefix": "sgplayer.calcValue",
-    "body": [
-      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
-    ],
-    "description": "Apply a calculation on the value of an attribut using a lambda function"
-  },
-  "SGPlayer.copyValue": {
-    "prefix": "sgplayer.copyValue",
-    "body": [
-      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
-    ],
-    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
-  },
-  "SGPlayer.decValue": {
-    "prefix": "sgplayer.decValue",
-    "body": [
-      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
-    ],
-    "description": "Decrease the value of an attribut with an additional value"
-  },
-  "SGPlayer.incValue": {
-    "prefix": "sgplayer.incValue",
-    "body": [
-      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
-    ],
-    "description": "Increase the value of an attribut with an additional value"
-  },
-  "SGPlayer.setValue": {
-    "prefix": "sgplayer.setValue",
-    "body": [
-      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
-    ],
-    "description": "Sets the value of an attribut"
-  },
-  "SGPlayer.setValue_randomChoice": {
-    "prefix": "sgplayer.setValue_randomChoice",
-    "body": [
-      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
-    ],
-    "description": "Set a random value for an attribute from a list of choices."
-  },
-  "SGPlayer.setValues": {
-    "prefix": "sgplayer.setValues",
-    "body": [
-      "${1:instance}.setValues(${2:value})"
-    ],
-    "description": "Set multiple attribute values at once."
   },
   "SGPlayer.isNotValue": {
     "prefix": "sgplayer.isNotValue",
@@ -3207,6 +3320,13 @@
     ],
     "description": "Set the visible face of this tile."
   },
+  "SGTile.setImage": {
+    "prefix": "sgtile.setImage",
+    "body": [
+      "${1:instance}.setImage(${2:image}, ${3:face})"
+    ],
+    "description": "Set the image for this entity instance."
+  },
   "SGTile.setLayer": {
     "prefix": "sgtile.setLayer",
     "body": [
@@ -3456,5 +3576,68 @@
       "${1:instance}.setTitleText(${2:value})"
     ],
     "description": "Set the title text of the user selector."
+  },
+  "SGExtensions.first_item": {
+    "prefix": "sgextensions.first_item",
+    "body": [
+      "${1:result} = ${2:instance}.first_item(${3:d}, ${4:default})"
+    ],
+    "description": "Return the first (key, value) pair of a dictionary according to insertion order."
+  },
+  "SGExtensions.first_key": {
+    "prefix": "sgextensions.first_key",
+    "body": [
+      "${1:result} = ${2:instance}.first_key(${3:d}, ${4:default})"
+    ],
+    "description": "Return the first key of a dictionary according to insertion order."
+  },
+  "SGExtensions.first_value": {
+    "prefix": "sgextensions.first_value",
+    "body": [
+      "${1:result} = ${2:instance}.first_value(${3:d}, ${4:default})"
+    ],
+    "description": "Return the first value of a dictionary according to insertion order."
+  },
+  "SGExtensions.getResourcePath": {
+    "prefix": "sgextensions.getResourcePath",
+    "body": [
+      "${1:result} = ${2:instance}.getResourcePath(${3:relative_path}, ${4:base_path})"
+    ],
+    "description": "Resolve a resource path that works in dev and exported exe."
+  },
+  "SGExtensions.listImagePaths": {
+    "prefix": "sgextensions.listImagePaths",
+    "body": [
+      "${1:result} = ${2:instance}.listImagePaths(${3:paths}, ${4:extensions}, ${5:base_path})"
+    ],
+    "description": "Collect image paths from one or more directories."
+  },
+  "SGExtensions.copyValue": {
+    "prefix": "sgextensions.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Build a callable that copies an attribute value on an entity."
+  },
+  "SGExtensions.execute_callable_with_entity": {
+    "prefix": "sgextensions.execute_callable_with_entity",
+    "body": [
+      "${1:result} = ${2:instance}.execute_callable_with_entity(${3:callable_func}, ${4:entity})"
+    ],
+    "description": "Execute a callable function with appropriate arguments based on its signature."
+  },
+  "SGExtensions.fillTransparentAreas": {
+    "prefix": "sgextensions.fillTransparentAreas",
+    "body": [
+      "${1:result} = ${2:instance}.fillTransparentAreas(${3:pixmap}, ${4:fillColor})"
+    ],
+    "description": "Fill transparent areas of a QPixmap with a given color."
+  },
+  "SGExtensions.generate_color_gradient": {
+    "prefix": "sgextensions.generate_color_gradient",
+    "body": [
+      "${1:result} = ${2:instance}.generate_color_gradient(${3:color1}, ${4:color2}, ${5:steps}, ${6:reverse_gradient}, ${7:mapping}, ${8:as_dict}, ${9:as_ranges})"
+    ],
+    "description": "Generate a color gradient as a list of QColor objects, a dict (mapping mode), or a list of (start, end, color) ranges."
   }
 }
