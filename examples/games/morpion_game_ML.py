@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 import random
+import itertools
+import string
 import numpy as np
 from PyQt5 import QtWidgets, QtGui, QtCore
 
@@ -45,6 +47,7 @@ def build_morpion_model(ui_enabled=True, with_control_panels=True):
 
     if ui_enabled:
         myModel.newUserSelector()
+    myModel.setCurrentPlayer('Admin')
 
     # End game rule
     endGameRule = myModel.newEndGameRule()
@@ -180,7 +183,22 @@ def build_policy_model():
     return model
 
 
-def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.995, gamma=0.9, seed=42):
+def _iter_suffixes():
+    letters = string.ascii_lowercase
+    for size in range(1, 3):
+        for comb in itertools.product(letters, repeat=size):
+            yield "".join(comb)
+
+
+def _get_auto_model_path(models_dir, game_name, episodes):
+    for suffix in _iter_suffixes():
+        candidate = models_dir / f"{game_name}_ep{episodes}_{suffix}.keras"
+        if not candidate.exists():
+            return candidate
+    raise RuntimeError("No available suffix for model file name.")
+
+
+def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.995, gamma=0.9, seed=42, output_path=None, game_name="morpion"):
     random.seed(seed)
     np.random.seed(seed)
 
@@ -256,7 +274,12 @@ def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=
 
     models_dir = Path(__file__).parent / "trained_bots"
     models_dir.mkdir(parents=True, exist_ok=True)
-    model_path = models_dir / "morpion_bot.keras"
+    if output_path:
+        model_path = Path(output_path)
+        if not model_path.is_absolute():
+            model_path = models_dir / model_path
+    else:
+        model_path = _get_auto_model_path(models_dir, game_name, episodes)
     policy_model.save(model_path)
     return model_path
 
@@ -264,7 +287,7 @@ def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=
 # ============================================================================
 # UI: Bot vs Human
 # ============================================================================
-def run_bot_vs_human(model_path=None):
+def run_bot_vs_human(model_path=None, bot_player="O"):
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
     model, Cell, Player1, Player2, _ = build_morpion_model(ui_enabled=True, with_control_panels=True)
     adapter = MorpionAdapter(model, Cell, {Player1.name: "X", Player2.name: "O"})
@@ -272,20 +295,26 @@ def run_bot_vs_human(model_path=None):
     policy_model = None
     if model_path:
         try:
+            model_path = Path(model_path)
+            if not model_path.is_absolute():
+                model_path = Path(__file__).parent / model_path
             from tensorflow import keras
-            policy_model = keras.models.load_model(model_path)
+            policy_model = keras.models.load_model(str(model_path))
         except Exception:
             policy_model = None
 
-    bot = model.enableBotPlayer(Player2.name, adapter, strategy="policy", policy_model=policy_model, epsilon=0.0)
+    bot_name = Player2.name if bot_player.upper() == "O" else Player1.name
+    strategy = "policy" if policy_model is not None else "random"
+    bot = model.enableBotPlayer(bot_name, adapter, strategy=strategy, policy_model=policy_model, epsilon=0.0)
 
     def bot_tick():
         current_player = model.getCurrentPlayer()
-        if current_player and current_player.name == Player2.name:
+        if current_player and current_player.name == bot_name:
             bot.execute_turn()
         QtCore.QTimer.singleShot(200, bot_tick)
 
-    model.setCurrentPlayer(Player1.name)
+    # Start with X by default
+    # model.setCurrentPlayer(Player1.name)
     model.launch()
     QtCore.QTimer.singleShot(200, bot_tick)
     sys.exit(app.exec_())
@@ -294,5 +323,5 @@ def run_bot_vs_human(model_path=None):
 if __name__ == "__main__":
     # Example:
     # 1) Train headless: train_morpion_bot(episodes=500)
-    # 2) Run UI: run_bot_vs_human("trained_bots/morpion_bot.keras")
-    run_bot_vs_human()
+    # 2) Run UI: run_bot_vs_human("trained_bots/morpion_ep500_a.keras", bot_player="O")
+    run_bot_vs_human('trained_bots/morpion_ep2000_a.keras', bot_player="X")
