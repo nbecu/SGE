@@ -24,7 +24,6 @@ myModel.enableDistributedGame(num_players=(2,4),broker_host="91.173.78.45", brok
 additional_brokers=[{"name": "local", "host": "localhost", "port": 1883}])
 nb_players = myModel.getConnectedInstancesCount(default=4) 
 
-
 # ============================================================================
 # Paths configuration
 # ============================================================================
@@ -168,7 +167,7 @@ deck_stack.refillAvailableSlots()
 # Create marker agent
 # ============================================================================
 Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,
-locationInEntity="topRight",stackOffset=(0, 35)
+locationInEntity="topRight",stackOffset=(0, 15)
 )
 # Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.newPov("default", "owner", {
@@ -367,6 +366,8 @@ moveActionTemplate = myModel.newMoveAction(
         lambda tile: tile.getGrid().isOwnedBy(myModel.getCurrentPlayer()),  # Can only move from current player's board
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
         lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0,
+        # Prevent placement if cell already has 2 markers
+        lambda tile, cell: cell.nbAgents(Marker) < 2,
         # Check that placing a tile would not exceed horizontal range of 7 across entire grid
         lambda tile, cell: cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True) <= 7,
         # Check that placing a tile would not exceed vertical range of 7 across entire grid
@@ -396,7 +397,7 @@ for i, player in enumerate(Players.values(), start=1):
     PlayersMoveAction[i] = player_move_action
 
 # ============================================================================
-# Create a marker move action
+# Create a double marker action
 # ============================================================================
 PlayersMarkerAction = {}
 for i in range(1, nb_players + 1):
@@ -412,8 +413,9 @@ for i in range(1, nb_players + 1):
             lambda cell: cell.nbAgents(Marker) ==1,
             lambda cell, player_name=player_name: (
                 cell.getFirstAgent(Marker).value("owner") == player_name
-            )
-        ],
+            ),
+            lambda cell: cell.getStack(SeaTile).topTile().getValue("category") == "biodiv" 
+           ],
         action_controler={"controlPanel": True},
         label=""
     )
