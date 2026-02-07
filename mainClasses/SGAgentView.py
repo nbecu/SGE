@@ -95,13 +95,18 @@ class SGAgentView(SGEntityView):
                 dx, dy = self.type.stackOffset
             except Exception:
                 dx, dy = 0, 0
+            # Scale stack offset with current grid zoom (magnifier/resize)
+            try:
+                zoom_factor = current_cell.grid.zoom
+            except Exception:
+                zoom_factor = 1
             try:
                 same_type_agents = [a for a in current_cell.agents if a.type == self.type]
                 stack_index = same_type_agents.index(self.agent_model) if self.agent_model in same_type_agents else 0
             except Exception:
                 stack_index = 0
-            relX += int(dx) * stack_index
-            relY += int(dy) * stack_index
+            relX += int(dx * zoom_factor) * stack_index
+            relY += int(dy * zoom_factor) * stack_index
         
         # Always use current cell position for accurate positioning
         cell_x = current_cell.view.x()

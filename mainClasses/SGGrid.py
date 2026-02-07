@@ -564,13 +564,18 @@ class SGGrid(SGGameSpace):
                             dx, dy = agent.type.stackOffset
                         except Exception:
                             dx, dy = 0, 0
+                        # Scale stack offset with current grid zoom (magnifier/resize)
+                        try:
+                            zoom_factor = self.zoom
+                        except Exception:
+                            zoom_factor = 1
                         try:
                             same_type_agents = [a for a in cell.getAgents() if a.type == agent.type]
                             stack_index = same_type_agents.index(agent) if agent in same_type_agents else 0
                         except Exception:
                             stack_index = 0
-                        relX += int(dx) * stack_index
-                        relY += int(dy) * stack_index
+                        relX += int(dx * zoom_factor) * stack_index
+                        relY += int(dy * zoom_factor) * stack_index
                     
                     # Calculate absolute position in widget coordinates
                     agent_widget_x = widget_x + round(relX)

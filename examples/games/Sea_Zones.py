@@ -156,7 +156,7 @@ deck_stack.refillAvailableSlots()
 # Create marker agent
 # ============================================================================
 Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,
-locationInEntity="topRight",stackOffset=(0, 35)
+locationInEntity="topRight",stackOffset=(0, 15)
 )
 # Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.newPov("default", "owner", {
