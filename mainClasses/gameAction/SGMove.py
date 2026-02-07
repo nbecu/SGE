@@ -27,14 +27,6 @@ class SGMove(SGAbstractAction):
             newCopyOfAgent = self.executeAction(aMovingEntity,aDestinationEntity)
             aMovingEntity = newCopyOfAgent
             aDestinationEntity = aMovingEntity.cell
-            try:
-                print(
-                    f"[DEBUG ACTION] type={self.actionType} "
-                    f"name={self.nameToDisplay} "
-                    f"target={getattr(self.targetType, 'name', self.targetType)}"
-                )
-            except Exception:
-                print("[DEBUG ACTION] action performed")
             # Refresh agent positions and counters on origin/destination cells
             try:
                 for cell in [aOriginEntity, aDestinationEntity]:

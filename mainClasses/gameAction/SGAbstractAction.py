@@ -92,14 +92,6 @@ class SGAbstractAction():
         # print(f"action {self.name} is performed")
         if self.checkAuthorization(aTargetEntity):
             resAction = self.executeAction(aTargetEntity)
-            try:
-                print(
-                    f"[DEBUG ACTION] type={self.actionType} "
-                    f"name={self.nameToDisplay} "
-                    f"target={getattr(self.targetType, 'name', self.targetType)}"
-                )
-            except Exception:
-                print("[DEBUG ACTION] action performed")
             if self.feedbacks:
                 aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,resAction]) # Previously Three choices aTargetEntity,aParameterHolder,resAction
                 if self.checkFeedbackAuhorization(aFeedbackTarget):

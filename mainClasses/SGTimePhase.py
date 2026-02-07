@@ -281,46 +281,10 @@ class SGPlayPhase(SGTimePhase):
         if self.auto_forward:
             return True
         if self.autoForwardWhenAllActionsUsed:
-            try:
-                debug_players = []
-                for p in self._authorizedPlayers:
-                    try:
-                        nb_remaining = sum(
-                            1 for a in getattr(p, "gameActions", []) if a.canBeUsed()
-                        )
-                    except Exception:
-                        nb_remaining = "na"
-                    debug_players.append(
-                        f"{getattr(p, 'name', 'unknown')}:{nb_remaining}"
-                    )
-                print(
-                    f"[DEBUG AAU] phase={self.name} players="
-                    + ",".join(debug_players)
-                )
-            except Exception:
-                print("[DEBUG AAU] phase actions debug failed")
             if self.hasAllPlayersUsedAllActions():
-                print("[DEBUG AAU] forward: all actions used")
                 return True
-            else:
-                print("[DEBUG AAU] no forward: actions still available")
         if self.autoForwardWhenNoMoreActionPoints:
-            try:
-                debug_players = []
-                for p in self._authorizedPlayers:
-                    debug_players.append(
-                        f"{getattr(p, 'name', 'unknown')}:{getattr(p, 'actionPointsCurrent', 'na')}"
-                    )
-                print(
-                    f"[DEBUG AP] phase={self.name} players="
-                    + ",".join(debug_players)
-                )
-            except Exception:
-                print("[DEBUG AP] phase action points debug failed")
             if self.hasAllPlayersNoMoreActionPoints():
-                print("[DEBUG AP] forward: no more action points")
                 return True
-            else:
-                print("[DEBUG AP] no forward: action points still available")
         return False
 

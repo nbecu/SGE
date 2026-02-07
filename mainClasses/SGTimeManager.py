@@ -59,13 +59,6 @@ class SGTimeManager():
 
         # Get current phase before processing
         currentPhase = self.getCurrentPhase()
-        try:
-            print(
-                f"[DEBUG PHASE] round={self.currentRoundNumber} "
-                f"phase={self.currentPhaseNumber} name={getattr(currentPhase, 'name', 'unknown')}"
-            )
-        except Exception:
-            print("[DEBUG PHASE] entered new phase")
         
         # Process the useSelector widgets for this next phase/round
         if self.model.userSelector is not None:
