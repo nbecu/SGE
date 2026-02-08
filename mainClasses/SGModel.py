@@ -3200,7 +3200,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return detectedType
 
     # To get the CellType corresponding to a Grid
-    def getCellType(self, aGrid):
+    def getCellType(self, aGrid=None):
+        if aGrid is None:
+            return next(iter(self.cellTypes.values()), None)
         if aGrid.isCellType: return aGrid
         return self.cellTypes[aGrid.id]
 

@@ -157,8 +157,7 @@ class SGTimeManager():
         if endGame:
             print("Game Over!")
             # Activate end game display (banner and/or highlight)
-            if endGameRule and hasattr(endGameRule, 'activateEndGameDisplay'):
-                endGameRule.activateEndGameDisplay()
+            endGameRule.activateEndGameDisplay()
         return endGame
     
     #Update

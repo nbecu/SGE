@@ -1,49 +1,49 @@
 import sys
 from pathlib import Path
-import random
-from PyQt5 import QtWidgets, QtGui
-
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 
 # Initialisation de l'application
 monApp = QtWidgets.QApplication([])
 
-# Création du modèle
 myModel = SGModel(600, 600, windowTitle="Jeu du Morpion")
 
-# Création de la grille 3x3 pour le morpion
+# Grid
 Cell = myModel.newCellsOnGrid(3, 3, "square", size=100, gap=5)
 Cell.setEntities("state", "empty")
 
-# Définition des points de vue pour les cellules
+# POV
 Cell.newPov("Morpion", "state", {
-    "empty": QtGui.QColor("white"),
-    "X": QtGui.QColor("blue"),
-    "O": QtGui.QColor("red")
+    "empty": Qt.white,
+    "X": Qt.blue,
+    "O": Qt.red
 })
 
-# Création des joueurs
+# Players
 Player1 = myModel.newPlayer("Joueur 1")
 Player2 = myModel.newPlayer("Joueur 2")
 
-# Actions des joueurs pour placer X ou O
-Player1.addGameAction(myModel.newModifyAction(Cell, {"state": "X"}, 1))
-Player2.addGameAction(myModel.newModifyAction(Cell, {"state": "O"}, 1))
+# Actions (only on empty cells)
+empty_condition = [lambda cell: cell.value("state") == "empty"]
+Player1.addGameAction(myModel.newModifyAction(Cell, {"state": "X"}, 1,conditions=empty_condition))
+Player2.addGameAction(myModel.newModifyAction(Cell, {"state": "O"}, 1,conditions=empty_condition))
 Player1.newControlPanel("Joueur 1")
 Player2.newControlPanel("Joueur 2")
-# Gestion des tours
+
+# Phases
 myModel.newPlayPhase("Tour de Joueur 1", [Player1],autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
 myModel.newPlayPhase("Tour de Joueur 2", [Player2],autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
 
-#
+# User selector
 userSelector=myModel.newUserSelector()
+myModel.setCurrentPlayer('Admin')
 
-# Condition de fin de jeu
+# End game rule
 endGameRule = myModel.newEndGameRule()
+winner = None
 
 def check_victory():
-    # Vérification des lignes, colonnes et diagonales
+    # Check victory lines, columns and diagonals
     for i in range(1, 4):
         if Cell.getCell(i, 1).value("state") == Cell.getCell(i, 2).value("state") == Cell.getCell(i, 3).value("state") != "empty":
             winner = Cell.getCell(i, 1).value("state")
@@ -64,14 +64,11 @@ def check_victory():
     return False
 
 def check_draw():
-    # Match nul si aucune case vide et pas de victoire
-    if check_victory():
-        return False
-    for i in range(1, 4):
-        for j in range(1, 4):
-            if Cell.getCell(i, j).value("state") == "empty":
-                return False
-    return True
+    # Draw if no empty cells and no victory
+    if len(Cell.getEntities_withValue("state", "empty")) == 0 and winner is None:
+        print(f"Match nul")
+        return True
+    return False
 
 endGameRule.addEndGameCondition_onLambda(lambda: check_victory(), name="Victoire")
 endGameRule.addEndGameCondition_onLambda(lambda: check_draw(), name="Match nul")

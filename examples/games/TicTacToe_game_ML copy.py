@@ -9,88 +9,17 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 from mainClasses.SGBotPlayer import SGBotGameAdapter, SGBotPlayer
+from examples.games.TicTacToe import tic_tac_toe_game
 
 
 # ============================================================================
-# Model factory
+# TicTacToe - Adapter
 # ============================================================================
-def build_morpion_model(ui_enabled=True, with_control_panels=True):
-    myModel = SGModel(600, 600, windowTitle="Jeu du Morpion (ML)")
-
-    # Grid
-    Cell = myModel.newCellsOnGrid(3, 3, "square", size=100, gap=5)
-    Cell.setEntities("state", "empty")
-
-    # POV
-    Cell.newPov("Morpion", "state", {
-        "empty": QtGui.QColor("white"),
-        "X": QtGui.QColor("blue"),
-        "O": QtGui.QColor("red")
-    })
-
-    # Players
-    Player1 = myModel.newPlayer("Joueur 1")
-    Player2 = myModel.newPlayer("Joueur 2")
-
-    # Actions (only on empty cells)
-    empty_condition = [lambda cell: cell.value("state") == "empty"]
-    Player1.addGameAction(myModel.newModifyAction(Cell, {"state": "X"}, 1, conditions=empty_condition))
-    Player2.addGameAction(myModel.newModifyAction(Cell, {"state": "O"}, 1, conditions=empty_condition))
-
-    if with_control_panels and ui_enabled:
-        Player1.newControlPanel("Joueur 1")
-        Player2.newControlPanel("Joueur 2")
-
-    # Phases
-    myModel.newPlayPhase("Tour de Joueur 1", [Player1], autoForwardWhenAllActionsUsed=True, message_auto_forward=False)
-    myModel.newPlayPhase("Tour de Joueur 2", [Player2], autoForwardWhenAllActionsUsed=True, message_auto_forward=False)
-
-    if ui_enabled:
-        myModel.newUserSelector()
-    myModel.setCurrentPlayer('Admin')
-
-    # End game rule
-    endGameRule = myModel.newEndGameRule()
-
-    def check_victory():
-        for i in range(1, 4):
-            if Cell.getCell(i, 1).value("state") == Cell.getCell(i, 2).value("state") == Cell.getCell(i, 3).value("state") != "empty":
-                return True
-            if Cell.getCell(1, i).value("state") == Cell.getCell(2, i).value("state") == Cell.getCell(3, i).value("state") != "empty":
-                return True
-        if Cell.getCell(1, 1).value("state") == Cell.getCell(2, 2).value("state") == Cell.getCell(3, 3).value("state") != "empty":
-            return True
-        if Cell.getCell(1, 3).value("state") == Cell.getCell(2, 2).value("state") == Cell.getCell(3, 1).value("state") != "empty":
-            return True
-        return False
-
-    def check_draw():
-        if check_victory():
-            return False
-        for i in range(1, 4):
-            for j in range(1, 4):
-                if Cell.getCell(i, j).value("state") == "empty":
-                    return False
-        return True
-
-    endGameRule.addEndGameCondition_onLambda(lambda: check_victory(), name="Victoire")
-    endGameRule.addEndGameCondition_onLambda(lambda: check_draw(), name="Match nul")
-
-    if ui_enabled:
-        time_label = myModel.newTimeLabel()
-        time_label.moveToCoords(390, 300)
-
-    return myModel, Cell, Player1, Player2, check_victory
-
-
-# ============================================================================
-# Adapter
-# ============================================================================
-class MorpionAdapter(SGBotGameAdapter):
-    def __init__(self, model, cell_def, player_mark_map):
+class TicTacToeAdapter(SGBotGameAdapter):
+    def __init__(self, model):
         super().__init__(model)
-        self.cell_def = cell_def
-        self.player_mark_map = player_mark_map
+        self.cell_def = model.getCellType()
+        self.player_mark_map = {"Player 1": "X", "Player 2": "O"}
 
     def _iter_cells(self):
         for y in range(1, 4):
@@ -143,22 +72,28 @@ class MorpionAdapter(SGBotGameAdapter):
         return action, target
 
     def check_victory(self):
-        cells = list(self._iter_cells())
-        grid = [cells[i].value("state") for i in range(9)]
-        lines = [
-            (0, 1, 2), (3, 4, 5), (6, 7, 8),
-            (0, 3, 6), (1, 4, 7), (2, 5, 8),
-            (0, 4, 8), (2, 4, 6)
-        ]
-        for a, b, c in lines:
-            if grid[a] == grid[b] == grid[c] and grid[a] != "empty":
-                return grid[a]
-        return None
+        if hasattr(self.model, "winner"):
+            # print(f"ICI 1 {self.model.winner}")
+            return self.model.winner
+        # print(f"ICI 2")
+        # cells = list(self._iter_cells())
+        # grid = [cells[i].value("state") for i in range(9)]
+        # lines = [
+        #     (0, 1, 2), (3, 4, 5), (6, 7, 8),
+        #     (0, 3, 6), (1, 4, 7), (2, 5, 8),
+        #     (0, 4, 8), (2, 4, 6)
+        # ]
+        # for a, b, c in lines:
+        #     if grid[a] == grid[b] == grid[c] and grid[a] != "empty":
+        #         return grid[a]
+        # return None
 
     def is_draw(self):
         return all(cell.value("state") != "empty" for cell in self._iter_cells())
 
     def reset_board(self):
+        if hasattr(self.model, "winner"):
+            self.model.winner = None
         for cell in self._iter_cells():
             cell.setValue("state", "empty")
 
@@ -198,14 +133,16 @@ def _get_auto_model_path(models_dir, game_name, episodes):
     raise RuntimeError("No available suffix for model file name.")
 
 
-def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.995, gamma=0.9, seed=42, output_path=None, game_name="morpion", self_play=True, step_penalty=0.02):
+def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.98, gamma=0.9, seed=42, output_path=None, game_name="morpion", self_play=True, step_penalty=0.02):
     random.seed(seed)
     np.random.seed(seed)
 
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
-    model, Cell, Player1, Player2, _ = build_morpion_model(ui_enabled=False, with_control_panels=False)
+    model = tic_tac_toe_game(ui_enabled=False, with_control_panels=False)
+    Player1 = model.getPlayer("Player 1")
+    Player2 = model.getPlayer("Player 2")
 
-    adapter = MorpionAdapter(model, Cell, {Player1.name: "X", Player2.name: "O"})
+    adapter = TicTacToeAdapter(model)
     policy_model = build_policy_model()
 
     def reset_game():
@@ -216,6 +153,21 @@ def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=
         model.timeManager.currentPhaseNumber = 0
         model.setCurrentPlayer(Player1.name)
         model.timeManager.nextPhase()
+
+    def count_two_in_row(mark):
+        cells = list(adapter._iter_cells())
+        grid = [cells[i].value("state") for i in range(9)]
+        lines = [
+            (0, 1, 2), (3, 4, 5), (6, 7, 8),
+            (0, 3, 6), (1, 4, 7), (2, 5, 8),
+            (0, 4, 8), (2, 4, 6)
+        ]
+        count = 0
+        for a, b, c in lines:
+            values = [grid[a], grid[b], grid[c]]
+            if values.count(mark) == 2 and values.count("empty") == 1:
+                count += 1
+        return count
 
     def select_action(player):
         obs = adapter.get_observation(player)
@@ -239,21 +191,33 @@ def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=
             if current_player is None:
                 break
 
+            current_mark = adapter.player_mark_map[current_player.name]
+            opponent_mark = adapter.player_mark_map[Player2.name if current_player.name == Player1.name else Player1.name]
+            before_two = count_two_in_row(current_mark)
+            before_opp_two = count_two_in_row(opponent_mark)
+
             obs, action_idx, target_cell = select_action(current_player)
             if target_cell is None:
                 break
             action = current_player.gameActions[0]
             action.perform_with(target_cell, serverUpdate=False)
 
+            after_two = count_two_in_row(current_mark)
+            after_opp_two = count_two_in_row(opponent_mark)
+
             winner = adapter.check_victory()
             if winner:
-                reward = 1.0 if winner == adapter.player_mark_map[current_player.name] else -1.0
+                reward = 1.0 if winner == current_player.name else -1.0
                 done = True
             elif adapter.is_draw():
                 reward = 0.2
                 done = True
             else:
                 reward = -float(step_penalty)
+                if after_two > before_two:
+                    reward += 0.2
+                if after_opp_two < before_opp_two:
+                    reward += 0.2
 
             if done:
                 target_q = policy_model.predict(obs.reshape(1, -1), verbose=0)[0]
@@ -282,8 +246,10 @@ def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=
 
             winner = adapter.check_victory()
             if winner:
-                reward_op = 1.0 if opponent and winner == adapter.player_mark_map[opponent.name] else -1.0
-                reward_cur = 1.0 if winner == adapter.player_mark_map[current_player.name] else -1.0
+                reward_op = 1.0 if opponent and winner == opponent.name else -1.0
+                reward_cur = 1.0 if winner == current_player.name else -1.0
+                if winner == opponent.name:
+                    reward_cur -= 0.5
                 done = True
             elif adapter.is_draw():
                 reward_op = 0.2
@@ -333,8 +299,10 @@ def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=
 # ============================================================================
 def run_bot_vs_human(model_path=None, bot_player="O"):
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
-    model, Cell, Player1, Player2, _ = build_morpion_model(ui_enabled=True, with_control_panels=True)
-    adapter = MorpionAdapter(model, Cell, {Player1.name: "X", Player2.name: "O"})
+    model = tic_tac_toe_game(ui_enabled=True, with_control_panels=True)
+    Player1 = model.getPlayer("Player 1")
+    Player2 = model.getPlayer("Player 2")
+    adapter = TicTacToeAdapter(model)
 
     policy_model = None
     if model_path:
@@ -354,7 +322,48 @@ def run_bot_vs_human(model_path=None, bot_player="O"):
     def bot_tick():
         current_player = model.getCurrentPlayer()
         if current_player and current_player.name == bot_name:
-            bot.execute_turn()
+            if policy_model is not None:
+                action, target = adapter.choose_action_with_policy(current_player, policy_model, epsilon=0.0)
+                if action is None or target is None:
+                    return
+                obs = adapter.get_observation(current_player).reshape(1, -1)
+                q_values = policy_model.predict(obs, verbose=0)[0]
+                action_space = adapter.get_action_space()
+                try:
+                    idx = action_space.index(target)
+                    valid_indices = adapter.get_valid_action_indices()
+                    grid_states = [cell.value("state") for cell in action_space]
+                    pretty = [('_' if s == 'empty' else s) for s in grid_states]
+                    coords = [(cell.xCoord, cell.yCoord) for cell in action_space]
+                    mark = adapter.player_mark_map[current_player.name]
+                    lines = [
+                        (0, 1, 2), (3, 4, 5), (6, 7, 8),
+                        (0, 3, 6), (1, 4, 7), (2, 5, 8),
+                        (0, 4, 8), (2, 4, 6)
+                    ]
+                    winning_indices = []
+                    for i in valid_indices:
+                        trial = list(grid_states)
+                        trial[i] = mark
+                        for a, b, c in lines:
+                            if trial[a] == trial[b] == trial[c] == mark:
+                                winning_indices.append(i)
+                                break
+                    print(f"index_values [ {' '.join(pretty)} ]")
+                    print(f"Indices valides: {valid_indices}")
+                    print(f"Index->coords: {coords}")
+                    print(f"Joueur courant: {current_player.name} (mark={mark})")
+                    if winning_indices:
+                        print(f"Coups gagnants immediats: {sorted(set(winning_indices))}")
+                    else:
+                        print("Coups gagnants immediats: []")
+                    print(f"Q-values (0-8): {q_values}")
+                    print(f"Q-value du coup choisi (index {idx}): {q_values[idx]}")
+                except ValueError:
+                    pass
+                bot.execute_action_with_fallback(action, target)
+            else:
+                bot.execute_turn()
         QtCore.QTimer.singleShot(200, bot_tick)
 
     # Start with X by default
@@ -368,4 +377,4 @@ if __name__ == "__main__":
     # Example:
     # 1) Train headless: train_morpion_bot(episodes=500)
     # 2) Run UI: run_bot_vs_human("trained_bots/morpion_ep500_a.keras", bot_player="O")
-    run_bot_vs_human('trained_bots/morpion_ep2000_c.keras', bot_player="X")
+    run_bot_vs_human('trained_bots/morpion_ep1000_a.keras', bot_player="X")
