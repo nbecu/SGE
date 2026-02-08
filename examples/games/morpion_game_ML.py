@@ -198,7 +198,7 @@ def _get_auto_model_path(models_dir, game_name, episodes):
     raise RuntimeError("No available suffix for model file name.")
 
 
-def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.995, gamma=0.9, seed=42, output_path=None, game_name="morpion"):
+def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.995, gamma=0.9, seed=42, output_path=None, game_name="morpion", self_play=True, step_penalty=0.02):
     random.seed(seed)
     np.random.seed(seed)
 
@@ -217,58 +217,102 @@ def train_morpion_bot(episodes=500, epsilon=1.0, epsilon_min=0.1, epsilon_decay=
         model.setCurrentPlayer(Player1.name)
         model.timeManager.nextPhase()
 
+    def select_action(player):
+        obs = adapter.get_observation(player)
+        valid_indices = adapter.get_valid_action_indices()
+        if not valid_indices:
+            return None, None, None
+        if random.random() < epsilon:
+            action_idx = random.choice(valid_indices)
+        else:
+            q_values = policy_model.predict(obs.reshape(1, -1), verbose=0)[0]
+            masked = [(i, q_values[i]) for i in valid_indices]
+            action_idx = max(masked, key=lambda t: t[1])[0]
+        target_cell = adapter.get_action_space()[action_idx]
+        return obs, action_idx, target_cell
+
     for _ in range(episodes):
         reset_game()
         done = False
         while not done:
             current_player = model.getCurrentPlayer()
-            if current_player.name == Player1.name:
-                obs = adapter.get_observation(Player1)
-                valid_indices = adapter.get_valid_action_indices()
-                if not valid_indices:
-                    break
-                if random.random() < epsilon:
-                    action_idx = random.choice(valid_indices)
-                else:
-                    q_values = policy_model.predict(obs.reshape(1, -1), verbose=0)[0]
-                    masked = [(i, q_values[i]) for i in valid_indices]
-                    action_idx = max(masked, key=lambda t: t[1])[0]
+            if current_player is None:
+                break
 
-                target_cell = adapter.get_action_space()[action_idx]
-                action = Player1.gameActions[0]
-                action.perform_with(target_cell, serverUpdate=False)
+            obs, action_idx, target_cell = select_action(current_player)
+            if target_cell is None:
+                break
+            action = current_player.gameActions[0]
+            action.perform_with(target_cell, serverUpdate=False)
 
-                winner = adapter.check_victory()
-                if winner == "X":
-                    reward = 1.0
-                    done = True
-                elif winner == "O":
-                    reward = -1.0
-                    done = True
-                elif adapter.is_draw():
-                    reward = 0.2
-                    done = True
-                else:
-                    reward = 0.0
-
-                next_obs = adapter.get_observation(Player1)
-                target_q = policy_model.predict(obs.reshape(1, -1), verbose=0)[0]
-                if done:
-                    target_q[action_idx] = reward
-                else:
-                    next_q = policy_model.predict(next_obs.reshape(1, -1), verbose=0)[0]
-                    target_q[action_idx] = reward + gamma * float(np.max(next_q))
-                policy_model.fit(obs.reshape(1, -1), target_q.reshape(1, -1), verbose=0)
+            winner = adapter.check_victory()
+            if winner:
+                reward = 1.0 if winner == adapter.player_mark_map[current_player.name] else -1.0
+                done = True
+            elif adapter.is_draw():
+                reward = 0.2
+                done = True
             else:
-                # Random opponent
+                reward = -float(step_penalty)
+
+            if done:
+                target_q = policy_model.predict(obs.reshape(1, -1), verbose=0)[0]
+                target_q[action_idx] = reward
+                policy_model.fit(obs.reshape(1, -1), target_q.reshape(1, -1), verbose=0)
+                continue
+
+            # Opponent move (self-play or random)
+            opponent = model.getCurrentPlayer()
+            if opponent is None:
+                break
+
+            if self_play:
+                obs_op, action_idx_op, target_cell_op = select_action(opponent)
+                if target_cell_op is None:
+                    break
+                opponent_action = opponent.gameActions[0]
+                opponent_action.perform_with(target_cell_op, serverUpdate=False)
+            else:
                 targets = adapter.get_valid_targets(Player2.gameActions[0], Player2)
                 if not targets:
                     break
                 Player2.gameActions[0].perform_with(random.choice(targets), serverUpdate=False)
+                obs_op = None
+                action_idx_op = None
 
-                winner = adapter.check_victory()
-                if winner or adapter.is_draw():
-                    done = True
+            winner = adapter.check_victory()
+            if winner:
+                reward_op = 1.0 if opponent and winner == adapter.player_mark_map[opponent.name] else -1.0
+                reward_cur = 1.0 if winner == adapter.player_mark_map[current_player.name] else -1.0
+                done = True
+            elif adapter.is_draw():
+                reward_op = 0.2
+                reward_cur = 0.2
+                done = True
+            else:
+                reward_op = -float(step_penalty)
+                reward_cur = -float(step_penalty)
+
+            # Update opponent (self-play only)
+            if self_play and obs_op is not None and action_idx_op is not None:
+                target_q_op = policy_model.predict(obs_op.reshape(1, -1), verbose=0)[0]
+                if done:
+                    target_q_op[action_idx_op] = reward_op
+                else:
+                    next_obs_op = adapter.get_observation(opponent)
+                    next_q_op = policy_model.predict(next_obs_op.reshape(1, -1), verbose=0)[0]
+                    target_q_op[action_idx_op] = reward_op + gamma * float(np.max(next_q_op))
+                policy_model.fit(obs_op.reshape(1, -1), target_q_op.reshape(1, -1), verbose=0)
+
+            # Update current player using state after opponent move
+            next_obs = adapter.get_observation(current_player)
+            target_q = policy_model.predict(obs.reshape(1, -1), verbose=0)[0]
+            if done:
+                target_q[action_idx] = reward_cur
+            else:
+                next_q = policy_model.predict(next_obs.reshape(1, -1), verbose=0)[0]
+                target_q[action_idx] = reward_cur + gamma * float(np.max(next_q))
+            policy_model.fit(obs.reshape(1, -1), target_q.reshape(1, -1), verbose=0)
 
         epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
@@ -324,4 +368,4 @@ if __name__ == "__main__":
     # Example:
     # 1) Train headless: train_morpion_bot(episodes=500)
     # 2) Run UI: run_bot_vs_human("trained_bots/morpion_ep500_a.keras", bot_player="O")
-    run_bot_vs_human('trained_bots/morpion_ep2000_a.keras', bot_player="X")
+    run_bot_vs_human('trained_bots/morpion_ep2000_c.keras', bot_player="X")

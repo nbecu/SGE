@@ -46,12 +46,20 @@ def check_victory():
     # Vérification des lignes, colonnes et diagonales
     for i in range(1, 4):
         if Cell.getCell(i, 1).value("state") == Cell.getCell(i, 2).value("state") == Cell.getCell(i, 3).value("state") != "empty":
+            winner = Cell.getCell(i, 1).value("state")
+            print(f"Victoire de {winner}")
             return True
         if Cell.getCell(1, i).value("state") == Cell.getCell(2, i).value("state") == Cell.getCell(3, i).value("state") != "empty":
+            winner = Cell.getCell(1, i).value("state")
+            print(f"Victoire de {winner}")
             return True
     if Cell.getCell(1, 1).value("state") == Cell.getCell(2, 2).value("state") == Cell.getCell(3, 3).value("state") != "empty":
+        winner = Cell.getCell(1, 1).value("state")
+        print(f"Victoire de {winner}")
         return True
     if Cell.getCell(1, 3).value("state") == Cell.getCell(2, 2).value("state") == Cell.getCell(3, 1).value("state") != "empty":
+        winner = Cell.getCell(1, 3).value("state")
+        print(f"Victoire de {winner}")
         return True
     return False
 
@@ -73,7 +81,6 @@ time_label = myModel.newTimeLabel()
 time_label.moveToCoords(390,300)
 
 # Lancement du jeu
-myModel.setCurrentPlayer("Joueur 1")
 myModel.launch()
 
 sys.exit(monApp.exec_())
