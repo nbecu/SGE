@@ -153,17 +153,3 @@ venv_sge_ml/Scripts/toco.exe
 venv_sge_ml/Scripts/ttx.exe
 venv_sge_ml/Scripts/wheel.exe
 venv_sge_ml/share/man/man1/ttx.1
-examples/games/trained_bots/morpion_ep2_a.keras
-examples/games/trained_bots/morpion_ep2_b.keras
-examples/games/trained_bots/morpion_ep2_c.keras
-examples/games/trained_bots/morpion_ep3_a.keras
-examples/games/trained_bots/morpion_ep3_b.keras
-examples/games/trained_bots/morpion_ep3_c.keras
-examples/games/trained_bots/morpion_ep3_d.keras
-examples/games/trained_bots/morpion_ep5_a.keras
-examples/games/trained_bots/morpion_ep5_b.keras
-examples/games/trained_bots/morpion_ep500_a.keras
-examples/games/trained_bots/morpion_ep500_b.keras
-examples/games/trained_bots/morpion_ep1000_a.keras
-examples/games/trained_bots/morpion_ep1000_b.keras
-examples/games/trained_bots/morpion_ep1000_c.keras
