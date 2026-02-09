@@ -110,7 +110,6 @@ _valo/
 _valo/*
 SGE.egg-info/*
 venv/*
-examples/syntax_examples/venv/*
 venv_sge_ml/pyvenv.cfg
 venv_sge_ml/Include/site/python3.10/greenlet/greenlet.h
 venv_sge_ml/Scripts/activate
