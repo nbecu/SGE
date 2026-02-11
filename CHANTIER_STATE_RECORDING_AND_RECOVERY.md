@@ -357,6 +357,15 @@ Proposition d’un format **fiable**, **rapide** et **adapté aux besoins** (rec
 
 - **IDs d’entités** : **oui, les IDs doivent être stables**. À la restauration, les entités sont recréées avec les **mêmes IDs** qu’au moment de la sauvegarde, pour que les références (logs, indicateurs) restent cohérentes. Le format snapshot doit inclure les IDs et le chargement doit les réattribuer.
 
+### 8.10 History (SGEntity, SGPlayer) et DataRecorder — décidé
+
+- **Deux types d'histoire** :
+  - **`history["value"]`** (SGEntity, SGPlayer) : pour chaque attribut, liste de `[round, phase, valeur]` ; rempli par `saveValueInHistory` à chaque `setValue`. Utilisé par **SGDataRecorder** via `getListOfStepsData()` / `getListOfUntagedStepsData()` pour les **graphiques d'évolution des attributs** (entités et joueurs).
+  - **`history["performed"]`** (game actions, SGAbstractAction) : liste des actions effectuées (chaque entrée contient round, phase, entité cible, etc.). Utilisé par **SGDataRecorder.getStepsData_ofGameActions()** → **getStatsOfGameActions()** pour les **graphiques d'utilisation des game actions** par (round, phase).
+- **Snapshot** :
+  - **`history["value"]`** : **non inclus** dans le snapshot (volumineux). À la **restauration** (backward ou load), on **trim** l’historique en mémoire : pour chaque entité et chaque joueur, on ne garde dans `history["value"]` que les entrées dont (round, phase) ≤ (round/phase restauré). Pour la **pile backward/redo en mémoire**, les snapshots doivent inclure `history["value"]` (paramètre `include_history_value=True` dans `build_snapshot_from_model`) afin qu'au **redo** l'historique soit entièrement restauré et que les graphiques ne plantent pas. Ainsi les interfaces de graphiques ne voient jamais de steps « dans le futur » par rapport à la simulation en cours et ne plantent pas.
+  - **`history["performed"]`** : **inclus** sous forme simplifiée : pour chaque game action, on enregistre `history_performed` = liste de `[round, phase]` (une entrée par exécution). À la restauration, on recrée `action.history["performed"]` avec des entrées minimales pour que **getStatsOfGameActions()** conserve les bons comptages par step → les graphiques d'utilisation des game actions restent corrects après load/recovery.
+
 ---
 
 Ces éléments peuvent rester “ouverts” jusqu’à la phase de conception détaillée ou au début de l’implémentation ; les décisions prises peuvent alors être ajoutées dans ce document.
