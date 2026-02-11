@@ -24,8 +24,11 @@ def _attribute_value_to_json(val):
     """
     Convert an attribute value to a JSON-serializable type.
     Excludes non-serializable types; converts QColor-like (has .name()) to hex string.
+    Callables (functions, methods) are excluded and become None.
     """
     if val is None:
+        return None
+    if callable(val):
         return None
     if isinstance(val, (str, int, float, bool)):
         return val
@@ -39,7 +42,19 @@ def _attribute_value_to_json(val):
             return val.name()
         except Exception:
             return str(val)
-    # Fallback: try str (may lose type on load)
+    # SGE entity-like: stable id for export/replay (aligned with SGExtensions.serialize_any_object)
+    if hasattr(val, "__dict__"):
+        if hasattr(val, "getObjectIdentiferForExport") and callable(val.getObjectIdentiferForExport):
+            try:
+                return val.getObjectIdentiferForExport()
+            except Exception:
+                pass
+        if hasattr(val, "id"):
+            try:
+                return f"{type(val).__name__}_id_{val.id}"
+            except Exception:
+                pass
+    # Fallback: try JSON as-is, else str
     try:
         json.dumps(val)
         return val
@@ -87,10 +102,13 @@ def build_snapshot_from_model(model, include_history_value=False):
     time_mgr = model.timeManager
     current_phase = time_mgr.getCurrentPhase() if time_mgr.phases else None
     phase_name = current_phase.name if current_phase and hasattr(current_phase, "name") else ""
+    phase_name = _attribute_value_to_json(phase_name)
 
     snapshot = {
         "format_version": FORMAT_VERSION,
-        "model_name": getattr(model, "name", None) or getattr(model, "windowTitle", "Unnamed Model"),
+        "model_name": _attribute_value_to_json(
+            getattr(model, "name", None) or getattr(model, "windowTitle", "Unnamed Model")
+        ),
         "timestamp": datetime.now().isoformat(sep=" ", timespec="seconds"),
         "round": time_mgr.currentRoundNumber,
         "phase": time_mgr.currentPhaseNumber,
@@ -102,12 +120,14 @@ def build_snapshot_from_model(model, include_history_value=False):
         },
         "players": [],
         "simulation_variables": [],
-        "current_player_name": getattr(model, "currentPlayerName", None) or "",
+        "current_player_name": _attribute_value_to_json(
+            getattr(model, "currentPlayerName", None) or ""
+        ),
     }
 
     # Cells (each cellType has a grid; entities are cells)
     for cell_type in model.cellTypes.values():
-        type_name = cell_type.name
+        type_name = _attribute_value_to_json(getattr(cell_type, "name", None))
         for cell in cell_type.entities:
             try:
                 cell_id = cell.getId() if hasattr(cell, "getId") and callable(cell.getId) else (cell.id if hasattr(cell, "id") else None)
@@ -130,7 +150,7 @@ def build_snapshot_from_model(model, include_history_value=False):
 
     # Agents
     for agent_type in model.agentTypes.values():
-        type_name = agent_type.name
+        type_name = _attribute_value_to_json(getattr(agent_type, "name", None))
         for agent in agent_type.entities:
             try:
                 cell = getattr(agent, "cell", None)
@@ -154,7 +174,7 @@ def build_snapshot_from_model(model, include_history_value=False):
 
     # Tiles
     for tile_type in model.tileTypes.values():
-        type_name = tile_type.name
+        type_name = _attribute_value_to_json(getattr(tile_type, "name", None))
         for tile in tile_type.entities:
             try:
                 cell = getattr(tile, "cell", None)
@@ -185,7 +205,7 @@ def build_snapshot_from_model(model, include_history_value=False):
     # Players: attributes and game action usage counters
     for player in getattr(model, "players", {}).values():
         try:
-            player_name = getattr(player, "name", None)
+            player_name = _attribute_value_to_json(getattr(player, "name", None))
             if not player_name:
                 continue
             dict_attrs = getattr(player, "dictAttributes", None) or {}

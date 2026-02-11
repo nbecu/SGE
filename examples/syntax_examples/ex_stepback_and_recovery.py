@@ -9,11 +9,19 @@ This example includes both PlayPhases and a ModelPhase so that all event types
 (game actions and nextStep, including automatic phase changes) are present and testable.
 """
 
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
+from mainClasses.SGStateSnapshot import (
+    build_snapshot_from_model,
+    apply_snapshot_to_model,
+    write_snapshot_to_file,
+    read_snapshot_from_file,
+)
 
 
 monApp = QtWidgets.QApplication([])
@@ -129,6 +137,55 @@ TextBox = myModel.newTextBox(
 )
 
 myModel.setCurrentPlayer("Player 1")
+
+
+# ----- Task 1 validation: snapshot build / write / read / apply (run with: python ex_stepback_and_recovery.py validate) -----
+def _validate_task1_snapshot():
+    """Validate snapshot round-trip and apply. Returns True if OK."""
+    try:
+        tm = myModel.timeManager
+        r0, p0 = tm.currentRoundNumber, tm.currentPhaseNumber
+        cur_player0 = getattr(myModel, "currentPlayerName", None) or ""
+        # Build without history_value (disk-like)
+        snap = build_snapshot_from_model(myModel)
+        assert snap.get("round") == r0 and snap.get("phase") == p0
+        assert snap.get("current_player_name") == cur_player0
+        assert "players" in snap and len(snap["players"]) >= 2
+        assert "entities" in snap and "agents" in snap["entities"]
+        # Write / read
+        fd, path = tempfile.mkstemp(suffix=".json", prefix="sge_validate_")
+        os.close(fd)
+        try:
+            write_snapshot_to_file(snap, path, use_gzip=False)
+            snap2 = read_snapshot_from_file(path)
+            assert snap2.get("round") == r0 and snap2.get("phase") == p0
+            # Apply (restore same state)
+            apply_snapshot_to_model(myModel, snap2)
+            assert tm.currentRoundNumber == r0 and tm.currentPhaseNumber == p0
+            assert (getattr(myModel, "currentPlayerName", None) or "") == cur_player0
+        finally:
+            if os.path.exists(path):
+                os.remove(path)
+        # Build with history_value (backward/redo stack-like)
+        snap_h = build_snapshot_from_model(myModel, include_history_value=True)
+        assert any("history_value" in p for p in snap_h["players"]), "players should have history_value key"
+        # Apply snapshot with history_value (simulate redo)
+        apply_snapshot_to_model(myModel, snap_h)
+        assert tm.currentRoundNumber == r0 and tm.currentPhaseNumber == p0
+        return True
+    except Exception as e:
+        print(f"Task 1 validation FAILED: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+if "validate" in sys.argv:
+    ok = _validate_task1_snapshot()
+    print("Task 1 (snapshot) validation: OK" if ok else "Task 1 validation: FAILED")
+    sys.exit(0 if ok else 1)
+
+
 myModel.launch()
 
 
