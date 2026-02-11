@@ -83,7 +83,7 @@ class SGDataRecorder():
         return self.stepsData_ofGameActions
 
     def convertStep_inRoundAndPhase(self,aStep):
-        nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
+        nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : vérifier que le +1 et/ou le -1 sont corrects
         if aStep == 0: aPhase=0
         else:
             aPhase = (aStep % nbPhases)
@@ -92,7 +92,7 @@ class SGDataRecorder():
         return {'round':aRound , 'phase':aPhase}
     
     def convertRoundAndPhase_inStep(self,aRound, aPhase):
-        nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
+        nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : vérifier que le +1 et/ou le -1 sont corrects
         return aPhase+((aRound -1)*nbPhases)+1
 
     def getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(self,name,entityId,aRound,aPhase): #todo  This method uses 'self.stepsData_ofEntities' which seems Deprecated

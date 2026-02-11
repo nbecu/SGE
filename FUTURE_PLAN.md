@@ -43,11 +43,10 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ### Simulation Management & Data
 - [ ] Create a importData et exportData qui s'occupe d'aller chercher les bons chemins dans le rep projet
+- [ ] Allow to start the simulation at a specified time step
 - [ ] Create automatic recording of simulation state at each round
 - [ ] Create a recovery system for simulation in case it shuts down (could use `updateAtMaj` function)
-- [ ] Allow to start the simulation at a specified time step
 - [ ] Add a item in SGModel menu bar to record the state of the world (state of model entities), and add the possibility to use a saved state of the world, as an initialization state for a new simulation
-- [ ] Add the possibility to export gameAction logs
 - [ ] Define writable export paths for exe mode (see notes for FUTURE_PLAN/EXPORT_WRITE_PATHS.md)
 - [x] Implement BotPlayer system for automated gameplay and testing (see docs/guides/BOT_PLAYER_SYSTEM.md). Bot tested and validated on TicTacToe.
 
@@ -58,6 +57,11 @@ This document contains the planned improvements and features for the SGE (Simula
 
 
 ## Completed Items
+
+- [x] Add the possibility to export gameAction logs
+  - ✅ exportGameActionLogs(filename, format) and enableAutoSaveGameActionLogs(format, save_path) in SGModel
+  - ✅ Settings menu: Export GameAction Logs (CSV / JSON)
+  - ✅ Optional auto-save on application close (with prompt or to specified path)
 
 - [x] Finalize distributed game system (Jan 2025)
   - ✅ Complete implementation of session management with create/join modes
