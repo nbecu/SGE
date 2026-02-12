@@ -25,6 +25,9 @@ monApp = QtWidgets.QApplication([])
 
 myModel = SGModel(1100, 820, windowTitle="Step backward and recovery example")
 
+myModel.enableDistributedGame(2)
+myModel.applyLayoutConfig('basic1')
+
 
 # STEP2 Grid and Cells
 
@@ -156,9 +159,9 @@ endGameRule.addEndGameCondition_onEntity(
 endGameRule.displayEndGameConditions()
 
 # Auto-save whole simulation when the window is closed (user is asked to confirm)
-myModel.enableAutoSaveSimulationOnClose(confirm=True)
+# myModel.enableAutoSaveSimulationOnClose(confirm=True)
 # Recovery: save state to disk at each phase (_recovery_states/) so it can be restored after a crash
-myModel.enableRecoverySystem(True)
+# myModel.enableRecoverySystem(True)
 
 
 # STEP7 TextBox

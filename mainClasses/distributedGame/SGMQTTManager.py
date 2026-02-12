@@ -21,7 +21,7 @@ class SGMQTTManager:
     """
     
     # Centralized list of game topics (base names without prefixes)
-    GAME_TOPICS = ['gameAction_performed', 'nextTurn', 'execute_method']
+    GAME_TOPICS = ['gameAction_performed', 'nextTurn', 'execute_method', 'backward']
     
     def __init__(self, model):
         """
@@ -62,11 +62,11 @@ class SGMQTTManager:
     def isGameTopic(cls, topic, session_id=None):
         """
         Check if a topic is a game topic.
-        
+
         Args:
             topic (str): Topic name to check
             session_id (str, optional): Session ID for topic isolation
-            
+
         Returns:
             bool: True if topic is a game topic, False otherwise
         """
@@ -118,6 +118,8 @@ class SGMQTTManager:
                         self.processBrokerMsg_executeMethod(unserializedMsg)
                     elif msg.topic == game_topics[1]:  # game_nextTurn
                         self.processBrokerMsg_nextTrun(unserializedMsg)
+                    elif msg.topic == game_topics[3] or msg.topic.endswith('game_backward'):  # game_backward
+                        self.processBrokerMsg_backward(unserializedMsg)
                 return
             # Not a game topic - ignore silently (could be session topic or other message type)
             # Session topics are handled by SGDistributedSessionManager
@@ -131,6 +133,15 @@ class SGMQTTManager:
             self.client.subscribe(topic)
         
         self.client.on_message = on_message
+
+    def ensureSubscribedToGameTopics(self, session_id=None):
+        """Subscribe to all game topics (including backward). Call when reusing an existing connection
+        so that subscriptions use the current session_id (e.g. after joining a session)."""
+        if not self.client or not self.client.is_connected():
+            return
+        sid = session_id if session_id is not None else self.session_id
+        for topic in self.getGameTopics(sid):
+            self.client.subscribe(topic)
 
     def connect_mqtt(self):
         """MQTT Basic function to connect to the broker"""
@@ -226,6 +237,21 @@ class SGMQTTManager:
         if self.client:
             self.client.publish(msgTopic,serializedMsg)
         else: raise ValueError('Why does this case happens?')
+
+    def buildBackwardMsgAndPublishToBroker(self):
+        """Build and publish backward (undo one step) message to MQTT broker. All instances execute backward locally."""
+        game_topics = self.getGameTopics(self.session_id)
+        msgTopic = game_topics[3]  # game_backward
+        msg_dict = {'clientId': self.clientId}
+        serializedMsg = json.dumps(msg_dict)
+        if self.client:
+            self.client.publish(msgTopic, serializedMsg)
+        else:
+            raise ValueError('MQTT client not initialized')
+
+    def processBrokerMsg_backward(self, unserializedMsg):
+        """Process incoming backward message from broker: queue one local backward step."""
+        self.actionsFromBrokerToBeExecuted.append({'action_type': 'backward'})
 
     def buildExeMsgAndPublishToBroker(self,*args):
         """
@@ -340,7 +366,10 @@ class SGMQTTManager:
                 aGameAction.perform_with(*listOfArgs,serverUpdate=False)
             elif actionType == 'nextTurn':
                 self.model.timeManager.nextPhase()
-            else: raise ValueError('No other possible choices')
+            elif actionType == 'backward':
+                self.model.backwardAction(serverUpdate=False)
+            else:
+                raise ValueError('No other possible choices')
 
         self.actionsFromBrokerToBeExecuted=[]
 

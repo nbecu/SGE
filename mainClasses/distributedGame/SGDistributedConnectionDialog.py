@@ -718,11 +718,29 @@ class SGDistributedConnectionDialog(QDialog):
                 self._updateSessionsList()
             # If a session is selected and force=False, skip update to preserve selection
     
+    def _safeRefreshSessionsList(self):
+        """Deferred refresh of sessions list (update/repaint). No-op if widget was already destroyed."""
+        try:
+            if not getattr(self, "sessions_list", None):
+                return
+            self.sessions_list.count()  # access C++ object; raises RuntimeError if deleted
+            self.sessions_list.update()
+            self.sessions_list.repaint()
+        except RuntimeError:
+            return
+
     def _updateSessionsList(self):
         """Update the sessions list widget with discovered sessions"""
+        # Guard: do not touch widgets if dialog/widget tree was already destroyed (e.g. deferred callback after close)
+        try:
+            if not getattr(self, "sessions_list", None):
+                return
+            self.sessions_list.count()  # access C++ object; raises RuntimeError if deleted
+        except RuntimeError:
+            return
         # Preserve currently selected session_id before clearing
         selected_session_id = self._selected_session_id
-        
+
         self.sessions_list.clear()
         
         if not self.available_sessions:
@@ -857,7 +875,7 @@ class SGDistributedConnectionDialog(QDialog):
         # Force visual update of the list widget
         # This ensures the display is refreshed even when updated programmatically
         # Use QTimer to defer repaint and avoid recursive repaint errors
-        QTimer.singleShot(0, lambda: (self.sessions_list.update(), self.sessions_list.repaint()))
+        QTimer.singleShot(0, self._safeRefreshSessionsList)
         
     
     def _onSessionClicked(self, item):

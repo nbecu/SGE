@@ -467,8 +467,8 @@
           "layoutOrder": 6,
           "position_type": "mixed",
           "manual_position": [
-            12,
-            477
+            9,
+            474
           ],
           "manual_override": true
         },
@@ -501,7 +501,7 @@
         }
       },
       "model_name": null,
-      "timestamp": "2026-02-11 23:23:15",
+      "timestamp": "2026-02-12 15:08:52",
       "version": "1.0"
     }
   }

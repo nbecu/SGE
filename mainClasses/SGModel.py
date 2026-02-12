@@ -405,7 +405,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if (self.mqttManager.client and 
             self.mqttManager.client.is_connected() and
             self.mqttManager.session_id == session_id):
-            # Reuse existing connection - just update majType if needed
+            # Reuse existing connection - ensure we're subscribed to game topics with current session_id
+            self.mqttManager.ensureSubscribedToGameTopics(session_id=session_id)
+            self.mqttMajType = majType
+        elif (self.mqttManager.client and 
+              self.mqttManager.client.is_connected() and
+              session_id is not None):
+            # Reuse connection but session_id changed (e.g. joiner selected a session after connecting)
+            self.mqttManager.session_id = session_id
+            self.mqttManager.ensureSubscribedToGameTopics(session_id=session_id)
             self.mqttMajType = majType
         else:
             # Initialize new connection
@@ -778,7 +786,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Backward/forward (undo/redo) — between Graphs and Settings; use standard Qt icons
         style = QApplication.style()
         self.backward = QAction(style.standardIcon(QStyle.SP_ArrowBack), " &backward", self)
-        self.backward.triggered.connect(self.backwardAction)
+        self.backward.triggered.connect(lambda: self.backwardAction(serverUpdate=True))
         self.menuBar().addAction(self.backward)
         self.forward = QAction(style.standardIcon(QStyle.SP_ArrowForward), " &forward", self)
         self.forward.triggered.connect(self.forwardAction)
@@ -1131,8 +1139,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.backward.setEnabled(undo_len >= 2)
             self.forward.setEnabled(redo_len >= 1)
 
-    def backwardAction(self):
-        """One step backward: undo stack (normal) or previous snapshot in replay mode."""
+    def backwardAction(self, serverUpdate=True):
+        """One step backward: undo stack (normal) or previous snapshot in replay mode.
+        In distributed mode, serverUpdate=True (user click) publishes to MQTT so other instances run backward locally."""
         if getattr(self, "_replay_mode", False):
             idx = getattr(self, "_replay_index", 0)
             snapshots = getattr(self, "_replay_snapshots", [])
@@ -1150,6 +1159,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             except Exception:
                 import traceback
                 traceback.print_exc()
+            mqtt_ok_replay = (getattr(self, "mqttMajType", None) in ["Phase", "Instantaneous"]
+                             and getattr(self, "mqttManager", None) and self.mqttManager.client
+                             and self.mqttManager.client.is_connected())
+            if serverUpdate and mqtt_ok_replay:
+                self.mqttManager.buildBackwardMsgAndPublishToBroker()
             return
         undo = getattr(self, "_undo_stack", [])
         redo = getattr(self, "_redo_stack", [])
@@ -1165,6 +1179,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.refreshDisplayAfterStateLoad()
             self._repaintAllGrids()
             self._updateBackwardForwardButtons()
+            mqtt_ok = (getattr(self, "mqttMajType", None) in ["Phase", "Instantaneous"]
+                       and getattr(self, "mqttManager", None) and self.mqttManager.client
+                       and self.mqttManager.client.is_connected())
+            if serverUpdate and mqtt_ok:
+                self.mqttManager.buildBackwardMsgAndPublishToBroker()
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -1751,7 +1770,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.save.triggered.connect(self.saveTheGame)
         self.backward = QAction(
             QIcon(f"{path_icon}/backwardArrow.png"), " &backward", self)
-        self.backward.triggered.connect(self.backwardAction)
+        self.backward.triggered.connect(lambda: self.backwardAction(serverUpdate=True))
         self.forward = QAction(
             QIcon(f"{path_icon}/forwardArrow.png"), " &forward", self)
         self.forward.triggered.connect(self.forwardAction)
