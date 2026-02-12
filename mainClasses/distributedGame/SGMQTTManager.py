@@ -21,7 +21,8 @@ class SGMQTTManager:
     """
     
     # Centralized list of game topics (base names without prefixes)
-    GAME_TOPICS = ['gameAction_performed', 'nextTurn', 'execute_method', 'backward']
+    # step_navigation: one topic for both backward and forward; payload has 'direction': 'backward'|'forward'
+    GAME_TOPICS = ['gameAction_performed', 'nextTurn', 'execute_method', 'step_navigation']
     
     def __init__(self, model):
         """
@@ -118,8 +119,8 @@ class SGMQTTManager:
                         self.processBrokerMsg_executeMethod(unserializedMsg)
                     elif msg.topic == game_topics[1]:  # game_nextTurn
                         self.processBrokerMsg_nextTrun(unserializedMsg)
-                    elif msg.topic == game_topics[3] or msg.topic.endswith('game_backward'):  # game_backward
-                        self.processBrokerMsg_backward(unserializedMsg)
+                    elif msg.topic == game_topics[3] or msg.topic.endswith('game_step_navigation'):
+                        self.processBrokerMsg_step_navigation(unserializedMsg)
                 return
             # Not a game topic - ignore silently (could be session topic or other message type)
             # Session topics are handled by SGDistributedSessionManager
@@ -135,7 +136,7 @@ class SGMQTTManager:
         self.client.on_message = on_message
 
     def ensureSubscribedToGameTopics(self, session_id=None):
-        """Subscribe to all game topics (including backward). Call when reusing an existing connection
+        """Subscribe to all game topics (including step_navigation). Call when reusing an existing connection
         so that subscriptions use the current session_id (e.g. after joining a session)."""
         if not self.client or not self.client.is_connected():
             return
@@ -238,20 +239,24 @@ class SGMQTTManager:
             self.client.publish(msgTopic,serializedMsg)
         else: raise ValueError('Why does this case happens?')
 
-    def buildBackwardMsgAndPublishToBroker(self):
-        """Build and publish backward (undo one step) message to MQTT broker. All instances execute backward locally."""
+    def buildStepNavigationMsgAndPublishToBroker(self, direction):
+        """Build and publish step navigation (backward or forward) message to MQTT broker.
+        direction: 'backward' or 'forward'. All instances execute the same step locally."""
         game_topics = self.getGameTopics(self.session_id)
-        msgTopic = game_topics[3]  # game_backward
-        msg_dict = {'clientId': self.clientId}
+        msgTopic = game_topics[3]  # game_step_navigation
+        msg_dict = {'clientId': self.clientId, 'direction': direction}
         serializedMsg = json.dumps(msg_dict)
         if self.client:
             self.client.publish(msgTopic, serializedMsg)
         else:
             raise ValueError('MQTT client not initialized')
 
-    def processBrokerMsg_backward(self, unserializedMsg):
-        """Process incoming backward message from broker: queue one local backward step."""
-        self.actionsFromBrokerToBeExecuted.append({'action_type': 'backward'})
+    def processBrokerMsg_step_navigation(self, unserializedMsg):
+        """Process incoming step_navigation message from broker: queue one local backward or forward step."""
+        direction = unserializedMsg.get('direction', 'backward')
+        if direction not in ('backward', 'forward'):
+            direction = 'backward'
+        self.actionsFromBrokerToBeExecuted.append({'action_type': direction})
 
     def buildExeMsgAndPublishToBroker(self,*args):
         """
@@ -368,6 +373,8 @@ class SGMQTTManager:
                 self.model.timeManager.nextPhase()
             elif actionType == 'backward':
                 self.model.backwardAction(serverUpdate=False)
+            elif actionType == 'forward':
+                self.model.forwardAction(serverUpdate=False)
             else:
                 raise ValueError('No other possible choices')
 

@@ -789,7 +789,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.backward.triggered.connect(lambda: self.backwardAction(serverUpdate=True))
         self.menuBar().addAction(self.backward)
         self.forward = QAction(style.standardIcon(QStyle.SP_ArrowForward), " &forward", self)
-        self.forward.triggered.connect(self.forwardAction)
+        self.forward.triggered.connect(lambda: self.forwardAction(serverUpdate=True))
         self.menuBar().addAction(self.forward)
         self._updateBackwardForwardButtons()  # initially disabled (no state on stack yet)
 
@@ -1163,7 +1163,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                              and getattr(self, "mqttManager", None) and self.mqttManager.client
                              and self.mqttManager.client.is_connected())
             if serverUpdate and mqtt_ok_replay:
-                self.mqttManager.buildBackwardMsgAndPublishToBroker()
+                self.mqttManager.buildStepNavigationMsgAndPublishToBroker('backward')
             return
         undo = getattr(self, "_undo_stack", [])
         redo = getattr(self, "_redo_stack", [])
@@ -1183,7 +1183,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                        and getattr(self, "mqttManager", None) and self.mqttManager.client
                        and self.mqttManager.client.is_connected())
             if serverUpdate and mqtt_ok:
-                self.mqttManager.buildBackwardMsgAndPublishToBroker()
+                self.mqttManager.buildStepNavigationMsgAndPublishToBroker('backward')
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -1191,8 +1191,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 undo.append(redo.pop())
             self._updateBackwardForwardButtons()
 
-    def forwardAction(self):
-        """Forward: redo stack (normal) or next snapshot in replay mode."""
+    def forwardAction(self, serverUpdate=True):
+        """Forward: redo stack (normal) or next snapshot in replay mode.
+        In distributed mode, serverUpdate=True (user click) publishes to MQTT so other instances run forward locally."""
         if getattr(self, "_replay_mode", False):
             idx = getattr(self, "_replay_index", -1)
             snapshots = getattr(self, "_replay_snapshots", [])
@@ -1210,6 +1211,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             except Exception:
                 import traceback
                 traceback.print_exc()
+            if serverUpdate and getattr(self, "mqttMajType", None) in ["Phase", "Instantaneous"] and getattr(self, "mqttManager", None) and self.mqttManager.client and self.mqttManager.client.is_connected():
+                self.mqttManager.buildStepNavigationMsgAndPublishToBroker('forward')
             return
         redo = getattr(self, "_redo_stack", [])
         if not redo:
@@ -1223,6 +1226,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.refreshDisplayAfterStateLoad()
             self._repaintAllGrids()
             self._updateBackwardForwardButtons()
+            if serverUpdate and getattr(self, "mqttMajType", None) in ["Phase", "Instantaneous"] and getattr(self, "mqttManager", None) and self.mqttManager.client and self.mqttManager.client.is_connected():
+                self.mqttManager.buildStepNavigationMsgAndPublishToBroker('forward')
         except Exception:
             redo.append(snap)
 
@@ -1773,7 +1778,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.backward.triggered.connect(lambda: self.backwardAction(serverUpdate=True))
         self.forward = QAction(
             QIcon(f"{path_icon}/forwardArrow.png"), " &forward", self)
-        self.forward.triggered.connect(self.forwardAction)
+        self.forward.triggered.connect(lambda: self.forwardAction(serverUpdate=True))
         self.inspect = QAction(
             QIcon(f"{path_icon}/inspect.png"), " &inspectAll", self)
         self.inspect.triggered.connect(self.inspectAll)

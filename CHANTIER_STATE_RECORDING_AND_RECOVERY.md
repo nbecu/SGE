@@ -17,9 +17,27 @@ Document de cadrage pour les items FUTURE_PLAN lignes 47-50 (Simulation Manageme
 
 ## 1bis. Prochaine étape (à reprendre)
 
-- **Item 7 – Mode distribué** : MQTT backward synchro + recovery state (demande/réponse).
-  - Backward (undo) **synchronisé via MQTT** : diffusion de la demande de backward pour que toutes les instances reviennent au même état.
-  - Recovery en mode distribué : si une instance plante, à son redémarrage elle **demande via MQTT le dernier world state** aux autres instances ; sinon chargement depuis son fichier local dans `_recovery_states/`.
+- **Item 7 – Mode distribué** : MQTT backward/forward synchro + recovery state (demande/réponse).
+  - Backward (undo) et **forward (redo) synchronisés via MQTT** : **Fait**. Un seul topic `game_step_navigation`, payload `{ clientId, direction: "backward"|"forward" }` ; toutes les instances exécutent le même pas en local.
+  - **Recovery en mode distribué** (reste à faire) : si une instance plante, à son redémarrage elle **demande via MQTT le dernier world state** aux autres instances ; sinon chargement depuis son fichier local dans `_recovery_states/`.
+
+---
+
+## 1ter. Mode distribué – Gel de la partie en cas de déconnexion (à préciser)
+
+Lorsqu’une instance est déconnectée en milieu de partie, les autres instances le voient déjà dans l’interface **Connection status** (ex. « Player 2 (Waiting…) » au lieu de « Player 2 (Connected) »), via `SGDistributedSessionManager.connected_players` et le signal `playerDisconnected`.
+
+**Idée** : quand les instances détectent qu’un joueur est déconnecté, **geler la partie** jusqu’à ce que ce joueur se reconnecte (ou qu’une action explicite soit prise).
+
+**Options à prévoir** :
+- **Comportement par défaut** : gel de la partie (désactivation des game actions et du next step, ou overlay « Partie en pause – [Joueur X] déconnecté. En attente de reconnexion. »).
+- **Option modeler** : permettre au modeler de spécifier si la partie doit geler ou non en cas de déconnexion (ex. `freeze_game_on_player_disconnect=True/False` dans `enableDistributedGame()` ou la config distribuée).
+- **Option joueur** : une action (bouton ou menu) du type « Reprendre sans attendre » pour continuer malgré l’instance déconnectée ; le modeler peut autoriser ou interdire cette option (ex. `allow_resume_without_disconnected_player=True/False`).
+
+**Points techniques (pour implémentation ultérieure)** :
+- **Détection** : déjà en place — `SGDistributedSessionManager.playerDisconnected` est émis quand un message `session_player_disconnect` est reçu ; `getConnectedPlayers(session_id)` retourne la liste à jour ; `SGConnectionStatusWidget` se met à jour via ce signal.
+- **Où bloquer** : désactiver les déclencheurs de game actions (control panels, etc.) et le bouton next step lorsque « partie gelée » est actif ; éventuellement un flag sur le modèle (ex. `_distributed_game_frozen`) mis à jour à la réception de `playerDisconnected` / à la reconnexion (réapparition du joueur dans `connected_players`).
+- **Reconnexion** : quand l’instance déconnectée se reconnecte et envoie à nouveau un `session_player_registration` (ou équivalent), elle réapparaît dans `connected_players` ; on peut alors lever le gel automatiquement (ou après confirmation selon le choix de design).
 
 ---
 
@@ -211,7 +229,7 @@ Les choix suivants ont été arrêtés pour la solution technique (réponses uti
 | 5 | Ajouter **recovery au démarrage** (48) (détection des fichiers recovery + proposition “Reprendre”) | **Fait** (offer au premier show ; suppression des fichiers à la fermeture normale pour ne proposer qu’après crash) |
 | 6 | Implémenter le **backward/undo** : pile d’événements, N derniers en mémoire, forward (redo) | **Fait** (pushStateAfterEvent, backwardAction, forwardAction) |
 | 7 | Implémenter le **replay** : mode lecture d’une simulation enregistrée (avancer/reculer step par step) | **Fait** (Save whole simulation, Replay a simulation, Exit replay ; `saved_simulations/`, `_simulation_snapshots`) |
-| 8 | **Mode distribué** : écriture disque sur chaque instance ; recovery avec demande du dernier world state via MQTT ; backward diffusé via MQTT | **À faire** (prochaine étape du chantier) |
+| 8 | **Mode distribué** : écriture disque sur chaque instance ; backward/forward diffusés via MQTT (topic `game_step_navigation`) ; recovery avec demande du dernier world state via MQTT | **Partiellement fait** : backward/forward MQTT **fait** ; recovery distribué (demande state via MQTT au redémarrage) **à faire** |
 
 ---
 
