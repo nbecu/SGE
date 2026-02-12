@@ -16,12 +16,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
-from mainClasses.SGStateSnapshot import (
-    build_snapshot_from_model,
-    apply_snapshot_to_model,
-    write_snapshot_to_file,
-    read_snapshot_from_file,
-)
 
 
 monApp = QtWidgets.QApplication([])
@@ -67,6 +61,33 @@ aSecondSheep = Sheeps.newAgentAtCoords(Cell, 1, 5)
 aThirdSheep = Sheeps.newAgentAtCoords(Cell, 3, 5)
 
 
+# STEP3b Tiles (for testing snapshot with tiles: create/delete/flip) — with images if available
+image_paths = listImagePaths([Path(__file__).parent / "images", Path(__file__).parent.parent.parent / "images", "./images"])
+
+def get_pixmap_at_index(i):
+    """Image déterministe : index i (cyclé si i >= len(image_paths))."""
+    if not image_paths:
+        return None
+    return QPixmap(str(image_paths[i % len(image_paths)]))
+
+# Tile type: imageTile if we have images, else rectTile with colors
+has_images = bool(image_paths)
+CardTiles = myModel.newTileType(
+    name="StepbackCards",
+    shape="imageTile" if has_images else "rectTile",
+    defaultSize=45,
+    positionOnCell="center",
+    defaultFace="back",
+    frontColor=Qt.blue,
+    backColor=Qt.darkCyan
+)
+# Place 5 tuiles : dos = même image (index 0), face = image par index (1, 2, 3, …)
+back_pixmap = get_pixmap_at_index(0) if has_images else None
+for idx, (x, y) in enumerate([(1, 1), (2, 2), (3, 3), (4, 4), (5, 1)]):
+    front_pix = get_pixmap_at_index(idx + 1) if has_images else None
+    CardTiles.newTileOnCell(Cell.getCell(x, y), face="back", frontImage=front_pix, backImage=back_pixmap)
+
+
 # STEP4 Admin Players and GameActions
 
 globalLegend = myModel.newLegend("Global Legend", alwaysDisplayDefaultAgentSymbology=True)
@@ -78,11 +99,18 @@ Player1.addGameAction(myModel.newDeleteAction(Workers, inf))
 Player1.addGameAction(myModel.newDeleteAction(Cell, "infinite"))
 aGameAction = Player1.addGameAction(myModel.newModifyAction(Cell, {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 10))
+Player1.addGameAction(myModel.newModifyAction(Sheeps, {"health": "good"}))
+Player1.addGameAction(myModel.newModifyAction(Sheeps, {"health": "bad"}))
+# Tile actions: create (on cell), delete, flip
+Player1.addGameAction(myModel.newCreateAction(CardTiles, uses_per_round=5))
+Player1.addGameAction(myModel.newDeleteAction(CardTiles, inf))
+Player1.addGameAction(myModel.newFlipAction(CardTiles, uses_per_round=10))
 Player1ControlPanel = Player1.newControlPanel("Player 1 Actions", defaultActionSelected=aGameAction)
 
 Player2 = myModel.newPlayer("Player 2")
 Player2.addGameAction(myModel.newCreateAction(Birds, uses_per_round=4))
 Player2.addGameAction(myModel.newCreateAction(Sheeps, {"health": "good"}, 4))
+Player2.addGameAction(myModel.newMoveAction(Birds, 10))
 aGameAction = Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Reserve"}, 3))
 Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Player 2 Actions", defaultActionSelected=aGameAction)
@@ -127,6 +155,11 @@ endGameRule.addEndGameCondition_onEntity(
     name="Cell(1-5) Resource is greater than 2", aGrid=Cell.grid)
 endGameRule.displayEndGameConditions()
 
+# Auto-save whole simulation when the window is closed (user is asked to confirm)
+myModel.enableAutoSaveSimulationOnClose(confirm=True)
+# Recovery: save state to disk at each phase (_recovery_states/) so it can be restored after a crash
+myModel.enableRecoverySystem(True)
+
 
 # STEP7 TextBox
 
@@ -151,7 +184,8 @@ def _validate_task1_snapshot():
         assert snap.get("round") == r0 and snap.get("phase") == p0
         assert snap.get("current_player_name") == cur_player0
         assert "players" in snap and len(snap["players"]) >= 2
-        assert "entities" in snap and "agents" in snap["entities"]
+        assert "entities" in snap and "agents" in snap["entities"] and "tiles" in snap["entities"]
+        assert len(snap["entities"]["tiles"]) >= 5, "snapshot should contain tiles"
         # Write / read
         fd, path = tempfile.mkstemp(suffix=".json", prefix="sge_validate_")
         os.close(fd)

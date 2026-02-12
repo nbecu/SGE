@@ -1,5 +1,6 @@
 # --- Standard library imports ---
 import json
+import os
 import queue
 import re
 import sys
@@ -16,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog, QInputDialog
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog, QInputDialog, QStyle
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
 from PyQt5 import QtWidgets
@@ -47,6 +48,7 @@ from mainClasses.SGAdminPlayer import *
 from mainClasses.SGProgressGauge import *
 from mainClasses.SGSimulationVariable import *
 from mainClasses.SGTestGetData import SGTestGetData
+from mainClasses.SGSGE import SGE_PARAMETERS
 from mainClasses.SGTextBox import *
 from mainClasses.SGLabel import *
 from mainClasses.SGButton import *
@@ -194,6 +196,29 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         self.dataRecorder=SGDataRecorder(self)
 
+        # Backward/forward (undo/redo) stack: states after each game action or nextStep
+        self._undo_stack = []  # list of snapshot dicts (include_history_value=True)
+        self._redo_stack = []
+        self._backward_max_states = 500  # keep at most N states in memory (trim from front)
+
+        # Recovery: save state at each phase to disk with rotation
+        self.recoveryAtPhase = False
+        # Number of recovery state files to keep (rotation). From SGE_PARAMETERS; modifiable: myModel.recoveryStatesMax = 5
+        self.recoveryStatesMax = SGE_PARAMETERS.get("recovery_states_max", 3)
+        self.autoSaveStateDirectory = None  # None = default: cwd/_recovery_states
+        self._recovery_offer_done = False  # True after we have shown recovery-at-startup dialog once
+
+        # Simulation snapshots for replay: full sequence (trimmed to SGE_PARAMETERS["simulation_snapshots_max"])
+        self._simulation_snapshots = []
+        self._simulation_snapshots_max = SGE_PARAMETERS.get("simulation_snapshots_max", 10000)
+        # Replay mode: when True, backward/forward navigate _replay_snapshots; play and game actions disabled
+        self._replay_mode = False
+        self._replay_snapshots = []
+        self._replay_index = -1
+        # Auto-save whole simulation: on window close (None=off, or dict with "confirm": bool), on end game (bool)
+        self.autoSaveSimulationOnClose = None
+        self.autoSaveSimulationOnEndGame = False
+
         # Initialize MQTT Manager
         self.mqttManager = SGMQTTManager(self)
 
@@ -269,7 +294,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.nameOfPov = "default"
         self.label = QtWidgets.QLabel(self)
         self.label.setGeometry(10, 10, 350, 30)
-        self.label.move(300, 0)
+        self.label.move(400, 0)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.maj_coordonnees)
         self.isLabelVisible = False
@@ -528,6 +553,63 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.label.hide()
             self.timer.stop()
 
+    def showEvent(self, event):
+        """On first show, offer to restore from recovery files if any (e.g. after a crash)."""
+        super().showEvent(event)
+        if getattr(self, "_recovery_offer_done", True):
+            return
+        self._recovery_offer_done = True
+        self._offerRecoveryIfNeeded()
+
+    def _offerRecoveryIfNeeded(self):
+        """If recovery files exist for this model, ask user to restore the last simulation."""
+        try:
+            dirpath = self._getRecoveryDirectory()
+            file_prefix = self._getRecoveryFilePrefix() + "_"
+            files = []
+            for f in os.listdir(dirpath):
+                if f.startswith(file_prefix) and (f.endswith(".json.gz") or f.endswith(".json")):
+                    path = os.path.join(dirpath, f)
+                    if os.path.isfile(path):
+                        files.append((path, os.path.getmtime(path)))
+            if not files:
+                return
+            files.sort(key=lambda x: x[1], reverse=True)
+            latest_path = files[0][0]
+            reply = QMessageBox.question(
+                self,
+                "Recovery",
+                "Recovery files were found (possible previous crash).\nRestore the last simulation?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            if reply != QMessageBox.Yes:
+                self._clearRecoveryFilesForThisModel()
+                return
+            from mainClasses.SGStateSnapshot import read_snapshot_from_file, apply_snapshot_to_model
+            snapshot = read_snapshot_from_file(latest_path)
+            apply_snapshot_to_model(self, snapshot)
+            if hasattr(self, "_undo_stack"):
+                self._undo_stack.clear()
+                self._redo_stack.clear()
+            self.update()
+            self.refreshDisplayAfterStateLoad()
+            self._updateBackwardForwardButtons()
+            QMessageBox.information(
+                self,
+                "State restored",
+                f"Simulation restored from:\n{latest_path}\n\nRound {snapshot.get('round', '?')}, Phase {snapshot.get('phase', '?')}."
+            )
+            self._clearRecoveryFilesForThisModel()
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.warning(
+                self,
+                "Recovery failed",
+                f"Could not restore simulation:\n{str(e)}"
+            )
+
     def closeEvent(self, event):
         self.haveToBeClose = True
         self.getTextBoxHistory(self.TextBoxes)
@@ -577,7 +659,35 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     QMessageBox.information(self, 'Success', f'GameAction logs saved to: {filename}')
                 except Exception as e:
                     QMessageBox.warning(self, 'Error', f'Failed to save logs: {str(e)}')
+
+        # Auto-save whole simulation on close if enabled
+        if getattr(self, "autoSaveSimulationOnClose", None) and getattr(self, "_simulation_snapshots", None):
+            session = self._simulation_snapshots
+            if session:
+                do_save = True
+                if isinstance(self.autoSaveSimulationOnClose, dict) and self.autoSaveSimulationOnClose.get("confirm", True):
+                    reply = QMessageBox.question(
+                        self,
+                        "Save whole simulation",
+                        "Do you want to save the simulation before closing?",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.Yes
+                    )
+                    do_save = (reply == QMessageBox.Yes)
+                if do_save:
+                    filepath = self._writeSimulationToFile()
+                    if filepath:
+                        QMessageBox.information(
+                            self,
+                            "Simulation saved",
+                            f"Simulation saved ({len(session)} steps):\n{filepath}"
+                        )
+                    else:
+                        QMessageBox.warning(self, "Error", "Failed to save simulation.")
         
+        # On normal exit, remove recovery files so that next startup only offers restore if we actually crashed
+        self._clearRecoveryFilesForThisModel()
+
         # Disconnect from distributed session if in distributed mode
         if hasattr(self, 'distributedSessionManager') and self.distributedSessionManager:
             self.distributedSessionManager.disconnect()
@@ -626,28 +736,28 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # Handle window title
     def updateWindowTitle(self):
-        # Update window title with the number of the round and number of the phase
+        # Update window title: round/phase if option on, else prefix only (e.g. after quitting replay)
         if self.isTimeDisplayedInWindowTitle:
             if self.timeManager.numberOfPhases() == 1:
                 title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}"
             else:
                 title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}, Phase {self.phaseNumber()}"
-            self.setWindowTitle(title)
+        else:
+            title = self.windowTitle_prefix or " "
+        self.setWindowTitle(title)
 
     # Create the menu of the menu
     def createMenu(self):
-        # Add the 'play' button
+        # Add the 'play' button (keep ref so we can disable it in replay mode)
         if sys.platform == "darwin":
-            # For Mac compatibility: add the play button in a submenu
             self.startGame = self.menuBar().addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
-            startGame = QAction(" &Next step", self)
-            self.startGame.addAction(startGame)
-            startGame.triggered.connect(self.nextTurn)
+            self.nextStepAction = QAction(" &Next step", self)
+            self.startGame.addAction(self.nextStepAction)
+            self.nextStepAction.triggered.connect(self.nextTurn)
         else:
-            # for all other platforms than Mac, direct action on play icon
-            aAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
-            aAction.triggered.connect(self.nextTurn)
-            self.menuBar().addAction(aAction)
+            self.nextStepAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
+            self.nextStepAction.triggered.connect(self.nextTurn)
+            self.menuBar().addAction(self.nextStepAction)
 
         self.menuBar().addSeparator()
         aAction = QAction(QIcon(f"{path_icon}/zoomPlus.png"), " &zoomPlus", self)
@@ -665,6 +775,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.keyword_borderSubmenu = ' border'
         self.createGraphMenu()
 
+        # Backward/forward (undo/redo) — between Graphs and Settings; use standard Qt icons
+        style = QApplication.style()
+        self.backward = QAction(style.standardIcon(QStyle.SP_ArrowBack), " &backward", self)
+        self.backward.triggered.connect(self.backwardAction)
+        self.menuBar().addAction(self.backward)
+        self.forward = QAction(style.standardIcon(QStyle.SP_ArrowForward), " &forward", self)
+        self.forward.triggered.connect(self.forwardAction)
+        self.menuBar().addAction(self.forward)
+        self._updateBackwardForwardButtons()  # initially disabled (no state on stack yet)
+
         self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
         # Create menu items in the desired order:
         # 1. Entity Tooltips
@@ -675,12 +795,501 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.createThemeManagerMenu()
         # 4. Export GameAction Logs
         self.createGameActionLogsExportMenu()
-        # 5. Cursor Position
-        self.cursorPositionAction = QAction(" &" + "Cursor Position", self, checkable=True)
+        # 5. Cursor coordinates
+        self.cursorPositionAction = QAction(" &" + "Cursor coordinates", self, checkable=True)
         self.cursorPositionAction.setChecked(False)  # Initialize to unchecked state
         self.settingsMenu.addAction(self.cursorPositionAction)
         self.cursorPositionAction.triggered.connect(lambda: self.showCursorCoords())
-        
+        # 6. World state (save / load state - item 49)
+        self.createWorldStateMenu()
+
+    # ============================================================================
+    # WORLD STATE (SAVE / LOAD) METHODS - Item 49
+    # ============================================================================
+
+    def createWorldStateMenu(self):
+        """Create World state submenu in Settings menu (Save, Load, Save whole simulation, Replay)."""
+        self.worldStateMenu = self.settingsMenu.addMenu("&World state")
+        saveStateAction = QAction("&Save current state...", self)
+        saveStateAction.triggered.connect(self.saveCurrentState)
+        self.worldStateMenu.addAction(saveStateAction)
+        loadStateAction = QAction("&Load state as initial state...", self)
+        loadStateAction.triggered.connect(self.loadStateAsInitialState)
+        self.worldStateMenu.addAction(loadStateAction)
+        self.worldStateMenu.addSeparator()
+        saveSimulationAction = QAction("Save whole simulation", self)
+        saveSimulationAction.triggered.connect(self.saveSimulationForReplay)
+        self.worldStateMenu.addAction(saveSimulationAction)
+        replaySimulationAction = QAction("Replay a simulation...", self)
+        replaySimulationAction.triggered.connect(self.openReplaySimulation)
+        self.worldStateMenu.addAction(replaySimulationAction)
+        self.quitReplayAction = QAction("Exit replay", self)
+        self.quitReplayAction.triggered.connect(self._quitReplay)
+        self.quitReplayAction.setEnabled(False)
+        self.worldStateMenu.addAction(self.quitReplayAction)
+
+    def _quitReplay(self):
+        """Leave replay mode and return to normal (model stays at current replayed state)."""
+        self._setReplayMode(False)
+        self._updateBackwardForwardButtons()
+        if hasattr(self, "quitReplayAction"):
+            self.quitReplayAction.setEnabled(False)
+        if hasattr(self, "updateWindowTitle"):
+            self.updateWindowTitle()
+
+    def enableRecoverySystem(self, enabled=True):
+        """Modeler API: enable or disable the recovery system (save state at each phase to _recovery_states)."""
+        self.recoveryAtPhase = bool(enabled)
+
+    def enableAutoSaveSimulationOnClose(self, confirm=True):
+        """
+        Modeler API: save the whole simulation (replay file) when the window is closed.
+        If confirm is True, the user is asked before saving. If False, save is automatic.
+        """
+        self.autoSaveSimulationOnClose = {"confirm": bool(confirm)}
+
+    def enableAutoSaveSimulationOnEndGame(self, enabled=True):
+        """
+        Modeler API: save the whole simulation (replay file) when end game is reached.
+        """
+        self.autoSaveSimulationOnEndGame = bool(enabled)
+
+    def _writeSimulationToFile(self):
+        """Write _simulation_snapshots to saved_simulations/; returns filepath or None on failure."""
+        snapshots = getattr(self, "_simulation_snapshots", [])
+        if not snapshots:
+            return None
+        try:
+            from mainClasses.SGStateSnapshot import write_snapshots_array_to_file
+            from datetime import datetime
+            safe_name = re.sub(r"[^\w\-]", "_", (getattr(self, "name", None) or "model"))
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            dirpath = self._getSavedSimulationsDirectory()
+            filepath = os.path.join(dirpath, f"{safe_name}_{timestamp}.json.gz")
+            write_snapshots_array_to_file(snapshots, filepath)
+            return filepath
+        except Exception:
+            return None
+
+    def _onEndGameReached(self):
+        """Called by TimeManager when end game is triggered; saves simulation if enabled."""
+        if not getattr(self, "autoSaveSimulationOnEndGame", False):
+            return
+        filepath = self._writeSimulationToFile()
+        if filepath:
+            session = getattr(self, "_simulation_snapshots", [])
+            QMessageBox.information(
+                self,
+                "Simulation saved",
+                f"End game reached. Simulation saved ({len(session)} steps):\n{filepath}"
+            )
+
+    def _getSavedSimulationsDirectory(self):
+        """Return saved_simulations directory (for replay); create it if needed."""
+        dirpath = os.path.join(os.getcwd(), "saved_simulations")
+        os.makedirs(dirpath, exist_ok=True)
+        return dirpath
+
+    def saveSimulationForReplay(self):
+        """Save current simulation (list of snapshots) to saved_simulations/ for later replay."""
+        session = getattr(self, "_simulation_snapshots", [])
+        if not session:
+            QMessageBox.information(
+                self,
+                "Save whole simulation",
+                "No events recorded. Play a few moves then try again."
+            )
+            return
+        filepath = self._writeSimulationToFile()
+        if filepath:
+            QMessageBox.information(
+                self,
+                "Simulation saved",
+                f"Simulation saved ({len(session)} steps):\n{filepath}"
+            )
+        else:
+            QMessageBox.critical(
+                self,
+                "Error",
+                "Failed to save simulation."
+            )
+
+    def openReplaySimulation(self):
+        """Load a simulation file and switch to replay mode (step forward/backward)."""
+        file_filter = "Simulation replay (*.json.gz);;Tous les fichiers (*)"
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Replay a simulation",
+            self._getSavedSimulationsDirectory(),
+            file_filter
+        )
+        if not filepath:
+            return
+        try:
+            from mainClasses.SGStateSnapshot import load_snapshot_array_from_json_gz, apply_snapshot_to_model
+            snapshots = load_snapshot_array_from_json_gz(filepath)
+            if not snapshots:
+                QMessageBox.warning(self, "Replay", "The file contains no snapshots.")
+                return
+            self._replay_snapshots = snapshots
+            self._replay_index = 0
+            self._replay_mode = True
+            apply_snapshot_to_model(self, self._replay_snapshots[0])
+            self._setReplayMode(True)
+            self.update()
+            self.refreshDisplayAfterStateLoad()
+            self._repaintAllGrids()
+            self._updateBackwardForwardButtons()
+            self._updateReplayTitle()
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"Failed to load simulation:\n{str(e)}"
+            )
+
+    def _setReplayMode(self, on):
+        """Enable (on=True) or disable (on=False) replay mode UI: disable play and control panels."""
+        self._replay_mode = bool(on)
+        if hasattr(self, "nextStepAction"):
+            self.nextStepAction.setEnabled(not on)
+        if hasattr(self, "quitReplayAction"):
+            self.quitReplayAction.setEnabled(on)
+        for panel in getattr(self, "getControlPanels", lambda: [])() or []:
+            try:
+                panel.setActivation(not on and getattr(panel, "playerName", None) == getattr(self, "currentPlayerName", None))
+            except Exception:
+                pass
+        if not on:
+            self._replay_snapshots = []
+            self._replay_index = -1
+            if hasattr(self, "updateWindowTitle"):
+                self.updateWindowTitle()
+
+    def _updateReplayTitle(self):
+        """Update window title to show replay step index."""
+        n = len(getattr(self, "_replay_snapshots", []))
+        i = getattr(self, "_replay_index", 0)
+        prefix = getattr(self, "windowTitle_prefix", "SGE")
+        self.setWindowTitle(f"{prefix} — Replay {i + 1}/{n}")
+
+    def _getRecoveryDirectory(self):
+        """Return the directory for recovery snapshots (single folder, no model subdir); create it if needed."""
+        if getattr(self, "autoSaveStateDirectory", None):
+            dirpath = self.autoSaveStateDirectory
+        else:
+            dirpath = os.path.join(os.getcwd(), "_recovery_states")
+        os.makedirs(dirpath, exist_ok=True)
+        return dirpath
+
+    def _getRecoveryFilePrefix(self):
+        """Return the filename prefix for this model's recovery files (model name, safe for filesystem)."""
+        return re.sub(r"[^\w\-]", "_", (getattr(self, "name", None) or "model"))
+
+    def _clearRecoveryFilesForThisModel(self):
+        """Remove all recovery files for this model from _recovery_states. Call on normal exit so that
+        recovery files only remain when the process crashed (no closeEvent run)."""
+        try:
+            dirpath = self._getRecoveryDirectory()
+            file_prefix = self._getRecoveryFilePrefix() + "_"
+            for f in os.listdir(dirpath):
+                if f.startswith(file_prefix) and (f.endswith(".json.gz") or f.endswith(".json")):
+                    path = os.path.join(dirpath, f)
+                    if os.path.isfile(path):
+                        try:
+                            os.remove(path)
+                        except OSError:
+                            pass
+        except Exception:
+            pass
+
+    def _saveRecoverySnapshot(self):
+        """Save current state to recovery directory (one snapshot per phase) and rotate to keep N.
+        Reuses the last snapshot from _simulation_snapshots (same as undo stack) to avoid a second
+        build_snapshot_from_model() call and reduce CPU usage."""
+        if not getattr(self, "recoveryAtPhase", False):
+            return
+        try:
+            from mainClasses.SGStateSnapshot import build_snapshot_from_model, write_snapshot_to_file
+            from datetime import datetime
+            # Reuse last snapshot already built in pushStateAfterEvent (undo + _simulation_snapshots)
+            session = getattr(self, "_simulation_snapshots", [])
+            if session and not getattr(self, "_replay_mode", False):
+                snapshot = session[-1]
+            else:
+                snapshot = build_snapshot_from_model(self, include_history_value=False)
+            r = getattr(self.timeManager, "currentRoundNumber", 0)
+            p = getattr(self.timeManager, "currentPhaseNumber", 0)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            dirpath = self._getRecoveryDirectory()
+            prefix = self._getRecoveryFilePrefix()
+            filename = f"{prefix}_state_r{r}_p{p}_{timestamp}.json.gz"
+            filepath = os.path.join(dirpath, filename)
+            write_snapshot_to_file(snapshot, filepath, use_gzip=True)
+            self._rotateRecoverySnapshots()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+    def _rotateRecoverySnapshots(self):
+        """Keep only the N most recent recovery snapshot files for this model in the recovery directory."""
+        try:
+            dirpath = self._getRecoveryDirectory()
+            file_prefix = self._getRecoveryFilePrefix() + "_"
+            n = max(1, getattr(self, "recoveryStatesMax", SGE_PARAMETERS.get("recovery_states_max", 3)))
+            files = []
+            for f in os.listdir(dirpath):
+                if not f.startswith(file_prefix):
+                    continue
+                if f.endswith(".json.gz") or f.endswith(".json"):
+                    path = os.path.join(dirpath, f)
+                    if os.path.isfile(path):
+                        files.append((path, os.path.getmtime(path)))
+            files.sort(key=lambda x: x[1], reverse=True)
+            for path, _ in files[n:]:
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+        except Exception:
+            pass
+
+    def saveCurrentState(self):
+        """Save current world state to a file (JSON or JSON.gz)."""
+        from mainClasses.SGStateSnapshot import build_snapshot_from_model, write_snapshot_to_file
+        default_name = getattr(self, "name", "model") or "model"
+        default_name = re.sub(r"[^\w\-]", "_", default_name)
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_filename = f"{default_name}_state_{timestamp}.json"
+        file_filter = "JSON Files (*.json);;Compressed JSON (*.json.gz);;All Files (*)"
+        filepath, selected_filter = QFileDialog.getSaveFileName(
+            self,
+            "Save current state",
+            default_filename,
+            file_filter
+        )
+        if not filepath:
+            return
+        try:
+            snapshot = build_snapshot_from_model(self)
+            use_gzip = "*.json.gz" in (selected_filter or "")
+            if use_gzip and not filepath.lower().endswith(".gz"):
+                filepath = filepath.rstrip(".json") + ".json.gz"
+            write_snapshot_to_file(snapshot, filepath, use_gzip=use_gzip)
+            QMessageBox.information(
+                self,
+                "State saved",
+                f"Current state saved to:\n{filepath}"
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Save failed",
+                f"Failed to save state:\n{str(e)}"
+            )
+
+    def pushStateAfterEvent(self):
+        """
+        Push current world state onto the undo stack (after a game action or nextStep).
+        Used for backward/forward. Clears redo stack. Trims undo stack to _backward_max_states.
+        """
+        if not hasattr(self, "_undo_stack") or getattr(self, "_undo_stack", None) is None:
+            return
+        try:
+            from mainClasses.SGStateSnapshot import build_snapshot_from_model
+            snap = build_snapshot_from_model(self, include_history_value=True)
+            self._undo_stack.append(snap)
+            self._redo_stack.clear()
+            if len(self._undo_stack) > self._backward_max_states:
+                self._undo_stack = self._undo_stack[-self._backward_max_states:]
+            # Simulation for replay: append same snapshot, trim to max
+            if not getattr(self, "_replay_mode", False):
+                getattr(self, "_simulation_snapshots", []).append(snap)
+                session = getattr(self, "_simulation_snapshots", [])
+                if len(session) > getattr(self, "_simulation_snapshots_max", SGE_PARAMETERS.get("simulation_snapshots_max", 10000)):
+                    self._simulation_snapshots = session[-self._simulation_snapshots_max:]
+            self._updateBackwardForwardButtons()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            # Don't re-raise: action already succeeded; backward will stay disabled until push works
+
+    def _updateBackwardForwardButtons(self):
+        """Enable/disable backward and forward menu actions based on stack state or replay index."""
+        if not hasattr(self, "backward") or not hasattr(self, "forward"):
+            return
+        if getattr(self, "_replay_mode", False):
+            idx = getattr(self, "_replay_index", -1)
+            snapshots = getattr(self, "_replay_snapshots", [])
+            n = len(snapshots)
+            self.backward.setEnabled(n > 0 and idx > 0)
+            self.forward.setEnabled(n > 0 and idx < n - 1)
+        else:
+            undo_len = len(getattr(self, "_undo_stack", []))
+            redo_len = len(getattr(self, "_redo_stack", []))
+            self.backward.setEnabled(undo_len >= 2)
+            self.forward.setEnabled(redo_len >= 1)
+
+    def backwardAction(self):
+        """One step backward: undo stack (normal) or previous snapshot in replay mode."""
+        if getattr(self, "_replay_mode", False):
+            idx = getattr(self, "_replay_index", 0)
+            snapshots = getattr(self, "_replay_snapshots", [])
+            if idx <= 0 or not snapshots:
+                return
+            try:
+                from mainClasses.SGStateSnapshot import apply_snapshot_to_model
+                self._replay_index = idx - 1
+                apply_snapshot_to_model(self, snapshots[self._replay_index])
+                self.update()
+                self.refreshDisplayAfterStateLoad()
+                self._repaintAllGrids()
+                self._updateBackwardForwardButtons()
+                self._updateReplayTitle()
+            except Exception:
+                import traceback
+                traceback.print_exc()
+            return
+        undo = getattr(self, "_undo_stack", [])
+        redo = getattr(self, "_redo_stack", [])
+        if len(undo) < 2:
+            return
+        try:
+            from mainClasses.SGStateSnapshot import apply_snapshot_to_model
+            current = undo.pop()
+            redo.append(current)
+            prev = undo[-1]
+            apply_snapshot_to_model(self, prev)
+            self.update()
+            self.refreshDisplayAfterStateLoad()
+            self._repaintAllGrids()
+            self._updateBackwardForwardButtons()
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            if undo and redo:
+                undo.append(redo.pop())
+            self._updateBackwardForwardButtons()
+
+    def forwardAction(self):
+        """Forward: redo stack (normal) or next snapshot in replay mode."""
+        if getattr(self, "_replay_mode", False):
+            idx = getattr(self, "_replay_index", -1)
+            snapshots = getattr(self, "_replay_snapshots", [])
+            if idx < 0 or idx >= len(snapshots) - 1:
+                return
+            try:
+                from mainClasses.SGStateSnapshot import apply_snapshot_to_model
+                self._replay_index = idx + 1
+                apply_snapshot_to_model(self, snapshots[self._replay_index])
+                self.update()
+                self.refreshDisplayAfterStateLoad()
+                self._repaintAllGrids()
+                self._updateBackwardForwardButtons()
+                self._updateReplayTitle()
+            except Exception:
+                import traceback
+                traceback.print_exc()
+            return
+        redo = getattr(self, "_redo_stack", [])
+        if not redo:
+            return
+        try:
+            from mainClasses.SGStateSnapshot import apply_snapshot_to_model
+            snap = redo.pop()
+            apply_snapshot_to_model(self, snap)
+            getattr(self, "_undo_stack", []).append(snap)
+            self.update()
+            self.refreshDisplayAfterStateLoad()
+            self._repaintAllGrids()
+            self._updateBackwardForwardButtons()
+        except Exception:
+            redo.append(snap)
+
+    def _repaintAllGrids(self):
+        """Force repaint of all grids and game spaces so display reflects restored state."""
+        for gs in getattr(self, "gameSpaces", {}).values():
+            if gs:
+                try:
+                    gs.update()
+                    if hasattr(gs, "repaint"):
+                        gs.repaint()
+                except Exception:
+                    pass
+
+    def refreshDisplayAfterStateLoad(self):
+        """
+        Refresh all game spaces whose display depends on model state (e.g. after load state or backward/redo).
+        Updates: TimeLabel (round/phase), DashBoard indicators, EndGameRule conditions, ProgressGauge (sim var value).
+        """
+        if getattr(self, "myTimeLabel", None) and hasattr(self.myTimeLabel, "updateTimeLabel"):
+            self.myTimeLabel.updateTimeLabel()
+        dashboards = self.getGameSpaceByClass(SGDashBoard)
+        for aDashBoard in dashboards:
+            for indicator in getattr(aDashBoard, "indicators", []) or []:
+                if hasattr(indicator, "updateText"):
+                    try:
+                        indicator.updateText()
+                    except Exception:
+                        pass
+            if hasattr(aDashBoard, "updateLabelsandWidgetSize"):
+                try:
+                    aDashBoard.updateLabelsandWidgetSize()
+                except Exception:
+                    pass
+            if hasattr(aDashBoard, "update"):
+                aDashBoard.update()
+        end_game_rules = self.getGameSpaceByClass(SGEndGameRule)
+        for rule in end_game_rules:
+            for condition in getattr(rule, "endGameConditions", []) or []:
+                if hasattr(condition, "updateText"):
+                    try:
+                        condition.updateText()
+                    except Exception:
+                        pass
+        progress_gauges = self.getGameSpaceByClass(SGProgressGauge)
+        for gauge in progress_gauges:
+            if hasattr(gauge, "checkAndUpdate"):
+                try:
+                    gauge.checkAndUpdate()
+                except Exception:
+                    pass
+
+    def loadStateAsInitialState(self):
+        """Load a world state from file and apply it as current state."""
+        from mainClasses.SGStateSnapshot import read_snapshot_from_file, apply_snapshot_to_model
+        file_filter = "JSON / Compressed JSON (*.json *.json.gz);;JSON (*.json);;Compressed (*.json.gz);;All Files (*)"
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load state as initial state",
+            "",
+            file_filter
+        )
+        if not filepath:
+            return
+        try:
+            snapshot = read_snapshot_from_file(filepath)
+            apply_snapshot_to_model(self, snapshot)
+            # Clear redo; optionally keep undo as-is or clear (chantier: load = new initial state, so we clear stacks)
+            if hasattr(self, "_undo_stack"):
+                self._undo_stack.clear()
+                self._redo_stack.clear()
+            self.update()
+            self.refreshDisplayAfterStateLoad()
+            self._updateBackwardForwardButtons()
+            QMessageBox.information(
+                self,
+                "State loaded",
+                f"State loaded from:\n{filepath}\n\nRound {snapshot.get('round', '?')}, Phase {snapshot.get('phase', '?')}."
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Load failed",
+                f"Failed to load state:\n{str(e)}"
+            )
+
     # ============================================================================
     # GAME ACTION LOGS EXPORT METHODS
     # ============================================================================
@@ -1860,7 +2469,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def maj_coordonnees(self):
         pos_souris_globale = self.mapFromGlobal(QCursor.pos())
         coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
-        self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
+        self.label.setText(f'Cursor coordinates : ({coord_x}, {coord_y})')
 
     # To get a gameSpace in particular
     def getGameSpaceByName(self, name):

@@ -937,6 +937,7 @@ calcSequestrationTot()
 #********************************************************************
 # lancement de l'application
 
+myModel.enableRecoverySystem(True)
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
 sys.exit(monApp.exec_())

@@ -111,3 +111,5 @@ _valo/*
 SGE.egg-info/*
 venv/*
 venv_sge_ml/*
+_recovery_states/*
+saved_simulations/*

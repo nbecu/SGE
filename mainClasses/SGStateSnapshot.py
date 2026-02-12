@@ -3,7 +3,7 @@ SGStateSnapshot - World state serialization for recovery, backward/forward, and 
 
 Format: JSON with format_version, metadata, entities (agents, cells, tiles), players,
 simulation_variables. Players include dict_attributes and per-game-action data. Entity/player
-history["value"]: not included when writing to disk (recovery/session); on restore we trim
+history["value"]: not included when writing to disk (recovery/simulation); on restore we trim
 to (round, phase) <= current so graphs do not see "future" steps. For backward/redo stack,
 call build_snapshot_from_model(model, include_history_value=True) so snapshots carry
 history["value"] and redo restores it correctly (graphs then work for both backward and redo). Stable IDs for entities; JSON-serializable attribute values only (QColor -> hex).
@@ -301,19 +301,44 @@ def read_snapshot_from_file(filepath):
 
 def load_snapshot_array_from_json_gz(filepath):
     """
-    Load a JSON array of snapshots from a .json.gz file (saved_sessions format).
+    Load a JSON array of snapshots from a .json.gz file (saved_simulations format).
     Returns list of snapshot dicts.
     """
     if not os.path.isfile(filepath):
-        raise FileNotFoundError(f"Session file not found: {filepath}")
+        raise FileNotFoundError(f"Simulation file not found: {filepath}")
     with gzip.open(filepath, "rt", encoding="utf-8") as f:
         data = json.load(f)
     if not isinstance(data, list):
-        raise ValueError("Saved session file must contain a JSON array of snapshots")
+        raise ValueError("Saved simulation file must contain a JSON array of snapshots")
     for i, item in enumerate(data):
         if item.get("format_version") != FORMAT_VERSION:
             raise ValueError(f"Unsupported format_version at index {i}: {item.get('format_version')}")
     return data
+
+
+def write_snapshots_array_to_file(snapshots_list, filepath):
+    """
+    Write a list of snapshot dicts to a .json.gz file (saved_simulations format).
+    Atomic write: temp file then rename. filepath should end with .json.gz.
+    """
+    dirpath = os.path.dirname(filepath)
+    if dirpath and not os.path.isdir(dirpath):
+        os.makedirs(dirpath, exist_ok=True)
+    suffix = ".json.gz.tmp"
+    fd, tmp_path = tempfile.mkstemp(dir=dirpath or ".", prefix="sge_simulation_", suffix=suffix)
+    try:
+        json_str = json.dumps(snapshots_list, ensure_ascii=False, indent=2)
+        with os.fdopen(fd, "wb") as f:
+            with gzip.GzipFile(fileobj=f, mode="wb", mtime=0) as gz:
+                gz.write(json_str.encode("utf-8"))
+        os.replace(tmp_path, filepath)
+    except Exception:
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+        raise
 
 
 def _find_cell_by_id(model, cell_id):
@@ -323,6 +348,107 @@ def _find_cell_by_id(model, cell_id):
             if hasattr(cell, "getId") and callable(cell.getId) and cell.getId() == cell_id:
                 return cell, cell_type
     return None, None
+
+
+def _get_first_cell(model):
+    """Return the first cell of the first grid, or None (for creating agents 'off grid' then unplacing)."""
+    grids = getattr(model, "getGrids", None)
+    if not callable(grids):
+        return None
+    grid_list = grids()
+    if not grid_list:
+        return None
+    get_cell_type = getattr(model, "getCellType", None)
+    if not callable(get_cell_type):
+        return None
+    cell_type = get_cell_type(grid_list[0])
+    if not cell_type or not hasattr(cell_type, "getCell"):
+        return None
+    return cell_type.getCell(1, 1)
+
+
+def _create_agent_from_snapshot(model, agent_data):
+    """
+    Create an agent from snapshot data (when the agent exists in snapshot but not in model).
+    Handles agents with or without cell (cell_id None = agent not on grid).
+    """
+    type_name = agent_data.get("type_name")
+    eid = agent_data.get("id")
+    cell_id = agent_data.get("cell_id")
+    dict_attrs = agent_data.get("dict_attributes") or {}
+    if type_name is None or eid is None:
+        return None
+    try:
+        agent_type = model.getEntityType(type_name)
+    except Exception:
+        return None
+    if not agent_type or not getattr(agent_type, "isAgentType", True):
+        return None
+    target_cell, _ = _find_cell_by_id(model, cell_id) if cell_id is not None else (None, None)
+    create_cell = target_cell if target_cell is not None else _get_first_cell(model)
+    if create_cell is None:
+        return None
+    agent = agent_type.newAgentOnCell(create_cell, dict_attrs)
+    if agent is None:
+        return None
+    agent.id = eid
+    agent.privateID = agent_type.name + str(eid)
+    agent_type.IDincr = max(getattr(agent_type, "IDincr", 0), eid + 1)
+    if target_cell is None:
+        if hasattr(create_cell, "removeAgent") and callable(create_cell.removeAgent):
+            create_cell.removeAgent(agent)
+        agent.cell = None
+        if getattr(agent, "view", None):
+            try:
+                agent.view.hide()
+            except Exception:
+                pass
+    if agent_data.get("history_value") and getattr(agent, "history", None) and isinstance(agent.history, dict):
+        hv_data = agent_data.get("history_value") or {}
+        agent.history["value"] = defaultdict(list, {
+            str(att): list(entries) for att, entries in hv_data.items()
+        })
+    return agent
+
+
+def _create_tile_from_snapshot(model, tile_data):
+    """
+    Create a tile from snapshot data (when the tile exists in snapshot but not in model).
+    """
+    type_name = tile_data.get("type_name")
+    eid = tile_data.get("id")
+    cell_id = tile_data.get("cell_id")
+    face = tile_data.get("face", "front")
+    dict_attrs = tile_data.get("dict_attributes") or {}
+    if type_name is None or eid is None:
+        return None
+    try:
+        tile_type = model.getEntityType(type_name)
+    except Exception:
+        return None
+    if not tile_type:
+        return None
+    cell, _ = _find_cell_by_id(model, cell_id) if cell_id is not None else (None, None)
+    if cell is None:
+        cell = _get_first_cell(model)
+    if cell is None:
+        return None
+    tile = tile_type.newTileOnCell(cell, face=face, attributesAndValues=dict_attrs)
+    if tile is None:
+        return None
+    tile.id = eid
+    tile.privateID = tile_type.name + str(eid)
+    tile_type.IDincr = max(getattr(tile_type, "IDincr", 0), eid + 1)
+    if cell_id and cell and getattr(tile, "cell", None) != cell:
+        tile.moveTo(cell)
+    if getattr(tile, "face", None) != face and hasattr(tile, "setFace"):
+        tile.setFace(face)
+    if tile_data.get("history_value") and getattr(tile, "history", None) and isinstance(tile.history, dict):
+        hv_data = tile_data.get("history_value") or {}
+        tile.history["value"] = defaultdict(list, {
+            str(att): list(entries) for att, entries in hv_data.items()
+        })
+    return tile
 
 
 def _trim_history_value_to_step(obj, current_round, current_phase):
@@ -346,9 +472,11 @@ def _trim_history_value_to_step(obj, current_round, current_phase):
 def apply_snapshot_to_model(model, snapshot):
     """
     Restore model state from a snapshot dict (e.g. from read_snapshot_from_file).
-    Updates simulation variables, time (round/phase), current player, and entity
-    attributes/positions. Assumes model structure (entity types and counts) is
-    unchanged; only attributes and positions are restored (stable IDs).
+    Updates simulation variables, time (round/phase), current player. Reconciles
+    agents and tiles: removes those present in the model but not in the snapshot,
+    creates those in the snapshot but not in the model (including agents not on
+    a grid, cell_id None), then updates attributes/positions/history for all.
+    Cells are only updated (no create/delete). Stable IDs are restored when creating.
     """
     # Simulation variables
     for sv_data in snapshot.get("simulation_variables") or []:
@@ -440,8 +568,21 @@ def apply_snapshot_to_model(model, snapshot):
         except Exception:
             continue
 
-    # Agents: match by type_name and id, set cell (moveTo) and dict_attributes
-    for agent_data in snapshot.get("entities", {}).get("agents") or []:
+    # Agents: reconcile set (delete those not in snapshot, create missing, update existing)
+    snapshot_agents = snapshot.get("entities", {}).get("agents") or []
+    snapshot_agent_keys = {(a.get("type_name"), a.get("id")) for a in snapshot_agents if a.get("type_name") is not None and a.get("id") is not None}
+    for agent_type in list(getattr(model, "agentTypes", {}).values()):
+        type_name = getattr(agent_type, "name", None)
+        if not type_name:
+            continue
+        to_delete = [a for a in list(getattr(agent_type, "entities", []) or []) if (type_name, a.id) not in snapshot_agent_keys]
+        for a in to_delete:
+            try:
+                if hasattr(agent_type, "deleteEntity"):
+                    agent_type.deleteEntity(a)
+            except Exception:
+                pass
+    for agent_data in snapshot_agents:
         type_name = agent_data.get("type_name")
         eid = agent_data.get("id")
         cell_id = agent_data.get("cell_id")
@@ -451,8 +592,10 @@ def apply_snapshot_to_model(model, snapshot):
         try:
             agent_type = model.getEntityType(type_name)
             agent = next((a for a in agent_type.entities if a.id == eid), None)
-            if not agent:
-                continue
+            if agent is None:
+                agent = _create_agent_from_snapshot(model, agent_data)
+                if agent is None:
+                    continue
             cell, _ = _find_cell_by_id(model, cell_id)
             if cell and getattr(agent, "cell", None) != cell:
                 agent.moveTo(cell)
@@ -474,8 +617,21 @@ def apply_snapshot_to_model(model, snapshot):
         except Exception:
             continue
 
-    # Tiles: match by type_name and id, set cell (moveTo), face, dict_attributes
-    for tile_data in snapshot.get("entities", {}).get("tiles") or []:
+    # Tiles: reconcile set (delete those not in snapshot, create missing, update existing)
+    snapshot_tiles = snapshot.get("entities", {}).get("tiles") or []
+    snapshot_tile_keys = {(t.get("type_name"), t.get("id")) for t in snapshot_tiles if t.get("type_name") is not None and t.get("id") is not None}
+    for tile_type in list(getattr(model, "tileTypes", {}).values()):
+        type_name = getattr(tile_type, "name", None)
+        if not type_name:
+            continue
+        to_delete = [t for t in list(getattr(tile_type, "entities", []) or []) if (type_name, t.id) not in snapshot_tile_keys]
+        for t in to_delete:
+            try:
+                if hasattr(tile_type, "deleteEntity"):
+                    tile_type.deleteEntity(t)
+            except Exception:
+                pass
+    for tile_data in snapshot_tiles:
         type_name = tile_data.get("type_name")
         eid = tile_data.get("id")
         cell_id = tile_data.get("cell_id")
@@ -486,8 +642,10 @@ def apply_snapshot_to_model(model, snapshot):
         try:
             tile_type = model.getEntityType(type_name)
             tile = next((t for t in tile_type.entities if t.id == eid), None)
-            if not tile:
-                continue
+            if tile is None:
+                tile = _create_tile_from_snapshot(model, tile_data)
+                if tile is None:
+                    continue
             cell, _ = _find_cell_by_id(model, cell_id)
             if cell and getattr(tile, "cell", None) != cell:
                 tile.moveTo(cell)

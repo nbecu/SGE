@@ -28,7 +28,9 @@ class SGTimeManager():
 
         # Process the conditions of game ending
         isEndGame = self.checkEndGame()
-        if isEndGame : return
+        if isEndGame:
+            getattr(self.model, "_onEndGameReached", lambda: None)()
+            return
 
         # set the values of currentRoundNumber and currentPhaseNumber
         ## This case is to quit the Initialization phase at the begining of the game
@@ -89,6 +91,14 @@ class SGTimeManager():
 
         # The phase handles its own automatic forwarding
         self.getCurrentPhase().handleAutoForward()
+
+        # Push state for backward/forward (one step = one nextStep)
+        if hasattr(self.model, "pushStateAfterEvent"):
+            self.model.pushStateAfterEvent()
+
+        # Auto-save state to disk for recovery (item 47) if enabled
+        if getattr(self.model, "recoveryAtPhase", False) and hasattr(self.model, "_saveRecoverySnapshot"):
+            self.model._saveRecoverySnapshot()
 
     def updateControlPanelsForCurrentPhase(self):
         """Update control panels activation based on current phase type"""

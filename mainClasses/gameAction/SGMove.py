@@ -62,6 +62,10 @@ class SGMove(SGAbstractAction):
 
             if not self.model.timeManager.isInitialization():
                 self.model.timeManager.getCurrentPhase().handleAutoForward()
+
+            # Push state for backward/forward (one step = one game action)
+            if hasattr(self.model, "pushStateAfterEvent"):
+                self.model.pushStateAfterEvent()
             #commented because unsued - return aMovingEntity if not self.feedbacks else [aMovingEntity,resFeedback]
         # else:
         #     return False
