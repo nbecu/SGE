@@ -638,58 +638,6 @@ def apply_snapshot_to_model(model, snapshot):
         except Exception:
             continue
 
-    # Agents: reconcile set (delete those not in snapshot, create missing, update existing)
-    snapshot_agents = snapshot.get("entities", {}).get("agents") or []
-    snapshot_agent_keys = {(a.get("type_name"), a.get("id")) for a in snapshot_agents if a.get("type_name") is not None and a.get("id") is not None}
-    for agent_type in list(getattr(model, "agentTypes", {}).values()):
-        type_name = getattr(agent_type, "name", None)
-        if not type_name:
-            continue
-        to_delete = [a for a in list(getattr(agent_type, "entities", []) or []) if (type_name, a.id) not in snapshot_agent_keys]
-        for a in to_delete:
-            try:
-                if hasattr(agent_type, "deleteEntity"):
-                    agent_type.deleteEntity(a)
-            except Exception:
-                pass
-    for agent_data in snapshot_agents:
-        type_name = agent_data.get("type_name")
-        eid = agent_data.get("id")
-        cell_id = agent_data.get("cell_id")
-        dict_attrs = agent_data.get("dict_attributes") or {}
-        if not type_name or eid is None:
-            continue
-        try:
-            agent_type = model.getEntityType(type_name)
-            agent = next((a for a in agent_type.entities if a.id == eid), None)
-            if agent is None:
-                agent = _create_agent_from_snapshot(model, agent_data)
-                if agent is None:
-                    continue
-            cell = _resolve_cell_for_restore(
-                model, cell_id, agent_data.get("cell_type_name"),
-                agent_data.get("cell_x"), agent_data.get("cell_y"), agent_data.get("grid_id"),
-            )
-            if cell and getattr(agent, "cell", None) != cell:
-                agent.moveTo(cell)
-                if hasattr(agent, "view") and agent.view:
-                    agent.view.show()
-            has_hv = "history_value" in agent_data and agent_data["history_value"]
-            if has_hv:
-                hv_data = agent_data.get("history_value") or {}
-                if hasattr(agent, "history") and isinstance(agent.history, dict):
-                    agent.history["value"] = defaultdict(list, {
-                        str(att): list(entries) for att, entries in hv_data.items()
-                    })
-                for att, val in dict_attrs.items():
-                    if hasattr(agent, "dictAttributes"):
-                        agent.dictAttributes[att] = val
-            elif dict_attrs:
-                for att, val in dict_attrs.items():
-                    agent.setValue(att, val)
-        except Exception:
-            continue
-
     # Tiles: reconcile set (delete those not in snapshot, create missing, update existing)
     snapshot_tiles = snapshot.get("entities", {}).get("tiles") or []
     snapshot_tile_keys = {(t.get("type_name"), t.get("id")) for t in snapshot_tiles if t.get("type_name") is not None and t.get("id") is not None}
@@ -742,6 +690,58 @@ def apply_snapshot_to_model(model, snapshot):
             elif dict_attrs:
                 for att, val in dict_attrs.items():
                     tile.setValue(att, val)
+        except Exception:
+            continue
+
+    # Agents: reconcile set (delete those not in snapshot, create missing, update existing)
+    snapshot_agents = snapshot.get("entities", {}).get("agents") or []
+    snapshot_agent_keys = {(a.get("type_name"), a.get("id")) for a in snapshot_agents if a.get("type_name") is not None and a.get("id") is not None}
+    for agent_type in list(getattr(model, "agentTypes", {}).values()):
+        type_name = getattr(agent_type, "name", None)
+        if not type_name:
+            continue
+        to_delete = [a for a in list(getattr(agent_type, "entities", []) or []) if (type_name, a.id) not in snapshot_agent_keys]
+        for a in to_delete:
+            try:
+                if hasattr(agent_type, "deleteEntity"):
+                    agent_type.deleteEntity(a)
+            except Exception:
+                pass
+    for agent_data in snapshot_agents:
+        type_name = agent_data.get("type_name")
+        eid = agent_data.get("id")
+        cell_id = agent_data.get("cell_id")
+        dict_attrs = agent_data.get("dict_attributes") or {}
+        if not type_name or eid is None:
+            continue
+        try:
+            agent_type = model.getEntityType(type_name)
+            agent = next((a for a in agent_type.entities if a.id == eid), None)
+            if agent is None:
+                agent = _create_agent_from_snapshot(model, agent_data)
+                if agent is None:
+                    continue
+            cell = _resolve_cell_for_restore(
+                model, cell_id, agent_data.get("cell_type_name"),
+                agent_data.get("cell_x"), agent_data.get("cell_y"), agent_data.get("grid_id"),
+            )
+            if cell and getattr(agent, "cell", None) != cell:
+                agent.moveTo(cell)
+                if hasattr(agent, "view") and agent.view:
+                    agent.view.show()
+            has_hv = "history_value" in agent_data and agent_data["history_value"]
+            if has_hv:
+                hv_data = agent_data.get("history_value") or {}
+                if hasattr(agent, "history") and isinstance(agent.history, dict):
+                    agent.history["value"] = defaultdict(list, {
+                        str(att): list(entries) for att, entries in hv_data.items()
+                    })
+                for att, val in dict_attrs.items():
+                    if hasattr(agent, "dictAttributes"):
+                        agent.dictAttributes[att] = val
+            elif dict_attrs:
+                for att, val in dict_attrs.items():
+                    agent.setValue(att, val)
         except Exception:
             continue
 

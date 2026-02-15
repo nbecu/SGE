@@ -243,6 +243,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._pending_recovery_state = None
         self._pending_recovery_assigned_player_name = None
         self._pending_recovery_seed = None  # Synced seed to apply so reconnecting instance matches others
+        self._pending_recovery_rng_state = None  # Full RNG state applied at end of initAfterOpening()
 
         self.initUI()
 
@@ -320,21 +321,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self._pending_recovery_assigned_player_name = None
             recovery_seed = getattr(self, '_pending_recovery_seed', None)
             self._pending_recovery_seed = None
-            recovery_rng_state = getattr(self, '_pending_recovery_rng_state', None)
-            self._pending_recovery_rng_state = None
+            # Do NOT apply _pending_recovery_rng_state here: keep it for initAfterOpening() so that
+            # the full RNG state (seed + number of calls already made) is applied only after init is complete.
             try:
                 from mainClasses.SGStateSnapshot import apply_snapshot_to_model
                 apply_snapshot_to_model(self, state)
                 if assigned_name and self.isDistributed() and hasattr(self, 'distributedConfig'):
                     self.distributedConfig.assigned_player_name = assigned_name
-                # Restore RNG so reconnecting instance has same random sequence and position as other instances
-                import random
-                if recovery_rng_state is not None:
-                    def _list_to_tuple(s):
-                        return tuple(_list_to_tuple(x) for x in s) if isinstance(s, list) else s
-                    random.setstate(_list_to_tuple(recovery_rng_state))
-                elif recovery_seed is not None:
-                    random.seed(recovery_seed)
                 if recovery_seed is not None and self.isDistributed() and hasattr(self, 'distributedConfig'):
                     self.distributedConfig.shared_seed = recovery_seed
                 # Refresh TimeLabel, dashboards, end-game rules, etc. so UI matches restored state
@@ -416,6 +409,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.distributedSessionManager.playerConnected.connect(self._onDistributedPlayerConnected)
             self._distributed_freeze_signals_connected = True
             self._updateDistributedFrozenState()
+
+        # Apply pending recovery RNG state at the end of init (Reconnect flow): script ran with seed from start,
+        # snapshot was applied in initBeforeShowing(); now sync random to same position as other instances.
+        recovery_rng_state = getattr(self, '_pending_recovery_rng_state', None)
+        if recovery_rng_state is not None:
+            self._pending_recovery_rng_state = None
+            import random
+            def _list_to_tuple(s):
+                return tuple(_list_to_tuple(x) for x in s) if isinstance(s, list) else s
+            random.setstate(_list_to_tuple(recovery_rng_state))
 
     def launch(self):
         """
@@ -592,7 +595,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 tile.view.raise_()  # Raise tiles in layer order
                 # Force update to ensure positioning is applied
                 tile.view.update()
-    
+
+        # Ensure agents are always above tiles (same as in SGGrid._updatePositionsForViewport)
+        for agent_type in self.getAgentTypes():
+            for agent in agent_type.entities:
+                if hasattr(agent, 'view') and agent.view:
+                    agent.view.raise_()
+
     def getTileTypes(self):
         """Get all tile types"""
         return list(self.tileTypes.values())

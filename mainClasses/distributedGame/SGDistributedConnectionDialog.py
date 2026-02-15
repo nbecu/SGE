@@ -1591,6 +1591,10 @@ class SGDistributedConnectionDialog(QDialog):
         self.seed_synced = True
         if seed is not None:
             self.synced_seed_value = seed  # Keep dialog in sync with recovery seed
+            # Seed random now so the script (after accept()) runs from the start of the session seed:
+            # Board, decks, shuffle, etc. use the same sequence as other instances at init.
+            import random
+            random.seed(seed)
         num_min = getattr(self.config, 'num_players_min', None) or (self.config.num_players if isinstance(self.config.num_players, int) else 1)
         num_max = getattr(self.config, 'num_players_max', None) or (self.config.num_players if isinstance(self.config.num_players, int) else 4)
         self.session_manager.publishPlayerRegistrationReconnect(
