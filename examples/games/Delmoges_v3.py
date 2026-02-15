@@ -45,10 +45,10 @@ EspècesHalieutiques=[Soles,Merlus]
 Navire.newAgentsOnCell(5,Port)
 
 Player1 = myModel.newPlayer("Pêcheur",attributesAndValues=None)
-Move1=myModel.newMoveAction(Navire, 'infinite')
+Move1=myModel.newMoveAction(Navire, 'infinite',action_controler={"directClick":True})
 Move1.addFeedback(lambda navire: navire.setValue("lastIncitationValue",navire.cell.value("incitation")))
 Player1.addGameAction(Move1)
-Create1=myModel.newCreateAction(Navire,uses_per_round=10)
+Create1=myModel.newCreateAction(Navire,uses_per_round=10,action_controler={"directClick":True})
 Create1.addCondition(lambda TargetCell: TargetCell.value("type")=="port")
 Player1.addGameAction(Create1)
 Player1ControlPanel = Player1.newControlPanel("Actions Pêcheur")

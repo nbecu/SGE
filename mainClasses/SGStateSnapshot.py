@@ -2,7 +2,7 @@
 SGStateSnapshot - World state serialization for recovery, backward/forward, and replay.
 
 Format: JSON with format_version, metadata, entities (agents, cells, tiles), players,
-simulation_variables. Players include dict_attributes and per-game-action data. Entity/player
+simulation_variables, text_boxes (SGTextBox text content, part of world state). Players include dict_attributes and per-game-action data. Entity/player
 history["value"]: not included when writing to disk (recovery/simulation); on restore we trim
 to (round, phase) <= current so graphs do not see "future" steps. For backward/redo stack,
 call build_snapshot_from_model(model, include_history_value=True) so snapshots carry
@@ -258,6 +258,26 @@ def build_snapshot_from_model(model, include_history_value=False):
                 "name": name,
                 "value": _attribute_value_to_json(value),
             })
+
+    # TextBoxes: text content is part of world state (can be updated at runtime)
+    try:
+        from mainClasses.SGTextBox import SGTextBox
+        text_boxes = []
+        for gs in getattr(model, "gameSpaces", {}).values():
+            if isinstance(gs, SGTextBox):
+                tb_id = getattr(gs, "id", None)
+                text = ""
+                if getattr(gs, "textWidget", None):
+                    text = gs.textWidget.toPlainText()
+                else:
+                    text = getattr(gs, "textToWrite", "") or ""
+                text_boxes.append({
+                    "id": _attribute_value_to_json(tb_id),
+                    "text": _attribute_value_to_json(text),
+                })
+        snapshot["text_boxes"] = text_boxes
+    except Exception:
+        snapshot["text_boxes"] = []
 
     return snapshot
 
@@ -558,6 +578,22 @@ def apply_snapshot_to_model(model, snapshot):
             if getattr(sim_var, "name", None) == name:
                 sim_var.setValue_silently(value)
                 break
+
+    # TextBoxes: restore text content (part of world state)
+    try:
+        from mainClasses.SGTextBox import SGTextBox
+        for tb_data in snapshot.get("text_boxes") or []:
+            tb_id = tb_data.get("id")
+            text = tb_data.get("text")
+            if tb_id is None:
+                continue
+            text = "" if text is None else str(text)
+            for gs in getattr(model, "gameSpaces", {}).values():
+                if isinstance(gs, SGTextBox) and getattr(gs, "id", None) == tb_id:
+                    gs.setText(text)
+                    break
+    except Exception:
+        pass
 
     # Time and current player
     time_mgr = model.timeManager
