@@ -30,7 +30,7 @@ Cell.setCell(5,4,"biomass", 2)
 
 # GlobalColor.
 Cell.newPov("biomass", "biomass", {
-               0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: QColorConstants.DarkGreen})
+               0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: Qt.darkGreen})
 Cell.newBorderPov("Parc info", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
@@ -45,7 +45,7 @@ Bird = myModel.newAgentType("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}
 
 Bird.setDefaultValue('nb reproduction',0)
 
-Chick = myModel.newAgentType("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
+Chick = myModel.newAgentType("Chick","triangleAgent2", defaultSize=5, defaultColor=Qt.magenta)
 
 myModel.newLegend()
 

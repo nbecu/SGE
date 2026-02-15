@@ -17,7 +17,7 @@ class SGEndGameRule(SGGameSpace):
                  endGameAnimationEnabled=False, endGameAnimationDuration=5):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.model = parent
-        self.id = title
+        self.assignId(title)
         self.displayRefresh = displayRefresh
         self.isDisplay = True
         # Configure styles using gs_aspect instead of individual attributes

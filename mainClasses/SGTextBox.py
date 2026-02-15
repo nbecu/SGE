@@ -36,9 +36,8 @@ class SGTextBox(SGGameSpace):
     def __init__(self, parent, textToWrite, title, width=None, height=None, shrinked=True,
                  borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left', chronologicalOrder=True):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
-        
+        self.assignId(title)
         self.title = title
-        self.id = title
         self.model = parent
         self.textToWrite = textToWrite
         self.chronologicalOrder = chronologicalOrder  # If True, addText() adds at bottom (chronological). If False, adds at top (reverse chronological).

@@ -9,8 +9,8 @@ from mainClasses.SGGameSpace import SGGameSpace
 class SGVoid(SGGameSpace):
     def __init__(self, parent, name, sizeX=200, sizeY=200):
         super().__init__(parent, 0, 0, 0, 0, False, Qt.transparent)
-        # Basic initialize
-        self.id = name
+        self.assignId(name)
+        self.name = name
         self.sizeX = sizeX
         self.sizeY = sizeY
 

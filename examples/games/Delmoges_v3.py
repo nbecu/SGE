@@ -185,6 +185,8 @@ Legend.moveToCoords(970,120)
 DashBoard.moveToCoords(20,330)
 DashBoard2.moveToCoords(700,330)
 
+myModel.enableRecoverySystem(True)
+
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
 sys.exit(monApp.exec_())

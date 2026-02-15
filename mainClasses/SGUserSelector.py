@@ -6,12 +6,12 @@ from sqlalchemy import true
 
 
 class SGUserSelector(SGGameSpace):
-    def __init__(self, parent, users, orientation='horizontal'):
+    def __init__(self, parent, users, orientation='horizontal', title='userSelector'):
         super().__init__(parent, 0, 60, 0, 0, true)
         self.model = parent
         self.users = users
         self.orientation = orientation  # 'horizontal' or 'vertical'
-        self.id = 'userSelector'
+        self.assignId(title)
         self.initUI()
 
     def initUI(self):

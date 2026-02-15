@@ -39,7 +39,7 @@ class SGProgressGauge(SGGameSpace):
         
         # Call SGGameSpace constructor with custom background color
         super().__init__(parent, 0, 60, 0, 0, True, backgroundColor)
-        
+        self.assignId(title)
         self.simVar = simVar
         self.title_text = title
         self.max_value = max_value

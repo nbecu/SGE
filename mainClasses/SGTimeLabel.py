@@ -15,7 +15,7 @@ class SGTimeLabel(SGGameSpace):
                  displayPhaseNumber=None,
                  displayPhaseName=None):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
-        self.id = title
+        self.assignId(title)
         self.timeManager = self.model.timeManager
         self.gs_aspect.border_color = borderColor
         self.setTitlesAndTextsColor(textColor)

@@ -16,9 +16,10 @@ class SGLegend(SGGameSpace):
         self.heightOfLabels= 20 #added for CarbonPolis
 
     #todo change to the normal way to initialize
-    def initialize(self, model, legendName,listOfSymbologies,alwaysDisplayDefaultAgentSymbology=False,borderColor=Qt.black):
-        self.id=legendName #todo should be removed as it is managed by the superclass
-        self.model=model
+    def initialize(self, model, legendName, listOfSymbologies, alwaysDisplayDefaultAgentSymbology=False, borderColor=Qt.black):
+        self.assignId(legendName)
+        self.legendName = legendName
+        self.model = model
         self.alwaysDisplayDefaultAgentSymbology=alwaysDisplayDefaultAgentSymbology
         self.legendItems={}
         # Configure border using gs_aspect instead of self.borderColor
@@ -37,7 +38,7 @@ class SGLegend(SGGameSpace):
         self.clearAllLegendItems()
         self.listOfSymbologies=listOfSymbologies
         self.posYOfItems = 0
-        anItem=SGLegendItem(self,'Title1',self.id)
+        anItem = SGLegendItem(self, 'Title1', self.legendName if getattr(self, 'legendName', None) is not None else self.id)
         self.legendItems.append(anItem)
         for type, aDictOfSymbology in self.listOfSymbologies.items():
             anItem=SGLegendItem(self,'Title2',type.name)
@@ -95,7 +96,7 @@ class SGLegend(SGGameSpace):
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         listOfLengths = [len(item.text) for item in self.legendItems]
-        listOfLengths.append(len(self.id))
+        listOfLengths.append(len(self.legendName if getattr(self, 'legendName', None) is not None else self.id))
         if len(listOfLengths)==0:
             return 250
         lMax= sorted(listOfLengths,reverse=True)[0]

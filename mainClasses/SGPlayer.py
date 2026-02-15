@@ -639,8 +639,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
             show_selection_border=show_selection_border,
             symbol_scale=symbol_scale
         )
-        self.model.gameSpaces[title] = self.controlPanel
-        
+        self.model.gameSpaces[title if title is not None else self.controlPanel.id] = self.controlPanel
+
         # Auto-configure visibility in distributed mode
         if self.model.isDistributed():
             self.controlPanel.setVisibilityForPlayers(self.name)

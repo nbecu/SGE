@@ -15,9 +15,9 @@ class SGDashBoard(SGGameSpace):
 
     def __init__(self, parent, title, borderColor, borderSize, backgroundColor, titleColor, layout):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
-        # self.id = title
+        self.assignId(title)
         self.indicators = []
-        self.textTitle  = title
+        self.textTitle = title
         self.displayTitle = self.textTitle is not None
         self.gs_aspect.border_color = borderColor
         self.gs_aspect.border_size = borderSize

@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QInputDialog
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QColor
 from collections import defaultdict
@@ -57,9 +57,9 @@ myModel.newButton((lambda: addGivenValue()),'add "x"',(70,350))
 
 
 def addGivenValue():
-    userDefinedValue = simpledialog.askinteger("Input", "Enter a value between -10 and 10:",  
-                                             minvalue=-10, maxvalue=10)
-    changeAll(userDefinedValue)
+    value, ok = QInputDialog.getInt(myModel, "Input", "Enter a value between -10 and 10:", value=0, min=-10, max=10)
+    if ok:
+        changeAll(value)
 
 
 def changeAll(delta):

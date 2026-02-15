@@ -40,7 +40,7 @@ class SGControlPanel(SGGameSpace):
         # Set control panel specific attributes
         self.isLegend = False
         self.isControlPanel = True
-        self.id = panelTitle
+        self.assignId(panelTitle)
         self.player = aPlayer
         self.playerName = self.player.name
         self.legendItems = []

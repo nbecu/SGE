@@ -26,7 +26,7 @@ Cell.setCell(5,4,"Resource", 2)
 
 # GlobalColor.
 Cell.newPov("Resource", "Resource", {
-               0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: QColorConstants.DarkGreen})
+               0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: Qt.darkGreen})
 Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 

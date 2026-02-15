@@ -77,7 +77,18 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             cls._nextId = 0
         cls._nextId += 1
         return f"{cls.__name__}#{cls._nextId}"
-               
+
+    def assignId(self, modeler_id):
+        """
+        Set id from modeler (e.g. title/name) or keep framework id if modeler_id is None.
+        Call after super().__init__() in subclasses that use a title/name as id.
+        Ensures id is never None so layout config export/import (JSON) works.
+        """
+        if modeler_id is not None:
+            self.id = modeler_id
+            self._qss_object_name = self.id.replace('#', '_')
+            self.setObjectName(self._qss_object_name)
+
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         pass

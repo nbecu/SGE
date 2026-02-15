@@ -12,7 +12,7 @@ class SGGrid(SGGameSpace):
         # Basic initialize
         self.zoom = 1
         self.model = parent
-        self.id = name
+        self.assignId(name)
         self.columns = columns
         self.rows = rows
         self.cellShape = cellShape
