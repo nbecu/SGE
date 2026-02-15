@@ -89,6 +89,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # Emitted when a recovery response is received (state, assigned_player_name, seed); use for thread-safe delivery to main thread
     recoveryResponseReceived = pyqtSignal(object, object, object, object, object)  # state, assigned_player_name, seed, rng_state, connected_players
 
+    # --- Navigation (outline) ---
+    # World state: __REPLAY_AND_SIMULATION_METHODS__, __RECOVERY_METHODS__, __UNDO_REDO_METHODS__, __SAVE_LOAD_STATE_METHODS__
+    # Export GameAction logs: __GAME_ACTION_LOGS_EXPORT_METHODS__
+    # Settings submenus (tooltips, enhanced grid, themes): __SETTINGS_SUBMENUS_METHODS__
+    # Graph, zoom, symbology: __GRAPH_ZOOM_AND_SYMBOLOGY_METHODS__
+    # Other sections: __INITIALIZATION_METHODS__, __UI_MANAGEMENT_METHODS__, __ENTITY_MANAGEMENT_METHODS__, etc.
+
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
     def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True,windowBackgroundColor=None):
@@ -198,6 +205,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         self.dataRecorder=SGDataRecorder(self)
 
+        # Backward/forward, replay, recovery (see WORLD STATE section: __UNDO_REDO_METHODS__, __REPLAY_AND_SIMULATION_METHODS__, __RECOVERY_METHODS__)
         # Backward/forward (undo/redo) stack: states after each game action or nextStep
         self._undo_stack = []  # list of snapshot dicts (include_history_value=True)
         self._redo_stack = []
@@ -313,7 +321,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def initBeforeShowing(self):
         """Initialize components that need to be ready before the window is shown"""
-        # Apply pending recovery state (Reconnect): snapshot was stored in connection dialog; apply now once script has built all entities
+        # Apply pending recovery state (Reconnect): snapshot was stored in connection dialog; apply now once script has built all entities (see __RECOVERY_METHODS__)
         if getattr(self, '_pending_recovery_state', None) is not None:
             state = self._pending_recovery_state
             self._pending_recovery_state = None
@@ -410,8 +418,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self._distributed_freeze_signals_connected = True
             self._updateDistributedFrozenState()
 
-        # Apply pending recovery RNG state at the end of init (Reconnect flow): script ran with seed from start,
-        # snapshot was applied in initBeforeShowing(); now sync random to same position as other instances.
+        # Apply pending recovery RNG state at the end of init (Reconnect flow); see __RECOVERY_METHODS__
         recovery_rng_state = getattr(self, '_pending_recovery_rng_state', None)
         if recovery_rng_state is not None:
             self._pending_recovery_rng_state = None
@@ -625,7 +632,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.timer.stop()
 
     def showEvent(self, event):
-        """On first show, offer to restore from recovery files if any (e.g. after a crash)."""
+        """On first show, offer to restore from recovery files if any (e.g. after a crash). See __RECOVERY_METHODS__."""
         super().showEvent(event)
         if getattr(self, "_recovery_offer_done", True):
             return
@@ -633,7 +640,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._offerRecoveryIfNeeded()
 
     def _offerRecoveryIfNeeded(self):
-        """If recovery files exist for this model, ask user to restore the last simulation.
+        """If recovery files exist for this model, ask user to restore the last simulation. (Part of __RECOVERY_METHODS__.)
         Skipped when distributed mode is enabled: after a crash the user should use
         'Reconnect to a session already started' to get state from other instances, not local files."""
         if self.isDistributed():
@@ -760,7 +767,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     else:
                         QMessageBox.warning(self, "Error", "Failed to save simulation.")
         
-        # On normal exit, remove recovery files so that next startup only offers restore if we actually crashed
+        # On normal exit, remove recovery files so that next startup only offers restore if we actually crashed (see __RECOVERY_METHODS__)
         self._clearRecoveryFilesForThisModel()
 
         # Disconnect from distributed session if in distributed mode
@@ -850,7 +857,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.keyword_borderSubmenu = ' border'
         self.createGraphMenu()
 
-        # Backward/forward (undo/redo) — between Graphs and Settings; use standard Qt icons
+        # Backward/forward (undo/redo) — between Graphs and Settings; implementation in __UNDO_REDO_METHODS__
         style = QApplication.style()
         self.backward = QAction(style.standardIcon(QStyle.SP_ArrowBack), " &backward", self)
         self.backward.triggered.connect(lambda: self.backwardAction(serverUpdate=True))
@@ -886,6 +893,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # WORLD STATE (SAVE / LOAD) METHODS - Item 49
     # ============================================================================
 
+    # ---------- REPLAY AND SIMULATION METHODS ----------
+    def __REPLAY_AND_SIMULATION_METHODS__(self): pass
+
     def createWorldStateMenu(self):
         """Create World state submenu in Settings menu (Save, Load, Save whole simulation, Replay)."""
         self.worldStateMenu = self.settingsMenu.addMenu("&World state")
@@ -915,6 +925,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.quitReplayAction.setEnabled(False)
         if hasattr(self, "updateWindowTitle"):
             self.updateWindowTitle()
+
+    # ---------- RECOVERY METHODS ----------
+    def __RECOVERY_METHODS__(self): pass
 
     def enableRecoverySystem(self, enabled=True):
         """Modeler API: enable or disable the recovery system (save state at each phase to _recovery_states)."""
@@ -1187,6 +1200,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         except Exception:
             pass
 
+    # ---------- SAVE/LOAD STATE METHODS ----------
+    def __SAVE_LOAD_STATE_METHODS__(self): pass
+
     def saveCurrentState(self):
         """Save current world state to a file (JSON or JSON.gz)."""
         from mainClasses.SGStateSnapshot import build_snapshot_from_model, write_snapshot_to_file
@@ -1221,6 +1237,81 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 "Save failed",
                 f"Failed to save state:\n{str(e)}"
             )
+
+    def refreshDisplayAfterStateLoad(self):
+        """
+        Refresh all game spaces whose display depends on model state (e.g. after load state or backward/redo).
+        Updates: TimeLabel (round/phase), DashBoard indicators, EndGameRule conditions, ProgressGauge (sim var value).
+        """
+        if getattr(self, "myTimeLabel", None) and hasattr(self.myTimeLabel, "updateTimeLabel"):
+            self.myTimeLabel.updateTimeLabel()
+        dashboards = self.getGameSpaceByClass(SGDashBoard)
+        for aDashBoard in dashboards:
+            for indicator in getattr(aDashBoard, "indicators", []) or []:
+                if hasattr(indicator, "updateText"):
+                    try:
+                        indicator.updateText()
+                    except Exception:
+                        pass
+            if hasattr(aDashBoard, "updateLabelsandWidgetSize"):
+                try:
+                    aDashBoard.updateLabelsandWidgetSize()
+                except Exception:
+                    pass
+            if hasattr(aDashBoard, "update"):
+                aDashBoard.update()
+        end_game_rules = self.getGameSpaceByClass(SGEndGameRule)
+        for rule in end_game_rules:
+            for condition in getattr(rule, "endGameConditions", []) or []:
+                if hasattr(condition, "updateText"):
+                    try:
+                        condition.updateText()
+                    except Exception:
+                        pass
+        progress_gauges = self.getGameSpaceByClass(SGProgressGauge)
+        for gauge in progress_gauges:
+            if hasattr(gauge, "checkAndUpdate"):
+                try:
+                    gauge.checkAndUpdate()
+                except Exception:
+                    pass
+
+    def loadStateAsInitialState(self):
+        """Load a world state from file and apply it as current state."""
+        from mainClasses.SGStateSnapshot import read_snapshot_from_file, apply_snapshot_to_model
+        file_filter = "JSON / Compressed JSON (*.json *.json.gz);;JSON (*.json);;Compressed (*.json.gz);;All Files (*)"
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load state as initial state",
+            "",
+            file_filter
+        )
+        if not filepath:
+            return
+        try:
+            snapshot = read_snapshot_from_file(filepath)
+            apply_snapshot_to_model(self, snapshot)
+            # Clear redo; optionally keep undo as-is or clear (chantier: load = new initial state, so we clear stacks)
+            if hasattr(self, "_undo_stack"):
+                self._undo_stack.clear()
+                self._redo_stack.clear()
+            self.update()
+            self.refreshDisplayAfterStateLoad()
+            self._updateBackwardForwardButtons()
+            QMessageBox.information(
+                self,
+                "State loaded",
+                f"State loaded from:\n{filepath}\n\nRound {snapshot.get('round', '?')}, Phase {snapshot.get('phase', '?')}."
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Load failed",
+                f"Failed to load state:\n{str(e)}"
+            )
+
+    # ---------- UNDO/REDO METHODS ----------
+    def __UNDO_REDO_METHODS__(self): pass
 
     def pushStateAfterEvent(self):
         """
@@ -1367,82 +1458,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 except Exception:
                     pass
 
-    def refreshDisplayAfterStateLoad(self):
-        """
-        Refresh all game spaces whose display depends on model state (e.g. after load state or backward/redo).
-        Updates: TimeLabel (round/phase), DashBoard indicators, EndGameRule conditions, ProgressGauge (sim var value).
-        """
-        if getattr(self, "myTimeLabel", None) and hasattr(self.myTimeLabel, "updateTimeLabel"):
-            self.myTimeLabel.updateTimeLabel()
-        dashboards = self.getGameSpaceByClass(SGDashBoard)
-        for aDashBoard in dashboards:
-            for indicator in getattr(aDashBoard, "indicators", []) or []:
-                if hasattr(indicator, "updateText"):
-                    try:
-                        indicator.updateText()
-                    except Exception:
-                        pass
-            if hasattr(aDashBoard, "updateLabelsandWidgetSize"):
-                try:
-                    aDashBoard.updateLabelsandWidgetSize()
-                except Exception:
-                    pass
-            if hasattr(aDashBoard, "update"):
-                aDashBoard.update()
-        end_game_rules = self.getGameSpaceByClass(SGEndGameRule)
-        for rule in end_game_rules:
-            for condition in getattr(rule, "endGameConditions", []) or []:
-                if hasattr(condition, "updateText"):
-                    try:
-                        condition.updateText()
-                    except Exception:
-                        pass
-        progress_gauges = self.getGameSpaceByClass(SGProgressGauge)
-        for gauge in progress_gauges:
-            if hasattr(gauge, "checkAndUpdate"):
-                try:
-                    gauge.checkAndUpdate()
-                except Exception:
-                    pass
-
-    def loadStateAsInitialState(self):
-        """Load a world state from file and apply it as current state."""
-        from mainClasses.SGStateSnapshot import read_snapshot_from_file, apply_snapshot_to_model
-        file_filter = "JSON / Compressed JSON (*.json *.json.gz);;JSON (*.json);;Compressed (*.json.gz);;All Files (*)"
-        filepath, _ = QFileDialog.getOpenFileName(
-            self,
-            "Load state as initial state",
-            "",
-            file_filter
-        )
-        if not filepath:
-            return
-        try:
-            snapshot = read_snapshot_from_file(filepath)
-            apply_snapshot_to_model(self, snapshot)
-            # Clear redo; optionally keep undo as-is or clear (chantier: load = new initial state, so we clear stacks)
-            if hasattr(self, "_undo_stack"):
-                self._undo_stack.clear()
-                self._redo_stack.clear()
-            self.update()
-            self.refreshDisplayAfterStateLoad()
-            self._updateBackwardForwardButtons()
-            QMessageBox.information(
-                self,
-                "State loaded",
-                f"State loaded from:\n{filepath}\n\nRound {snapshot.get('round', '?')}, Phase {snapshot.get('phase', '?')}."
-            )
-        except Exception as e:
-            QMessageBox.critical(
-                self,
-                "Load failed",
-                f"Failed to load state:\n{str(e)}"
-            )
-
     # ============================================================================
     # GAME ACTION LOGS EXPORT METHODS
     # ============================================================================
-    
+
+    def __GAME_ACTION_LOGS_EXPORT_METHODS__(self): pass
+
     def _getGameActionLogsData(self):
         """
         Collect all gameAction logs data from all players with detailed action information
@@ -1808,6 +1829,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     f"Failed to export GameAction logs:\n{str(e)}"
                 )
 
+    # ---------- SETTINGS SUBMENUS METHODS (tooltips, enhanced grid layout, themes) ----------
+    def __SETTINGS_SUBMENUS_METHODS__(self): pass
+
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
         # Only create menu if it doesn't exist yet (to avoid duplicates)
@@ -1874,6 +1898,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Recreate the menu
         self.createTooltipMenu()
 
+    # ---------- GRAPH, ZOOM AND SYMBOLOGY METHODS ----------
+    def __GRAPH_ZOOM_AND_SYMBOLOGY_METHODS__(self): pass
+
     def createGraphMenu(self):
         self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&openChooseGraph")
         # Submenu linear
@@ -1898,6 +1925,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.save = QAction(QIcon(f"{path_icon}/save.png"), " &save", self)
         self.save.setShortcut("Ctrl+s")
         self.save.triggered.connect(self.saveTheGame)
+        # backward/forward implementation: __UNDO_REDO_METHODS__
         self.backward = QAction(
             QIcon(f"{path_icon}/backwardArrow.png"), " &backward", self)
         self.backward.triggered.connect(lambda: self.backwardAction(serverUpdate=True))
