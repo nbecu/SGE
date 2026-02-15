@@ -1920,22 +1920,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         actionOtherDiagram.triggered.connect(self.openOtherGraph)
         self.chooseGraph.addAction(actionOtherDiagram)
 
-    # Create all the action related to the menu
-    def createAction(self):
-        self.save = QAction(QIcon(f"{path_icon}/save.png"), " &save", self)
-        self.save.setShortcut("Ctrl+s")
-        self.save.triggered.connect(self.saveTheGame)
-        # backward/forward implementation: __UNDO_REDO_METHODS__
-        self.backward = QAction(
-            QIcon(f"{path_icon}/backwardArrow.png"), " &backward", self)
-        self.backward.triggered.connect(lambda: self.backwardAction(serverUpdate=True))
-        self.forward = QAction(
-            QIcon(f"{path_icon}/forwardArrow.png"), " &forward", self)
-        self.forward.triggered.connect(lambda: self.forwardAction(serverUpdate=True))
-        self.inspect = QAction(
-            QIcon(f"{path_icon}/inspect.png"), " &inspectAll", self)
-        self.inspect.triggered.connect(self.inspectAll)
-
     # Zoom
     def zoomPlusModel(self):
         """
@@ -2239,11 +2223,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 'border': self.getCheckedSymbologyOfEntity(type.name, borderSymbology=True)
             }
         return selectedSymbologies
-
-    def checkFirstSymbologyOfEntitiesInMenu(self):
-        # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
-        for aListOfSubmenuItems in self.symbologiesInSubmenus.values():
-            aListOfSubmenuItems[0].setChecked(True)
 
     # ============================================================================
     # ENTITY MANAGEMENT METHODS
