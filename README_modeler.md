@@ -242,6 +242,7 @@ For complete documentation on distributed games, see:
 - **Call `launch()`** at the end of your script - Player selection happens automatically
 - **Handle cancellation** - `enableDistributedGame()` returns `None` if the user cancels
 - **Error handling** - Connection errors display user-friendly warning messages (in English) instead of crashing the application
+- **Recovery after crash (distributed)** - Call `enableRecoverySystem(True)` *before* `enableDistributedGame()` to enable "Reconnect to a session already started"; a crashed instance can rejoin and receive the current state from the others.
 
 ## Folder hierarchy
 - Examples

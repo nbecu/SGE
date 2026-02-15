@@ -156,13 +156,18 @@ def build_snapshot_from_model(model, include_history_value=False):
                 cell = getattr(agent, "cell", None)
                 cell_id = cell.getId() if cell and hasattr(cell, "getId") and callable(cell.getId) else None
                 x, y = cell.getCoords() if cell and hasattr(cell, "getCoords") and callable(cell.getCoords) else (None, None)
+                grid = getattr(cell, "grid", None) if cell else None
+                grid_id = _attribute_value_to_json(getattr(grid, "id", None) or getattr(grid, "name", None)) if grid else None
+                cell_type_name = _attribute_value_to_json(getattr(getattr(cell, "type", None), "name", None)) if cell else None
                 dict_attrs = getattr(agent, "dictAttributes", None) or {}
                 entry = {
                     "type_name": type_name,
                     "id": agent.id,
                     "cell_id": cell_id,
-                    "x": x,
-                    "y": y,
+                    "grid_id": grid_id,
+                    "cell_type_name": cell_type_name,
+                    "cell_x": x,
+                    "cell_y": y,
                     "dict_attributes": _entity_dict_attributes_to_json(dict_attrs),
                 }
                 if include_history_value:
@@ -179,6 +184,11 @@ def build_snapshot_from_model(model, include_history_value=False):
             try:
                 cell = getattr(tile, "cell", None)
                 cell_id = cell.getId() if cell and hasattr(cell, "getId") and callable(cell.getId) else None
+                grid = getattr(cell, "grid", None) if cell else None
+                grid_id = _attribute_value_to_json(getattr(grid, "id", None) or getattr(grid, "name", None)) if grid else None
+                cell_type_name = _attribute_value_to_json(getattr(getattr(cell, "type", None), "name", None)) if cell else None
+                cell_x = getattr(cell, "xCoord", None) if cell else None
+                cell_y = getattr(cell, "yCoord", None) if cell else None
                 face = getattr(tile, "face", "front")
                 stack_index = 0
                 if cell and hasattr(cell, "tiles"):
@@ -191,6 +201,10 @@ def build_snapshot_from_model(model, include_history_value=False):
                     "type_name": type_name,
                     "id": tile.id,
                     "cell_id": cell_id,
+                    "grid_id": grid_id,
+                    "cell_type_name": cell_type_name,
+                    "cell_x": cell_x,
+                    "cell_y": cell_y,
                     "face": face,
                     "stack_index": stack_index,
                     "dict_attributes": _entity_dict_attributes_to_json(dict_attrs),
@@ -342,12 +356,62 @@ def write_snapshots_array_to_file(snapshots_list, filepath):
 
 
 def _find_cell_by_id(model, cell_id):
-    """Return (cell, cell_type) for the cell with getId() == cell_id, or (None, None)."""
+    """Return (cell, cell_type) for the cell with getId() == cell_id, or (None, None).
+    Note: cell getId() is not unique across grids (same formula for different cell types). Prefer _find_cell_by_type_and_coords for restore."""
     for cell_type in model.cellTypes.values():
         for cell in cell_type.entities:
             if hasattr(cell, "getId") and callable(cell.getId) and cell.getId() == cell_id:
                 return cell, cell_type
     return None, None
+
+
+def _find_cell_by_grid_and_coords(model, grid_id, x, y):
+    """Return (cell, cell_type) for the cell on the grid with id/name grid_id at (x, y), or (None, None).
+    Uses the grid's id or name (SGGrid.id = name) so the correct grid is used (Board, River, Player1Board, etc.)."""
+    if not grid_id or x is None or y is None:
+        return None, None
+    for cell_type in model.cellTypes.values():
+        grid = getattr(cell_type, "grid", None)
+        if not grid:
+            continue
+        if getattr(grid, "id", None) == grid_id or getattr(grid, "name", None) == grid_id:
+            if hasattr(cell_type, "getCell"):
+                cell = cell_type.getCell(x, y)
+                if cell:
+                    return cell, cell_type
+            return None, None
+    return None, None
+
+
+def _find_cell_by_type_and_coords(model, cell_type_name, x, y):
+    """Return (cell, cell_type) for the cell of type cell_type_name at (x, y), or (None, None).
+    Use this for restore so tiles/agents are placed on the correct grid (Board vs River vs Player1Board etc.)."""
+    if not cell_type_name or x is None or y is None:
+        return None, None
+    try:
+        cell_type = model.getEntityType(cell_type_name)
+        if not cell_type or not hasattr(cell_type, "getCell"):
+            return None, None
+        cell = cell_type.getCell(x, y)
+        return (cell, cell_type) if cell else (None, None)
+    except Exception:
+        return None, None
+
+
+def _resolve_cell_for_restore(model, cell_id, cell_type_name=None, cell_x=None, cell_y=None, grid_id=None):
+    """Resolve target cell for snapshot restore. Prefer grid_id (grid name/id), then (cell_type_name, cell_x, cell_y), then cell_id."""
+    if grid_id is not None and cell_x is not None and cell_y is not None:
+        cell, _ = _find_cell_by_grid_and_coords(model, grid_id, cell_x, cell_y)
+        if cell is not None:
+            return cell
+    if cell_type_name is not None and cell_x is not None and cell_y is not None:
+        cell, _ = _find_cell_by_type_and_coords(model, cell_type_name, cell_x, cell_y)
+        if cell is not None:
+            return cell
+    if cell_id is not None:
+        cell, _ = _find_cell_by_id(model, cell_id)
+        return cell
+    return None
 
 
 def _get_first_cell(model):
@@ -384,7 +448,10 @@ def _create_agent_from_snapshot(model, agent_data):
         return None
     if not agent_type or not getattr(agent_type, "isAgentType", True):
         return None
-    target_cell, _ = _find_cell_by_id(model, cell_id) if cell_id is not None else (None, None)
+    target_cell = _resolve_cell_for_restore(
+        model, agent_data.get("cell_id"), agent_data.get("cell_type_name"),
+        agent_data.get("cell_x"), agent_data.get("cell_y"), agent_data.get("grid_id"),
+    )
     create_cell = target_cell if target_cell is not None else _get_first_cell(model)
     if create_cell is None:
         return None
@@ -428,7 +495,10 @@ def _create_tile_from_snapshot(model, tile_data):
         return None
     if not tile_type:
         return None
-    cell, _ = _find_cell_by_id(model, cell_id) if cell_id is not None else (None, None)
+    cell = _resolve_cell_for_restore(
+        model, cell_id, tile_data.get("cell_type_name"),
+        tile_data.get("cell_x"), tile_data.get("cell_y"), tile_data.get("grid_id"),
+    )
     if cell is None:
         cell = _get_first_cell(model)
     if cell is None:
@@ -439,7 +509,7 @@ def _create_tile_from_snapshot(model, tile_data):
     tile.id = eid
     tile.privateID = tile_type.name + str(eid)
     tile_type.IDincr = max(getattr(tile_type, "IDincr", 0), eid + 1)
-    if cell_id and cell and getattr(tile, "cell", None) != cell:
+    if cell and getattr(tile, "cell", None) != cell:
         tile.moveTo(cell)
     if getattr(tile, "face", None) != face and hasattr(tile, "setFace"):
         tile.setFace(face)
@@ -596,7 +666,10 @@ def apply_snapshot_to_model(model, snapshot):
                 agent = _create_agent_from_snapshot(model, agent_data)
                 if agent is None:
                     continue
-            cell, _ = _find_cell_by_id(model, cell_id)
+            cell = _resolve_cell_for_restore(
+                model, cell_id, agent_data.get("cell_type_name"),
+                agent_data.get("cell_x"), agent_data.get("cell_y"), agent_data.get("grid_id"),
+            )
             if cell and getattr(agent, "cell", None) != cell:
                 agent.moveTo(cell)
                 if hasattr(agent, "view") and agent.view:
@@ -646,7 +719,10 @@ def apply_snapshot_to_model(model, snapshot):
                 tile = _create_tile_from_snapshot(model, tile_data)
                 if tile is None:
                     continue
-            cell, _ = _find_cell_by_id(model, cell_id)
+            cell = _resolve_cell_for_restore(
+                model, cell_id, tile_data.get("cell_type_name"),
+                tile_data.get("cell_x"), tile_data.get("cell_y"), tile_data.get("grid_id"),
+            )
             if cell and getattr(tile, "cell", None) != cell:
                 tile.moveTo(cell)
                 if hasattr(tile, "view") and tile.view:

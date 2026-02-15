@@ -25,6 +25,10 @@ monApp = QtWidgets.QApplication([])
 
 myModel = SGModel(1100, 820, windowTitle="Step backward and recovery example")
 
+# Recovery must be enabled BEFORE enableDistributedGame so the connection dialog
+# shows "Reconnect to a session already started".
+myModel.enableRecoverySystem(True)
+
 myModel.enableDistributedGame(2)
 myModel.applyLayoutConfig('basic1')
 
@@ -160,8 +164,7 @@ endGameRule.displayEndGameConditions()
 
 # Auto-save whole simulation when the window is closed (user is asked to confirm)
 # myModel.enableAutoSaveSimulationOnClose(confirm=True)
-# Recovery: save state to disk at each phase (_recovery_states/) so it can be restored after a crash
-myModel.enableRecoverySystem(True)
+# Recovery already enabled above (before enableDistributedGame) for Reconnect option in connection dialog.
 
 
 # STEP7 TextBox

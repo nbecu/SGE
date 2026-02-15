@@ -86,6 +86,8 @@ path_icon = str(Path(__file__).parent.parent / 'icon')
 
 # Mother class of all the SGE System
 class SGModel(QMainWindow, SGEventHandlerGuide):
+    # Emitted when a recovery response is received (state, assigned_player_name, seed); use for thread-safe delivery to main thread
+    recoveryResponseReceived = pyqtSignal(object, object, object, object, object)  # state, assigned_player_name, seed, rng_state, connected_players
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
@@ -213,6 +215,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._simulation_snapshots_max = SGE_PARAMETERS.get("simulation_snapshots_max", 10000)
         # Replay mode: when True, backward/forward navigate _replay_snapshots; play and game actions disabled
         self._replay_mode = False
+        self._distributed_game_frozen = False  # True when a player disconnected and freeze_game_on_player_disconnect is True
         self._replay_snapshots = []
         self._replay_index = -1
         # Auto-save whole simulation: on window close (None=off, or dict with "confirm": bool), on end game (bool)
@@ -236,6 +239,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._pending_theme_config = None
         # Store pending layout configuration to apply after initBeforeShowing
         self._pending_layout_config = None
+        # Store pending recovery state (Reconnect flow): apply in initBeforeShowing() once model entities exist
+        self._pending_recovery_state = None
+        self._pending_recovery_assigned_player_name = None
+        self._pending_recovery_seed = None  # Synced seed to apply so reconnecting instance matches others
 
         self.initUI()
 
@@ -305,6 +312,46 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def initBeforeShowing(self):
         """Initialize components that need to be ready before the window is shown"""
+        # Apply pending recovery state (Reconnect): snapshot was stored in connection dialog; apply now once script has built all entities
+        if getattr(self, '_pending_recovery_state', None) is not None:
+            state = self._pending_recovery_state
+            self._pending_recovery_state = None
+            assigned_name = getattr(self, '_pending_recovery_assigned_player_name', None)
+            self._pending_recovery_assigned_player_name = None
+            recovery_seed = getattr(self, '_pending_recovery_seed', None)
+            self._pending_recovery_seed = None
+            recovery_rng_state = getattr(self, '_pending_recovery_rng_state', None)
+            self._pending_recovery_rng_state = None
+            try:
+                from mainClasses.SGStateSnapshot import apply_snapshot_to_model
+                apply_snapshot_to_model(self, state)
+                if assigned_name and self.isDistributed() and hasattr(self, 'distributedConfig'):
+                    self.distributedConfig.assigned_player_name = assigned_name
+                # Restore RNG so reconnecting instance has same random sequence and position as other instances
+                import random
+                if recovery_rng_state is not None:
+                    def _list_to_tuple(s):
+                        return tuple(_list_to_tuple(x) for x in s) if isinstance(s, list) else s
+                    random.setstate(_list_to_tuple(recovery_rng_state))
+                elif recovery_seed is not None:
+                    random.seed(recovery_seed)
+                if recovery_seed is not None and self.isDistributed() and hasattr(self, 'distributedConfig'):
+                    self.distributedConfig.shared_seed = recovery_seed
+                # Refresh TimeLabel, dashboards, end-game rules, etc. so UI matches restored state
+                if hasattr(self, 'refreshDisplayAfterStateLoad'):
+                    self.refreshDisplayAfterStateLoad()
+                if hasattr(self, 'updateWindowTitle'):
+                    self.updateWindowTitle()
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                if hasattr(self, 'distributedConfig'):
+                    QMessageBox.critical(
+                        None,
+                        "Recovery error",
+                        f"Failed to apply recovered state: {e}"
+                    )
+
         # Initialize tooltip menu with all entity definitions
         self.updateTooltipMenu()
         # Ensure cursor position display state is synchronized with menu action
@@ -362,6 +409,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         QApplication.processEvents()
         self.positionAllAgents()
         self.positionAllTiles()
+        # Connect distributed freeze signals once (when in distributed mode)
+        if (self.isDistributed() and getattr(self, 'distributedSessionManager', None) and
+                not getattr(self, '_distributed_freeze_signals_connected', False)):
+            self.distributedSessionManager.playerDisconnected.connect(self._onDistributedPlayerDisconnected)
+            self.distributedSessionManager.playerConnected.connect(self._onDistributedPlayerConnected)
+            self._distributed_freeze_signals_connected = True
+            self._updateDistributedFrozenState()
 
     def launch(self):
         """
@@ -570,7 +624,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._offerRecoveryIfNeeded()
 
     def _offerRecoveryIfNeeded(self):
-        """If recovery files exist for this model, ask user to restore the last simulation."""
+        """If recovery files exist for this model, ask user to restore the last simulation.
+        Skipped when distributed mode is enabled: after a crash the user should use
+        'Reconnect to a session already started' to get state from other instances, not local files."""
+        if self.isDistributed():
+            return
         try:
             dirpath = self._getRecoveryDirectory()
             file_prefix = self._getRecoveryFilePrefix() + "_"
@@ -791,6 +849,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.forward = QAction(style.standardIcon(QStyle.SP_ArrowForward), " &forward", self)
         self.forward.triggered.connect(lambda: self.forwardAction(serverUpdate=True))
         self.menuBar().addAction(self.forward)
+        self.resumeWithoutWaitingAction = QAction("Resume without waiting", self)
+        self.resumeWithoutWaitingAction.triggered.connect(self._onResumeWithoutWaiting)
+        self.resumeWithoutWaitingAction.setVisible(False)
+        self.menuBar().addAction(self.resumeWithoutWaitingAction)
         self._updateBackwardForwardButtons()  # initially disabled (no state on stack yet)
 
         self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
@@ -956,6 +1018,59 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 f"Failed to load simulation:\n{str(e)}"
             )
 
+    def _onDistributedPlayerDisconnected(self, player_name):
+        """When a player disconnects in distributed mode, freeze game if configured."""
+        if not self.isDistributed() or not getattr(self, 'distributedConfig', None):
+            return
+        if getattr(self.distributedConfig, 'freeze_game_on_player_disconnect', True):
+            self._distributed_game_frozen = True
+            self._updateDistributedFrozenState()
+            if hasattr(self, 'resumeWithoutWaitingAction'):
+                self.resumeWithoutWaitingAction.setVisible(
+                    getattr(self.distributedConfig, 'allow_resume_without_disconnected_player', False)
+                )
+        self._refreshConnectionStatusWidget()
+
+    def _onDistributedPlayerConnected(self, player_name):
+        """When a player reconnects, unfreeze game."""
+        self._distributed_game_frozen = False
+        self._updateDistributedFrozenState()
+        if hasattr(self, 'resumeWithoutWaitingAction'):
+            self.resumeWithoutWaitingAction.setVisible(False)
+        self._refreshConnectionStatusWidget()
+
+    def _refreshConnectionStatusWidget(self):
+        """Force Connection Status window to refresh so it matches session_manager.connected_players."""
+        w = getattr(self, 'connectionStatusWidget', None)
+        if w is not None and hasattr(w, 'updateConnectionStatus'):
+            w.updateConnectionStatus()
+
+    def _onResumeWithoutWaiting(self):
+        """Resume game despite disconnected player (if modeler allowed)."""
+        if not self.isDistributed() or not getattr(self, 'distributedConfig', None):
+            return
+        if not getattr(self.distributedConfig, 'allow_resume_without_disconnected_player', False):
+            return
+        self._distributed_game_frozen = False
+        self._updateDistributedFrozenState()
+        if hasattr(self, 'resumeWithoutWaitingAction'):
+            self.resumeWithoutWaitingAction.setVisible(False)
+
+    def _updateDistributedFrozenState(self):
+        """Enable or disable next step and control panels based on _distributed_game_frozen and replay mode."""
+        frozen = getattr(self, '_distributed_game_frozen', False)
+        replay = getattr(self, '_replay_mode', False)
+        # When frozen or in replay, disable next step and control panels (for non-Admin)
+        disable_play = frozen or replay
+        if hasattr(self, "nextStepAction"):
+            self.nextStepAction.setEnabled(not disable_play)
+        for panel in getattr(self, "getControlPanels", lambda: [])() or []:
+            try:
+                active = not disable_play and getattr(panel, "playerName", None) == getattr(self, "currentPlayerName", None)
+                panel.setActivation(active)
+            except Exception:
+                pass
+
     def _setReplayMode(self, on):
         """Enable (on=True) or disable (on=False) replay mode UI: disable play and control panels."""
         self._replay_mode = bool(on)
@@ -973,6 +1088,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self._replay_index = -1
             if hasattr(self, "updateWindowTitle"):
                 self.updateWindowTitle()
+        self._updateDistributedFrozenState()
 
     def _updateReplayTitle(self):
         """Update window title to show replay step index."""
@@ -3088,7 +3204,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                              broker_port=1883,
                              additional_brokers=None,
                              mqtt_update_type="Instantaneous",
-                             seed_sync_timeout=1.0):
+                             seed_sync_timeout=1.0,
+                             freeze_game_on_player_disconnect=True,
+                             allow_resume_without_disconnected_player=False):
         """
         Enable distributed multiplayer game mode.
         Opens minimal dialog for user to connect to broker and synchronize seed.
@@ -3111,6 +3229,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed 
                 before becoming leader (default: 1.0). Increase this value if you need more time 
                 to detect an existing seed from other instances.
+            freeze_game_on_player_disconnect (bool): When True (default), freeze the game if a player 
+                disconnects until they reconnect. When False, the game continues.
+            allow_resume_without_disconnected_player (bool): When True, show "Resume without waiting" 
+                in the menu when the game is frozen so players can continue without the disconnected one (default: False).
         
         Returns:
             SGDistributedGameConfig or None: Configuration object if distributed mode enabled,
@@ -3123,6 +3245,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         config.broker_port = broker_port
         config.mqtt_update_type = mqtt_update_type
         config.seed_sync_timeout = seed_sync_timeout
+        config.freeze_game_on_player_disconnect = freeze_game_on_player_disconnect
+        config.allow_resume_without_disconnected_player = allow_resume_without_disconnected_player
 
         broker_entries = [{"name": "main", "host": broker_host, "port": broker_port}]
         if additional_brokers:
@@ -3185,10 +3309,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         config = self.distributedConfig
         session_manager = self.distributedSessionManager
         
-        # CRITICAL: If assigned_player_name is already set, setup is already complete
+        # CRITICAL: If assigned_player_name is already set, setup is already complete (e.g. after Reconnect recovery)
         # This prevents the dialog from opening again when launch() is called after connection dialog closes
         if config.assigned_player_name:
-            # Distributed game setup already complete, skipping dialog
+            # Still show connection status widget so user can see connected players
+            from mainClasses.distributedGame.SGConnectionStatusWidget import SGConnectionStatusWidget
+            connection_widget = SGConnectionStatusWidget(None, self, config, session_manager)
+            connection_widget.show()
+            self.connectionStatusWidget = connection_widget
             return True
         
         # Open dialog for user to select player

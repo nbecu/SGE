@@ -53,6 +53,12 @@ class SGDistributedSessionManager(QObject):
         self.mqtt_manager = mqtt_manager  # Reference to SGMQTTManager
         self.session_id = None
         self.connected_players = {}  # {player_name: client_id}
+        self.disconnected_players = {}  # {client_id: player_name} for recovery (reconnecting instance gets assigned_player_name)
+        # Liveness: detect crashed/killed instances (no disconnect message)
+        self._player_last_seen = {}  # client_id -> timestamp (last registration or heartbeat received)
+        self._player_liveness_timer = None
+        self._registration_republish_timer = None
+        self._registration_republish_params = None  # (session_id, assigned_player_name, num_players_min, num_players_max)
         self.seed_received = False
         self.synced_seed = None
         self.is_leader = False  # True if this instance generated the seed
@@ -111,6 +117,55 @@ class SGDistributedSessionManager(QObject):
         """
         session_topics = cls.getSessionTopics(session_id)
         return topic in session_topics
+    
+    def processRegistrationOrDisconnectMessage(self, msg):
+        """
+        Process a single MQTT message for session_player_registration or session_player_disconnect.
+        Used when the message is delivered via MQTT manager (e.g. so re-registration after recovery
+        updates Connection Status even if the session manager's handler is not first in the chain).
+        """
+        if not self.session_id:
+            return
+        session_topics = self.getSessionTopics(self.session_id)
+        registration_topic_base = session_topics[0]
+        disconnect_topic_base = session_topics[2]
+        if msg.topic.startswith(registration_topic_base):
+            try:
+                payload_str = msg.payload.decode("utf-8")
+                if not payload_str or payload_str.strip() == "":
+                    return
+                msg_dict = json.loads(payload_str)
+                player_name = msg_dict.get('assigned_player_name')
+                client_id = msg_dict.get('clientId')
+                if player_name and client_id:
+                    self.connected_players[player_name] = client_id
+                    for cid, pname in list(self.disconnected_players.items()):
+                        if pname == player_name:
+                            del self.disconnected_players[cid]
+                            break
+                    self._player_last_seen[client_id] = time.time()
+                    if client_id != self.mqtt_manager.clientId:
+                        self.playerConnected.emit(player_name)
+            except Exception as e:
+                print(f"Error processing player registration message: {e}")
+                import traceback
+                traceback.print_exc()
+        elif msg.topic.startswith(disconnect_topic_base):
+            try:
+                msg_dict = json.loads(msg.payload.decode("utf-8"))
+                player_name = msg_dict.get('assigned_player_name')
+                client_id = msg_dict.get('clientId')
+                if player_name and client_id:
+                    self.disconnected_players[client_id] = player_name
+                    if player_name in self.connected_players:
+                        del self.connected_players[player_name]
+                    self._player_last_seen.pop(client_id, None)
+                    if client_id != self.mqtt_manager.clientId:
+                        self.playerDisconnected.emit(player_name)
+            except Exception as e:
+                print(f"Error processing player disconnect message: {e}")
+                import traceback
+                traceback.print_exc()
     
     def registerPlayer(self, session_id, assigned_player_name, num_players_min, num_players_max):
         """
@@ -175,6 +230,13 @@ class SGDistributedSessionManager(QObject):
                     if player_name and client_id:
                         # Update connected players cache
                         self.connected_players[player_name] = client_id
+                        # Reconnecting instance re-registering: clear old client_id from disconnected_players
+                        for cid, pname in list(self.disconnected_players.items()):
+                            if pname == player_name:
+                                del self.disconnected_players[cid]
+                                break
+                        # Liveness: mark this instance as seen (handles crash/kill detection)
+                        self._player_last_seen[client_id] = time.time()
                         # Emit signal if not our own registration
                         if client_id != self.mqtt_manager.clientId:
                             self.playerConnected.emit(player_name)
@@ -190,12 +252,14 @@ class SGDistributedSessionManager(QObject):
                     client_id = msg_dict.get('clientId')
                     
                     if player_name and client_id:
-                        # Remove from connected players cache
+                        # Remember for recovery: reconnecting instance can be told its assigned_player_name
+                        self.disconnected_players[client_id] = player_name
+                        # Remove from connected players cache and liveness
                         if player_name in self.connected_players:
                             del self.connected_players[player_name]
-                            # Emit signal if not our own disconnection
-                            if client_id != self.mqtt_manager.clientId:
-                                self.playerDisconnected.emit(player_name)
+                        self._player_last_seen.pop(client_id, None)
+                        if client_id != self.mqtt_manager.clientId:
+                            self.playerDisconnected.emit(player_name)
                 except Exception as e:
                     print(f"Error processing player disconnect message: {e}")
                 # CRITICAL: Forward disconnect messages to original handler
@@ -242,7 +306,46 @@ class SGDistributedSessionManager(QObject):
         
         # Add self to connected players cache
         self.connected_players[assigned_player_name] = self.mqtt_manager.clientId
+        self._player_last_seen[self.mqtt_manager.clientId] = time.time()
         
+        # Start registration republish (heartbeat) so others detect us as alive; and liveness check for crashed instances
+        self._registration_republish_params = (session_id, assigned_player_name, num_players_min, num_players_max)
+        self._startRegistrationRepublish()
+        self._startPlayerLivenessCheck()
+        
+        return True
+    
+    def publishPlayerRegistrationReconnect(self, session_id, assigned_player_name, num_players_min, num_players_max):
+        """
+        Publish player registration after recovery (reconnecting instance).
+        Subscribes to registration/disconnect topics so we receive other instances' heartbeats
+        (otherwise liveness would prune them after HEARTBEAT_TIMEOUT since we never see their messages).
+        """
+        if not self.mqtt_manager.client or not self.mqtt_manager.client.is_connected():
+            return False
+        self.session_id = session_id
+        session_topics = self.getSessionTopics(session_id)
+        registration_topic_base = session_topics[0]
+        registration_topic_wildcard = f"{registration_topic_base}/+"
+        registration_topic_own = f"{registration_topic_base}/{assigned_player_name}"
+        disconnect_topic_base = session_topics[2]
+        disconnect_topic_wildcard = f"{disconnect_topic_base}/+"
+        self.disconnect_topic_own = f"{disconnect_topic_base}/{assigned_player_name}"
+        self.mqtt_manager.client.subscribe(registration_topic_wildcard)
+        self.mqtt_manager.client.subscribe(disconnect_topic_wildcard)
+        msg = {
+            'clientId': self.mqtt_manager.clientId,
+            'assigned_player_name': assigned_player_name,
+            'num_players_min': num_players_min,
+            'num_players_max': num_players_max,
+            'timestamp': datetime.now().isoformat()
+        }
+        self.mqtt_manager.client.publish(registration_topic_own, json.dumps(msg), qos=1, retain=False)
+        self.connected_players[assigned_player_name] = self.mqtt_manager.clientId
+        self._player_last_seen[self.mqtt_manager.clientId] = time.time()
+        self._registration_republish_params = (session_id, assigned_player_name, num_players_min, num_players_max)
+        self._startRegistrationRepublish()
+        self._startPlayerLivenessCheck()
         return True
     
     def syncSeed(self, session_id, shared_seed=None, timeout=2, initial_wait=1.0, client_id_callback=None):
@@ -557,6 +660,78 @@ class SGDistributedSessionManager(QObject):
         self.seed_sync_republish_timer = QTimer(self.model)
         self.seed_sync_republish_timer.timeout.connect(republish_seed_sync)
         self.seed_sync_republish_timer.start(3000)  # Republish every 3 seconds
+    
+    # Liveness: heartbeat republish and detection of crashed/killed instances (no disconnect message)
+    _HEARTBEAT_TIMEOUT = 15   # seconds without registration/heartbeat -> consider player dead
+    _HEARTBEAT_INTERVAL = 5   # republish our registration every 5s
+    _LIVENESS_CHECK_INTERVAL = 5  # check for dead players every 5s
+    
+    def _startRegistrationRepublish(self):
+        """Republish our registration periodically so other instances see us as alive (detect crash/kill when it stops)."""
+        if self._registration_republish_timer:
+            self._registration_republish_timer.stop()
+        if not self._registration_republish_params:
+            return
+        session_id, assigned_player_name, num_players_min, num_players_max = self._registration_republish_params
+        session_topics = self.getSessionTopics(session_id)
+        registration_topic_own = f"{session_topics[0]}/{assigned_player_name}"
+        
+        def republish():
+            if not (self.mqtt_manager.client and self.mqtt_manager.client.is_connected()):
+                return
+            if not self._registration_republish_params:
+                return
+            _, pname, nmin, nmax = self._registration_republish_params
+            msg = {
+                'clientId': self.mqtt_manager.clientId,
+                'assigned_player_name': pname,
+                'num_players_min': nmin,
+                'num_players_max': nmax,
+                'timestamp': datetime.now().isoformat()
+            }
+            self.mqtt_manager.client.publish(registration_topic_own, json.dumps(msg), qos=1, retain=False)
+        
+        self._registration_republish_timer = QTimer(self.model)
+        self._registration_republish_timer.timeout.connect(republish)
+        self._registration_republish_timer.start(self._HEARTBEAT_INTERVAL * 1000)
+    
+    def _stopRegistrationRepublish(self):
+        if self._registration_republish_timer:
+            self._registration_republish_timer.stop()
+            self._registration_republish_timer = None
+        self._registration_republish_params = None
+    
+    def _startPlayerLivenessCheck(self):
+        """Periodically prune players we haven't seen (registration/heartbeat) for HEARTBEAT_TIMEOUT seconds (crash/kill)."""
+        if self._player_liveness_timer:
+            self._player_liveness_timer.stop()
+        
+        def check():
+            if not self.connected_players:
+                return
+            now = time.time()
+            dead = []
+            for player_name, client_id in list(self.connected_players.items()):
+                if client_id == self.mqtt_manager.clientId:
+                    continue
+                last = self._player_last_seen.get(client_id, 0)
+                if now - last > self._HEARTBEAT_TIMEOUT:
+                    dead.append((player_name, client_id))
+            for player_name, client_id in dead:
+                del self.connected_players[player_name]
+                self._player_last_seen.pop(client_id, None)
+                self.disconnected_players[client_id] = player_name
+                self.playerDisconnected.emit(player_name)
+        
+        self._player_liveness_timer = QTimer(self.model)
+        self._player_liveness_timer.timeout.connect(check)
+        self._player_liveness_timer.start(self._LIVENESS_CHECK_INTERVAL * 1000)
+    
+    def _stopPlayerLivenessCheck(self):
+        if self._player_liveness_timer:
+            self._player_liveness_timer.stop()
+            self._player_liveness_timer = None
+        self._player_last_seen.clear()
     
     def stopSeedSyncRepublishing(self):
         """Stop republishing seed sync messages"""
@@ -891,6 +1066,43 @@ class SGDistributedSessionManager(QObject):
         """
         return list(self.connected_players.keys())
     
+    def getDisconnectedPlayerName(self, client_id):
+        """
+        Get the assigned player name for a disconnected client (for recovery response).
+        Returns None if unknown.
+        """
+        return self.disconnected_players.get(client_id)
+    
+    def popOneDisconnectedPlayerForRecovery(self):
+        """
+        For recovery: when a new instance (new client_id) reconnects, assign it to one of the
+        disconnected player slots. Pops and returns (player_name, old_client_id) or (None, None).
+        """
+        if not self.disconnected_players:
+            return None, None
+        # Pop one entry (any) so this slot is assigned to the reconnecting instance
+        old_client_id, player_name = self.disconnected_players.popitem()
+        return player_name, old_client_id
+    
+    def popOneStalePlayerForRecovery(self, threshold_seconds=10):
+        """
+        For recovery when reconnecting before liveness has pruned (15s): if a connected player
+        has not been seen (heartbeat) for threshold_seconds, treat them as dead and assign
+        that slot to the reconnecting instance. Pops from connected_players, adds to
+        disconnected_players, returns (player_name, old_client_id) or (None, None).
+        """
+        now = time.time()
+        for player_name, client_id in list(self.connected_players.items()):
+            if client_id == self.mqtt_manager.clientId:
+                continue
+            last = self._player_last_seen.get(client_id, 0)
+            if now - last > threshold_seconds:
+                del self.connected_players[player_name]
+                self._player_last_seen.pop(client_id, None)
+                self.disconnected_players[client_id] = player_name
+                return player_name, client_id
+        return None, None
+    
     def isPlayerNameAvailable(self, session_id, player_name):
         """
         Check if a player name is available (not already connected).
@@ -1118,6 +1330,10 @@ class SGDistributedSessionManager(QObject):
                 serialized_msg = json.dumps(disconnect_msg)
                 # Publish disconnect message with retain=False (one-time message)
                 self.mqtt_manager.client.publish(self.disconnect_topic_own, serialized_msg, qos=1, retain=False)
+        
+        # Stop registration republish and liveness check
+        self._stopRegistrationRepublish()
+        self._stopPlayerLivenessCheck()
         
         # Restore original handler if it was changed
         if self._original_on_message and self.mqtt_manager.client:

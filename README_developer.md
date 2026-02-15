@@ -466,6 +466,8 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 For more information about SGE usage and modeling, see `README_modeler.md`.
 
+The **state recording and recovery** features include: world state format and snapshots (SGStateSnapshot), automatic recording at each phase and recovery at startup (`enableRecoverySystem`), menu Save/Load state and Save whole simulation, backward/forward (undo/redo, synced via MQTT in distributed mode), replay of saved simulations, and distributed recovery ("Reconnect to a session already started", topic `game_recovery`).
+
 ---
 
 ## 11. Architecture Diagnostic

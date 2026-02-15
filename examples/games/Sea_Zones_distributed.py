@@ -14,6 +14,10 @@ myModel.displayTimeInWindowTitle()
 # ============================================================================
 # Distributed Game Configuration - MUST BE CALLED BEFORE ANY RANDOM OPERATIONS
 # ============================================================================
+# Enable recovery system so that "Reconnect to a session already started" is shown
+# in the connection dialog (allows rejoining after crash/kill).
+myModel.enableRecoverySystem(True)
+
 # Enable distributed multiplayer game mode
 # This will:
 # 1. Open dialog to connect to MQTT broker and synchronize seed

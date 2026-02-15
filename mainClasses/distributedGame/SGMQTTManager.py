@@ -22,7 +22,8 @@ class SGMQTTManager:
     
     # Centralized list of game topics (base names without prefixes)
     # step_navigation: one topic for both backward and forward; payload has 'direction': 'backward'|'forward'
-    GAME_TOPICS = ['gameAction_performed', 'nextTurn', 'execute_method', 'step_navigation']
+    # recovery: single topic for request/response; payload has 'type': 'request'|'response', request_id, etc.
+    GAME_TOPICS = ['gameAction_performed', 'nextTurn', 'execute_method', 'step_navigation', 'recovery']
     
     def __init__(self, model):
         """
@@ -39,6 +40,11 @@ class SGMQTTManager:
         self.majTimer = None
         self.haveToBeClose = False
         self.actionsFromBrokerToBeExecuted = []
+        self._recovery_response_callback = None  # One-shot callback (state, assigned_player_name, seed, rng_state) for reconnecting instance
+    
+    def setRecoveryResponseCallback(self, callback):
+        """Register callback for recovery response (used by connection dialog when reconnecting)."""
+        self._recovery_response_callback = callback
     
     @classmethod
     def getGameTopics(cls, session_id=None):
@@ -106,9 +112,9 @@ class SGMQTTManager:
             
             # Check if this is a game topic using centralized method
             if self.isGameTopic(msg.topic, self.session_id):
-                unserializedMsg= json.loads(msg_decoded)
-                if unserializedMsg['clientId']== self.clientId:
-                    # Own update, no action required
+                unserializedMsg = json.loads(msg_decoded)
+                # Skip processing only for our own messages (some payloads e.g. recovery response have no 'clientId')
+                if unserializedMsg.get('clientId') == self.clientId:
                     pass
                 else:
                     # Determine which game topic this is
@@ -121,10 +127,16 @@ class SGMQTTManager:
                         self.processBrokerMsg_nextTrun(unserializedMsg)
                     elif msg.topic == game_topics[3] or msg.topic.endswith('game_step_navigation'):
                         self.processBrokerMsg_step_navigation(unserializedMsg)
+                    elif msg.topic == game_topics[4] or msg.topic.endswith('game_recovery'):
+                        self.processBrokerMsg_recovery(unserializedMsg)
                 return
-            # Not a game topic - ignore silently (could be session topic or other message type)
-            # Session topics are handled by SGDistributedSessionManager
-            # Other unknown topics are ignored   
+            # Session registration/disconnect: forward so Connection Status updates after reconnect
+            if self.session_id and ('session_player_registration' in msg.topic or 'session_player_disconnect' in msg.topic):
+                if msg.topic.startswith(self.session_id + "/"):
+                    session_manager = getattr(self.model, 'distributedSessionManager', None)
+                    if session_manager:
+                        session_manager.processRegistrationOrDisconnectMessage(msg)
+            # Other unknown topics are ignored
 
         self.connect_mqtt()
 
@@ -257,6 +269,96 @@ class SGMQTTManager:
         if direction not in ('backward', 'forward'):
             direction = 'backward'
         self.actionsFromBrokerToBeExecuted.append({'action_type': direction})
+
+    def processBrokerMsg_recovery(self, msg):
+        """
+        Handle recovery topic: request (we're in game, respond with state + assigned_player_name)
+        or response (we're reconnecting, apply state and call callback).
+        """
+        msg_type = msg.get('type')
+        if msg_type == 'request':
+            req_client_id = msg.get('clientId')
+            request_id = msg.get('request_id')
+            if req_client_id == self.clientId or not request_id:
+                return
+            session_manager = getattr(self.model, 'distributedSessionManager', None)
+            if not session_manager:
+                return
+            # Same client_id reconnecting (e.g. network blip): use existing slot
+            assigned_name = session_manager.getDisconnectedPlayerName(req_client_id)
+            if not assigned_name:
+                # New process (new client_id) reconnecting after crash/kill: assign one disconnected slot
+                assigned_name, _ = session_manager.popOneDisconnectedPlayerForRecovery()
+            if not assigned_name:
+                # Fallback: liveness may not have run yet (15s); assign any player slot not in connected_players
+                all_player_names = [n for n in getattr(self.model, 'players', {}).keys() if n != 'Admin']
+                available = [n for n in all_player_names if n not in session_manager.connected_players]
+                if available:
+                    assigned_name = available[0]
+            if not assigned_name:
+                # Fallback: reconnect before 15s prune; assign a "stale" slot (no heartbeat for 10s)
+                assigned_name, _ = session_manager.popOneStalePlayerForRecovery(threshold_seconds=10)
+            if not assigned_name:
+                return
+            try:
+                from mainClasses.SGStateSnapshot import build_snapshot_from_model
+                state = build_snapshot_from_model(self.model, include_history_value=True)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                return
+            game_topics = self.getGameTopics(self.session_id)
+            recovery_topic = game_topics[4]
+            # Include synced seed so reconnecting instance can display it; include full RNG state so B is in sync with A (same number of draws)
+            seed = getattr(session_manager, 'synced_seed_value', None) or getattr(session_manager, 'synced_seed', None)
+            import random
+            rng_state = random.getstate()
+            def _rng_state_to_json(s):
+                if isinstance(s, tuple):
+                    return [_rng_state_to_json(x) for x in s]
+                return s
+            # So reconnecting instance can show other players as Connected in its Connection Status
+            connected_players = dict(getattr(session_manager, 'connected_players', None) or {})
+            response = {
+                'type': 'response',
+                'request_id': request_id,
+                'target_client_id': req_client_id,
+                'assigned_player_name': assigned_name,
+                'state': state,
+                'seed': seed,
+                'rng_state': _rng_state_to_json(rng_state),
+                'connected_players': connected_players
+            }
+            if self.client:
+                self.client.publish(recovery_topic, json.dumps(response), qos=1)
+        elif msg_type == 'response':
+            target = msg.get('target_client_id')
+            state = msg.get('state')
+            assigned_player_name = msg.get('assigned_player_name')
+            cb = self._recovery_response_callback
+            if target != self.clientId:
+                return
+            if not cb or state is None:
+                return
+            self._recovery_response_callback = None
+            seed = msg.get('seed')
+            rng_state = msg.get('rng_state')  # Full RNG state so B matches A's random draw count
+            connected_players = msg.get('connected_players') or {}  # So B can show others as Connected in Connection Status
+            # Emit via model signal so the slot runs in the main thread (QTimer.singleShot from MQTT thread was not always processed)
+            if hasattr(self.model, 'recoveryResponseReceived'):
+                self.model.recoveryResponseReceived.emit(state, assigned_player_name, seed, rng_state, connected_players)
+            else:
+                QTimer.singleShot(0, lambda: cb(state, assigned_player_name, seed, rng_state, connected_players))
+
+    def publishRecoveryRequest(self):
+        """Publish a recovery request on game_recovery topic (reconnecting instance)."""
+        game_topics = self.getGameTopics(self.session_id)
+        recovery_topic = game_topics[4]
+        request_id = uuid.uuid4().hex
+        msg = {'type': 'request', 'clientId': self.clientId, 'request_id': request_id}
+        if self.client:
+            self.client.publish(recovery_topic, json.dumps(msg), qos=1)
+        return request_id
 
     def buildExeMsgAndPublishToBroker(self,*args):
         """

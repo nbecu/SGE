@@ -34,6 +34,8 @@ class SGDistributedGameConfig:
         self.seed_sync_timeout = 1.0  # float: Timeout in seconds to wait for existing seed before becoming leader
         self.is_session_creator = False  # bool: True if this instance created the session
         self.connected_instances_count = 0  # int: Number of connected instances
+        self.freeze_game_on_player_disconnect = True  # bool: When True, freeze game if a player disconnects
+        self.allow_resume_without_disconnected_player = False  # bool: When True, show "Resume without waiting" when frozen
 
     def set_broker_servers(self, broker_servers):
         """

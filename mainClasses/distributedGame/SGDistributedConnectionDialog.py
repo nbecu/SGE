@@ -139,7 +139,7 @@ class SGDistributedConnectionDialog(QDialog):
         title_label.setFont(title_font)
         layout.addWidget(title_label)
         
-        # Mode selection (Create new session vs Join existing)
+        # Mode selection (Create new session vs Join existing vs Reconnect to session in progress)
         mode_group = QGroupBox("Connection Mode")
         mode_layout = QVBoxLayout()
         
@@ -151,6 +151,14 @@ class SGDistributedConnectionDialog(QDialog):
         self.join_existing_radio = QRadioButton("Join existing session")
         self.join_existing_radio.toggled.connect(self._onModeChanged)
         mode_layout.addWidget(self.join_existing_radio)
+        
+        # Reconnect mode: only visible when recovery system is enabled (enableRecoverySystem(True))
+        self._recovery_enabled = getattr(self.model, 'recoveryAtPhase', False)
+        self.reconnect_radio = QRadioButton("Reconnect to a session already started")
+        self.reconnect_radio.toggled.connect(self._onModeChanged)
+        mode_layout.addWidget(self.reconnect_radio)
+        if not self._recovery_enabled:
+            self.reconnect_radio.hide()
         
         mode_group.setLayout(mode_layout)
         layout.addWidget(mode_group)
@@ -169,12 +177,12 @@ class SGDistributedConnectionDialog(QDialog):
         title_row = QHBoxLayout()
         title_row.setContentsMargins(0, 0, 0, 5)  # Small margin at bottom
         
-        # Title label (styled like QGroupBox title)
-        title_label = QLabel("Available Sessions")
+        # Title label (styled like QGroupBox title; updated in Reconnect mode)
+        self.sessions_list_title_label = QLabel("Available Sessions")
         title_font = QFont()
         title_font.setBold(True)
-        title_label.setFont(title_font)
-        title_row.addWidget(title_label)
+        self.sessions_list_title_label.setFont(title_font)
+        title_row.addWidget(self.sessions_list_title_label)
         title_row.addStretch()
         
         # Refresh button (discrete, icon only, placed on the right of title)
@@ -492,10 +500,10 @@ class SGDistributedConnectionDialog(QDialog):
         # Instead, we track instances via seed sync messages
     
     def _onModeChanged(self):
-        """Handle mode selection change (create new vs join existing)"""
+        """Handle mode selection change (create new vs join existing vs reconnect)"""
         # Prevent multiple calls during radio button toggle
-        if not (self.create_new_radio.isChecked() or self.join_existing_radio.isChecked()):
-            return  # Neither is checked, ignore (during toggle)
+        if not (self.create_new_radio.isChecked() or self.join_existing_radio.isChecked() or self.reconnect_radio.isChecked()):
+            return  # None checked, ignore (during toggle)
         
         if self.create_new_radio.isChecked():
             # Create new session mode
@@ -534,12 +542,54 @@ class SGDistributedConnectionDialog(QDialog):
             
             # Enable Connect button in create mode
             self.connect_button.setEnabled(True)
+            self.connect_button.setText("Connect")
             self.connect_button.show()
             
             # Adjust window height only (preserve width)
             current_width = self.width()
             self.adjustSize()
             self.resize(current_width, self.height())
+        elif self.reconnect_radio.isChecked():
+            # Reconnect to session already started (recovery)
+            self.config.is_session_creator = False
+            self.sessions_group.show()
+            self.session_id_edit.setEnabled(False)
+            self.session_group.hide()
+            self._selected_session_id = None
+            self.session_state = None
+            self.connected_instances_label.setText("Instances: No instances connected yet")
+            self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
+            if self.session_state_creator_check_timer:
+                self.session_state_creator_check_timer.stop()
+                self.session_state_creator_check_timer = None
+            self.connect_button.setEnabled(False)
+            self.connect_button.setText("Reconnect")
+            self.connect_button.show()
+            self.info_label.setText("Select a session in progress, then click Reconnect to recover and rejoin.")
+            # Update sessions list title for reconnect mode
+            if hasattr(self, 'sessions_list_title_label'):
+                self.sessions_list_title_label.setText("Sessions in progress")
+            # Connect to broker if not already connected, so we can discover sessions in progress
+            if (self.model.mqttManager.client and self.model.mqttManager.client.is_connected()):
+                self._startSessionDiscovery()
+                self._updateSessionsList()
+            else:
+                # Not connected - automatically connect to broker (same as Join mode) to enable discovery
+                if not self.config.session_id:
+                    temp_id = self.config.generate_session_id()
+                    self._temporary_session_id = temp_id
+                    self.session_id_edit.setText(temp_id)
+                    self.config.session_id = temp_id
+                else:
+                    self._temporary_session_id = self.config.session_id
+                self.sessions_list.clear()
+                placeholder_item = QListWidgetItem("Connecting to broker to discover sessions in progress...")
+                placeholder_item.setForeground(QColor("gray"))
+                self.sessions_list.addItem(placeholder_item)
+                self._should_start_discovery_on_connect = True
+                if not self._connection_in_progress:
+                    self._updateState(self.STATE_CONNECTING)
+                    self._connectToBroker()
         else:
             # Join existing session mode
             self.config.is_session_creator = False
@@ -565,7 +615,12 @@ class SGDistributedConnectionDialog(QDialog):
             
             # Disable Connect button until a session is selected
             self.connect_button.setEnabled(False)
+            self.connect_button.setText("Connect")
             self.connect_button.show()
+            
+            # Update sessions list title for join mode
+            if hasattr(self, 'sessions_list_title_label'):
+                self.sessions_list_title_label.setText("Available Sessions")
             
             # Start session discovery if already connected
             if (self.model.mqttManager.client and 
@@ -729,8 +784,12 @@ class SGDistributedConnectionDialog(QDialog):
         except RuntimeError:
             return
 
+    def _isReconnectMode(self):
+        """Return True if Reconnect to session already started mode is selected."""
+        return getattr(self, 'reconnect_radio', None) and self.reconnect_radio.isChecked()
+
     def _updateSessionsList(self):
-        """Update the sessions list widget with discovered sessions"""
+        """Update the sessions list widget with discovered sessions (Join) or sessions in progress (Reconnect)."""
         # Guard: do not touch widgets if dialog/widget tree was already destroyed (e.g. deferred callback after close)
         try:
             if not getattr(self, "sessions_list", None):
@@ -738,18 +797,44 @@ class SGDistributedConnectionDialog(QDialog):
             self.sessions_list.count()  # access C++ object; raises RuntimeError if deleted
         except RuntimeError:
             return
-        # Preserve currently selected session_id before clearing
         selected_session_id = self._selected_session_id
-
         self.sessions_list.clear()
-        
+
+        # Reconnect mode: show only started sessions from session_states_cache
+        if self._isReconnectMode():
+            started_sessions = [(sid, s) for sid, s in self.session_states_cache.items() if s and s.is_started()]
+            if not started_sessions:
+                placeholder_item = QListWidgetItem("No sessions in progress")
+                placeholder_item.setForeground(QColor("gray"))
+                self.sessions_list.addItem(placeholder_item)
+                return
+            selected_item = None
+            def _sort_key(sid_session):
+                _, s = sid_session
+                lu = getattr(s, 'last_updated', None)
+                return lu.timestamp() if lu and hasattr(lu, 'timestamp') else 0
+            for session_id, session_state in sorted(started_sessions, key=_sort_key, reverse=True):
+                model_name = session_state.model_name or "Unknown"
+                num_instances = session_state.get_num_connected()
+                num_max = session_state.num_players_max or "?"
+                display_text = f"{model_name} (In progress — {num_instances}/{num_max} instances)"
+                item = QListWidgetItem(display_text)
+                item.setData(Qt.UserRole, session_id)
+                self.sessions_list.addItem(item)
+                if session_id == selected_session_id:
+                    selected_item = item
+            if selected_item:
+                selected_item.setSelected(True)
+                self.sessions_list.setCurrentItem(selected_item)
+            return
+
+        # Join mode: show joinable sessions from available_sessions
         if not self.available_sessions:
             placeholder_item = QListWidgetItem("No sessions available")
             placeholder_item.setForeground(QColor("gray"))
             self.sessions_list.addItem(placeholder_item)
             return
         
-        # Sort sessions by timestamp (most recent first)
         sorted_sessions = sorted(
             self.available_sessions.items(),
             key=lambda x: x[1]['timestamp'],
@@ -882,14 +967,20 @@ class SGDistributedConnectionDialog(QDialog):
         """Handle single click on a session in the list - selects the session"""
         session_id = item.data(Qt.UserRole)
         if session_id:
-            # CRITICAL: Check if session is joinable
             session_state = self.session_states_cache.get(session_id)
-            if session_state and not session_state.is_joinable():
-                # Session is not joinable (closed or started) - don't allow selection
-                self._selected_session_id = None
-                self.connect_button.setEnabled(False)
-                self.info_label.setText(f"Session {session_id[:8]}... is closed and cannot be joined.")
-                return
+            if not self._isReconnectMode():
+                # Join mode: only allow joinable sessions
+                if session_state and not session_state.is_joinable():
+                    self._selected_session_id = None
+                    self.connect_button.setEnabled(False)
+                    self.info_label.setText(f"Session {session_id[:8]}... is closed and cannot be joined.")
+                    return
+            else:
+                # Reconnect mode: only allow started sessions
+                if not session_state or not session_state.is_started():
+                    self._selected_session_id = None
+                    self.connect_button.setEnabled(False)
+                    return
             
             self._selected_session_id = session_id
             self.session_id_edit.setText(session_id)
@@ -899,16 +990,15 @@ class SGDistributedConnectionDialog(QDialog):
             # In join mode, Session ID group remains hidden (not needed for joining)
             # The session ID is stored internally but not displayed to the user
             
-            # Enable Connect button if not already connected
-            if not (self.model.mqttManager.client and 
-                    self.model.mqttManager.client.is_connected()):
-                self.connect_button.setEnabled(True)
+            # Enable Connect/Reconnect button
+            self.connect_button.setEnabled(True)
+            if self._isReconnectMode():
+                self.info_label.setText(f"Session selected. Click 'Reconnect' to recover and rejoin.")
+            elif not (self.model.mqttManager.client and self.model.mqttManager.client.is_connected()):
                 self.info_label.setText(f"Session selected: {session_id}\nClick 'Connect' to join this session.")
             else:
-                # Already connected - enable Connect button so user can control when to sync seed
                 self.config.session_id = session_id
                 self._temporary_session_id = None
-                self.connect_button.setEnabled(True)
                 self.info_label.setText(f"Session selected: {session_id}\nClick 'Connect' to synchronize seed and join this session.")
     
     def _onSessionDoubleClicked(self, item):
@@ -1351,6 +1441,25 @@ class SGDistributedConnectionDialog(QDialog):
         self.connect_button.setEnabled(False)
         QApplication.processEvents()  # Force UI update
         
+        # Reconnect mode: require session selected, then start reconnect/recovery flow
+        if self.reconnect_radio.isChecked():
+            if not self._selected_session_id:
+                QMessageBox.warning(self, "No Session Selected", "Please select a session in progress from the list by clicking on it.")
+                self.connect_button.setEnabled(True)
+                return
+            self.config.session_id = self._selected_session_id
+            self._temporary_session_id = None
+            self.session_id_edit.setText(self.config.session_id)
+            if (self.model.mqttManager.client and self.model.mqttManager.client.is_connected()):
+                self.connection_status = "Connected to broker"
+                self.status_label.setText(f"Connection Status: [●] {self.connection_status}")
+                self.status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px; color: #155724;")
+                self._updateState(self.STATE_CONNECTING)
+                self._startReconnectFlow()
+                return
+            self._updateState(self.STATE_CONNECTING)
+            self._connectToBroker()
+            return
         # In join mode, check if a session has been selected
         if self.join_existing_radio.isChecked():
             # Use selected session_id if available, otherwise get from edit field
@@ -1364,6 +1473,7 @@ class SGDistributedConnectionDialog(QDialog):
                 session_id = self.session_id_edit.text().strip()
                 if not session_id or session_id == self._temporary_session_id:
                     QMessageBox.warning(self, "No Session Selected", "Please select a session from the list by clicking on it.")
+                    self.connect_button.setEnabled(True)
                     return
                 self.config.session_id = session_id
             
@@ -1396,6 +1506,98 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Connect to broker
         self._connectToBroker()
+    
+    def _startReconnectFlow(self):
+        """
+        Start reconnect/recovery flow: set session, subscribe to topics, request last world state
+        via MQTT, then on response apply state and re-register as player.
+        """
+        if not self.config.session_id or not self.model.mqttManager.client:
+            self.connect_button.setEnabled(True)
+            return
+        # Store instance count for selected session so script creates the right number of entities (e.g. Player1Board..PlayerNBoard)
+        session_state = self.session_states_cache.get(self.config.session_id)
+        self._reconnect_instances_count = session_state.get_num_connected() if session_state else None
+        self.model.mqttManager.session_id = self.config.session_id
+        self.model.mqttManager.ensureSubscribedToGameTopics(session_id=self.config.session_id)
+        self._subscribeToSessionStateUpdates()
+        self.info_label.setText("Requesting recovery from other instances...")
+        QApplication.processEvents()
+        self.model.mqttManager.setRecoveryResponseCallback(self._onRecoveryResponse)
+        # Connect to model signal so we get the response in the main thread (emit from MQTT thread is queued)
+        if getattr(self, '_recovery_signal_connected', False):
+            self.model.recoveryResponseReceived.disconnect(self._onRecoveryResponse)
+            self._recovery_signal_connected = False
+        self.model.recoveryResponseReceived.connect(self._onRecoveryResponse)
+        self._recovery_signal_connected = True
+        # Short delay so subscription to game_recovery is active before we publish (broker may be async)
+        QTimer.singleShot(300, self._doPublishRecoveryRequest)
+    
+    def _doPublishRecoveryRequest(self):
+        """Publish recovery request and start timeout (called after short delay so subscription is active)."""
+        if getattr(self.model.mqttManager, '_recovery_response_callback', None) is None:
+            return  # User cancelled or callback already cleared
+        self.model.mqttManager.publishRecoveryRequest()
+        self._recovery_timeout_timer = QTimer(self)
+        self._recovery_timeout_timer.setSingleShot(True)
+        self._recovery_timeout_timer.timeout.connect(self._onRecoveryTimeout)
+        self._recovery_timeout_timer.start(15000)
+
+    def _onRecoveryTimeout(self):
+        """Called when no recovery response received within timeout."""
+        self.model.mqttManager.setRecoveryResponseCallback(None)
+        self._recovery_timeout_timer = None
+        self.connect_button.setEnabled(True)
+        QMessageBox.warning(
+            self,
+            "Reconnect timeout",
+            "No response from other instances. You can try again or start a new session."
+        )
+
+    def _onRecoveryResponse(self, state, assigned_player_name, seed=None, rng_state=None, connected_players=None):
+        """Called when recovery response received: store state, seed and RNG state for later apply in initBeforeShowing(); merge other players into session_manager so Connection Status shows them as Connected; re-register, accept dialog."""
+        if getattr(self, '_recovery_signal_connected', False):
+            try:
+                self.model.recoveryResponseReceived.disconnect(self._onRecoveryResponse)
+            except Exception:
+                pass
+            self._recovery_signal_connected = False
+        if getattr(self, '_recovery_timeout_timer', None):
+            self._recovery_timeout_timer.stop()
+            self._recovery_timeout_timer = None
+        self.model.mqttManager.setRecoveryResponseCallback(None)
+        # Defer apply to initBeforeShowing() so the model has all entities (grids, cells, etc.) built by the script
+        self.model._pending_recovery_state = state
+        self.model._pending_recovery_assigned_player_name = assigned_player_name or self.config.assigned_player_name
+        self.model._pending_recovery_seed = seed  # Fallback if rng_state not provided
+        self.model._pending_recovery_rng_state = rng_state  # Full RNG state so B has same draw count as A
+        self.config.assigned_player_name = assigned_player_name or self.config.assigned_player_name
+        # Merge other instances' connected_players so B's Connection Status shows them as Connected (B didn't receive their registration while offline)
+        if connected_players and isinstance(connected_players, dict):
+            import time
+            our_name = self.config.assigned_player_name
+            for player_name, client_id in connected_players.items():
+                if player_name != our_name:
+                    self.session_manager.connected_players[player_name] = client_id
+                    self.session_manager._player_last_seen[client_id] = time.time()
+        # Use instance count from the session we selected in "Sessions in progress" (e.g. 3 instances)
+        # so getConnectedInstancesCount() returns the right value and the script creates Player1Board..PlayerNBoard.
+        num_from_session = getattr(self, '_reconnect_instances_count', None)
+        if num_from_session is not None and isinstance(num_from_session, int) and num_from_session >= 0:
+            self.config.connected_instances_count = num_from_session
+        elif connected_players and isinstance(connected_players, dict):
+            self.config.connected_instances_count = len(connected_players)
+        # Allow accept() to close: Reconnect flow skips seed sync, so set seed_synced to pass the check
+        self.seed_synced = True
+        if seed is not None:
+            self.synced_seed_value = seed  # Keep dialog in sync with recovery seed
+        num_min = getattr(self.config, 'num_players_min', None) or (self.config.num_players if isinstance(self.config.num_players, int) else 1)
+        num_max = getattr(self.config, 'num_players_max', None) or (self.config.num_players if isinstance(self.config.num_players, int) else 4)
+        self.session_manager.publishPlayerRegistrationReconnect(
+            self.config.session_id, self.config.assigned_player_name, num_min, num_max
+        )
+        self.connect_button.setEnabled(True)
+        self.accept()
     
     def _connectToBroker(self):
         """Connect to MQTT broker by calling setMQTTProtocol()"""
@@ -1524,6 +1726,13 @@ class SGDistributedConnectionDialog(QDialog):
             self.status_label.setText(f"Connection Status: [●] {self.connection_status}")
             self.status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px; color: #155724;")
             
+            # If in reconnect mode, only start discovery so the list of "sessions in progress" is filled.
+            # Do NOT call _startReconnectFlow() here: that runs when user selects a session and clicks Reconnect.
+            if self.reconnect_radio.isChecked():
+                if not self.session_manager.session_discovery_handler:
+                    self._startSessionDiscovery()
+                self._should_start_discovery_on_connect = False
+                return
             # If in join mode, start session discovery FIRST (before seed sync)
             # This allows user to see available sessions immediately after connection
             if self.join_existing_radio.isChecked():
@@ -2906,37 +3115,38 @@ class SGDistributedConnectionDialog(QDialog):
             QMessageBox.warning(self, "Not Connected", "Please connect to the broker first.")
             return
         
-        # Validate number of instances
-        # Phase 2: Use session_state as single source of truth (same logic as _updateConnectedInstances)
-        if self.session_state:
-            # Use session_state.connected_instances as source of truth
-            num_instances = self.session_state.get_num_connected()
-        else:
-            # Fallback to old method if session_state not available yet
-            # Use snapshot if dialog is READY to ensure consistent counting
-            if self.connected_instances_snapshot is not None:
-                num_instances = len(self.connected_instances_snapshot)
+        # Validate number of instances (skip when closing after Reconnect: no session_state/ready_instances)
+        if getattr(self.model, '_pending_recovery_state', None) is None:
+            # Phase 2: Use session_state as single source of truth (same logic as _updateConnectedInstances)
+            if self.session_state:
+                # Use session_state.connected_instances as source of truth
+                num_instances = self.session_state.get_num_connected()
             else:
-                # Fallback to ready_instances (instances that have completed seed sync and subscribed to game_start)
-                num_instances = len(self.ready_instances)
-        
-        # Check minimum requirement (for manual start)
-        if isinstance(self.config.num_players, int):
-            min_required = self.config.num_players
-        else:
-            min_required = self.config.num_players_min
-        
-        if num_instances < min_required:
-            reply = QMessageBox.question(
-                self,
-                "Insufficient Instances",
-                f"Only {num_instances} instance(s) connected, but {min_required} required.\n"
-                "Do you want to continue anyway?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
-            )
-            if reply == QMessageBox.No:
-                return
+                # Fallback to old method if session_state not available yet
+                # Use snapshot if dialog is READY to ensure consistent counting
+                if self.connected_instances_snapshot is not None:
+                    num_instances = len(self.connected_instances_snapshot)
+                else:
+                    # Fallback to ready_instances (instances that have completed seed sync and subscribed to game_start)
+                    num_instances = len(self.ready_instances)
+            
+            # Check minimum requirement (for manual start)
+            if isinstance(self.config.num_players, int):
+                min_required = self.config.num_players
+            else:
+                min_required = self.config.num_players_min
+            
+            if num_instances < min_required:
+                reply = QMessageBox.question(
+                    self,
+                    "Insufficient Instances",
+                    f"Only {num_instances} instance(s) connected, but {min_required} required.\n"
+                    "Do you want to continue anyway?",
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.No
+                )
+                if reply == QMessageBox.No:
+                    return
         
         # Stop countdown if running
         if self.auto_start_timer:
