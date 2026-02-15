@@ -20,7 +20,7 @@ Ce fichier documente l'?tat actuel du d?veloppement SGE, les probl?mes en cours,
 
 ### F?vrier 2025 - Enregistrement d'?tat et recovery (TERMIN?)
 - **Statut** : Termin?
-- **Description** : Enregistrement d'?tat (snapshots SGStateSnapshot), recovery au d?marrage et en mode distribu?, backward/forward (undo/redo synchronis?s MQTT), replay de sessions enregistr?es, menu Save/Load state. En distribu? : option « Reconnect to a session already started » (topic `game_recovery`), ?tat + seed + RNG + connected_players, gel/d?gel sur d?connexion/reconnexion, Connection Status ? jour.
+- **Description** : Enregistrement d'?tat (snapshots SGStateSnapshot), recovery au d?marrage et en mode distribu?, backward/forward (undo/redo synchronis?s MQTT), replay de sessions enregistr?es, menu Save/Load state. Snapshot format includes SGTextBox text content (key `text_boxes`) as part of world state. En distribu? : option « Reconnect to a session already started » (topic `game_recovery`), ?tat + seed + RNG + connected_players, gel/d?gel sur d?connexion/reconnexion, Connection Status ? jour.
 - **Fichiers concern?s** : `mainClasses/SGStateSnapshot.py`, `mainClasses/SGModel.py`, `mainClasses/distributedGame/SGMQTTManager.py`, `mainClasses/distributedGame/SGDistributedSessionManager.py`, `mainClasses/distributedGame/SGDistributedConnectionDialog.py`, `mainClasses/distributedGame/SGConnectionStatusWidget.py`, `examples/syntax_examples/ex_stepback_and_recovery.py`, `README_developer.md`, `README_modeler.md`
 
 ### Janvier 2025 - Corrections menu Settings et synchronisation Cursor Position (TERMIN?)
