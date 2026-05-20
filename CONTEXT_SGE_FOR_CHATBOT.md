@@ -350,7 +350,62 @@ class SGAgent(SGEntity):
 
 **RÈGLE** : Respecter cette structure exacte dans toutes les classes SGE.
 
-## 8. Règles critiques pour chatbots
+## 8. Couleurs et utilitaires SGExtensions
+
+### SGColors — couleurs nommées
+SGE fournit la classe `SGColors` (~80 couleurs) comme alternative explicite au monkey-patching Qt :
+
+```python
+from mainClasses.SGSGE import *   # SGColors est exporté automatiquement
+
+agent.setColor(SGColors.orange)   # préféré — source connue, auto-complétable
+agent.setColor(Qt.orange)         # fonctionne aussi (rétro-compatibilité maintenue)
+```
+
+Couleurs disponibles par groupe : `pink`, `orange`, `cyan`, `teal`, `amber`, `violet`, `indigo` / `lightblue`, `darkblue`, `navy`, `royalblue`, `steelblue`, `skyblue` / `crimson`, `darkred`, `coral`, `salmon`, `maroon` / `darkgreen`, `forestgreen`, `olive`, `limegreen` / `gold`, `darkorange`, `khaki`, `goldenrod` / `purple`, `lavender`, `orchid`, `plum` / `lightgray`, `silver`, `dimgray`, `gainsboro` / `saddlebrown`, `sienna`, `chocolate`, `tan`...
+
+### getAllGameSpaces() — itérer tous les gameSpaces
+`self.gameSpaces` (dict) et `self.TextBoxes` (list) sont deux collections séparées.
+Pour itérer sur **tous** les gameSpaces sans en oublier, utiliser :
+
+```python
+for gs in model.getAllGameSpaces():   # ← réunit gameSpaces + TextBoxes
+    gs.applyTheme('modern')
+```
+
+**Ne jamais** itérer directement `model.gameSpaces.values()` si l'opération doit aussi toucher les TextBoxes.
+
+### clearHistory() — gérer la mémoire en simulation longue
+
+`history["value"]` dans `AttributeAndValueFunctionalities` grandit indéfiniment à chaque `setValue()`.
+Pour les simulations longues, purger périodiquement :
+
+```python
+# Vider tout l'historique
+cell.clearHistory()
+
+# Garder seulement les rounds >= 10 (purger les anciens)
+cell.clearHistory(before_round=10)
+
+# Appel typique en début de round pour ne garder que les N derniers rounds
+for cell in cellDef.entities:
+    cell.clearHistory(before_round=model.roundNumber() - 20)
+```
+
+### Imports dans SGModel.py — règle explicite
+
+Les imports dans `mainClasses/SGModel.py` sont **toujours explicites** :
+```python
+# CORRECT
+from mainClasses.SGAgent import SGAgent
+from mainClasses.SGEntityType import SGEntityType, SGAgentType, SGCellType, SGTileType
+
+# INTERDIT dans SGModel.py
+from mainClasses.SGAgent import *
+```
+Ne jamais revenir aux star imports dans SGModel.py.
+
+## 9. Règles critiques pour chatbots
 
 **OBLIGATOIRE** :
 - Code, commentaires, docstrings = ANGLAIS UNIQUEMENT

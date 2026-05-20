@@ -187,6 +187,24 @@ gameSpace.applyTheme('modern')  # Apply a predefined theme
 
 See `examples/syntax_examples/ex_game_space_style_various_syntax.py` for complete examples.
 
+### Available Colors
+
+SGE extends the standard Qt palette with ~80 named colors via the `SGColors` class:
+
+```python
+# Both notations work — SGColors is preferred (explicit, auto-completable)
+agent.setColor(SGColors.orange)
+cell.setColor(SGColors.teal)
+dashboard = model.newDashBoard("Scores", backgroundColor=SGColors.lightblue)
+
+# Qt.* variants still work for backward compatibility
+agent.setColor(Qt.orange)
+```
+
+Main available colors: `pink`, `orange`, `cyan`, `teal`, `amber`, `violet`, `indigo`, `purple`, `navy`, `royalblue`, `steelblue`, `skyblue`, `lightblue`, `darkblue`, `crimson`, `darkred`, `coral`, `salmon`, `maroon`, `darkgreen`, `forestgreen`, `olive`, `limegreen`, `gold`, `darkorange`, `khaki`, `goldenrod`, `lavender`, `orchid`, `plum`, `lightgray`, `silver`, `dimgray`, `saddlebrown`, `sienna`, `chocolate`, `tan`, `turquoise`...
+
+Full list: see `SGColors` class in `mainClasses/SGExtensions.py`.
+
 ## Method Catalog
 
 SGE provides a comprehensive method catalog to help modelers discover and use available methods:
@@ -199,7 +217,7 @@ SGE provides a comprehensive method catalog to help modelers discover and use av
 ### Method Categories
 Methods are organized into categories:
 - **NEW**: Creation methods (`newAgent`, `newCell`, `newModelPhase`)
-- **SET**: Value modification methods (`setValue`, `incValue`, `decValue`)
+- **SET**: Value modification methods (`setValue`, `incValue`, `decValue`, `clearHistory`)
 - **GET**: Data retrieval methods (`getValue`, `getCell`, `getEntities`)
 - **NB**: Counting methods (`nbAgents`, `nbCells`)
 - **DELETE**: Removal methods (`deleteEntity`, `deleteAllAgents`)

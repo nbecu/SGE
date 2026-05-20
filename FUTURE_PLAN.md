@@ -59,6 +59,19 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ## Completed Items
 
+- [x] Architectural improvements — branch `dev_claude_archi_improves` (May 2026)
+  - ✅ P1: Replaced all 30 star imports in SGModel.py with explicit named imports — eliminates silent namespace collisions and makes dependencies visible
+  - ✅ P2: Added `getAllGameSpaces()` to SGModel — unifies `gameSpaces` and `TextBoxes` into a single iterable
+  - ✅ P4: Decomposed `SGTimeManager.nextPhase()` into `_advanceCounters()`, `_updateCurrentPlayer()`, `_executeAndRefresh()` — from 70-line god method to readable 20-line orchestrator
+  - ✅ P5: Removed 4 dead imports from SGModel.py (`email.policy.default`, `logging.config.listen`, `paho.mqtt`, `pyrsistent.s`)
+  - ✅ P6: Added `SGAgent.repositionView()` — SGModel.positionAllAgents() no longer touches agent views directly; view orchestration stays on the agent
+  - ✅ P7: Created `SGColors` class as single source of truth for named colors — replaced 170 lines of Qt monkey-patching repetition with a loop; `Qt.orange` etc. still work for backward compatibility
+  - ✅ P8: Added `clearHistory(before_round=None)` to AttributeAndValueFunctionalities — prevents unbounded memory growth in long simulations
+  - ✅ P9: Removed orphan comments in SGModel (`# self.users`, `# self.players  # Moved above`) and clarified dead ValueError branch in SGAgent
+  - ✅ Installed pytest and reorganized `tests/` into effective pytest suite (54 tests, conftest.py, real assert statements, @pytest.mark.parametrize)
+  - ⏳ P3: Mixin couplé à `model.timeManager` — effort élevé, reporté
+  - ⏳ P10: SGGameSpaceSizeManager par instance — état per-instance justifié (setters effectivement utilisés), non corrigé
+
 - [x] Finalize distributed game system (Jan 2025)
   - ✅ Complete implementation of session management with create/join modes
   - ✅ Implement player role selection dialog with reservation system

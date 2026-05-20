@@ -22,72 +22,57 @@ class SGTimeManager():
         if self.numberOfPhases() == 0:
             # TODO: should we handle differently the case when there is no phases defined ?
             return
-        
-        # Record the data of the step in dataRecorded
+
         self.model.dataRecorder.calculateStepStats()
 
-        # Process the conditions of game ending
-        isEndGame = self.checkEndGame()
-        if isEndGame : return
+        if self.checkEndGame():
+            return
 
-        # set the values of currentRoundNumber and currentPhaseNumber
-        ## This case is to quit the Initialization phase at the begining of the game
-        if self.currentRoundNumber ==0:     
-            self.currentRoundNumber = 1
-            self.currentPhaseNumber = 1
-        ## This case is when  there is no nextphase after the current one. Therefor it is a next round
-        elif self.isItTheLastPhase():    
-            self.currentRoundNumber += 1
-            self.currentPhaseNumber = 1
-            #reset GameActions count
-            for action in self.model.getAllGameActions():
-                action.reset()
-            self._resetActionPointsForAllPlayers("round")
-            # Update end game conditions text after round change
-            # This ensures countdown is updated correctly when entering final round
-            for aCond in self.conditionOfEndGame:
-                if aCond.endGameRule.displayRefresh == 'instantaneous':
-                    aCond.updateText()
-        ## This case is to advance to the next phase wthin the same round
-        else :
-            self.currentPhaseNumber += 1
-        
-        # Process the timeLabel widgets for this next phase/round
+        self._advanceCounters()
+
         if self.model.myTimeLabel is not None:
             self.model.myTimeLabel.updateTimeLabel()
         self.model.updateWindowTitle()
 
-        # Get current phase before processing
         currentPhase = self.getCurrentPhase()
-        
-        # Process the useSelector widgets for this next phase/round
+        self._updateCurrentPlayer(currentPhase)
+        self.updateControlPanelsForCurrentPhase()
+        self._resetActionPointsForPhase(currentPhase)
+        self._executeAndRefresh()
+
+    def _advanceCounters(self):
+        """Advance round/phase counters and reset round-level state when a new round starts."""
+        if self.currentRoundNumber == 0:
+            self.currentRoundNumber = 1
+            self.currentPhaseNumber = 1
+        elif self.isItTheLastPhase():
+            self.currentRoundNumber += 1
+            self.currentPhaseNumber = 1
+            for action in self.model.getAllGameActions():
+                action.reset()
+            self._resetActionPointsForAllPlayers("round")
+            # Ensures countdown displays are updated correctly when entering the final round
+            for aCond in self.conditionOfEndGame:
+                if aCond.endGameRule.displayRefresh == 'instantaneous':
+                    aCond.updateText()
+        else:
+            self.currentPhaseNumber += 1
+
+    def _updateCurrentPlayer(self, currentPhase):
+        """Sync the active player for the new phase via userSelector or direct assignment."""
         if self.model.userSelector is not None:
             self.model.userSelector.updateOnNewPhase()
-        else:
-            # If userSelector doesn't exist, update currentPlayer manually based on authorized players
-            if isinstance(currentPhase, SGPlayPhase) and currentPhase.authorizedPlayers:
-                # Set currentPlayer to the first authorized player
-                first_authorized_player = currentPhase.authorizedPlayers[0]
-                if isinstance(first_authorized_player, str):
-                    self.model.setCurrentPlayer(first_authorized_player)
-                else:
-                    self.model.setCurrentPlayer(first_authorized_player.name if hasattr(first_authorized_player, 'name') else str(first_authorized_player))
+        elif isinstance(currentPhase, SGPlayPhase) and currentPhase.authorizedPlayers:
+            first_player = currentPhase.authorizedPlayers[0]
+            name = first_player if isinstance(first_player, str) else getattr(first_player, 'name', str(first_player))
+            self.model.setCurrentPlayer(name)
 
-        # Update control panels based on current phase type
-        self.updateControlPanelsForCurrentPhase()
-
-        # Reset action points if needed for phase-based reset
-        self._resetActionPointsForPhase(currentPhase)
-
-        # execute the actions of the phase
+    def _executeAndRefresh(self):
+        """Execute the current phase then refresh watchers, graphs, and auto-forward logic."""
         self.getCurrentPhase().execPhase()
-        #watchers update
         self.model.checkAndUpdateWatchers()
-        #opened graph windows update
         for aGraph in self.model.openedGraphs:
             aGraph.toolbar.refresh_data()
-
-        # The phase handles its own automatic forwarding
         self.getCurrentPhase().handleAutoForward()
 
     def updateControlPanelsForCurrentPhase(self):

@@ -5,8 +5,6 @@ import re
 import sys
 import threading
 import uuid
-from email.policy import default
-from logging.config import listen
 from pathlib import Path
 
 # Ensure the current file's directory is in sys.path for local imports
@@ -20,54 +18,52 @@ from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplicati
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
 from PyQt5 import QtWidgets
-from paho.mqtt import client as mqtt_client
-from pyrsistent import s
 from screeninfo import get_monitors
 
 # --- Project imports ---
-from mainClasses.SGAgent import *
-from mainClasses.SGCell import *
-from mainClasses.SGTile import *
-from mainClasses.SGControlPanel import *
-from mainClasses.SGDashBoard import *
-from mainClasses.SGDataRecorder import *
-from mainClasses.SGEndGameRule import *
-from mainClasses.SGEntity import *
-from mainClasses.SGEntityView import *
-from mainClasses.SGEntityType import *
+from mainClasses.SGAgent import SGAgent
+from mainClasses.SGCell import SGCell
+from mainClasses.SGTile import SGTile
+from mainClasses.SGControlPanel import SGControlPanel
+from mainClasses.SGDashBoard import SGDashBoard
+from mainClasses.SGDataRecorder import SGDataRecorder
+from mainClasses.SGEndGameRule import SGEndGameRule
+from mainClasses.SGEntity import SGEntity
+from mainClasses.SGEntityView import SGEntityView
+from mainClasses.SGEntityType import SGEntityType, SGAgentType, SGCellType, SGTileType
 from mainClasses.SGGrid import SGGrid
 from mainClasses.SGGraphController import SGGraphController
 from mainClasses.SGGraphLinear import SGGraphLinear
 from mainClasses.SGGraphCircular import SGGraphCircular
 from mainClasses.SGGraphWindow import SGGraphWindow
-from mainClasses.SGLegend import *
-from mainClasses.SGModelAction import *
-from mainClasses.SGPlayer import *
-from mainClasses.SGAdminPlayer import *
-from mainClasses.SGProgressGauge import *
-from mainClasses.SGSimulationVariable import *
+from mainClasses.SGLegend import SGLegend
+from mainClasses.SGModelAction import SGModelAction, SGModelAction_OnEntities
+from mainClasses.SGPlayer import SGPlayer
+from mainClasses.SGAdminPlayer import SGAdminPlayer
+from mainClasses.SGProgressGauge import SGProgressGauge
+from mainClasses.SGSimulationVariable import SGSimulationVariable
 from mainClasses.SGTestGetData import SGTestGetData
-from mainClasses.SGTextBox import *
-from mainClasses.SGLabel import *
-from mainClasses.SGButton import *
-from mainClasses.SGTimeLabel import *
-from mainClasses.SGTimeManager import *
-from mainClasses.SGTimePhase import *
-from mainClasses.SGUserSelector import *
-from mainClasses.SGVoid import *
-from mainClasses.layout.SGGridLayout import *
-from mainClasses.layout.SGHorizontalLayout import *
-from mainClasses.layout.SGVerticalLayout import *
+from mainClasses.SGTextBox import SGTextBox
+from mainClasses.SGLabel import SGLabel
+from mainClasses.SGButton import SGButton
+from mainClasses.SGTimeLabel import SGTimeLabel
+from mainClasses.SGTimeManager import SGTimeManager
+from mainClasses.SGTimePhase import SGTimePhase, SGPlayPhase, SGModelPhase
+from mainClasses.SGUserSelector import SGUserSelector
+from mainClasses.SGVoid import SGVoid
+from mainClasses.layout.SGGridLayout import SGGridLayout
+from mainClasses.layout.SGHorizontalLayout import SGHorizontalLayout
+from mainClasses.layout.SGVerticalLayout import SGVerticalLayout
 from mainClasses.layout.SGLayoutConfigManager import SGLayoutConfigManager
 from mainClasses.theme.SGThemeConfigManagerDialog import SGThemeConfigManagerDialog
 from mainClasses.theme.SGThemeConfigManager import SGThemeConfigManager
 from mainClasses.theme.SGThemeEditTableDialog import SGThemeEditTableDialog
-from mainClasses.gameAction.SGActivate import *
-from mainClasses.gameAction.SGCreate import *
-from mainClasses.gameAction.SGDelete import *
-from mainClasses.gameAction.SGModify import *
-from mainClasses.gameAction.SGMove import *
-from mainClasses.SGEventHandlerGuide import *
+from mainClasses.gameAction.SGActivate import SGActivate
+from mainClasses.gameAction.SGCreate import SGCreate
+from mainClasses.gameAction.SGDelete import SGDelete
+from mainClasses.gameAction.SGModify import SGModify
+from mainClasses.gameAction.SGMove import SGMove
+from mainClasses.SGEventHandlerGuide import SGEventHandlerGuide
 from mainClasses.distributedGame.SGMQTTManager import SGMQTTManager
 from mainClasses.distributedGame.SGDistributedGameConfig import SGDistributedGameConfig
 from mainClasses.distributedGame.SGDistributedSessionManager import SGDistributedSessionManager
@@ -170,15 +166,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.users = []
         # Bot players bound to existing SGPlayers
         self.bot_players = {}
-        # self.users = ["Admin"]
-        
+
         # Auto-save gameAction logs on application close (None = disabled, string = format)
         self.autoSaveGameActionLogs = None
 
         # To handle the flow of time in the game
         self.timeManager = SGTimeManager(self)
-        # List of players
-        # self.players = {}  # Moved above
         self.currentPlayerName = None
 
         self.userSelector = None
@@ -453,26 +446,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             aDashBoard.showIndicators()
 
     def positionAllAgents(self):
-        """Position all agents after grid layout is applied"""
+        """Position all agents after grid layout is applied."""
         for agent_type in self.getAgentTypes():
             for agent in agent_type.entities:
-                if hasattr(agent, 'view') and agent.view:
-                    # Show the agent view first
-                    agent.view.show()
-                    agent.view.raise_()  # Bring to front
-                    # Then position it
-                    agent.view.updatePositionInEntity()
-                    # Force update to ensure positioning is applied
-                    agent.view.update()
-                    
-                    # Apply clipping if in magnifier mode
-                    if hasattr(agent, 'cell') and agent.cell and hasattr(agent.cell, 'grid'):
-                        grid = agent.cell.grid
-                        if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
-                            agent_x = agent.view.xCoord
-                            agent_y = agent.view.yCoord
-                            agent_size = agent.size  # Read from model (view.size property reads from model)
-                            grid._clipEntityToVisibleArea(agent.view, agent_x, agent_y, agent_size)
+                agent.repositionView()
     
     def positionAllTiles(self):
         """Position all tiles after grid layout is applied, respecting layer order"""
@@ -1869,6 +1846,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getGameSpaceByClass(self, aClass):
         gameSpaces = [aGameSpace for aName, aGameSpace in self.gameSpaces.items() if isinstance(aGameSpace, aClass)]
         return gameSpaces
+
+    def getAllGameSpaces(self):
+        """Return all game spaces: gameSpaces dict values plus TextBoxes."""
+        return list(self.gameSpaces.values()) + self.TextBoxes
 
     def getAllDataSinceInit(self):
         rounds = set([entry['round'] for entry in self.listData])

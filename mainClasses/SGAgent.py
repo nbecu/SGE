@@ -43,12 +43,10 @@ class SGAgent(SGEntity):
         self.isAgent = True
         
         # Agent-specific properties
-        self.cell = None
-        if cell is not None:
-            self.cell = cell
-            self.cell.updateIncomingAgent(self)
-        else: 
-            raise ValueError('This case is not handled')
+        if cell is None:
+            raise ValueError('SGAgent requires a cell — use factory methods (newAgentAtCoords, newAgentOnCell)')
+        self.cell = cell
+        self.cell.updateIncomingAgent(self)
             
         self.defaultImage = defaultImage
         self.popupImage = popupImage
@@ -86,6 +84,18 @@ class SGAgent(SGEntity):
         if self.view:
             self.view.update()
 
+    def repositionView(self):
+        """Show and position the agent view, including magnifier clipping when active."""
+        if not self.view:
+            return
+        self.view.show()
+        self.view.raise_()
+        self.view.updatePositionInEntity()
+        self.view.update()
+        if self.cell and hasattr(self.cell, 'grid'):
+            grid = self.cell.grid
+            if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+                grid._clipEntityToVisibleArea(self.view, self.view.xCoord, self.view.yCoord, self.size)
 
     def getPrivateId(self):
         """Get private ID"""

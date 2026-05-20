@@ -28,7 +28,23 @@ class AttributeAndValueFunctionalities():
     def saveValueInHistory(self, aAttribute, aValue):
         """Save attribute value in history for tracking changes"""
         self.history["value"][aAttribute].append([self.model.timeManager.currentRoundNumber, self.model.timeManager.currentPhaseNumber, aValue])
-  
+
+    def clearHistory(self, before_round=None):
+        """Remove history entries to prevent unbounded memory growth.
+
+        Args:
+            before_round: If given, remove only entries from rounds strictly before
+                          this value. If None, clear all history.
+        """
+        for attr in list(self.history["value"].keys()):
+            if before_round is None:
+                self.history["value"][attr] = []
+            else:
+                self.history["value"][attr] = [
+                    entry for entry in self.history["value"][attr]
+                    if entry[0] >= before_round
+                ]
+
     def getDictOfAttributes_atRoundAndPhase(self, aRound, aPhase):
         """Get dictionary of attributes at specific round and phase - Should use the DataRecorder method"""
         raise SyntaxError('Should use the DataRecorder method')

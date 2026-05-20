@@ -26,6 +26,7 @@ __all__ = [
     "SGModel",
     "SGCell",
     "SGBotPlayer",
+    "SGColors",
     "QtWidgets",
     "Qt",
     "QColor",
