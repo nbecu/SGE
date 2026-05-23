@@ -7,18 +7,16 @@ from mainClasses.SGSGE import *
 # Example: getLastArrivedAgent
 #
 # Three scouts race through a grid. A designated "goal cell"
-# is highlighted. Each round the simulation reads which scout
-# arrived there last and displays their name.
+# is highlighted in yellow. Each round the simulation reads
+# which scout arrived there last and displays their name.
 #
 # Key method: cell.getLastArrivedAgent()
 #   - Returns the agent that most recently arrived on this cell
 #     (via moveTo() or agent creation)
 #   - Returns None if no agent has ever arrived on this cell
 #
-# Typical use cases:
-#   - Track who reached a target cell first/last
-#   - Give a bonus to the arriving agent
-#   - Detect occupancy changes on a specific cell
+# Hover over a scout to see its name (setTooltip).
+# Each scout has a distinct color (POV on scout_name attribute).
 # ============================================================
 
 monApp = QtWidgets.QApplication([])
@@ -34,9 +32,19 @@ Arena.newPov("Arena", "type", {"open": Qt.lightGray, "goal": Qt.yellow})
 goal_cell = Arena.getCell(4, 4)
 goal_cell.setValue("type", "goal")
 
-# Three scouts starting at different corners
+# Three scouts — each with a name attribute used for color and tooltip
 Scout = myModel.newAgentType("Scout", "triangleAgent1", defaultSize=18)
 Scout.setDefaultValues({"scout_name": "none"})
+
+# POV: each scout gets a distinct color based on their name
+Scout.newPov("Identity", "scout_name", {
+    "Alpha": Qt.blue,
+    "Beta":  Qt.red,
+    "Gamma": Qt.darkGreen
+})
+
+# Tooltip: hover over a scout to see its name
+Scout.setTooltip("Scout", "scout_name")
 
 s1 = Scout.newAgentAtCoords(Arena, 1, 1)
 s1.setValue("scout_name", "Alpha")
