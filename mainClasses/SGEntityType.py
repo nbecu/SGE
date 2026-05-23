@@ -659,43 +659,43 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """
         self.getRandomEntity_withValueNot(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
 
-    def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):
+    def setRandomEntities(self, aAttribute, aValue, numberOfEntities=1, condition=None):
         """
         Applies the same attribut value for a random number of entities
 
         Args:
             aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
-            numberOfentities (int): number of entities
+            numberOfEntities (int): number of entities
         """
-        aList = self.getRandomEntities(numberOfentities, condition)
+        aList = self.getRandomEntities(numberOfEntities, condition)
         if aList == []:
             return False
         for ent in aList:
             ent.setValue(aAttribute, aValue)
 
-    def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):
+    def setRandomEntities_withValue(self, aAttribut, aValue, numberOfEntities, conditionAtt, conditionVal, condition=None):
         """
         To apply a value to some random entities with a certain value
 
         Args:
             aAttribut (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
-            numberOfentities (int): number of entities
+            numberOfEntities (int): number of entities
         """
-        for ent in self.getRandomEntities_withValue(numberOfentities, conditionAtt, conditionVal, condition):
+        for ent in self.getRandomEntities_withValue(numberOfEntities, conditionAtt, conditionVal, condition):
             ent.setValue(aAttribut, aValue)
 
-    def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):
+    def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfEntities, conditionAtt, conditionVal, condition=None):
         """
         To apply a value to some random entities noty having a certain value
 
         Args:
             aAttribut (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
-            numberOfentities (int): number of entities
+            numberOfEntities (int): number of entities
         """
-        for ent in self.getRandomEntities_withValueNot(numberOfentities, conditionAtt, conditionVal, condition):
+        for ent in self.getRandomEntities_withValueNot(numberOfEntities, conditionAtt, conditionVal, condition):
             ent.setValue(aAttribut, aValue)
 
     def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):

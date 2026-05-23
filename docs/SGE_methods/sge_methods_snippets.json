@@ -332,6 +332,13 @@
     ],
     "description": "Get cell identifier using numeric ID consistent with cellIdFromCoords"
   },
+  "SGCell.getLastArrivedAgent": {
+    "prefix": "sgcell.getLastArrivedAgent",
+    "body": [
+      "${1:result} = ${2:instance}.getLastArrivedAgent()"
+    ],
+    "description": "Get the most recently arrived agent on this cell."
+  },
   "SGCell.getMaxRangeOfCells_horizontally": {
     "prefix": "sgcell.getMaxRangeOfCells_horizontally",
     "body": [
@@ -786,6 +793,13 @@
       "${1:result} = ${2:instance}.addEndGameCondition_onLambda(${3:lambda_function}, ${4:name}, ${5:color}, ${6:isDisplay}, ${7:delay_rounds}, ${8:final_phase})"
     ],
     "description": "Create an EndGame Condition based on a lambda function."
+  },
+  "SGEndGameRule.addEndGameCondition_onSimVar": {
+    "prefix": "sgendgamerule.addEndGameCondition_onSimVar",
+    "body": [
+      "${1:result} = ${2:instance}.addEndGameCondition_onSimVar(${3:simVar}, ${4:logicalTest}, ${5:objective}, ${6:name}, ${7:color}, ${8:isDisplay}, ${9:delay_rounds}, ${10:final_phase})"
+    ],
+    "description": "Create an EndGame Condition directly from a SimulationVariable."
   },
   "SGEndGameRule.setBackgroundColor": {
     "prefix": "sgendgamerule.setBackgroundColor",
@@ -2614,12 +2628,26 @@
     ],
     "description": ""
   },
+  "SGModel.disableBotPlayer": {
+    "prefix": "sgmodel.disableBotPlayer",
+    "body": [
+      "${1:result} = ${2:instance}.disableBotPlayer(${3:player_name})"
+    ],
+    "description": "Disable a BotPlayer for a player (if any)."
+  },
   "SGModel.enableAutoSaveGameActionLogs": {
     "prefix": "sgmodel.enableAutoSaveGameActionLogs",
     "body": [
       "${1:result} = ${2:instance}.enableAutoSaveGameActionLogs(${3:format}, ${4:save_path})"
     ],
     "description": "Enable automatic saving of gameAction logs when the application is closed."
+  },
+  "SGModel.enableBotPlayer": {
+    "prefix": "sgmodel.enableBotPlayer",
+    "body": [
+      "${1:result} = ${2:instance}.enableBotPlayer(${3:player_name}, ${4:adapter}, ${5:strategy})"
+    ],
+    "description": "Enable a BotPlayer for an existing player."
   },
   "SGModel.enableDistributedGame": {
     "prefix": "sgmodel.enableDistributedGame",
@@ -2726,6 +2754,20 @@
       "${1:result} = ${2:instance}.getAllEntities()"
     ],
     "description": ""
+  },
+  "SGModel.getBotPlayer": {
+    "prefix": "sgmodel.getBotPlayer",
+    "body": [
+      "${1:result} = ${2:instance}.getBotPlayer(${3:player_name})"
+    ],
+    "description": "Get the BotPlayer for a player, or None."
+  },
+  "SGModel.getBotPlayers": {
+    "prefix": "sgmodel.getBotPlayers",
+    "body": [
+      "${1:result} = ${2:instance}.getBotPlayers()"
+    ],
+    "description": "Return all BotPlayers as a dict {player_name: bot}."
   },
   "SGModel.getCell": {
     "prefix": "sgmodel.getCell",
