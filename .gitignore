@@ -111,3 +111,4 @@ _valo/*
 SGE.egg-info/*
 venv/*
 venv_sge_ml/*
+.claude/settings.local.json
