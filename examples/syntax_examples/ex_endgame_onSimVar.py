@@ -7,7 +7,7 @@ from mainClasses.SGSGE import *
 # Example: addEndGameCondition_onSimVar
 #
 # A forager moves through a forest and collects resources
-# each round. The game ends when the total score reaches 20.
+# each round. The game ends when the total score reaches 15.
 #
 # Key method: endGameRule.addEndGameCondition_onSimVar(simVar, op, objective)
 #   - Takes a SimVariable directly (no Indicator needed)
@@ -17,7 +17,7 @@ from mainClasses.SGSGE import *
 #
 # Compare with the older approach that required an Indicator:
 #   i = dashboard.addIndicatorOnSimVariable(score)
-#   endGameRule.addEndGameCondition_onIndicator(i, "greater or equal", 20)
+#   endGameRule.addEndGameCondition_onIndicator(i, "greater or equal", 15)
 # ============================================================
 
 monApp = QtWidgets.QApplication([])
@@ -57,7 +57,7 @@ myModel.newTimeLabel("Rounds")
 # End game rule — condition directly on SimVar (no Indicator needed)
 endGameRule = myModel.newEndGameRule(title="Victory Condition", numberRequired=1)
 endGameRule.addEndGameCondition_onSimVar(
-    score, "greater or equal", 20, name="Score >= 20"
+    score, "greater or equal", 15, name="Score >= 15"
 )
 endGameRule.displayEndGameConditions()
 

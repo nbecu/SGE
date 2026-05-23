@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git mv *)",
+      "Bash(git stash *)",
+      "Bash(python -m pytest *)",
+      "Bash(python mainClasses/SGMethodsCatalog.py*)",
+      "Write(**.py)",
+      "Edit(**.py)"
+    ]
+  }
+}
