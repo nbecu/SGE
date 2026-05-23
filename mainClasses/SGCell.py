@@ -43,6 +43,7 @@ class SGCell(SGEntity):
         
         # List of agents in this cell
         self.agents = []
+        self.lastArrivedAgent = None
         
         # List of tiles on this cell (organized by position)
         self.tiles = []  # List of all tiles on this cell
@@ -100,6 +101,7 @@ class SGCell(SGEntity):
         """Update when an agent enters this cell"""
         if agent not in self.agents:
             self.agents.append(agent)
+        self.lastArrivedAgent = agent
         # Refresh all agents in this cell (stack counters/offsets)
         try:
             for a in list(self.agents):
@@ -425,8 +427,20 @@ class SGCell(SGEntity):
             if agent.type.name == typeName:
                 return agent
         return None
-    
-    
+
+    def getLastArrivedAgent(self):
+        """
+        Get the most recently arrived agent on this cell.
+
+        Returns:
+            SGAgent or None: The last agent that moved or was placed on this cell,
+            or None if no agent has ever arrived.
+
+        Example:
+            last = cell.getLastArrivedAgent()
+        """
+        return self.lastArrivedAgent
+
     def getRandomAgent(self, type_name=None):
         """
         Get a random agent from this cell.

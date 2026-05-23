@@ -310,6 +310,27 @@ class SGEndGameRule(SGGameSpace):
         # Automatically adjust size after adding a condition
         self.adjustSizeToContent(content_widgets=self.endGameConditions)
 
+    def addEndGameCondition_onSimVar(self, simVar, logicalTest, objective, name="SimVar based condition", color=Qt.black, isDisplay=True, delay_rounds=0, final_phase=None):
+        """
+        Create an EndGame Condition directly from a SimulationVariable.
+
+        Args:
+            simVar (SGSimulationVariable): the simulation variable to monitor
+            logicalTest (str): logical test in ["greater", "greater or equal", "equal", "less or equal", "less"]
+            objective (int or float): threshold value for the logical test
+            name (str): label displayed in the EndGameRule board (default: "SimVar based condition")
+            color (Qt.color): text color (default: black)
+            isDisplay (bool): whether to display in the EndGameRule board (default: True)
+            delay_rounds (int): extra rounds after condition is met before game ends (default: 0)
+            final_phase (int, str, or phase instance, optional): phase when game ends (default: None)
+        """
+        aCondition = SGEndGameCondition(self, name, entity=simVar, method=logicalTest, objective=objective,
+                                        attribut=None, color=color, calcType="onSimVar", isDisplay=isDisplay,
+                                        delay_rounds=delay_rounds, final_phase=final_phase)
+        self.endGameConditions.append(aCondition)
+        self.model.timeManager.conditionOfEndGame.append(aCondition)
+        self.adjustSizeToContent(content_widgets=self.endGameConditions)
+
     def addEndGameCondition_onEntity(self, aEntity, attribute, logicalTest, objective, name="Entity based condition",type_name=None, aGrid=None, color=Qt.black, isDisplay=True, delay_rounds=0, final_phase=None):
         """Create an EndGame Condition with an Entity
 

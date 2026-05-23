@@ -18,6 +18,20 @@ Ce fichier documente l'├®tat actuel du d├®veloppement SGE, les probl├¿m
 
 ## Travail en cours
 
+### Mai 2026 - API SimVar et SGCell (TERMINÉ)
+- **Statut** : ✅ Terminé et validé (10 nouveaux tests passent)
+- **Branche** : `dev_simvar_cell_api` (basée sur `dev_claude_archi_improves`)
+- **Description** : Ajout de deux méthodes utilitaires directes pour les modelers.
+- **Fichiers modifiés** :
+  - `mainClasses/SGEndGameCondition.py` (nouveau calcType `onSimVar` dans `byCalcType()`)
+  - `mainClasses/SGEndGameRule.py` (nouvelle méthode `addEndGameCondition_onSimVar()`)
+  - `mainClasses/SGCell.py` (attribut `lastArrivedAgent`, mise à jour de `updateIncomingAgent()`, nouvelle méthode `getLastArrivedAgent()`)
+  - `tests/test_simvar_and_cell_api.py` (10 tests TDD)
+- **Nouvelles fonctionnalités** :
+  1. `end_rule.addEndGameCondition_onSimVar(simVar, "greater", 10)` — condition de fin de jeu directement sur une SimVar, sans passer par un Indicator. Supporte tous les opérateurs logiques existants ("equal", "greater", "less", "greater or equal", "less or equal"), ainsi que `delay_rounds` et `final_phase`.
+  2. `cell.getLastArrivedAgent()` — retourne le dernier agent arrivé sur la cellule (None si aucun). Mis à jour à chaque `moveTo()` ou création d'agent.
+- **Durée** : 1 session (Mai 2026)
+
 ### Mai 2026 - Suite des améliorations architecturales + tests (TERMINÉ)
 - **Statut** : ✅ Terminé et validé (94/94 tests passent)
 - **Branche** : `dev_claude_archi_improves`

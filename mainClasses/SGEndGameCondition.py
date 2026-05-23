@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
+from mainClasses.SGSimulationVariable import SGSimulationVariable
 
 
 # Class who is responsible of indicator creation
@@ -154,6 +155,14 @@ class SGEndGameCondition(QtWidgets.QWidget):
             valueToCheck = self.endGameRule.model.timeManager.currentRoundNumber
             if self.logicalTests(valueToCheck, self.method, self.objective):
                 condition_met = True
+        elif self.calcType == 'onSimVar':
+            if isinstance(self.entity, SGSimulationVariable):
+                valueToCheck = self.entity.getValue()
+                if self.logicalTests(valueToCheck, self.method, self.objective):
+                    condition_met = True
+            else:
+                print('Error, not a SimulationVariable')
+                return
         elif self.calcType == "onLambda":
             if callable(self.method):
                 if self.method():

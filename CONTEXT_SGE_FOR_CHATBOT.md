@@ -168,6 +168,13 @@ timeLabel = model.newTimeLabel("Game Time", backgroundColor=Qt.white, textColor=
 # Créer des règles de fin de jeu (widget de conditions)
 endGameRule = model.newEndGameRule(title="EndGame Rules", numberRequired=1)
 
+# Ajouter des conditions de fin de jeu
+endGameRule.addEndGameCondition_onIndicator(indicator, "greater", 100)
+endGameRule.addEndGameCondition_onSimVar(simVar, "greater", 100)   # direct sur SimVar (plus simple)
+endGameRule.addEndGameCondition_onGameRound("equal", 10)
+endGameRule.addEndGameCondition_onLambda(lambda: someCondition)
+endGameRule.addEndGameCondition_onEntity(cell, "attribute", "equal", 5)
+
 # Créer une boîte de texte (widget d'affichage de texte)
 textBox = model.newTextBox("Welcome to the game!", title="Instructions")
 
@@ -948,7 +955,7 @@ finally:
 
 ### 21.6 Suite de tests pytest (Mai 2026)
 
-La suite de tests SGE est organisée en 4 fichiers dans `tests/` :
+La suite de tests SGE est organisée en 5 fichiers dans `tests/` :
 
 | Fichier | Tests | Description |
 |---------|-------|-------------|
@@ -956,6 +963,7 @@ La suite de tests SGE est organisée en 4 fichiers dans `tests/` :
 | `test_polymorphism.py` | 12 | Flags isEntity/isEntityType, watchers |
 | `test_simulation_cycle.py` | 28 | Cycles simulation Qt (Cell, Agent, Tile, SimVariable) |
 | `test_player_and_actions.py` | 12 | Player, 5 types GameAction, BotPlayer |
+| `test_simvar_and_cell_api.py` | 10 | addEndGameCondition_onSimVar, getLastArrivedAgent |
 
 **Commandes** :
 ```bash
@@ -970,6 +978,10 @@ pytest tests/test_simulation_cycle.py -v  # un fichier spécifique
 **Règle indexation grilles** : `getCell(x, y)` est indexé à partir de **1**, pas 0. `getCell(0, 0)` retourne `None`.
 
 **Règle `uses_per_round`** : le compteur d'utilisations n'est actif que dans une `SGPlayPhase` avec le joueur en `activePlayers`. En dehors d'une PlayPhase, `canBeUsed()` retourne `True` sans vérifier le compteur.
+
+**API SGCell — dernier agent arrivé** : `cell.getLastArrivedAgent()` retourne l'agent arrivé le plus récemment sur la cellule (ou `None`). Mis à jour à chaque `moveTo()` ou création d'agent.
+
+**API SGEndGameRule — condition directe sur SimVar** : `end_rule.addEndGameCondition_onSimVar(simVar, "greater", 10)` permet de tester directement une SimVar sans passer par un Indicator. Même API que `addEndGameCondition_onIndicator` (opérateurs, `delay_rounds`, `final_phase`).
 
 ### 21.7 Commandes de test recommandées
 ```bash
