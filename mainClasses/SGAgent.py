@@ -38,7 +38,6 @@ class SGAgent(SGEntity):
         super().__init__(type, size, attributesAndValues)
         
         # Type identification attributes
-        self.isEntity = True
         self.isCell = False
         self.isAgent = True
         

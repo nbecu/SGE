@@ -35,7 +35,11 @@ class SGEntity(AttributeAndValueFunctionalities):
         # Set the attributes (will be called by child classes after view is created)
         # self.initAttributesAndValuesWith(attributesAndValues)
         self.owner = "admin"
-        
+
+        # Entity / EntityType identification
+        self.isEntity = True
+        self.isEntityType = False
+
         # Reference to the view
         self.view = None
     

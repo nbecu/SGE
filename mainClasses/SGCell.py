@@ -55,7 +55,6 @@ class SGCell(SGEntity):
         # The factory will call setView() to link the view
         
         # Type identification attributes
-        self.isEntity = True
         self.isCell = True
         self.isAgent = False
 

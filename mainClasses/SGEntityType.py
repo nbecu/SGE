@@ -37,6 +37,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
         self.isCellType = False
         self.isTileType = False
         self.isAGrid = False
+        self.isEntity = False
+        self.isEntityType = True
         
         #Define variables to handle the history 
         self.history={}
