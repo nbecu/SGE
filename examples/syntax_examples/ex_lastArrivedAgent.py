@@ -24,12 +24,12 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(800, 600, windowTitle="getLastArrivedAgent - example")
 
 # Grid
-Arena = myModel.newCellsOnGrid(7, 7, "square", size=70, gap=2)
+Arena = myModel.newCellsOnGrid(5, 5, "square", size=80, gap=2, boundaries='closed')
 Arena.setEntities("type", "open")
 Arena.newPov("Arena", "type", {"open": Qt.lightGray, "goal": Qt.yellow})
 
 # Mark the goal cell (center)
-goal_cell = Arena.getCell(4, 4)
+goal_cell = Arena.getCell(3, 3)
 goal_cell.setValue("type", "goal")
 
 # Three scouts — each with a name attribute used for color and tooltip
@@ -49,10 +49,10 @@ Scout.setTooltip("Scout", "scout_name")
 s1 = Scout.newAgentAtCoords(Arena, 1, 1)
 s1.setValue("scout_name", "Alpha")
 
-s2 = Scout.newAgentAtCoords(Arena, 7, 1)
+s2 = Scout.newAgentAtCoords(Arena, 5, 1)
 s2.setValue("scout_name", "Beta")
 
-s3 = Scout.newAgentAtCoords(Arena, 4, 7)
+s3 = Scout.newAgentAtCoords(Arena, 3, 5)
 s3.setValue("scout_name", "Gamma")
 
 # TextBox to display the last scout at the goal
