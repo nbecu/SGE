@@ -55,6 +55,9 @@ s2.setValue("scout_name", "Beta")
 s3 = Scout.newAgentAtCoords(Arena, 3, 5)
 s3.setValue("scout_name", "Gamma")
 
+# Legend — shows the color/name mapping for each scout
+myModel.newLegend()
+
 # TextBox to display the last scout at the goal
 status_box = myModel.newTextBox(
     "No scout has reached the goal yet.",
