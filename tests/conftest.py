@@ -9,6 +9,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import pytest
 from PyQt5.QtWidgets import QApplication
 
+collect_ignore_glob = ["manual/*"]
+
 
 @pytest.fixture(scope="session")
 def qt_app():
