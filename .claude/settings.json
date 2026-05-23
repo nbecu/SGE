@@ -8,7 +8,9 @@
       "Bash(python -m pytest *)",
       "Bash(python mainClasses/SGMethodsCatalog.py*)",
       "Write(**.py)",
-      "Edit(**.py)"
+      "Write(**.md)",
+      "Edit(**.py)",
+      "Edit(**.md)"
     ]
   }
 }
