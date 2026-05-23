@@ -661,7 +661,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # ============================================================================
     # GAME ACTION LOGS EXPORT METHODS
     # ============================================================================
-    
+    def __GAME_ACTION_LOGS_EXPORT_METHODS__(self):
+        pass
+
     def _getGameActionLogsData(self):
         """
         Collect all gameAction logs data from all players with detailed action information
@@ -1027,6 +1029,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     f"Failed to export GameAction logs:\n{str(e)}"
                 )
 
+    # ============================================================================
+    # SETTINGS MENU METHODS
+    # ============================================================================
+    def __SETTINGS_MENU_METHODS__(self):
+        pass
+
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
         # Only create menu if it doesn't exist yet (to avoid duplicates)
@@ -1292,6 +1300,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 self.window.setPalette(palette)
                 self.window.setAutoFillBackground(True)
                 self.update()
+
+    # ============================================================================
+    # THEME AND SYMBOLOGY METHODS
+    # ============================================================================
+    def __THEME_AND_SYMBOLOGY_METHODS__(self):
+        pass
 
     def applyThemeToAllGameSpaces(self, theme_name: str, include_types=None, exclude_types=None, priority: str = "global_then_individual") -> None:
         """Apply a theme to all GameSpaces; individual overrides remain in effect.
@@ -1866,17 +1880,17 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
 
 
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
     def __MODELER_METHODS__(self):
         pass
-# ============================================================================
-# MODELER METHODS
-# ============================================================================
 
+    # ============================================================================
+    # NEW/ADD METHODS
+    # ============================================================================
     def __MODELER_METHODS__NEW__(self):
         pass
-# ============================================================================
-# NEW/ADD METHODS
-# ============================================================================
     # To create a grid
     def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open', zoomMode="magnifier") -> SGCellType:
         """
@@ -2424,9 +2438,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.simulationVariables.append(aSimVar)
         return aSimVar
 
-# ============================================================================
-# DISTRIBUTED GAME METHODS
-# ============================================================================
+    # ============================================================================
+    # DISTRIBUTED GAME METHODS
+    # ============================================================================
+    def __DISTRIBUTED_GAME_METHODS__(self):
+        pass
 
     def enableDistributedGame(self,
                              num_players,
@@ -2585,9 +2601,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # User cancelled
             return False
 
-# ============================================================================
-# NEW GAME SPACES (apart from grids)
-# ============================================================================
+    # ============================================================================
+    # NEW GAME SPACES (apart from grids)
+    # ============================================================================
+    def __NEW_GAME_SPACES__(self):
+        pass
 
     # To create a new dashboard
     def newDashBoard(self, title=None, borderColor=Qt.black, borderSize=1, backgroundColor=QColor(230, 230, 230), textColor=Qt.black, layout ='vertical'):
@@ -3052,9 +3070,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         msg.exec_()
         return
 
-# ============================================================================
-# SET METHODS
-# ============================================================================
+    # ============================================================================
+    # SET METHODS
+    # ============================================================================
     def __MODELER_METHODS__SET__(self):
         pass
 
@@ -3114,9 +3132,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Update "draggability" for selected elements
         for element in elements_to_change:
             element.setDraggable(value)
-# ============================================================================
-# GET/NB METHODS
-# ============================================================================
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
     def __MODELER_METHODS__GET__(self):
         pass
 
@@ -3265,9 +3283,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         grids = self.getGrids_withOwner(owner)
         return grids[0] if grids else None
     
-# ============================================================================
-# DELETE METHODS
-# ============================================================================
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
     def __MODELER_METHODS__DELETE__(self):
         pass
 
@@ -3277,9 +3295,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
 
     
-# ============================================================================
-# DO/DISPLAY METHODS
-# ============================================================================
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
     def __MODELER_METHODS__DO_DISPLAY__(self):
         pass
 
