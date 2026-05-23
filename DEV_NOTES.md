@@ -18,6 +18,35 @@ Ce fichier documente l'├®tat actuel du d├®veloppement SGE, les probl├¿m
 
 ## Travail en cours
 
+### Mai 2026 - Suite des améliorations architecturales + tests (TERMINÉ)
+- **Statut** : ✅ Terminé et validé (94/94 tests passent)
+- **Branche** : `dev_claude_archi_improves`
+- **Description** : Continuation du chantier architectural — nettoyage structure SGModel, remplacement de l'anti-pattern hasattr, et expansion majeure de la suite de tests (simulation, tiles, SimVariable, player, game actions).
+- **Fichiers modifiés** :
+  - `mainClasses/SGModel.py` (chantier B : 19 sections normalisées, méthodes passives ajoutées, sections SETTINGS MENU et THEME AND SYMBOLOGY créées)
+  - `mainClasses/SGEntity.py` (ajout `isEntity=True`, `isEntityType=False`)
+  - `mainClasses/SGEntityType.py` (ajout `isEntity=False`, `isEntityType=True`)
+  - `mainClasses/SGAgent.py` (suppression `isEntity=True` redondant, maintenant hérité)
+  - `mainClasses/SGCell.py` (idem)
+  - `mainClasses/SGTile.py` (idem)
+  - `mainClasses/AttributeAndValueFunctionalities.py` (remplacement `hasattr(self, 'type')` par `if self.isEntity`)
+  - `tests/conftest.py` (ajout `collect_ignore_glob = ["manual/*"]`)
+  - `tests/test_simulation_cycle.py` (nouveau — 28 tests simulation avec Qt event loop, marqueur `@pytest.mark.simulation`)
+  - `tests/test_player_and_actions.py` (nouveau — 12 tests Player, GameAction, BotPlayer)
+  - `tests/test_polymorphism.py` (nouveau — 12 tests isEntity/isEntityType)
+  - `pytest.ini` (marqueur `simulation` enregistré, `norecursedirs = manual`)
+  - `.vscode/settings.json` (local, gitignore — exclut tests simulation du test explorer par défaut)
+  - `notes for FUTURE_PLAN/ARCHITECTURE_DIAGNOSTIC_2026.md` (supprimé — tous les problèmes clos)
+  - `notes for FUTURE_PLAN/ARCHITECTURE_DIAGNOSTIC.md` (supprimé — tous les problèmes clos)
+- **Problèmes rencontrés et solutions** :
+  1. `hasattr(self, 'type')` anti-pattern dans `setValue()` — remplacé par le flag `isEntity` (même convention que `isAgentType`, `isCellType`, etc.)
+  2. `entDefAttributesAndValues` dans `newTileType()` ne se propage pas aux instances — utiliser `setDefaultValues()` après création du type (même pattern que les agents)
+  3. `uses_per_round` non contrôlé quand `numberOfPhases()==0` — nécessite une `SGPlayPhase` avec le joueur en `activePlayers` pour que le compteur soit actif
+  4. `conditions` dans `newActivateAction()` doit être une liste (`[lambda e: ...]`), pas une lambda seule — `copy.deepcopy` d'une fonction ne retourne pas une liste
+  5. Tests simulation exclus du test explorer VS Code par `python.testing.pytestArgs` dans `.vscode/settings.json` (local)
+- **Leçon clé — indexation des grilles** : `getCell(x, y)` est indexé à partir de 1, pas 0. `getCell(0, 0)` retourne `None`.
+- **Durée** : 2 sessions (Mai 2026)
+
 ### Mai 2026 - Améliorations architecturales (TERMINÉ)
 - **Statut** : ✅ Terminé et validé (54/54 tests passent)
 - **Branche** : `dev_claude_archi_improves` (basée sur main)

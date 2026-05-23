@@ -411,10 +411,14 @@ Use boolean attributes with the `is` prefix to identify the type of object and e
 - **`isAgentType`**: For agent types (e.g., `self.isAgentType = True` for agent types)
 - **`isCellType`**: For cell types (e.g., `self.isCellType = True` for cell types)
 - **`isTileType`**: For tile types (e.g., `self.isTileType = True` for tile types)
+- **`isEntity`**: `True` on any entity instance (SGAgent, SGCell, SGTile) — defined on SGEntity, inherited automatically
+- **`isEntityType`**: `True` on any entity type (SGAgentType, SGCellType, SGTileType) — defined on SGEntityType, inherited automatically
 - **`isLegend`**: For UI components (e.g., `self.isLegend = True` for pure legend display)
 - **`isControlPanel`**: For UI components (e.g., `self.isControlPanel = True` for control interfaces)
 
 These attributes help separate responsibilities and enable type-specific behavior without complex inheritance hierarchies.
+
+**Rule**: use `self.isEntity` (not `hasattr(self, 'type')`) to distinguish an entity instance from a type in shared mixins such as `AttributeAndValueFunctionalities`.
 
 ---
 
@@ -462,21 +466,32 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 ---
 
-## 10. Additional Information
+## 10. Running Tests
 
-For more information about SGE usage and modeling, see `README_modeler.md`.
+The SGE test suite uses pytest. Tests are in the `tests/` directory.
+
+```bash
+pytest                      # all tests except simulation (default)
+pytest -m simulation        # simulation cycle tests only (Qt event loop)
+pytest -m "not simulation"  # explicit exclusion (same as default)
+pytest -v                   # verbose output
+pytest tests/test_simulation_cycle.py -v  # single file
+```
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `test_model_setup.py` | 23 | Model, grid, agent setup |
+| `test_polymorphism.py` | 12 | isEntity/isEntityType flags, watchers |
+| `test_simulation_cycle.py` | 28 | Simulation cycles — Cell, Agent, Tile, SimVariable |
+| `test_player_and_actions.py` | 12 | Player, all 5 GameAction types, BotPlayer |
+
+**Simulation tests** (`@pytest.mark.simulation`) require a `QApplication` and call `nextPhase()` with `processEvents()`. They are excluded from the VS Code test explorer by default via `.vscode/settings.json` (local, gitignored) but can be run individually from the IDE or via `pytest -m simulation`.
 
 ---
 
-## 11. Architecture Diagnostic
+## 11. Additional Information
 
-For a comprehensive architectural analysis and diagnostic of the SGE platform, including points forts, areas for improvement, and prioritized recommendations, see [ARCHITECTURE_DIAGNOSTIC.md](docs/ARCHITECTURE_DIAGNOSTIC.md).
-
-This document provides:
-- Confirmed architectural strengths
-- Identified improvement areas
-- Prioritized recommendations for development
-- Context about current state and ongoing work
+For more information about SGE usage and modeling, see `README_modeler.md`.
 
 ---
 

@@ -71,6 +71,10 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ Installed pytest and reorganized `tests/` into effective pytest suite (54 tests, conftest.py, real assert statements, @pytest.mark.parametrize)
   - ⏳ P3: Mixin couplé à `model.timeManager` — effort élevé, reporté
   - ⏳ P10: SGGameSpaceSizeManager par instance — état per-instance justifié (setters effectivement utilisés), non corrigé
+  - ✅ SGModel section cleanup (chantier B, May 2026) — all 19 sections have 4-space indented headers and passive outline methods; SETTINGS MENU, THEME AND SYMBOLOGY sections added
+  - ✅ Replaced `hasattr(self, 'type')` anti-pattern with explicit `isEntity`/`isEntityType` boolean flags on SGEntity and SGEntityType — consistent with existing isAgentType/isCellType/isTileType convention
+  - ✅ Expanded test suite to 94 tests across 4 files: simulation cycles (28 tests — Cell, Agent, Tile, SimVariable, movement, watchers, history), player and game actions (12 tests — all 5 GameAction types + BotPlayer), polymorphism (12 tests)
+  - ✅ Closed both architecture diagnostics (Nov 2025 and May 2026) — all items resolved or explicitly deferred
 
 - [x] Finalize distributed game system (Jan 2025)
   - ✅ Complete implementation of session management with create/join modes

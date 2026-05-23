@@ -63,8 +63,12 @@ Utilisez des attributs booléens avec le préfixe `is` :
 - **`isAgentType`** : Pour les types d'agents
 - **`isCellType`** : Pour les types de cellules
 - **`isTileType`** : Pour les types de tuiles
+- **`isEntity`** : `True` sur toute instance d'entité (SGAgent, SGCell, SGTile) — défini sur SGEntity, hérité automatiquement
+- **`isEntityType`** : `True` sur tout type d'entité (SGAgentType, SGCellType, SGTileType) — défini sur SGEntityType, hérité automatiquement
 - **`isLegend`** : Pour les composants UI de légende
 - **`isControlPanel`** : Pour les interfaces de contrôle
+
+**Règle** : utiliser `self.isEntity` (pas `hasattr(self, 'type')`) pour distinguer une instance d'un type dans les mixins partagés comme `AttributeAndValueFunctionalities`.
 
 ## 5. Ergonomie API et délégation
 
@@ -124,6 +128,11 @@ agentDef = model.newAgentType("Sheeps", "circleAgent", defaultColor=Qt.gray)
 
 # Créer une définition de tuiles
 tileDef = model.newTileType("Cards", "squareTile", defaultColor=Qt.white, defaultFace="front")
+
+# ⚠️ Pour définir des attributs par défaut sur les instances de tiles,
+# utiliser setDefaultValues() APRÈS newTileType() — pas entDefAttributesAndValues.
+# entDefAttributesAndValues initialise les attributs du TYPE, pas des instances.
+tileDef.setDefaultValues({"value": 0, "owner": None})  # ✅ propagé à chaque newTileOnCell()
 ```
 
 ### 2. Méthodes factory pour les instances d'entités (Model-View)
@@ -937,7 +946,32 @@ finally:
     gc.collect()
 ```
 
-### 21.6 Commandes de test recommandées
+### 21.6 Suite de tests pytest (Mai 2026)
+
+La suite de tests SGE est organisée en 4 fichiers dans `tests/` :
+
+| Fichier | Tests | Description |
+|---------|-------|-------------|
+| `test_model_setup.py` | 23 | Régression modèle, grille, agents |
+| `test_polymorphism.py` | 12 | Flags isEntity/isEntityType, watchers |
+| `test_simulation_cycle.py` | 28 | Cycles simulation Qt (Cell, Agent, Tile, SimVariable) |
+| `test_player_and_actions.py` | 12 | Player, 5 types GameAction, BotPlayer |
+
+**Commandes** :
+```bash
+pytest                          # tout sauf simulation
+pytest -m simulation            # uniquement les tests simulation (Qt event loop)
+pytest -m "not simulation"      # tout sauf simulation
+pytest tests/test_simulation_cycle.py -v  # un fichier spécifique
+```
+
+**Marqueur `simulation`** : tests qui appellent `nextPhase()` avec Qt event loop. Nécessitent `qt_app` fixture. Exclus par défaut du test explorer VS Code (`.vscode/settings.json` local).
+
+**Règle indexation grilles** : `getCell(x, y)` est indexé à partir de **1**, pas 0. `getCell(0, 0)` retourne `None`.
+
+**Règle `uses_per_round`** : le compteur d'utilisations n'est actif que dans une `SGPlayPhase` avec le joueur en `activePlayers`. En dehors d'une PlayPhase, `canBeUsed()` retourne `True` sans vérifier le compteur.
+
+### 21.7 Commandes de test recommandées
 ```bash
 # Mode headless (recommandé pour chatbots)
 python script.py --headless
