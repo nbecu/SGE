@@ -33,9 +33,8 @@ from mainClasses.SGEntityView import SGEntityView
 from mainClasses.SGEntityType import SGEntityType, SGAgentType, SGCellType, SGTileType
 from mainClasses.SGGrid import SGGrid
 from mainClasses.SGGraphController import SGGraphController
-from mainClasses.SGGraphLinear import SGGraphLinear
-from mainClasses.SGGraphCircular import SGGraphCircular
 from mainClasses.SGGraphWindow import SGGraphWindow
+from mainClasses.SGBaseGraphWindow import SGBaseGraphWindow
 from mainClasses.SGLegend import SGLegend
 from mainClasses.SGModelAction import SGModelAction, SGModelAction_OnEntities
 from mainClasses.SGPlayer import SGPlayer
@@ -1103,22 +1102,27 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def createGraphMenu(self):
         self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&openChooseGraph")
-        # Submenu linear
+
         actionLinearDiagram = QAction(QIcon(f'{path_icon}/icon_linear.png'), 'Diagramme Linéaire', self)
         actionLinearDiagram.triggered.connect(self.openLinearGraph)
         self.chooseGraph.addAction(actionLinearDiagram)
+
         actionHistogramDiagram = QAction(QIcon(f'{path_icon}/icon_histogram.png'), 'Histogramme', self)
         actionHistogramDiagram.triggered.connect(self.openHistoGraph)
         self.chooseGraph.addAction(actionHistogramDiagram)
+
         actionCircularDiagram = QAction(QIcon(f'{path_icon}/icon_circular.jpg'), 'Diagramme Circulaire', self)
         actionCircularDiagram.triggered.connect(self.openCircularGraph)
         self.chooseGraph.addAction(actionCircularDiagram)
+
         actionStackPlotDiagram = QAction(QIcon(f'{path_icon}/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
         actionStackPlotDiagram.triggered.connect(self.openStackPlotGraph)
         self.chooseGraph.addAction(actionStackPlotDiagram)
-        actionOtherDiagram = QAction(QIcon(f'{path_icon}/graph.png'), 'Autres Représentations', self)
-        actionOtherDiagram.triggered.connect(self.openOtherGraph)
-        self.chooseGraph.addAction(actionOtherDiagram)
+
+        # Preset separator + entries (populated by addGraphPreset calls)
+        self._graph_preset_separator = self.chooseGraph.addSeparator()
+        self._graph_preset_separator.setVisible(False)
+        self._graph_preset_actions = []
 
     # Create all the action related to the menu
     def createAction(self):
@@ -1157,25 +1161,127 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         for grid in self.getGrids():
             grid.resetZoom()
 
-    # open graph windows
+    # ------------------------------------------------------------------
+    # Graph windows — generic openers
+    # ------------------------------------------------------------------
+
+    def _open_graph(self, graph_type, preset_keys=None):
+        """Open a graph window, optionally pre-selecting indicator keys."""
+        from mainClasses.SGBaseGraphWindow import SGBaseGraphWindow
+        if len(self.dataRecorder.getStats_ofEntities()) <= 2:
+            SGGraphWindow(self)._show_error()
+            return None
+        graph = SGBaseGraphWindow(self, graph_type)
+        if preset_keys and graph.toolbar._selector_panel:
+            graph.toolbar._selector_panel.set_selected_keys(preset_keys)
+            graph.toolbar.update_chart(reload=False)
+        graph.show()
+        self.openedGraphs.append(graph)
+        return graph
+
     def openLinearGraph(self):
-        aGraph = SGGraphWindow(self).open_graph_type("linear")
-        self.openedGraphs.append(aGraph)
+        self._open_graph("linear")
 
     def openHistoGraph(self):
-        aGraph = SGGraphWindow(self).open_graph_type("histogram")
-        self.openedGraphs.append(aGraph)
+        self._open_graph("hist")
 
     def openStackPlotGraph(self):
-        aGraph = SGGraphWindow(self).open_graph_type("stackplot")
-        self.openedGraphs.append(aGraph)
+        self._open_graph("stackplot")
 
     def openCircularGraph(self):
-        aGraph = SGGraphWindow(self).open_graph_type("circular")
-        self.openedGraphs.append(aGraph)
+        self._open_graph("pie")
 
-    def openOtherGraph(self):
-        print("WITH CSV OPTION")
+    # ------------------------------------------------------------------
+    # Graph preset — modeler API (Feature 3)
+    # ------------------------------------------------------------------
+
+    def addGraphPreset(self, graph_type, name, indicators):
+        """
+        Register a pre-configured graph accessible from the graph menu.
+
+        Args:
+            graph_type (str): "linear", "hist", "pie", or "stackplot"
+            name (str): label shown in the menu
+            indicators (list of tuple): each tuple is one of:
+                ("entity",    entity_name, attribute)
+                ("entity",    entity_name, attribute, stat)  # stat = mean/min/max/sum/stdev
+                ("simvar",    simvar_name)
+                ("player",    player_name, attribute)
+                ("gameaction", action_type)
+
+        Example:
+            myModel.addGraphPreset("linear", "Population des loups",
+                indicators=[("entity", "Wolf", "population")])
+            myModel.addGraphPreset("linear", "Age moyen des loups",
+                indicators=[("entity", "Wolf", "age", "mean")])
+        """
+        keys = [self._preset_tuple_to_key(t) for t in indicators]
+        keys = [k for k in keys if k]  # drop None (malformed tuples)
+
+        action = QAction(name, self)
+        action.triggered.connect(lambda _, gt=graph_type, ks=keys:
+                                 self._open_graph(gt, preset_keys=ks))
+        self.chooseGraph.addAction(action)
+        self._graph_preset_separator.setVisible(True)
+        self._graph_preset_actions.append(action)
+
+    @staticmethod
+    def _preset_tuple_to_key(t):
+        """Convert a modeler-facing tuple to the internal indicator key string."""
+        if not t:
+            return None
+        kind = t[0].lower()
+        if kind == "entity":
+            # ("entity", entity_name, attribute) or ("entity", entity_name, attribute, stat)
+            if len(t) == 3:
+                return f"entity-:{t[1]}-:{t[2]}"
+            elif len(t) == 4:
+                return f"entity-:{t[1]}-:{t[2]}-:{t[3]}"
+        elif kind == "simvar":
+            return f"simVariable-:{t[1]}"
+        elif kind == "player":
+            return f"player-:{t[1]}-:{t[2]}"
+        elif kind == "gameaction":
+            return f"gameActions-:{t[1]}"
+        return None
+
+    # ------------------------------------------------------------------
+    # Multi-graph window — modeler API (Feature 4)
+    # ------------------------------------------------------------------
+
+    def newMultiGraphWindow(self, title):
+        """
+        Create a multi-graph window pre-configured by the modeler.
+
+        The window appears in the graph menu; the user opens it at runtime.
+        Panels are added via the returned object's addPanel() method.
+
+        Args:
+            title (str): window title and menu label
+
+        Returns:
+            SGMultiGraphWindow: call .addPanel() on it to configure panels.
+
+        Example:
+            mg = myModel.newMultiGraphWindow("Vue d'ensemble")
+            mg.addPanel("linear", indicators=[
+                ("entity", "Wolf", "population"),
+                ("entity", "Sheep", "population"),
+            ])
+            mg.addPanel("stackplot", indicators=[("entity", "Sheep", "type")])
+        """
+        from mainClasses.SGMultiGraphWindow import SGMultiGraphWindow
+        mg = SGMultiGraphWindow(self, title)
+        self.openedGraphs.append(mg)
+
+        # Add a separator before multi-graph entries (once)
+        if not hasattr(self, "_multi_graph_separator"):
+            self._multi_graph_separator = self.chooseGraph.addSeparator()
+
+        action = QAction(f"⊞ {title}", self)
+        action.triggered.connect(lambda _, w=mg: w.open())
+        self.chooseGraph.addAction(action)
+        return mg
 
     def createEnhancedGridLayoutMenu(self):
         """Create Enhanced Grid Layout submenu in Settings menu"""
