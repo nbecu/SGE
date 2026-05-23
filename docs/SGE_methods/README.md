@@ -13,7 +13,7 @@ This directory contains the automatically generated SGE methods documentation.
 The documentation is generated using `SGMethodsCatalog.py` located in `mainClasses/`.
 Run it from anywhere; the script resolves the repository root and always exports to `docs/SGE_methods/`.
 
-Re-run the generator whenever modeler methods change (e.g., new setters like `setImage`).
+Re-run the generator once per development branch, before merging — not after every individual change.
 
 ```powershell
 python mainClasses/SGMethodsCatalog.py
