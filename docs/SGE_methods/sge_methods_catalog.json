@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "generated_date": "2024-12-19",
     "total_classes": 20,
-    "total_methods": 516
+    "total_methods": 522
   },
   "classes": {
     "SGAgent": {
@@ -24,7 +24,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 227,
+            "line_number": 236,
             "parent_classes": [
               "SGEntity"
             ]
@@ -39,7 +39,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 232,
+            "line_number": 241,
             "parent_classes": [
               "SGEntity"
             ]
@@ -54,7 +54,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 236,
+            "line_number": 245,
             "parent_classes": [
               "SGEntity"
             ]
@@ -75,7 +75,7 @@
             ],
             "returns": "list[SGAgent]: Agents in the same cell.",
             "examples": [],
-            "line_number": 242,
+            "line_number": 251,
             "parent_classes": [
               "SGEntity"
             ]
@@ -96,7 +96,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 263,
+            "line_number": 272,
             "parent_classes": [
               "SGEntity"
             ]
@@ -122,7 +122,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 267,
+            "line_number": 276,
             "parent_classes": [
               "SGEntity"
             ]
@@ -163,7 +163,7 @@
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
             "examples": [],
-            "line_number": 276,
+            "line_number": 285,
             "parent_classes": [
               "SGEntity"
             ]
@@ -184,7 +184,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 317,
+            "line_number": 326,
             "parent_classes": [
               "SGEntity"
             ]
@@ -205,7 +205,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 324,
+            "line_number": 333,
             "parent_classes": [
               "SGEntity"
             ]
@@ -226,7 +226,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 331,
+            "line_number": 340,
             "parent_classes": [
               "SGEntity"
             ]
@@ -247,7 +247,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 338,
+            "line_number": 347,
             "parent_classes": [
               "SGEntity"
             ]
@@ -262,7 +262,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 331,
+            "line_number": 335,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -276,7 +276,7 @@
             "parameters": [],
             "returns": "The entity type (SGEntityType instance)",
             "examples": [],
-            "line_number": 335,
+            "line_number": 339,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -290,7 +290,7 @@
             "parameters": [],
             "returns": "SGGrid: The grid instance, or None if not available",
             "examples": [],
-            "line_number": 344,
+            "line_number": 348,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -310,7 +310,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 260,
+            "line_number": 276,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -337,7 +337,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 313,
+            "line_number": 322,
             "parent_classes": [
               "SGEntity"
             ]
@@ -358,7 +358,7 @@
             ],
             "returns": "int: Number of matching agents in the same cell.",
             "examples": [],
-            "line_number": 597,
+            "line_number": 606,
             "parent_classes": [
               "SGEntity"
             ]
@@ -381,7 +381,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 361,
+            "line_number": 370,
             "parent_classes": [
               "SGEntity"
             ]
@@ -407,7 +407,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 273,
+            "line_number": 289,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -432,7 +432,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 283,
+            "line_number": 299,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -454,7 +454,7 @@
             ],
             "returns": "bool: True if at least one matching agent is in the same cell, False otherwise.",
             "examples": [],
-            "line_number": 365,
+            "line_number": 374,
             "parent_classes": [
               "SGEntity"
             ]
@@ -477,7 +477,7 @@
             ],
             "returns": "self: The agent (for chaining operations)",
             "examples": [],
-            "line_number": 387,
+            "line_number": 396,
             "parent_classes": [
               "SGEntity"
             ]
@@ -513,7 +513,7 @@
             ],
             "returns": "self: The agent (for chaining operations)",
             "examples": [],
-            "line_number": 461,
+            "line_number": 470,
             "parent_classes": [
               "SGEntity"
             ]
@@ -539,7 +539,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 542,
+            "line_number": 551,
             "parent_classes": [
               "SGEntity"
             ]
@@ -565,7 +565,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 553,
+            "line_number": 562,
             "parent_classes": [
               "SGEntity"
             ]
@@ -593,7 +593,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 618,
+            "line_number": 627,
             "parent_classes": [
               "SGEntity"
             ]
@@ -619,7 +619,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 581,
+            "line_number": 590,
             "parent_classes": [
               "SGEntity"
             ]
@@ -647,7 +647,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 271,
+            "line_number": 275,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -672,7 +672,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 142,
+            "line_number": 158,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -692,7 +692,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 164,
+            "line_number": 180,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -719,7 +719,7 @@
             "examples": [
               "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
             ],
-            "line_number": 173,
+            "line_number": 189,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -749,7 +749,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -779,7 +779,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -804,7 +804,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -829,7 +829,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 238,
+            "line_number": 254,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -839,7 +839,7 @@
     "SGCell": {
       "class_name": "SGCell",
       "description": "SGCell model class for SGE framework",
-      "total_methods": 51,
+      "total_methods": 52,
       "categories": {
         "NEW": [
           {
@@ -865,7 +865,7 @@
             "examples": [
               "# Create a sheep agent with default attributes\nsheep = cell.newAgentHere(sheepType)\n\n# Create a sheep agent with custom attributes\nsheep = cell.newAgentHere(sheepType, {\"health\": \"good\", \"age\": 2})"
             ],
-            "line_number": 251,
+            "line_number": 252,
             "parent_classes": [
               "SGEntity"
             ]
@@ -882,7 +882,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 278,
+            "line_number": 279,
             "parent_classes": [
               "SGEntity"
             ]
@@ -899,7 +899,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 294,
+            "line_number": 295,
             "parent_classes": [
               "SGEntity"
             ]
@@ -914,7 +914,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 298,
+            "line_number": 299,
             "parent_classes": [
               "SGEntity"
             ]
@@ -937,7 +937,7 @@
             "examples": [
               "# Get all agents in the cell\nall_agents = cell.getAgents()\n\n# Get only sheep agents\nsheep_agents = cell.getAgents(\"Sheeps\")\n\n# Get agents using agent type object\nsheep_agents = cell.getAgents(sheepType)"
             ],
-            "line_number": 302,
+            "line_number": 303,
             "parent_classes": [
               "SGEntity"
             ]
@@ -960,7 +960,7 @@
             "examples": [
               "# Get oldest agent among all agents\noldest = cell.getOldestAgent()\n\n# Get oldest agent of a specific type\noldest_sheep = cell.getOldestAgent(\"Sheeps\")"
             ],
-            "line_number": 330,
+            "line_number": 331,
             "parent_classes": [
               "SGEntity"
             ]
@@ -983,7 +983,7 @@
             "examples": [
               "# Get youngest agent among all agents\nyoungest = cell.getYoungestAgent()\n\n# Get youngest agent of a specific type\nyoungest_sheep = cell.getYoungestAgent(\"Sheeps\")"
             ],
-            "line_number": 365,
+            "line_number": 366,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1006,7 +1006,24 @@
             "examples": [
               "# Get first agent among all agents\nfirst = cell.getFirstAgent()\n\n# Get first agent of a specific type\nfirst_sheep = cell.getFirstAgent(\"Sheeps\")"
             ],
-            "line_number": 400,
+            "line_number": 401,
+            "parent_classes": [
+              "SGEntity"
+            ]
+          },
+          {
+            "name": "getLastArrivedAgent",
+            "signature": "def getLastArrivedAgent(self):",
+            "description": "Get the most recently arrived agent on this cell.",
+            "docstring": "Get the most recently arrived agent on this cell.\n\nReturns:\n    SGAgent or None: The last agent that moved or was placed on this cell,\n    or None if no agent has ever arrived.\n\nExample:\n    last = cell.getLastArrivedAgent()",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [],
+            "returns": "SGAgent or None: The last agent that moved or was placed on this cell, or None if no agent has ever arrived.",
+            "examples": [
+              "last = cell.getLastArrivedAgent()"
+            ],
+            "line_number": 431,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1029,7 +1046,7 @@
             "examples": [
               "# Get random agent among all agents\nrandom_agent = cell.getRandomAgent()\n\n# Get random agent of a specific type\nrandom_sheep = cell.getRandomAgent(\"Sheeps\")"
             ],
-            "line_number": 431,
+            "line_number": 444,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1057,7 +1074,7 @@
             "examples": [
               "# Get all neighboring cells\nneighbors = cell.getNeighborCells()\n\n# Get only forest cells\nforest_neighbors = cell.getNeighborCells(condition=lambda c: c.getValue(\"terrain\") == \"forest\")\n\n# Get neighbors using Moore neighborhood\nmoore_neighbors = cell.getNeighborCells(neighborhood=\"moore\")"
             ],
-            "line_number": 466,
+            "line_number": 479,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1080,7 +1097,7 @@
             "examples": [
               "# Get all cells in the same row\nrow_cells = cell.getCellsInRow()\n\n# Get only cells with tiles in the same row\nrow_cells_with_tiles = cell.getCellsInRow(condition=lambda c: c.hasTile())"
             ],
-            "line_number": 598,
+            "line_number": 611,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1103,7 +1120,7 @@
             "examples": [
               "# Get all cells in the same column\ncolumn_cells = cell.getCellsInColumn()\n\n# Get only cells with tiles in the same column\ncolumn_cells_with_tiles = cell.getCellsInColumn(condition=lambda c: c.hasTile())"
             ],
-            "line_number": 618,
+            "line_number": 631,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1131,7 +1148,7 @@
             "examples": [
               "# Get the range of cells with tiles in the same row\nrange = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile())\n# Returns the distance between the leftmost and rightmost cells with tiles\n\n# Get the range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile(), includingSelf=True)"
             ],
-            "line_number": 638,
+            "line_number": 651,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1159,7 +1176,7 @@
             "examples": [
               "# Get the range of cells with tiles in the same column\nrange = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile())\n# Returns the distance between the topmost and bottommost cells with tiles\n\n# Get the range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile(), includingSelf=True)"
             ],
-            "line_number": 676,
+            "line_number": 689,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1187,7 +1204,7 @@
             "examples": [
               "# Get the horizontal range of cells with tiles across the entire grid width\nrange = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile())\n# Returns the distance between the leftmost and rightmost cells with tiles (any row)\n\n# Get the horizontal range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True)"
             ],
-            "line_number": 714,
+            "line_number": 727,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1215,7 +1232,7 @@
             "examples": [
               "# Get the vertical range of cells with tiles across the entire grid height\nrange = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile())\n# Returns the distance between the topmost and bottommost cells with tiles (any column)\n\n# Get the vertical range including current cell (useful to check if placing a tile would exceed max range)\nrange = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True)"
             ],
-            "line_number": 755,
+            "line_number": 768,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1230,7 +1247,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 796,
+            "line_number": 809,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1245,7 +1262,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 801,
+            "line_number": 814,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1260,7 +1277,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 806,
+            "line_number": 819,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1275,7 +1292,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 811,
+            "line_number": 824,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1306,7 +1323,7 @@
             ],
             "returns": "list[SGCell]: List of matching neighbor cells (excluding self).",
             "examples": [],
-            "line_number": 816,
+            "line_number": 829,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1337,7 +1354,7 @@
             ],
             "returns": "SGCell | None: The closest matching cell, or None if no match found.",
             "examples": [],
-            "line_number": 881,
+            "line_number": 894,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1378,7 +1395,7 @@
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
             "examples": [],
-            "line_number": 919,
+            "line_number": 932,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1393,7 +1410,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 982,
+            "line_number": 995,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1414,7 +1431,7 @@
             ],
             "returns": "list: List of tiles",
             "examples": [],
-            "line_number": 986,
+            "line_number": 999,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1440,7 +1457,7 @@
             ],
             "returns": "list: List of tiles at the specified position",
             "examples": [],
-            "line_number": 1001,
+            "line_number": 1014,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1463,7 +1480,7 @@
             "examples": [
               "# Get first tile among all tiles\nfirst = cell.getFirstTile()\n\n# Get first tile of a specific type\nfirst_card = cell.getFirstTile(CardType)"
             ],
-            "line_number": 1019,
+            "line_number": 1032,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1484,7 +1501,7 @@
             ],
             "returns": "SGTile or None: A random tile of this type, or None if not found",
             "examples": [],
-            "line_number": 1047,
+            "line_number": 1060,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1505,7 +1522,7 @@
             ],
             "returns": "SGStack: A Stack object representing all tiles of this type",
             "examples": [],
-            "line_number": 1064,
+            "line_number": 1077,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1520,7 +1537,7 @@
             "parameters": [],
             "returns": "The entity type (SGEntityType instance)",
             "examples": [],
-            "line_number": 335,
+            "line_number": 339,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -1534,7 +1551,7 @@
             "parameters": [],
             "returns": "SGGrid: The grid instance, or None if not available",
             "examples": [],
-            "line_number": 344,
+            "line_number": 348,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -1554,7 +1571,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 260,
+            "line_number": 276,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -1576,7 +1593,7 @@
             ],
             "returns": "bool: True if the agent is in this cell, False otherwise",
             "examples": [],
-            "line_number": 1088,
+            "line_number": 1101,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1597,7 +1614,7 @@
             ],
             "returns": "bool: True if the cell contains agents of the specified type, False otherwise",
             "examples": [],
-            "line_number": 1100,
+            "line_number": 1113,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1625,7 +1642,7 @@
             "examples": [
               "# Check if cell has any tile\ncell.hasTile()\n\n# Check if cell has a tile of specific type\ncell.hasTile(SeaTile)\n\n# Check if cell has a tile matching a condition\ncell.hasTile(condition=lambda tile: tile.getValue(\"category\") == \"biodiv\")\n\n# Check if cell has a tile of specific type matching a condition\ncell.hasTile(SeaTile, condition=lambda tile: tile.isFaceFront())"
             ],
-            "line_number": 1114,
+            "line_number": 1127,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1646,7 +1663,7 @@
             ],
             "returns": "bool: True if the cell contains tiles of the specified type, False otherwise",
             "examples": [],
-            "line_number": 1155,
+            "line_number": 1168,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1669,7 +1686,7 @@
             ],
             "returns": "bool: True if the cell is empty of agents and tiles (of the specified type if provided), False otherwise",
             "examples": [],
-            "line_number": 1168,
+            "line_number": 1181,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1695,7 +1712,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 273,
+            "line_number": 289,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1720,7 +1737,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 283,
+            "line_number": 299,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -1742,7 +1759,7 @@
             ],
             "returns": "float: Euclidean distance between the two cells.",
             "examples": [],
-            "line_number": 1222,
+            "line_number": 1235,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1765,7 +1782,7 @@
             "examples": [
               "# Get grid distance between two cells\ndistance = cell1.distanceToInGrid(cell2)\n# Returns the sum of horizontal and vertical differences"
             ],
-            "line_number": 1237,
+            "line_number": 1250,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1788,7 +1805,7 @@
             ],
             "returns": "int: Number of agents of the specified type, or total count if type_name is None",
             "examples": [],
-            "line_number": 1257,
+            "line_number": 1270,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1809,7 +1826,7 @@
             ],
             "returns": "int: Number of tiles",
             "examples": [],
-            "line_number": 1276,
+            "line_number": 1289,
             "parent_classes": [
               "SGEntity"
             ]
@@ -1837,7 +1854,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 271,
+            "line_number": 275,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -1862,7 +1879,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 142,
+            "line_number": 158,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1882,7 +1899,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 164,
+            "line_number": 180,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1909,7 +1926,7 @@
             "examples": [
               "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
             ],
-            "line_number": 173,
+            "line_number": 189,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1939,7 +1956,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1969,7 +1986,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1994,7 +2011,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -2019,7 +2036,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 238,
+            "line_number": 254,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -2889,7 +2906,7 @@
     "SGEndGameRule": {
       "class_name": "SGEndGameRule",
       "description": "SGEndGameRule model class for SGE framework",
-      "total_methods": 26,
+      "total_methods": 27,
       "categories": {
         "ADD": [
           {
@@ -2944,6 +2961,62 @@
             "returns": "",
             "examples": [],
             "line_number": 287,
+            "parent_classes": [
+              "SGGameSpace"
+            ]
+          },
+          {
+            "name": "addEndGameCondition_onSimVar",
+            "signature": "def addEndGameCondition_onSimVar(self, simVar, logicalTest, objective, name=\"SimVar based condition\", color=Qt.black, isDisplay=True, delay_rounds=0, final_phase=None):",
+            "description": "Create an EndGame Condition directly from a SimulationVariable.",
+            "docstring": "Create an EndGame Condition directly from a SimulationVariable.\n\nArgs:\n    simVar (SGSimulationVariable): the simulation variable to monitor\n    logicalTest (str): logical test in [\"greater\", \"greater or equal\", \"equal\", \"less or equal\", \"less\"]\n    objective (int or float): threshold value for the logical test\n    name (str): label displayed in the EndGameRule board (default: \"SimVar based condition\")\n    color (Qt.color): text color (default: black)\n    isDisplay (bool): whether to display in the EndGameRule board (default: True)\n    delay_rounds (int): extra rounds after condition is met before game ends (default: 0)\n    final_phase (int, str, or phase instance, optional): phase when game ends (default: None)",
+            "category": "ADD",
+            "class_name": "SGEndGameRule",
+            "parameters": [
+              {
+                "name": "simVar",
+                "type": "SGSimulationVariable",
+                "description": "the simulation variable to monitor"
+              },
+              {
+                "name": "logicalTest",
+                "type": "str",
+                "description": "logical test in [\"greater\", \"greater or equal\", \"equal\", \"less or equal\", \"less\"]"
+              },
+              {
+                "name": "objective",
+                "type": "int or float",
+                "description": "threshold value for the logical test"
+              },
+              {
+                "name": "name",
+                "type": "str",
+                "description": "label displayed in the EndGameRule board (default: \"SimVar based condition\")"
+              },
+              {
+                "name": "color",
+                "type": "Qt.color",
+                "description": "text color (default: black)"
+              },
+              {
+                "name": "isDisplay",
+                "type": "bool",
+                "description": "whether to display in the EndGameRule board (default: True)"
+              },
+              {
+                "name": "delay_rounds",
+                "type": "int",
+                "description": "extra rounds after condition is met before game ends (default: 0)"
+              },
+              {
+                "name": "final_phase",
+                "type": "int, str, or phase instance, optional",
+                "description": "phase when game ends (default: None)"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 313,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3014,7 +3087,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 313,
+            "line_number": 334,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3065,7 +3138,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 343,
+            "line_number": 364,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3111,7 +3184,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 370,
+            "line_number": 391,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3134,7 +3207,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 402,
+            "line_number": 423,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3155,7 +3228,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 411,
+            "line_number": 432,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3176,7 +3249,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 420,
+            "line_number": 441,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3197,7 +3270,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 429,
+            "line_number": 450,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3218,7 +3291,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 438,
+            "line_number": 459,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3289,7 +3362,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 448,
+            "line_number": 469,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3310,7 +3383,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 485,
+            "line_number": 506,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3331,7 +3404,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 511,
+            "line_number": 532,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3352,7 +3425,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 515,
+            "line_number": 536,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3373,7 +3446,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 519,
+            "line_number": 540,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3394,7 +3467,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 539,
+            "line_number": 560,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3415,7 +3488,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 543,
+            "line_number": 564,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3436,7 +3509,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 547,
+            "line_number": 568,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3457,7 +3530,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 551,
+            "line_number": 572,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3478,7 +3551,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 555,
+            "line_number": 576,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3499,7 +3572,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 559,
+            "line_number": 580,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3520,7 +3593,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 564,
+            "line_number": 585,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3537,7 +3610,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 497,
+            "line_number": 518,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3552,7 +3625,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 504,
+            "line_number": 525,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3567,7 +3640,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 525,
+            "line_number": 546,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3582,7 +3655,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 532,
+            "line_number": 553,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3599,7 +3672,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 587,
+            "line_number": 608,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -3644,7 +3717,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1248,
+            "line_number": 1250,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3667,7 +3740,7 @@
             "examples": [
               "grid.setLayoutOrder(1)  # Set grid as first in layout\nlegend.setLayoutOrder(3)  # Set legend as third in layout\ndashboard.setLayoutOrder(None)  # Reset to auto-assignment"
             ],
-            "line_number": 1432,
+            "line_number": 1434,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3693,7 +3766,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 336,
+            "line_number": 338,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3715,7 +3788,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 346,
+            "line_number": 348,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3739,7 +3812,7 @@
             "examples": [
               "setDefaultValues_randomChoice({\n\"health\": [\"good\", \"bad\"],\n\"hunger\": (\"good\", \"bad\"),\n\"speed\": 3\n})\nis equivalent to:\nsetDefaultValues({\n\"health\": lambda: random.choice([\"good\", \"bad\"]),\n\"hunger\": lambda: random.choice((\"good\", \"bad\")),\n\"speed\": 3\n})"
             ],
-            "line_number": 356,
+            "line_number": 358,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3763,7 +3836,7 @@
             "examples": [
               "setDefaultValues_randomNumeric({\n\"age\": (10, 18),              # randint 10..18\n\"speed\": (0.5, 2.0),          # uniform 0.5..2.0\n\"index\": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)\n\"height\": {\"normal\": (170, 10)},\n\"state\": {\"choice\": [\"A\", \"B\", \"C\"]},\n})"
             ],
-            "line_number": 389,
+            "line_number": 391,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3795,7 +3868,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 460,
+            "line_number": 462,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3829,7 +3902,7 @@
             "examples": [
               "# Set random health status for all agents\nagentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random type for only forest cells\ncellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
             ],
-            "line_number": 472,
+            "line_number": 474,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3863,7 +3936,7 @@
             "examples": [
               "# Set random age between 18-65 for all agents\nagentType.setEntities_randomNumeric(\"age\", (18, 65))\n\n# Set random speed for only active agents\nagentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0),\ncondition=lambda a: a.getValue(\"active\"))\n\n# Set normal distributed height\nagentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n\n# Set random choice from list\nagentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})"
             ],
-            "line_number": 497,
+            "line_number": 499,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3897,7 +3970,7 @@
             "examples": [
               "# Set random health status for each agent individually\nagentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random terrain for each forest cell individually\ncellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
             ],
-            "line_number": 579,
+            "line_number": 581,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3926,7 +3999,7 @@
             "examples": [
               "# Display health attribute\nagentDef.setTooltip(\"Health\", \"health\")\n\n# Display custom calculated value\nagentDef.setTooltip(\"Status\", lambda entity: f\"Health: {entity.value('health')}\")\n\n# Display static text\nagentDef.setTooltip(\"Info\", \"Agent Information\")"
             ],
-            "line_number": 602,
+            "line_number": 604,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3958,7 +4031,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 630,
+            "line_number": 632,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4000,7 +4073,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 640,
+            "line_number": 642,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4042,7 +4115,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 650,
+            "line_number": 652,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4050,9 +4123,9 @@
           },
           {
             "name": "setRandomEntities",
-            "signature": "def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):",
+            "signature": "def setRandomEntities(self, aAttribute, aValue, numberOfEntities=1, condition=None):",
             "description": "Applies the same attribut value for a random number of entities",
-            "docstring": "Applies the same attribut value for a random number of entities\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "Applies the same attribut value for a random number of entities\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -4067,7 +4140,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -4079,7 +4152,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 660,
+            "line_number": 662,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4087,9 +4160,9 @@
           },
           {
             "name": "setRandomEntities_withValue",
-            "signature": "def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):",
+            "signature": "def setRandomEntities_withValue(self, aAttribut, aValue, numberOfEntities, conditionAtt, conditionVal, condition=None):",
             "description": "To apply a value to some random entities with a certain value",
-            "docstring": "To apply a value to some random entities with a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "To apply a value to some random entities with a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -4104,7 +4177,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -4126,7 +4199,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 675,
+            "line_number": 677,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4134,9 +4207,9 @@
           },
           {
             "name": "setRandomEntities_withValueNot",
-            "signature": "def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):",
+            "signature": "def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfEntities, conditionAtt, conditionVal, condition=None):",
             "description": "To apply a value to some random entities noty having a certain value",
-            "docstring": "To apply a value to some random entities noty having a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "To apply a value to some random entities noty having a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -4151,7 +4224,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -4173,7 +4246,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 687,
+            "line_number": 689,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4205,7 +4278,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 699,
+            "line_number": 701,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4237,7 +4310,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 712,
+            "line_number": 714,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4264,7 +4337,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 142,
+            "line_number": 158,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -4284,7 +4357,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 164,
+            "line_number": 180,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -4311,7 +4384,7 @@
             "examples": [
               "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
             ],
-            "line_number": 173,
+            "line_number": 189,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -4341,7 +4414,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -4371,7 +4444,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -4396,7 +4469,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -4421,7 +4494,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 238,
+            "line_number": 254,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -4448,7 +4521,7 @@
             ],
             "returns": "object or None: The cell object if found within the grid boundaries, otherwise None. Notes: - Coordinates are 1-indexed: valid ranges are 1 ≤ x ≤ grid.columns and 1 ≤ y ≤ grid.rows. - If coordinates are outside this range, returns None. - Supports passing coordinates as a tuple or list: e.g. getCell((4, 2)).",
             "examples": [],
-            "line_number": 1255,
+            "line_number": 1257,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4474,7 +4547,7 @@
             ],
             "returns": "SGCell: The entity at the specified coordinates, or None if not found",
             "examples": [],
-            "line_number": 1291,
+            "line_number": 1293,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4495,7 +4568,7 @@
             ],
             "returns": "list[SGCell]: List of empty cells matching the condition, or all empty cells if condition is None",
             "examples": [],
-            "line_number": 1304,
+            "line_number": 1306,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4516,7 +4589,7 @@
             ],
             "returns": "SGCell or None: The first empty cell matching the condition, or None if no empty cell is found",
             "examples": [],
-            "line_number": 1320,
+            "line_number": 1322,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4544,7 +4617,7 @@
             "examples": [
               "# Get all cells in row 5\ncells = cellDef.getEntities_withRow(5)\n\n# Get only cells with tiles in row 5\ncells_with_tiles = cellDef.getEntities_withRow(5, condition=lambda c: c.hasTile())"
             ],
-            "line_number": 1337,
+            "line_number": 1339,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4572,7 +4645,7 @@
             "examples": [
               "# Get all cells in column 3\ncells = cellDef.getEntities_withColumn(3)\n\n# Get only cells with tiles in column 3\ncells_with_tiles = cellDef.getEntities_withColumn(3, condition=lambda c: c.hasTile())"
             ],
-            "line_number": 1363,
+            "line_number": 1365,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4598,7 +4671,7 @@
             ],
             "returns": "SGCell: A random cell from the grid, or False if no cells found",
             "examples": [],
-            "line_number": 1390,
+            "line_number": 1392,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4619,7 +4692,7 @@
             ],
             "returns": "list: List of entities matching the condition, or all entities if condition is None",
             "examples": [],
-            "line_number": 798,
+            "line_number": 800,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4646,7 +4719,7 @@
             ],
             "returns": "list: List of entities with the specified attribute value",
             "examples": [],
-            "line_number": 811,
+            "line_number": 813,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4673,7 +4746,7 @@
             ],
             "returns": "list: List of entities without the specified attribute value",
             "examples": [],
-            "line_number": 824,
+            "line_number": 826,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4705,7 +4778,7 @@
             ],
             "returns": "Entity or False: A random entity with the specified value, False if none found",
             "examples": [],
-            "line_number": 857,
+            "line_number": 859,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4737,7 +4810,7 @@
             ],
             "returns": "Entity or False: A random entity without the specified value, False if none found",
             "examples": [],
-            "line_number": 871,
+            "line_number": 873,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4769,7 +4842,7 @@
             ],
             "returns": "list: List of random entities (may be fewer than requested if not enough entities match)",
             "examples": [],
-            "line_number": 885,
+            "line_number": 887,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4806,7 +4879,7 @@
             ],
             "returns": "list: List of random entities with the specified value",
             "examples": [],
-            "line_number": 906,
+            "line_number": 908,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4843,7 +4916,7 @@
             ],
             "returns": "list: List of random entities without the specified value",
             "examples": [],
-            "line_number": 921,
+            "line_number": 923,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4865,7 +4938,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 260,
+            "line_number": 276,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -4887,7 +4960,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1407,
+            "line_number": 1409,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4902,7 +4975,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 963,
+            "line_number": 965,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4936,7 +5009,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 725,
+            "line_number": 727,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4968,7 +5041,7 @@
             ],
             "returns": "float or int: The calculated metric for all entities.",
             "examples": [],
-            "line_number": 1084,
+            "line_number": 1086,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5010,7 +5083,7 @@
             ],
             "returns": "float or int: The calculated metric for entities with the specified value.",
             "examples": [],
-            "line_number": 1103,
+            "line_number": 1105,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5052,7 +5125,7 @@
             ],
             "returns": "float or int: The calculated metric for entities without the specified value.",
             "examples": [],
-            "line_number": 1126,
+            "line_number": 1128,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5068,7 +5141,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 537,
+            "line_number": 539,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5102,7 +5175,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 739,
+            "line_number": 741,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5139,7 +5212,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 755,
+            "line_number": 757,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5171,7 +5244,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 766,
+            "line_number": 768,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5203,7 +5276,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1064,
+            "line_number": 1066,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5221,7 +5294,7 @@
             "parameters": [],
             "returns": "int: Total number of entities",
             "examples": [],
-            "line_number": 936,
+            "line_number": 938,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5248,7 +5321,7 @@
             ],
             "returns": "int: Number of entities with the specified value",
             "examples": [],
-            "line_number": 945,
+            "line_number": 947,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5272,7 +5345,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 973,
+            "line_number": 975,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5294,7 +5367,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 982,
+            "line_number": 984,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5321,7 +5394,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 992,
+            "line_number": 994,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5343,7 +5416,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1008,
+            "line_number": 1010,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5372,7 +5445,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 273,
+            "line_number": 289,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -5397,7 +5470,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 283,
+            "line_number": 299,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -5441,7 +5514,7 @@
             ],
             "returns": "SGAgent: The created agent model, or None if creation failed",
             "examples": [],
-            "line_number": 1521,
+            "line_number": 1523,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5472,7 +5545,7 @@
             ],
             "returns": "None: Agents are created and added to the agentType",
             "examples": [],
-            "line_number": 1550,
+            "line_number": 1552,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5518,7 +5591,7 @@
             ],
             "returns": "a agent",
             "examples": [],
-            "line_number": 1565,
+            "line_number": 1567,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5559,7 +5632,7 @@
             ],
             "returns": "agents",
             "examples": [],
-            "line_number": 1607,
+            "line_number": 1609,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5590,7 +5663,7 @@
             ],
             "returns": "a agent",
             "examples": [],
-            "line_number": 1648,
+            "line_number": 1650,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5626,7 +5699,7 @@
             ],
             "returns": "a list of agents",
             "examples": [],
-            "line_number": 1677,
+            "line_number": 1679,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5657,7 +5730,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 739,
+            "line_number": 741,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5694,7 +5767,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 755,
+            "line_number": 757,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5726,7 +5799,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 766,
+            "line_number": 768,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5758,7 +5831,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1064,
+            "line_number": 1066,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5787,7 +5860,7 @@
             ],
             "returns": "SGAgent: A random agent from the list bool: False if no agents found",
             "examples": [],
-            "line_number": 1716,
+            "line_number": 1718,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -5813,7 +5886,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 782,
+            "line_number": 784,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5835,7 +5908,7 @@
             ],
             "returns": "list: List of entities matching the condition, or all entities if condition is None",
             "examples": [],
-            "line_number": 798,
+            "line_number": 800,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5862,7 +5935,7 @@
             ],
             "returns": "list: List of entities with the specified attribute value",
             "examples": [],
-            "line_number": 811,
+            "line_number": 813,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5889,7 +5962,7 @@
             ],
             "returns": "list: List of entities without the specified attribute value",
             "examples": [],
-            "line_number": 824,
+            "line_number": 826,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5921,7 +5994,7 @@
             ],
             "returns": "Entity or False: A random entity with the specified value, False if none found",
             "examples": [],
-            "line_number": 857,
+            "line_number": 859,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5953,7 +6026,7 @@
             ],
             "returns": "Entity or False: A random entity without the specified value, False if none found",
             "examples": [],
-            "line_number": 871,
+            "line_number": 873,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5985,7 +6058,7 @@
             ],
             "returns": "list: List of random entities (may be fewer than requested if not enough entities match)",
             "examples": [],
-            "line_number": 885,
+            "line_number": 887,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6022,7 +6095,7 @@
             ],
             "returns": "list: List of random entities with the specified value",
             "examples": [],
-            "line_number": 906,
+            "line_number": 908,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6059,7 +6132,7 @@
             ],
             "returns": "list: List of random entities without the specified value",
             "examples": [],
-            "line_number": 921,
+            "line_number": 923,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6081,7 +6154,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 260,
+            "line_number": 276,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -6103,7 +6176,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1731,
+            "line_number": 1733,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -6118,7 +6191,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 963,
+            "line_number": 965,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6147,7 +6220,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1764,
+            "line_number": 1766,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -6178,7 +6251,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 725,
+            "line_number": 727,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6210,7 +6283,7 @@
             ],
             "returns": "float or int: The calculated metric for all entities.",
             "examples": [],
-            "line_number": 1084,
+            "line_number": 1086,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6252,7 +6325,7 @@
             ],
             "returns": "float or int: The calculated metric for entities with the specified value.",
             "examples": [],
-            "line_number": 1103,
+            "line_number": 1105,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6294,7 +6367,7 @@
             ],
             "returns": "float or int: The calculated metric for entities without the specified value.",
             "examples": [],
-            "line_number": 1126,
+            "line_number": 1128,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6310,7 +6383,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 537,
+            "line_number": 539,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6339,7 +6412,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 336,
+            "line_number": 338,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6361,7 +6434,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 346,
+            "line_number": 348,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6385,7 +6458,7 @@
             "examples": [
               "setDefaultValues_randomChoice({\n\"health\": [\"good\", \"bad\"],\n\"hunger\": (\"good\", \"bad\"),\n\"speed\": 3\n})\nis equivalent to:\nsetDefaultValues({\n\"health\": lambda: random.choice([\"good\", \"bad\"]),\n\"hunger\": lambda: random.choice((\"good\", \"bad\")),\n\"speed\": 3\n})"
             ],
-            "line_number": 356,
+            "line_number": 358,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6409,7 +6482,7 @@
             "examples": [
               "setDefaultValues_randomNumeric({\n\"age\": (10, 18),              # randint 10..18\n\"speed\": (0.5, 2.0),          # uniform 0.5..2.0\n\"index\": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)\n\"height\": {\"normal\": (170, 10)},\n\"state\": {\"choice\": [\"A\", \"B\", \"C\"]},\n})"
             ],
-            "line_number": 389,
+            "line_number": 391,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6441,7 +6514,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 460,
+            "line_number": 462,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6475,7 +6548,7 @@
             "examples": [
               "# Set random health status for all agents\nagentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random type for only forest cells\ncellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
             ],
-            "line_number": 472,
+            "line_number": 474,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6509,7 +6582,7 @@
             "examples": [
               "# Set random age between 18-65 for all agents\nagentType.setEntities_randomNumeric(\"age\", (18, 65))\n\n# Set random speed for only active agents\nagentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0),\ncondition=lambda a: a.getValue(\"active\"))\n\n# Set normal distributed height\nagentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n\n# Set random choice from list\nagentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})"
             ],
-            "line_number": 497,
+            "line_number": 499,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6543,7 +6616,7 @@
             "examples": [
               "# Set random health status for each agent individually\nagentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random terrain for each forest cell individually\ncellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
             ],
-            "line_number": 579,
+            "line_number": 581,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6572,7 +6645,7 @@
             "examples": [
               "# Display health attribute\nagentDef.setTooltip(\"Health\", \"health\")\n\n# Display custom calculated value\nagentDef.setTooltip(\"Status\", lambda entity: f\"Health: {entity.value('health')}\")\n\n# Display static text\nagentDef.setTooltip(\"Info\", \"Agent Information\")"
             ],
-            "line_number": 602,
+            "line_number": 604,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6604,7 +6677,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 630,
+            "line_number": 632,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6646,7 +6719,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 640,
+            "line_number": 642,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6688,7 +6761,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 650,
+            "line_number": 652,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6696,9 +6769,9 @@
           },
           {
             "name": "setRandomEntities",
-            "signature": "def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):",
+            "signature": "def setRandomEntities(self, aAttribute, aValue, numberOfEntities=1, condition=None):",
             "description": "Applies the same attribut value for a random number of entities",
-            "docstring": "Applies the same attribut value for a random number of entities\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "Applies the same attribut value for a random number of entities\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -6713,7 +6786,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -6725,7 +6798,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 660,
+            "line_number": 662,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6733,9 +6806,9 @@
           },
           {
             "name": "setRandomEntities_withValue",
-            "signature": "def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):",
+            "signature": "def setRandomEntities_withValue(self, aAttribut, aValue, numberOfEntities, conditionAtt, conditionVal, condition=None):",
             "description": "To apply a value to some random entities with a certain value",
-            "docstring": "To apply a value to some random entities with a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "To apply a value to some random entities with a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -6750,7 +6823,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -6772,7 +6845,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 675,
+            "line_number": 677,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6780,9 +6853,9 @@
           },
           {
             "name": "setRandomEntities_withValueNot",
-            "signature": "def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):",
+            "signature": "def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfEntities, conditionAtt, conditionVal, condition=None):",
             "description": "To apply a value to some random entities noty having a certain value",
-            "docstring": "To apply a value to some random entities noty having a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "To apply a value to some random entities noty having a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -6797,7 +6870,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -6819,7 +6892,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 687,
+            "line_number": 689,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6851,7 +6924,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 699,
+            "line_number": 701,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6883,7 +6956,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 712,
+            "line_number": 714,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6910,7 +6983,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 142,
+            "line_number": 158,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -6930,7 +7003,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 164,
+            "line_number": 180,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -6957,7 +7030,7 @@
             "examples": [
               "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
             ],
-            "line_number": 173,
+            "line_number": 189,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -6987,7 +7060,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -7017,7 +7090,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -7042,7 +7115,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -7067,7 +7140,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 238,
+            "line_number": 254,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -7083,7 +7156,7 @@
             "parameters": [],
             "returns": "int: Total number of entities",
             "examples": [],
-            "line_number": 936,
+            "line_number": 938,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7110,7 +7183,7 @@
             ],
             "returns": "int: Number of entities with the specified value",
             "examples": [],
-            "line_number": 945,
+            "line_number": 947,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7134,7 +7207,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 973,
+            "line_number": 975,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7156,7 +7229,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 982,
+            "line_number": 984,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7183,7 +7256,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 992,
+            "line_number": 994,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7205,7 +7278,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1008,
+            "line_number": 1010,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7234,7 +7307,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 273,
+            "line_number": 289,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -7259,7 +7332,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 283,
+            "line_number": 299,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -7308,7 +7381,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 2064,
+            "line_number": 2066,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7371,7 +7444,7 @@
             "examples": [
               "# Create a stack of 30 tiles with random images on the back face\nimages = model.loadImagesFromDirectory(\"path/to/images\")\nstack = Tile.newStackOnCell(cell, 30, backImages=images)\n\n# Create a stack with random images on both faces\nstack = Tile.newStackOnCell(cell, 10, frontImages=front_images, backImages=back_images)\n\n# Create a stack with the same image for all tiles\nstack = Tile.newStackOnCell(cell, 10, backImage=my_image)\n\n# Create a stack without images (uses defaults)\nstack = Tile.newStackOnCell(cell, 5)"
             ],
-            "line_number": 2108,
+            "line_number": 2110,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7414,7 +7487,7 @@
             "examples": [
               "# Create stack with paired images and attributes\nimages = [img1, img2, img3]\nattrs = [{\"name\": \"tile1\"}, {\"name\": \"tile2\"}, {\"name\": \"tile3\"}]\nstack = Tile.newStackOnCellWithPairedData(cell, frontImages=images, attributesList=attrs)\n\n# Create stack with only images (no attributes)\nstack = Tile.newStackOnCellWithPairedData(cell, frontImages=images)\n\n# Create stack with only attributes (uses default images)\nstack = Tile.newStackOnCellWithPairedData(cell, attributesList=attrs)"
             ],
-            "line_number": 2191,
+            "line_number": 2193,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7462,7 +7535,7 @@
             "examples": [
               "# With explicit image column in CSV\ncolumns_mapping = {\n'name': ('attribute', 'tile_name'),\n'category': ('attribute', 'category'),\n'image': 'frontImage',\n'nb': 'quantity'\n}\nstack = Tile.newStackOnCellFromCSV(cell, {'path': 'tiles.csv', 'delimiter': ';'}, columns_mapping, image_dir='images/')\n\n# With image column in CSV\ncolumns_mapping = {\n'name': ('attribute', 'tile_name'),\n'category': ('attribute', 'category'),\n'image': 'frontImage',\n'nb': 'quantity'\n}\nstack = Tile.newStackOnCellFromCSV(cell, {'path': 'tiles.csv', 'delimiter': ';'}, columns_mapping, image_dir='images/')"
             ],
-            "line_number": 2270,
+            "line_number": 2272,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7513,7 +7586,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 2491,
+            "line_number": 2493,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7554,7 +7627,7 @@
             ],
             "returns": "SGTile: The created tile model, or None if creation failed",
             "examples": [],
-            "line_number": 2546,
+            "line_number": 2548,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7602,7 +7675,7 @@
             "examples": [
               "# Create Memory game tiles with image pairs (8 pairs = 16 tiles)\ncells = [Cell.getCell(x, y) for x in range(1, 5) for y in range(1, 5)]\ntiles = CardTile.newTilesWithImages(\ncells=cells,\nimages_directory=\"./images/memory\",\nnum_images=8,\nrepetitions=2,  # Pairs\nshuffle=True,\nface=\"back\"\n)\n\n# Create tiles with triplets (5 images × 3 = 15 tiles)\ntiles = CardTile.newTilesWithImages(\ncells=cells[:15],\nimages_directory=\"./images/memory\",\nnum_images=5,\nrepetitions=3,  # Triplets\nshuffle=True\n)\n\n# Use all available images as simplets (each image once)\ntiles = CardTile.newTilesWithImages(\ncells=cells,\nimages_directory=\"./images/memory\",\nrepetitions=1,  # Singlets\nshuffle=True\n)"
             ],
-            "line_number": 2599,
+            "line_number": 2601,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7633,7 +7706,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 739,
+            "line_number": 741,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7670,7 +7743,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 755,
+            "line_number": 757,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7702,7 +7775,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 766,
+            "line_number": 768,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7734,7 +7807,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1064,
+            "line_number": 1066,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7752,7 +7825,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 2723,
+            "line_number": 2725,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7773,7 +7846,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2727,
+            "line_number": 2729,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7794,7 +7867,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2734,
+            "line_number": 2736,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7809,7 +7882,7 @@
             "parameters": [],
             "returns": "dict: Dictionary mapping (cell, position) tuples to lists of tiles",
             "examples": [],
-            "line_number": 2742,
+            "line_number": 2744,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -7835,7 +7908,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 782,
+            "line_number": 784,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7857,7 +7930,7 @@
             ],
             "returns": "list: List of entities matching the condition, or all entities if condition is None",
             "examples": [],
-            "line_number": 798,
+            "line_number": 800,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7884,7 +7957,7 @@
             ],
             "returns": "list: List of entities with the specified attribute value",
             "examples": [],
-            "line_number": 811,
+            "line_number": 813,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7911,7 +7984,7 @@
             ],
             "returns": "list: List of entities without the specified attribute value",
             "examples": [],
-            "line_number": 824,
+            "line_number": 826,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7938,7 +8011,7 @@
             ],
             "returns": "Entity or False: A random entity if available, False if no entities match",
             "examples": [],
-            "line_number": 837,
+            "line_number": 839,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -7970,7 +8043,7 @@
             ],
             "returns": "Entity or False: A random entity with the specified value, False if none found",
             "examples": [],
-            "line_number": 857,
+            "line_number": 859,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8002,7 +8075,7 @@
             ],
             "returns": "Entity or False: A random entity without the specified value, False if none found",
             "examples": [],
-            "line_number": 871,
+            "line_number": 873,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8034,7 +8107,7 @@
             ],
             "returns": "list: List of random entities (may be fewer than requested if not enough entities match)",
             "examples": [],
-            "line_number": 885,
+            "line_number": 887,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8071,7 +8144,7 @@
             ],
             "returns": "list: List of random entities with the specified value",
             "examples": [],
-            "line_number": 906,
+            "line_number": 908,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8108,7 +8181,7 @@
             ],
             "returns": "list: List of random entities without the specified value",
             "examples": [],
-            "line_number": 921,
+            "line_number": 923,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8130,7 +8203,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 260,
+            "line_number": 276,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -8152,7 +8225,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2762,
+            "line_number": 2764,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -8173,7 +8246,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2784,
+            "line_number": 2786,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -8188,7 +8261,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 963,
+            "line_number": 965,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8217,7 +8290,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 336,
+            "line_number": 338,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8239,7 +8312,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 346,
+            "line_number": 348,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8263,7 +8336,7 @@
             "examples": [
               "setDefaultValues_randomChoice({\n\"health\": [\"good\", \"bad\"],\n\"hunger\": (\"good\", \"bad\"),\n\"speed\": 3\n})\nis equivalent to:\nsetDefaultValues({\n\"health\": lambda: random.choice([\"good\", \"bad\"]),\n\"hunger\": lambda: random.choice((\"good\", \"bad\")),\n\"speed\": 3\n})"
             ],
-            "line_number": 356,
+            "line_number": 358,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8287,7 +8360,7 @@
             "examples": [
               "setDefaultValues_randomNumeric({\n\"age\": (10, 18),              # randint 10..18\n\"speed\": (0.5, 2.0),          # uniform 0.5..2.0\n\"index\": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)\n\"height\": {\"normal\": (170, 10)},\n\"state\": {\"choice\": [\"A\", \"B\", \"C\"]},\n})"
             ],
-            "line_number": 389,
+            "line_number": 391,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8319,7 +8392,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 460,
+            "line_number": 462,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8353,7 +8426,7 @@
             "examples": [
               "# Set random health status for all agents\nagentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random type for only forest cells\ncellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
             ],
-            "line_number": 472,
+            "line_number": 474,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8387,7 +8460,7 @@
             "examples": [
               "# Set random age between 18-65 for all agents\nagentType.setEntities_randomNumeric(\"age\", (18, 65))\n\n# Set random speed for only active agents\nagentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0),\ncondition=lambda a: a.getValue(\"active\"))\n\n# Set normal distributed height\nagentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n\n# Set random choice from list\nagentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})"
             ],
-            "line_number": 497,
+            "line_number": 499,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8421,7 +8494,7 @@
             "examples": [
               "# Set random health status for each agent individually\nagentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random terrain for each forest cell individually\ncellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
             ],
-            "line_number": 579,
+            "line_number": 581,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8450,7 +8523,7 @@
             "examples": [
               "# Display health attribute\nagentDef.setTooltip(\"Health\", \"health\")\n\n# Display custom calculated value\nagentDef.setTooltip(\"Status\", lambda entity: f\"Health: {entity.value('health')}\")\n\n# Display static text\nagentDef.setTooltip(\"Info\", \"Agent Information\")"
             ],
-            "line_number": 602,
+            "line_number": 604,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8482,7 +8555,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 630,
+            "line_number": 632,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8524,7 +8597,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 640,
+            "line_number": 642,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8566,7 +8639,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 650,
+            "line_number": 652,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8574,9 +8647,9 @@
           },
           {
             "name": "setRandomEntities",
-            "signature": "def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):",
+            "signature": "def setRandomEntities(self, aAttribute, aValue, numberOfEntities=1, condition=None):",
             "description": "Applies the same attribut value for a random number of entities",
-            "docstring": "Applies the same attribut value for a random number of entities\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "Applies the same attribut value for a random number of entities\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -8591,7 +8664,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -8603,7 +8676,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 660,
+            "line_number": 662,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8611,9 +8684,9 @@
           },
           {
             "name": "setRandomEntities_withValue",
-            "signature": "def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):",
+            "signature": "def setRandomEntities_withValue(self, aAttribut, aValue, numberOfEntities, conditionAtt, conditionVal, condition=None):",
             "description": "To apply a value to some random entities with a certain value",
-            "docstring": "To apply a value to some random entities with a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "To apply a value to some random entities with a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -8628,7 +8701,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -8650,7 +8723,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 675,
+            "line_number": 677,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8658,9 +8731,9 @@
           },
           {
             "name": "setRandomEntities_withValueNot",
-            "signature": "def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):",
+            "signature": "def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfEntities, conditionAtt, conditionVal, condition=None):",
             "description": "To apply a value to some random entities noty having a certain value",
-            "docstring": "To apply a value to some random entities noty having a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "docstring": "To apply a value to some random entities noty having a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfEntities (int): number of entities",
             "category": "SET",
             "class_name": "SGEntityType",
             "parameters": [
@@ -8675,7 +8748,7 @@
                 "description": "Value to set the attribute to"
               },
               {
-                "name": "numberOfentities",
+                "name": "numberOfEntities",
                 "type": "int",
                 "description": "number of entities"
               },
@@ -8697,7 +8770,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 687,
+            "line_number": 689,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8729,7 +8802,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 699,
+            "line_number": 701,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8761,7 +8834,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 712,
+            "line_number": 714,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -8788,7 +8861,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 142,
+            "line_number": 158,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -8808,7 +8881,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 164,
+            "line_number": 180,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -8835,7 +8908,7 @@
             "examples": [
               "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
             ],
-            "line_number": 173,
+            "line_number": 189,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -8865,7 +8938,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -8895,7 +8968,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -8920,7 +8993,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -8945,7 +9018,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 238,
+            "line_number": 254,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -8977,7 +9050,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 725,
+            "line_number": 727,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9009,7 +9082,7 @@
             ],
             "returns": "float or int: The calculated metric for all entities.",
             "examples": [],
-            "line_number": 1084,
+            "line_number": 1086,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9051,7 +9124,7 @@
             ],
             "returns": "float or int: The calculated metric for entities with the specified value.",
             "examples": [],
-            "line_number": 1103,
+            "line_number": 1105,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9093,7 +9166,7 @@
             ],
             "returns": "float or int: The calculated metric for entities without the specified value.",
             "examples": [],
-            "line_number": 1126,
+            "line_number": 1128,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9109,7 +9182,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 537,
+            "line_number": 539,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9127,7 +9200,7 @@
             "parameters": [],
             "returns": "int: Total number of entities",
             "examples": [],
-            "line_number": 936,
+            "line_number": 938,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9154,7 +9227,7 @@
             ],
             "returns": "int: Number of entities with the specified value",
             "examples": [],
-            "line_number": 945,
+            "line_number": 947,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9178,7 +9251,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 973,
+            "line_number": 975,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9200,7 +9273,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 982,
+            "line_number": 984,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9227,7 +9300,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 992,
+            "line_number": 994,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9249,7 +9322,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1008,
+            "line_number": 1010,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -9278,7 +9351,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 273,
+            "line_number": 289,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -9303,7 +9376,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 283,
+            "line_number": 299,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -9674,7 +9747,7 @@
     "SGModel": {
       "class_name": "SGModel",
       "description": "SGModel model class for SGE framework",
-      "total_methods": 62,
+      "total_methods": 66,
       "categories": {
         "NEW": [
           {
@@ -9763,7 +9836,7 @@
             ],
             "returns": "SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid.",
             "examples": [],
-            "line_number": 1898,
+            "line_number": 1895,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9845,7 +9918,7 @@
             ],
             "returns": "SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid.",
             "examples": [],
-            "line_number": 1964,
+            "line_number": 1961,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9907,7 +9980,7 @@
             ],
             "returns": "a agentType",
             "examples": [],
-            "line_number": 1997,
+            "line_number": 1994,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9986,7 +10059,7 @@
             "examples": [
               "# Create a simple tile type\ntileType = model.newTileType(\"Forest\", shape=\"rectTile\", frontColor=Qt.green)\n\n# Create a tile type with stack rendering\ncardType = model.newTileType(\n\"Card\",\nshape=\"rectTile\",\nfrontColor=Qt.blue,\nbackColor=Qt.red,\nstackRendering={\"mode\": \"offset\", \"showCounter\": True, \"counterPosition\": \"topLeft\"}\n)"
             ],
-            "line_number": 2031,
+            "line_number": 2028,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10013,7 +10086,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2141,
+            "line_number": 2138,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10070,7 +10143,7 @@
             ],
             "returns": "The created play phase (an instance of SGPlayPhase)",
             "examples": [],
-            "line_number": 2166,
+            "line_number": 2163,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10142,7 +10215,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2204,
+            "line_number": 2201,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10209,7 +10282,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2225,
+            "line_number": 2222,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10276,7 +10349,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2245,
+            "line_number": 2242,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10333,7 +10406,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2270,
+            "line_number": 2267,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10400,7 +10473,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2288,
+            "line_number": 2285,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10457,7 +10530,7 @@
             ],
             "returns": "SGFlip: The created flip action",
             "examples": [],
-            "line_number": 2310,
+            "line_number": 2307,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10519,7 +10592,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2332,
+            "line_number": 2329,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10566,7 +10639,7 @@
             ],
             "returns": "SGTimePhase: The created time phase",
             "examples": [],
-            "line_number": 2370,
+            "line_number": 2367,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10598,7 +10671,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2395,
+            "line_number": 2392,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10630,7 +10703,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2410,
+            "line_number": 2407,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10667,7 +10740,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2424,
+            "line_number": 2421,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10704,7 +10777,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2439,
+            "line_number": 2436,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10751,7 +10824,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2610,
+            "line_number": 2611,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10858,7 +10931,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2636,
+            "line_number": 2637,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10890,7 +10963,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2682,
+            "line_number": 2683,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10972,7 +11045,7 @@
             ],
             "returns": "SGProgressGauge: The created SGProgressGauge instance.",
             "examples": [],
-            "line_number": 2701,
+            "line_number": 2702,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10999,7 +11072,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2770,
+            "line_number": 2771,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11026,7 +11099,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2791,
+            "line_number": 2792,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11093,7 +11166,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2819,
+            "line_number": 2820,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11155,7 +11228,7 @@
             ],
             "returns": "SGTextBox: The created text box widget",
             "examples": [],
-            "line_number": 2871,
+            "line_number": 2872,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11212,7 +11285,7 @@
             ],
             "returns": "SGLabel: An instance of SGLabel with the specified properties.",
             "examples": [],
-            "line_number": 2908,
+            "line_number": 2909,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11304,7 +11377,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2931,
+            "line_number": 2932,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11436,7 +11509,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2966,
+            "line_number": 2967,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11463,7 +11536,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3054,
+            "line_number": 3055,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11490,7 +11563,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3063,
+            "line_number": 3064,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11549,7 +11622,7 @@
             ],
             "returns": "SGDistributedGameConfig or None: Configuration object if distributed mode enabled, None if cancelled or local mode.",
             "examples": [],
-            "line_number": 2448,
+            "line_number": 2447,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11565,7 +11638,7 @@
             "parameters": [],
             "returns": "bool: True if setup completed successfully, False if cancelled or not in distributed mode",
             "examples": [],
-            "line_number": 2536,
+            "line_number": 2535,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11597,7 +11670,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3041,
+            "line_number": 3042,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11613,7 +11686,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3180,
+            "line_number": 3181,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11629,7 +11702,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3184,
+            "line_number": 3185,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11653,7 +11726,61 @@
             "examples": [
               "# Apply a saved theme configuration (will be applied when launch() is called)\nmodel.applyThemeConfig(\"my_theme_setup\")\nmodel.launch()  # Theme will be applied after all GameSpaces are created\n\n# Check before applying\nif model.hasThemeConfig(\"setup1\"):\nmodel.applyThemeConfig(\"setup1\")"
             ],
-            "line_number": 3301,
+            "line_number": 3304,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "enableBotPlayer",
+            "signature": "def enableBotPlayer(self, player_name, adapter, strategy=\"random\", **kwargs):",
+            "description": "Enable a BotPlayer for an existing player.",
+            "docstring": "Enable a BotPlayer for an existing player.\n\nArgs:\n    player_name (str or SGPlayer): Player name or player instance to replace.\n    adapter: Game adapter providing state and valid targets.\n    strategy (str): Bot strategy (\"random\", \"policy\", etc.).\n    **kwargs: Additional args forwarded to SGBotPlayer.",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "player_name",
+                "type": "str or SGPlayer",
+                "description": "Player name or player instance to replace.\nadapter: Game adapter providing state and valid targets."
+              },
+              {
+                "name": "adapter",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "strategy",
+                "type": "str",
+                "description": "Bot strategy (\"random\", \"policy\", etc.).\n**kwargs: Additional args forwarded to SGBotPlayer."
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 3372,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "disableBotPlayer",
+            "signature": "def disableBotPlayer(self, player_name):",
+            "description": "Disable a BotPlayer for a player (if any).",
+            "docstring": "Disable a BotPlayer for a player (if any).",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "player_name",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 3392,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11680,7 +11807,7 @@
             ],
             "returns": "str: Path to exported file",
             "examples": [],
-            "line_number": 3369,
+            "line_number": 3407,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11709,7 +11836,7 @@
             "examples": [
               "# Save automatically to a specific directory\nmyModel.enableAutoSaveGameActionLogs(format=\"csv\", save_path=\"/path/to/logs\")\n\n# Save with user choosing the location\nmyModel.enableAutoSaveGameActionLogs(format=\"json\")\n\n# Save CSV to current directory\nmyModel.enableAutoSaveGameActionLogs(save_path=\".\")"
             ],
-            "line_number": 3396,
+            "line_number": 3434,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11733,7 +11860,7 @@
             "examples": [
               "# Load images from directory\nimages = myModel.loadImagesFromDirectory(\"./images\")\n\n# Use random image for a tile\nimport random\ntile = TileType.newTileOnCell(cell, backImage=random.choice(images))"
             ],
-            "line_number": 3428,
+            "line_number": 3466,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11757,7 +11884,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3079,
+            "line_number": 3080,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11794,7 +11921,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3104,
+            "line_number": 3105,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11818,7 +11945,7 @@
             "examples": [
               "# Disable icons in context menu\nmyModel.setShowIconsInContextMenu(False)"
             ],
-            "line_number": 3337,
+            "line_number": 3340,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11836,7 +11963,7 @@
             "parameters": [],
             "returns": "bool: True if distributed mode is enabled, False otherwise",
             "examples": [],
-            "line_number": 3140,
+            "line_number": 3141,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11862,7 +11989,7 @@
             "examples": [
               "count = myModel.getConnectedInstancesCount()\nif count >= 2:\nprint(\"Minimum players reached!\")\n\n# With custom default value\ncount = myModel.getConnectedInstancesCount(default=1)"
             ],
-            "line_number": 3149,
+            "line_number": 3150,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11878,7 +12005,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3188,
+            "line_number": 3189,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11900,7 +12027,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3191,
+            "line_number": 3192,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11908,7 +12035,7 @@
           },
           {
             "name": "getCellType",
-            "signature": "def getCellType(self, aGrid):",
+            "signature": "def getCellType(self, aGrid=None):",
             "description": "",
             "docstring": "",
             "category": "GET",
@@ -11922,7 +12049,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3201,
+            "line_number": 3202,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11938,7 +12065,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3205,
+            "line_number": 3208,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11960,7 +12087,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3209,
+            "line_number": 3212,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11976,7 +12103,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3213,
+            "line_number": 3216,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11992,7 +12119,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3222,
+            "line_number": 3225,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12014,7 +12141,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3233,
+            "line_number": 3236,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12041,7 +12168,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3239,
+            "line_number": 3242,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12057,7 +12184,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3244,
+            "line_number": 3247,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12079,7 +12206,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3251,
+            "line_number": 3254,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12095,7 +12222,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3256,
+            "line_number": 3259,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12117,7 +12244,7 @@
             ],
             "returns": "list: List of grids (SGGrid instances) owned by the specified owner",
             "examples": [],
-            "line_number": 3260,
+            "line_number": 3263,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12139,7 +12266,45 @@
             ],
             "returns": "SGGrid or None: The first grid owned by the specified owner, or None if no grid is owned",
             "examples": [],
-            "line_number": 3271,
+            "line_number": 3274,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getBotPlayer",
+            "signature": "def getBotPlayer(self, player_name):",
+            "description": "Get the BotPlayer for a player, or None.",
+            "docstring": "Get the BotPlayer for a player, or None.",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "player_name",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 3398,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getBotPlayers",
+            "signature": "def getBotPlayers(self):",
+            "description": "Return all BotPlayers as a dict {player_name: bot}.",
+            "docstring": "Return all BotPlayers as a dict {player_name: bot}.",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 3403,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12157,7 +12322,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3289,
+            "line_number": 3292,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12181,7 +12346,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3350,
+            "line_number": 3353,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12197,7 +12362,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3361,
+            "line_number": 3364,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12428,7 +12593,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 260,
+            "line_number": 276,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -12476,7 +12641,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 142,
+            "line_number": 158,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -12496,7 +12661,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 164,
+            "line_number": 180,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -12523,7 +12688,7 @@
             "examples": [
               "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
             ],
-            "line_number": 173,
+            "line_number": 189,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -12553,7 +12718,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -12583,7 +12748,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -12608,7 +12773,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -12633,7 +12798,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 238,
+            "line_number": 254,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -13188,7 +13353,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 273,
+            "line_number": 289,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -13213,7 +13378,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 283,
+            "line_number": 299,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -13967,7 +14132,7 @@
             ],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 147,
+            "line_number": 146,
             "parent_classes": [
               "SGEntity"
             ]
@@ -13988,7 +14153,7 @@
             ],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 199,
+            "line_number": 198,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14014,7 +14179,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 271,
+            "line_number": 275,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -14039,7 +14204,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 142,
+            "line_number": 158,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -14059,7 +14224,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 164,
+            "line_number": 180,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -14086,7 +14251,7 @@
             "examples": [
               "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
             ],
-            "line_number": 173,
+            "line_number": 189,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -14116,7 +14281,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -14146,7 +14311,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -14171,7 +14336,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -14196,7 +14361,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 238,
+            "line_number": 254,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -14212,7 +14377,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 226,
+            "line_number": 225,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14229,7 +14394,7 @@
             "parameters": [],
             "returns": "SGCell: The cell containing this tile, or None if not placed",
             "examples": [],
-            "line_number": 263,
+            "line_number": 262,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14244,7 +14409,7 @@
             "parameters": [],
             "returns": "tuple: (x, y) coordinates of the cell (1-indexed), or None if tile is not placed",
             "examples": [],
-            "line_number": 272,
+            "line_number": 271,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14259,7 +14424,7 @@
             "parameters": [],
             "returns": "int: The layer number (1-based)",
             "examples": [],
-            "line_number": 283,
+            "line_number": 282,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14274,7 +14439,7 @@
             "parameters": [],
             "returns": "str: \"front\" or \"back\" indicating which face is currently visible",
             "examples": [],
-            "line_number": 295,
+            "line_number": 294,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14289,7 +14454,7 @@
             "parameters": [],
             "returns": "list: List of SGAgent objects on the same cell as this tile",
             "examples": [],
-            "line_number": 304,
+            "line_number": 303,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14304,7 +14469,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 331,
+            "line_number": 335,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -14318,7 +14483,7 @@
             "parameters": [],
             "returns": "The entity type (SGEntityType instance)",
             "examples": [],
-            "line_number": 335,
+            "line_number": 339,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -14332,7 +14497,7 @@
             "parameters": [],
             "returns": "SGGrid: The grid instance, or None if not available",
             "examples": [],
-            "line_number": 344,
+            "line_number": 348,
             "parent_classes": null,
             "original_class": "SGEntity"
           },
@@ -14352,7 +14517,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 260,
+            "line_number": 276,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -14368,7 +14533,7 @@
             "parameters": [],
             "returns": "bool: True if front face is visible, False if back face is visible",
             "examples": [],
-            "line_number": 322,
+            "line_number": 321,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14383,7 +14548,7 @@
             "parameters": [],
             "returns": "bool: True if back face is visible, False if front face is visible",
             "examples": [],
-            "line_number": 331,
+            "line_number": 330,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14398,7 +14563,7 @@
             "parameters": [],
             "returns": "bool: True if at least one agent is on the same cell, False otherwise",
             "examples": [],
-            "line_number": 341,
+            "line_number": 340,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14424,7 +14589,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 273,
+            "line_number": 289,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -14449,7 +14614,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 283,
+            "line_number": 299,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -14471,7 +14636,7 @@
             ],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 359,
+            "line_number": 358,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14492,7 +14657,7 @@
             ],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 545,
+            "line_number": 544,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14507,7 +14672,7 @@
             "parameters": [],
             "returns": "self: The tile (for chaining operations)",
             "examples": [],
-            "line_number": 561,
+            "line_number": 560,
             "parent_classes": [
               "SGEntity"
             ]
@@ -14843,7 +15008,7 @@
               "base_path (str or Path, optional): Custom base path override.\n\nReturns:\nPath: Absolute path to the resource folder or file.",
               "# Get a path that works in dev or exe\nimages_dir = getResourcePath(\"examples/syntax_examples/images\")"
             ],
-            "line_number": 251,
+            "line_number": 187,
             "parent_classes": null
           },
           {
@@ -14872,7 +15037,7 @@
             ],
             "returns": "list[Path]: List of matching image paths (may be empty).",
             "examples": [],
-            "line_number": 276,
+            "line_number": 212,
             "parent_classes": null
           },
           {
@@ -14896,7 +15061,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 354,
+            "line_number": 290,
             "parent_classes": null
           },
           {
@@ -14920,7 +15085,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 368,
+            "line_number": 304,
             "parent_classes": null
           },
           {
@@ -14944,7 +15109,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 382,
+            "line_number": 318,
             "parent_classes": null
           }
         ],
@@ -14972,7 +15137,7 @@
             "examples": [
               "Cells.newModelAction(copyValue(\"bufferState\", \"state\"))"
             ],
-            "line_number": 309,
+            "line_number": 245,
             "parent_classes": null
           },
           {
@@ -14996,7 +15161,7 @@
             ],
             "returns": "QPixmap: New pixmap with transparent areas filled, or original pixmap if None/invalid",
             "examples": [],
-            "line_number": 321,
+            "line_number": 257,
             "parent_classes": null
           },
           {
@@ -15020,7 +15185,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 396,
+            "line_number": 332,
             "parent_classes": null
           },
           {
@@ -15071,7 +15236,7 @@
             "examples": [
               "--------\ngenerate_color_gradient(\"green\", steps=6)\ngenerate_color_gradient(\"red\", \"blue\", steps=8)\ngenerate_color_gradient(\"red\", \"blue\", mapping={\"values\":[0,50,100], \"value_min\":0, \"value_max\":100}, as_dict=True)\ngenerate_color_gradient(\"green\", mapping={\"values\":[1,3,5], \"value_min\":0, \"value_max\":7}, as_ranges=True)"
             ],
-            "line_number": 440,
+            "line_number": 376,
             "parent_classes": null
           }
         ]
