@@ -1,24 +1,90 @@
 from PyQt5.QtWidgets import (
     QDockWidget, QWidget, QVBoxLayout, QHBoxLayout,
-    QLineEdit, QListWidget, QListWidgetItem, QCheckBox,
-    QPushButton, QLabel,
+    QLineEdit, QTreeWidget, QTreeWidgetItem, QCheckBox,
+    QPushButton, QLabel, QComboBox,
 )
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+
+QUANTI_STATS = ["mean", "sum", "min", "max", "stdev"]
+
+
+class SGStatSelectorWidget(QWidget):
+    """
+    Inline row of mini-checkboxes for one quantitative attribute.
+    Replaces the 5 separate lines (mean/sum/min/max/stdev) with a single compact row:
+
+        age:  [✓mean] [sum] [min] [✓max] [stdev]
+    """
+
+    def __init__(self, attr_name, base_key, on_change):
+        super().__init__()
+        self.attr_name = attr_name
+        self.base_key = base_key   # e.g. "entity-:Wolf-:age"
+        self._on_change = on_change
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(2, 0, 2, 0)
+        layout.setSpacing(4)
+
+        lbl = QLabel(attr_name + ":")
+        lbl.setFixedWidth(100)
+        layout.addWidget(lbl)
+
+        self._checkboxes = {}
+        for stat in QUANTI_STATS:
+            cb = QCheckBox(stat)
+            cb.setStyleSheet("QCheckBox { font-size: 8pt; }")
+            cb.stateChanged.connect(on_change)
+            layout.addWidget(cb)
+            self._checkboxes[stat] = cb
+        layout.addStretch()
+
+    def get_selected_keys(self):
+        return [
+            f"{self.base_key}-:{stat}"
+            for stat, cb in self._checkboxes.items()
+            if cb.isChecked()
+        ]
+
+    def set_selected_keys(self, active_keys):
+        for stat, cb in self._checkboxes.items():
+            cb.blockSignals(True)
+            cb.setChecked(f"{self.base_key}-:{stat}" in active_keys)
+            cb.blockSignals(False)
+
+    def clear(self):
+        for cb in self._checkboxes.values():
+            cb.blockSignals(True)
+            cb.setChecked(False)
+            cb.blockSignals(False)
 
 
 class SGIndicatorSelectorPanel(QDockWidget):
     """
     Collapsible side panel (QDockWidget) for selecting graph indicators.
 
-    Replaces the cascading toolbar menu with:
-      - A real-time search field
-      - A scrollable list of all available indicators with checkboxes
-      - A "Hide flat indicators" checkbox (Feature 2)
-      - An "Apply" button that triggers graph refresh
+    Tree structure:
+        Entities  (bold)
+          Wolf
+            ☐ population
+            age:  [✓mean][sum][min][max][stdev]   ← SGStatSelectorWidget
+            ☐ some_quali_or_entDef_attr
+          Sheep
+            ...
+        SimVars
+          ☐ score
+        Players
+          Alice
+            ☐ energy
+        GameActions
+          ☐ Build
 
-    Usage:
-        panel = SGIndicatorSelectorPanel(graph_window, data_provider, on_apply_callback)
-        graph_window.addDockWidget(Qt.RightDockWidgetArea, panel)
+    - No Apply button: selection changes update the graph immediately.
+    - Group combobox: filter by category.
+    - Search field: filter by entity/attribute name.
+    - "Hide flat" checkbox: hide indicators whose value never changed.
+    - reload() preserves the current selection.
     """
 
     def __init__(self, parent_window, data_provider, on_apply):
@@ -32,6 +98,7 @@ class SGIndicatorSelectorPanel(QDockWidget):
             QDockWidget.DockWidgetMovable |
             QDockWidget.DockWidgetFloatable
         )
+        self.setMinimumWidth(340)
 
         container = QWidget()
         self.setWidget(container)
@@ -41,34 +108,44 @@ class SGIndicatorSelectorPanel(QDockWidget):
 
         # Search field
         self._search = QLineEdit()
-        self._search.setPlaceholderText("Search indicators…")
-        self._search.textChanged.connect(self._filter_list)
+        self._search.setPlaceholderText("Search…")
+        self._search.textChanged.connect(self._filter_tree)
         layout.addWidget(self._search)
 
-        # Hide-flat checkbox (Feature 2)
+        # Group filter
+        filter_row = QHBoxLayout()
+        filter_row.addWidget(QLabel("Group:"))
+        self._group_combo = QComboBox()
+        self._group_combo.addItems(
+            ["All", "Entities", "SimVars", "Players", "GameActions"]
+        )
+        self._group_combo.currentTextChanged.connect(self._filter_tree)
+        filter_row.addWidget(self._group_combo, 1)
+        layout.addLayout(filter_row)
+
+        # Hide-flat checkbox
         self._hide_flat = QCheckBox("Hide flat indicators (no variation)")
-        self._hide_flat.stateChanged.connect(self._filter_list)
+        self._hide_flat.stateChanged.connect(self._filter_tree)
         layout.addWidget(self._hide_flat)
 
-        # Indicator list
-        self._list = QListWidget()
-        self._list.setSelectionMode(QListWidget.NoSelection)
-        layout.addWidget(self._list)
+        # Tree
+        self._tree = QTreeWidget()
+        self._tree.setHeaderHidden(True)
+        self._tree.setColumnCount(1)
+        self._tree.itemChanged.connect(self._on_item_changed)
+        layout.addWidget(self._tree)
 
-        # Buttons row
-        btn_row = QHBoxLayout()
+        # Clear button
         btn_clear = QPushButton("Clear all")
         btn_clear.clicked.connect(self._clear_all)
-        btn_apply = QPushButton("Apply")
-        btn_apply.setDefault(True)
-        btn_apply.clicked.connect(self._apply)
-        btn_row.addWidget(btn_clear)
-        btn_row.addWidget(btn_apply)
-        layout.addLayout(btn_row)
+        layout.addWidget(btn_clear)
 
-        # All indicator keys, built once per reload
+        # Internal state
+        self._simple_items = {}   # key -> QTreeWidgetItem
+        self._item_to_key = {}    # QTreeWidgetItem id -> key  (reverse map for filtering)
+        self._stat_widgets = {}   # base_key -> SGStatSelectorWidget
+        self._stat_items = {}     # base_key -> QTreeWidgetItem
         self._all_keys = []
-        self._items = {}   # key -> QListWidgetItem
 
         self.reload()
 
@@ -77,53 +154,213 @@ class SGIndicatorSelectorPanel(QDockWidget):
     # ------------------------------------------------------------------
 
     def reload(self):
-        """Rebuild the list from fresh data (call after data_provider.reload())."""
+        """Rebuild the tree preserving the current selection."""
+        selected = self.get_selected_keys()
         self.data_provider.reload()
         self._all_keys = self.data_provider.available_indicator_keys()
-        self._rebuild_list()
+        self._rebuild_tree()
+        self.set_selected_keys(selected)
+        self._filter_tree()
 
     def get_selected_keys(self):
-        """Return the list of indicator keys currently checked."""
-        return [
-            key for key, item in self._items.items()
-            if item.checkState() == Qt.Checked
-        ]
+        keys = []
+        for key, item in self._simple_items.items():
+            if item.checkState(0) == Qt.Checked:
+                keys.append(key)
+        for widget in self._stat_widgets.values():
+            keys.extend(widget.get_selected_keys())
+        return keys
 
     def set_selected_keys(self, keys):
-        """Pre-select a set of indicator keys (used by presets)."""
-        for key, item in self._items.items():
-            item.setCheckState(Qt.Checked if key in keys else Qt.Unchecked)
+        self._tree.blockSignals(True)
+        for key, item in self._simple_items.items():
+            item.setCheckState(0, Qt.Checked if key in keys else Qt.Unchecked)
+        for widget in self._stat_widgets.values():
+            widget.set_selected_keys(keys)
+        self._tree.blockSignals(False)
 
     # ------------------------------------------------------------------
-    # Internal helpers
+    # Tree construction
     # ------------------------------------------------------------------
 
-    def _rebuild_list(self):
-        self._list.clear()
-        self._items.clear()
+    def _rebuild_tree(self):
+        self._tree.blockSignals(True)
+        self._tree.clear()
+        self._simple_items.clear()
+        self._item_to_key.clear()
+        self._stat_widgets.clear()
+        self._stat_items.clear()
+
+        entities = {}   # name -> {population, entDef: {attr: key}, quanti: {attr: base_key}}
+        sim_vars = []
+        players = {}    # name -> [key, ...]
+        game_actions = []
+
         for key in self._all_keys:
-            from mainClasses.SGIndicatorSpec import SGIndicatorSpec
-            spec = SGIndicatorSpec(key)
-            item = QListWidgetItem(spec.get_display_name())
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Unchecked)
-            item.setData(Qt.UserRole, key)
-            self._list.addItem(item)
-            self._items[key] = item
+            parts = key.split("-:")
+            if key.startswith("entity-:"):
+                name = parts[1]
+                if name not in entities:
+                    entities[name] = {"population": None, "entDef": {}, "quanti": {}}
+                if parts[2] == "population":
+                    entities[name]["population"] = key
+                elif len(parts) == 4:
+                    attr = parts[2]
+                    entities[name]["quanti"][attr] = f"entity-:{name}-:{attr}"
+                else:
+                    entities[name]["entDef"][parts[2]] = key
+            elif key.startswith("simVariable-:"):
+                sim_vars.append(key)
+            elif key.startswith("player-:"):
+                pname = parts[1]
+                players.setdefault(pname, []).append(key)
+            elif key.startswith("gameActions-:"):
+                game_actions.append(key)
 
-    def _filter_list(self):
+        if entities:
+            cat = self._make_category("Entities")
+            for ename in sorted(entities.keys()):
+                ent_item = QTreeWidgetItem(cat, [ename])
+                ent_item.setExpanded(True)
+                e = entities[ename]
+                if e["population"]:
+                    self._add_simple(ent_item, "population", e["population"])
+                for attr, key in sorted(e["entDef"].items()):
+                    self._add_simple(ent_item, attr, key)
+                for attr, base_key in sorted(e["quanti"].items()):
+                    self._add_stat(ent_item, attr, base_key)
+
+        if sim_vars:
+            cat = self._make_category("SimVars")
+            for key in sorted(sim_vars):
+                self._add_simple(cat, key.split("-:")[1], key)
+
+        if players:
+            cat = self._make_category("Players")
+            for pname in sorted(players.keys()):
+                pl_item = QTreeWidgetItem(cat, [pname])
+                pl_item.setExpanded(True)
+                for key in sorted(players[pname]):
+                    self._add_simple(pl_item, key.split("-:")[-1], key)
+
+        if game_actions:
+            cat = self._make_category("GameActions")
+            for key in sorted(game_actions):
+                self._add_simple(cat, key.split("-:")[-1], key)
+
+        self._tree.blockSignals(False)
+
+    def _make_category(self, label):
+        item = QTreeWidgetItem(self._tree, [label])
+        item.setExpanded(True)
+        f = item.font(0)
+        f.setBold(True)
+        item.setFont(0, f)
+        return item
+
+    def _add_simple(self, parent, label, key):
+        item = QTreeWidgetItem(parent, [label])
+        item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+        item.setCheckState(0, Qt.Unchecked)
+        self._simple_items[key] = item
+        self._item_to_key[id(item)] = key
+        return item
+
+    def _add_stat(self, parent, attr_name, base_key):
+        item = QTreeWidgetItem(parent)
+        widget = SGStatSelectorWidget(attr_name, base_key, self._trigger_update)
+        self._tree.setItemWidget(item, 0, widget)
+        self._stat_widgets[base_key] = widget
+        self._stat_items[base_key] = item
+        return item
+
+    # ------------------------------------------------------------------
+    # Update trigger (auto-apply — no Apply button needed)
+    # ------------------------------------------------------------------
+
+    def _on_item_changed(self, item, _column):
+        self.on_apply(self.get_selected_keys())
+
+    def _trigger_update(self):
+        self.on_apply(self.get_selected_keys())
+
+    # ------------------------------------------------------------------
+    # Filtering
+    # ------------------------------------------------------------------
+
+    def _filter_tree(self):
         text = self._search.text().lower()
         hide_flat = self._hide_flat.isChecked()
-        for key, item in self._items.items():
-            label = item.text().lower()
-            visible = text in label
-            if hide_flat and visible:
-                visible = not self.data_provider.is_flat(key)
-            item.setHidden(not visible)
+        group = self._group_combo.currentText()
+
+        root = self._tree.invisibleRootItem()
+        for ci in range(root.childCount()):
+            cat = root.child(ci)
+            cat_name = cat.text(0)
+
+            if group != "All" and cat_name != group:
+                cat.setHidden(True)
+                continue
+
+            cat_visible = False
+            for ei in range(cat.childCount()):
+                ent = cat.child(ei)
+                ent_visible = self._filter_subtree(ent, text, hide_flat)
+                ent.setHidden(not ent_visible)
+                if ent_visible:
+                    cat_visible = True
+
+            cat.setHidden(not cat_visible)
+
+    def _filter_subtree(self, parent_item, text, hide_flat):
+        """
+        Filter children of parent_item.
+        Returns True if at least one child is visible (or parent itself is a leaf).
+        """
+        if parent_item.childCount() == 0:
+            # Leaf item (SimVar, GameAction, or player attr)
+            label = parent_item.text(0).lower()
+            visible = not text or text in label
+            if visible and hide_flat:
+                key = self._item_to_key.get(id(parent_item))
+                if key:
+                    visible = not self.data_provider.is_flat(key)
+            return visible
+
+        has_visible = False
+        ent_label = parent_item.text(0).lower()
+        for ai in range(parent_item.childCount()):
+            attr_item = parent_item.child(ai)
+            widget = self._tree.itemWidget(attr_item, 0)
+
+            if widget:
+                attr_label = widget.attr_name.lower()
+                key_for_flat = f"{widget.base_key}-:mean"
+            else:
+                attr_label = attr_item.text(0).lower()
+                key_for_flat = self._item_to_key.get(id(attr_item))
+
+            combined = ent_label + " " + attr_label
+            visible = not text or text in combined
+
+            if visible and hide_flat and key_for_flat:
+                visible = not self.data_provider.is_flat(key_for_flat)
+
+            attr_item.setHidden(not visible)
+            if visible:
+                has_visible = True
+
+        return has_visible
+
+    # ------------------------------------------------------------------
+    # Clear all
+    # ------------------------------------------------------------------
 
     def _clear_all(self):
-        for item in self._items.values():
-            item.setCheckState(Qt.Unchecked)
-
-    def _apply(self):
-        self.on_apply(self.get_selected_keys())
+        self._tree.blockSignals(True)
+        for item in self._simple_items.values():
+            item.setCheckState(0, Qt.Unchecked)
+        self._tree.blockSignals(False)
+        for widget in self._stat_widgets.values():
+            widget.clear()
+        self._trigger_update()
