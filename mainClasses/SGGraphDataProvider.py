@@ -130,6 +130,44 @@ class SGGraphDataProvider:
         return keys
 
     # ------------------------------------------------------------------
+    # Group / category helpers
+    # ------------------------------------------------------------------
+
+    def available_groups(self):
+        """
+        Return ordered list of group filter labels based on what data is present.
+        Always starts with 'All'.
+        'Entities' is included if any entities exist, followed by whichever of
+        'Cells', 'Agents', 'Tiles' have data (using the 'category' field already
+        present in each data_entities entry).
+        'SimVars', 'Players', 'GameActions' appended if those datasets are non-empty.
+        """
+        groups = ["All"]
+        cats_present = {
+            e["category"]
+            for e in self.data_entities
+            if "category" in e and not isinstance(e.get("name"), dict)
+        }
+        if self.data_entities:
+            groups.append("Entities")
+        for cat in ("Cell", "Agent", "Tile"):
+            if cat in cats_present:
+                groups.append(cat + "s")   # "Cells", "Agents", "Tiles"
+
+        if self.data_sim_vars:
+            groups.append("SimVars")
+        if self.data_players:
+            groups.append("Players")
+        if any(
+            action
+            for e in self.data_game_actions
+            for action in e.get("actions_performed", [])
+        ):
+            groups.append("GameActions")
+
+        return groups
+
+    # ------------------------------------------------------------------
     # Flat-indicator detection
     # ------------------------------------------------------------------
 
@@ -137,11 +175,14 @@ class SGGraphDataProvider:
         """
         Return True if the indicator identified by *key* has never changed
         across all recorded rounds (all values are identical).
+        Only meaningful for linear/hist graphs (scalar values).
+        Returns False for categorical graph types (pie, stackplot).
         """
+        if self.graph_type not in ("linear", "hist"):
+            return False
         from mainClasses.SGIndicatorSpec import SGIndicatorSpec
-        spec = SGIndicatorSpec(key, is_quantitative=(self.graph_type in ("linear", "hist")))
-        data = self.all_quantitative() if self.graph_type == "linear" else self.all_qualitative()
-        values = spec.get_data(data)
+        spec = SGIndicatorSpec(key, is_quantitative=True)
+        values = spec.get_data(self.all_quantitative())
         return len(set(values)) <= 1
 
     # ------------------------------------------------------------------

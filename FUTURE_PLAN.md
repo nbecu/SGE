@@ -39,6 +39,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Graphs interface : allow to hide all graphs that are flat (no value change)
 - [ ] Graphs interface : allow the modeler to specify the graphs that he wants to see in the menu
 - [ ] Graphs interface : allow to specify a multi-graph window with graphs specify by the modeler
+- [ ] Histogram : allow multiple indicators simultaneously — requires either (1) recomputing bins on-the-fly over the combined value range, or (2) a shared fixed bin grid [global_min, global_max]. Currently limited to single_select because each indicator's bins are pre-computed independently at recording time.
 - [ ] Improve data record of gameactions (perhaps using SGAbstractAction.updateServer_gameAction_performed())
 
 ### Simulation Management & Data

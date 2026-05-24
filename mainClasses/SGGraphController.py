@@ -79,6 +79,7 @@ class SGGraphController(NavigationToolbar):
             self.parent_window,
             self.data_provider,
             on_apply=self._on_indicators_applied,
+            single_select=(self.graph_type in ("pie", "stackplot", "hist")),
         )
         self.parent_window.addDockWidget(Qt.RightDockWidgetArea, self._selector_panel)
         self._selector_panel.hide()
@@ -188,7 +189,7 @@ class SGGraphController(NavigationToolbar):
         entities = ", ".join({
             k.split("-:")[1] for k in selected_keys if "entity" in k
         })
-        self.ax.set_title(f"Evolution des populations {entities}")
+        self.ax.set_title(f"Population over time — {entities}")
         self.canvas.draw()
 
     def _plot_linear_per_round(self, data, pos, spec, phase_to_display):
@@ -250,11 +251,11 @@ class SGGraphController(NavigationToolbar):
             attrib_value = parts[-1]
             entity_names.append(entity)
             hist_data = {
-                f"{entity}-{attrib_value}": e["qualiAttributes"][attrib_value]["histo"]
+                f"{entity}-{attrib_value}": e["quantiAttributes"][attrib_value]["histo"]
                 for e in data
-                if e["name"] == entity and "qualiAttributes" in e
-                and attrib_value in e["qualiAttributes"]
-                and "histo" in e["qualiAttributes"][attrib_value]
+                if e["name"] == entity and "quantiAttributes" in e
+                and attrib_value in e["quantiAttributes"]
+                and "histo" in e["quantiAttributes"][attrib_value]
                 and e["round"] == max_round
             }
             for h in [hist_data]:
@@ -270,10 +271,10 @@ class SGGraphController(NavigationToolbar):
 
         self.ax.legend()
         self.ax.set_title(
-            f"Analyse de la fréquence des {attrib_value} des {' et '.join(entity_names)}"
+            f"Frequency of {attrib_value} — {', '.join(entity_names)}"
         )
         self.ax.set_xlabel(attrib_value)
-        self.ax.set_ylabel("Nombre d'occurences")
+        self.ax.set_ylabel("Number of occurrences")
         self.canvas.draw()
 
     # ------------------------------------------------------------------
@@ -314,6 +315,9 @@ class SGGraphController(NavigationToolbar):
 
     def _plot_stackplot(self, selected_keys, x_option):
         self.ax.clear()
+        if not selected_keys:
+            self.canvas.draw()
+            return
         dp = self.data_provider
         data = dp.data_entities
         if not data:
@@ -375,16 +379,16 @@ class SGGraphController(NavigationToolbar):
                             list_data.append(entries[-1])
 
         if not list_data:
-            self._show_error("Impossible d'afficher les données",
-                             "Aucune données à afficher. Veuillez continuer le jeu.")
+            self._show_error("Cannot display data",
+                             "No data to display yet. Please advance the simulation.")
             return
 
         labels = sorted(set(np.concatenate([list(d.keys()) for d in list_data])))
         values = [[d.get(lbl, 0) for d in list_data] for lbl in labels]
 
         if values and len(values[0]) != len(self._x_value):
-            self._show_error("Impossible d'afficher les données",
-                             "Aucune données à afficher. Veuillez continuer le jeu.")
+            self._show_error("Cannot display data",
+                             "No data to display yet. Please advance the simulation.")
             return
 
         if len(self._x_value) == 1:
@@ -396,7 +400,7 @@ class SGGraphController(NavigationToolbar):
         self.ax.legend()
         self.ax.set_xticks(self._x_value)
         self.ax.set_title(
-            f"Analyse comparative des composantes de la {attrib_value.capitalize()}"
+            f"Breakdown of {attrib_value.capitalize()}"
         )
         self.canvas.draw()
 

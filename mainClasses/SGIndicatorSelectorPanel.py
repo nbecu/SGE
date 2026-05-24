@@ -86,10 +86,11 @@ class SGIndicatorSelectorPanel(QDockWidget):
     - reload() preserves the current selection.
     """
 
-    def __init__(self, parent_window, data_provider, on_apply):
+    def __init__(self, parent_window, data_provider, on_apply, single_select=False):
         super().__init__("Indicators", parent_window)
         self.data_provider = data_provider
         self.on_apply = on_apply
+        self._single_select = single_select
 
         self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.setFeatures(
@@ -111,13 +112,10 @@ class SGIndicatorSelectorPanel(QDockWidget):
         self._search.textChanged.connect(self._filter_tree)
         layout.addWidget(self._search)
 
-        # Group filter
+        # Group filter (populated dynamically in reload)
         row = QHBoxLayout()
         row.addWidget(QLabel("Group:"))
         self._group_combo = QComboBox()
-        self._group_combo.addItems(
-            ["All", "Entities", "SimVars", "Players", "GameActions"]
-        )
         self._group_combo.currentTextChanged.connect(self._filter_tree)
         row.addWidget(self._group_combo, 1)
         layout.addLayout(row)
@@ -146,6 +144,7 @@ class SGIndicatorSelectorPanel(QDockWidget):
         self._attr_item_to_base_key = {} # id(attr_item) -> base_key
         self._stat_widgets = {}          # base_key -> SGStatSelectorWidget
         self._stat_items = {}            # base_key -> QTreeWidgetItem  (hidden child row)
+        self._entity_item_category = {}  # id(entity_item) -> 'Cell'|'Agent'|'Tile'
         self._all_keys = []
 
         self.reload()
@@ -159,7 +158,13 @@ class SGIndicatorSelectorPanel(QDockWidget):
         selected = self.get_selected_keys()
         self.data_provider.reload()
         self._all_keys = self.data_provider.available_indicator_keys()
+        self._entity_categories = {
+            e["name"]: e["category"]
+            for e in self.data_provider.data_entities
+            if "category" in e and "name" in e and not isinstance(e.get("name"), dict)
+        }
         self._rebuild_tree()
+        self._refresh_groups_combo()
         self.set_selected_keys(selected)
         self._filter_tree()
 
@@ -189,6 +194,21 @@ class SGIndicatorSelectorPanel(QDockWidget):
         self._tree.blockSignals(False)
 
     # ------------------------------------------------------------------
+    # Group combobox
+    # ------------------------------------------------------------------
+
+    def _refresh_groups_combo(self):
+        """Repopulate the group combobox based on data actually present."""
+        current = self._group_combo.currentText()
+        self._group_combo.blockSignals(True)
+        self._group_combo.clear()
+        self._group_combo.addItems(self.data_provider.available_groups())
+        # Restore previous selection if it still exists, else fall back to "All"
+        idx = self._group_combo.findText(current)
+        self._group_combo.setCurrentIndex(max(idx, 0))
+        self._group_combo.blockSignals(False)
+
+    # ------------------------------------------------------------------
     # Tree construction
     # ------------------------------------------------------------------
 
@@ -201,6 +221,7 @@ class SGIndicatorSelectorPanel(QDockWidget):
         self._attr_item_to_base_key.clear()
         self._stat_widgets.clear()
         self._stat_items.clear()
+        self._entity_item_category.clear()
 
         entities = {}
         sim_vars = []
@@ -233,6 +254,8 @@ class SGIndicatorSelectorPanel(QDockWidget):
             for ename in sorted(entities.keys()):
                 ent_item = QTreeWidgetItem(cat, [ename])
                 ent_item.setExpanded(True)
+                entity_cat = self._entity_categories.get(ename, "")
+                self._entity_item_category[id(ent_item)] = entity_cat
                 e = entities[ename]
                 if e["population"]:
                     self._add_simple(ent_item, "population", e["population"])
@@ -310,6 +333,8 @@ class SGIndicatorSelectorPanel(QDockWidget):
             stat_item = self._stat_items[base_key]
 
             if item.checkState(0) == Qt.Checked:
+                if self._single_select:
+                    self._uncheck_all_except(item)
                 stat_item.setHidden(False)
                 item.setExpanded(True)
                 if not widget.has_selection():
@@ -323,7 +348,23 @@ class SGIndicatorSelectorPanel(QDockWidget):
 
         elif item_id in self._item_to_key:
             # Simple indicator checkbox toggled
+            if self._single_select and item.checkState(0) == Qt.Checked:
+                self._uncheck_all_except(item)
             self._trigger_update()
+
+    def _uncheck_all_except(self, keep_item):
+        """Uncheck every indicator except keep_item (for single_select mode)."""
+        self._tree.blockSignals(True)
+        for item in self._simple_items.values():
+            if item is not keep_item:
+                item.setCheckState(0, Qt.Unchecked)
+        for base_key, attr_item in self._attr_items.items():
+            if attr_item is not keep_item:
+                attr_item.setCheckState(0, Qt.Unchecked)
+                self._stat_items[base_key].setHidden(True)
+                attr_item.setExpanded(False)
+                self._stat_widgets[base_key].clear()
+        self._tree.blockSignals(False)
 
     def _trigger_update(self):
         self.on_apply(self.get_selected_keys())
@@ -337,16 +378,45 @@ class SGIndicatorSelectorPanel(QDockWidget):
         hide_flat = self._hide_flat.isChecked()
         group = self._group_combo.currentText()
 
+        # Map group label → which tree-category labels and entity categories to show
+        # "Cells" means: show Entities category but only Cell-type entity items
+        entity_cat_filter = None   # None = show all entity categories
+        if group in ("Cells", "Agents", "Tiles"):
+            wanted_cat = group[:-1]   # "Cells" -> "Cell"
+            entity_cat_filter = wanted_cat
+
         root = self._tree.invisibleRootItem()
         for ci in range(root.childCount()):
             cat = root.child(ci)
-            if group != "All" and cat.text(0) != group:
+            cat_label = cat.text(0)
+
+            # Determine whether this tree category node should be visible at all
+            if group == "All":
+                cat_node_visible = True
+            elif group == "Entities":
+                cat_node_visible = (cat_label == "Entities")
+            elif entity_cat_filter is not None:
+                # Cells / Agents / Tiles → only the Entities category node
+                cat_node_visible = (cat_label == "Entities")
+            else:
+                # SimVars / Players / GameActions
+                cat_node_visible = (cat_label == group)
+
+            if not cat_node_visible:
                 cat.setHidden(True)
                 continue
 
             cat_visible = False
             for ei in range(cat.childCount()):
                 ent = cat.child(ei)
+
+                # For entity sub-items, apply optional category filter
+                if entity_cat_filter is not None and cat_label == "Entities":
+                    item_cat = self._entity_item_category.get(id(ent), "")
+                    if item_cat != entity_cat_filter:
+                        ent.setHidden(True)
+                        continue
+
                 ent_visible = self._filter_entity_or_leaf(ent, text, hide_flat)
                 ent.setHidden(not ent_visible)
                 if ent_visible:

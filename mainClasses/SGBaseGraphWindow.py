@@ -6,10 +6,10 @@ from mainClasses.SGGraphController import SGGraphController
 
 
 _TITLES = {
-    "linear":    "Diagramme d'évolution linéaire",
-    "hist":      "Histogramme",
-    "pie":       "Diagramme Circulaire",
-    "stackplot": "Diagramme Stack Plot",
+    "linear":    "Linear Chart",
+    "hist":      "Histogram",
+    "pie":       "Pie Chart",
+    "stackplot": "Stack Plot",
 }
 
 

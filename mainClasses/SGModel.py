@@ -1101,21 +1101,21 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.createTooltipMenu()
 
     def createGraphMenu(self):
-        self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&openChooseGraph")
+        self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&Graphs")
 
-        actionLinearDiagram = QAction(QIcon(f'{path_icon}/icon_linear.png'), 'Diagramme Linéaire', self)
+        actionLinearDiagram = QAction(QIcon(f'{path_icon}/icon_linear.png'), 'Linear Chart', self)
         actionLinearDiagram.triggered.connect(self.openLinearGraph)
         self.chooseGraph.addAction(actionLinearDiagram)
 
-        actionHistogramDiagram = QAction(QIcon(f'{path_icon}/icon_histogram.png'), 'Histogramme', self)
+        actionHistogramDiagram = QAction(QIcon(f'{path_icon}/icon_histogram.png'), 'Histogram', self)
         actionHistogramDiagram.triggered.connect(self.openHistoGraph)
         self.chooseGraph.addAction(actionHistogramDiagram)
 
-        actionCircularDiagram = QAction(QIcon(f'{path_icon}/icon_circular.jpg'), 'Diagramme Circulaire', self)
+        actionCircularDiagram = QAction(QIcon(f'{path_icon}/icon_circular.jpg'), 'Pie Chart', self)
         actionCircularDiagram.triggered.connect(self.openCircularGraph)
         self.chooseGraph.addAction(actionCircularDiagram)
 
-        actionStackPlotDiagram = QAction(QIcon(f'{path_icon}/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
+        actionStackPlotDiagram = QAction(QIcon(f'{path_icon}/icon_stackplot.jpg'), 'Stack Plot', self)
         actionStackPlotDiagram.triggered.connect(self.openStackPlotGraph)
         self.chooseGraph.addAction(actionStackPlotDiagram)
 
@@ -2532,6 +2532,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
+        from mainClasses.SGExtensions import normalize_type_name
         specieName = normalize_type_name(specieName)
         aModelAction = SGModelAction_OnEntities(self,actions, conditions, feedbacks,(lambda:self.getAgentsOfType(specieName)))
         self.id_modelActions += 1
