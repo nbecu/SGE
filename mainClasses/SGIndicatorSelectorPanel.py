@@ -4,32 +4,25 @@ from PyQt5.QtWidgets import (
     QPushButton, QLabel, QComboBox,
 )
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
 
 QUANTI_STATS = ["mean", "sum", "min", "max", "stdev"]
 
 
 class SGStatSelectorWidget(QWidget):
     """
-    Inline row of mini-checkboxes for one quantitative attribute.
-    Replaces the 5 separate lines (mean/sum/min/max/stdev) with a single compact row:
+    Compact row of mini-checkboxes for choosing stats of one quantitative attribute.
+    Displayed as a child row under the attribute checkbox — no label needed here.
 
-        age:  [✓mean] [sum] [min] [✓max] [stdev]
+        [✓mean] [sum] [min] [✓max] [stdev]
     """
 
-    def __init__(self, attr_name, base_key, on_change):
+    def __init__(self, base_key, on_change):
         super().__init__()
-        self.attr_name = attr_name
         self.base_key = base_key   # e.g. "entity-:Wolf-:age"
-        self._on_change = on_change
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(2, 0, 2, 0)
+        layout.setContentsMargins(20, 0, 2, 0)   # left indent to align under parent text
         layout.setSpacing(4)
-
-        lbl = QLabel(attr_name + ":")
-        lbl.setFixedWidth(100)
-        layout.addWidget(lbl)
 
         self._checkboxes = {}
         for stat in QUANTI_STATS:
@@ -53,6 +46,15 @@ class SGStatSelectorWidget(QWidget):
             cb.setChecked(f"{self.base_key}-:{stat}" in active_keys)
             cb.blockSignals(False)
 
+    def set_default(self):
+        """Select 'mean' when attribute is first checked."""
+        self._checkboxes["mean"].blockSignals(True)
+        self._checkboxes["mean"].setChecked(True)
+        self._checkboxes["mean"].blockSignals(False)
+
+    def has_selection(self):
+        return any(cb.isChecked() for cb in self._checkboxes.values())
+
     def clear(self):
         for cb in self._checkboxes.values():
             cb.blockSignals(True)
@@ -68,22 +70,19 @@ class SGIndicatorSelectorPanel(QDockWidget):
         Entities  (bold)
           Wolf
             ☐ population
-            age:  [✓mean][sum][min][max][stdev]   ← SGStatSelectorWidget
-            ☐ some_quali_or_entDef_attr
-          Sheep
-            ...
+            ☐ age                         ← checking this…
+              [✓mean] [sum] [min] [max] [stdev]   ← …reveals stat row (default: mean)
+            ☐ some_quali_attr
         SimVars
           ☐ score
-        Players
-          Alice
-            ☐ energy
-        GameActions
-          ☐ Build
+        Players  /  GameActions  …
 
-    - No Apply button: selection changes update the graph immediately.
-    - Group combobox: filter by category.
-    - Search field: filter by entity/attribute name.
-    - "Hide flat" checkbox: hide indicators whose value never changed.
+    Behaviour:
+    - Checking a quanti attribute → reveals stat row, selects mean by default.
+    - Unchecking → hides stat row, clears stats.
+    - No Apply button: graph updates immediately on every change.
+    - Group combobox + search field for filtering.
+    - "Hide flat" checkbox.
     - reload() preserves the current selection.
     """
 
@@ -98,7 +97,7 @@ class SGIndicatorSelectorPanel(QDockWidget):
             QDockWidget.DockWidgetMovable |
             QDockWidget.DockWidgetFloatable
         )
-        self.setMinimumWidth(340)
+        self.setMinimumWidth(300)
 
         container = QWidget()
         self.setWidget(container)
@@ -106,24 +105,24 @@ class SGIndicatorSelectorPanel(QDockWidget):
         layout.setContentsMargins(6, 6, 6, 6)
         layout.setSpacing(4)
 
-        # Search field
+        # Search
         self._search = QLineEdit()
         self._search.setPlaceholderText("Search…")
         self._search.textChanged.connect(self._filter_tree)
         layout.addWidget(self._search)
 
         # Group filter
-        filter_row = QHBoxLayout()
-        filter_row.addWidget(QLabel("Group:"))
+        row = QHBoxLayout()
+        row.addWidget(QLabel("Group:"))
         self._group_combo = QComboBox()
         self._group_combo.addItems(
             ["All", "Entities", "SimVars", "Players", "GameActions"]
         )
         self._group_combo.currentTextChanged.connect(self._filter_tree)
-        filter_row.addWidget(self._group_combo, 1)
-        layout.addLayout(filter_row)
+        row.addWidget(self._group_combo, 1)
+        layout.addLayout(row)
 
-        # Hide-flat checkbox
+        # Hide flat
         self._hide_flat = QCheckBox("Hide flat indicators (no variation)")
         self._hide_flat.stateChanged.connect(self._filter_tree)
         layout.addWidget(self._hide_flat)
@@ -135,16 +134,18 @@ class SGIndicatorSelectorPanel(QDockWidget):
         self._tree.itemChanged.connect(self._on_item_changed)
         layout.addWidget(self._tree)
 
-        # Clear button
+        # Clear
         btn_clear = QPushButton("Clear all")
         btn_clear.clicked.connect(self._clear_all)
         layout.addWidget(btn_clear)
 
-        # Internal state
-        self._simple_items = {}   # key -> QTreeWidgetItem
-        self._item_to_key = {}    # QTreeWidgetItem id -> key  (reverse map for filtering)
-        self._stat_widgets = {}   # base_key -> SGStatSelectorWidget
-        self._stat_items = {}     # base_key -> QTreeWidgetItem
+        # Internal maps
+        self._simple_items = {}          # key -> QTreeWidgetItem  (simple checkbox)
+        self._item_to_key = {}           # id(item) -> key
+        self._attr_items = {}            # base_key -> QTreeWidgetItem  (quanti attr checkbox)
+        self._attr_item_to_base_key = {} # id(attr_item) -> base_key
+        self._stat_widgets = {}          # base_key -> SGStatSelectorWidget
+        self._stat_items = {}            # base_key -> QTreeWidgetItem  (hidden child row)
         self._all_keys = []
 
         self.reload()
@@ -154,7 +155,7 @@ class SGIndicatorSelectorPanel(QDockWidget):
     # ------------------------------------------------------------------
 
     def reload(self):
-        """Rebuild the tree preserving the current selection."""
+        """Rebuild tree preserving current selection."""
         selected = self.get_selected_keys()
         self.data_provider.reload()
         self._all_keys = self.data_provider.available_indicator_keys()
@@ -173,10 +174,18 @@ class SGIndicatorSelectorPanel(QDockWidget):
 
     def set_selected_keys(self, keys):
         self._tree.blockSignals(True)
+        # Simple items
         for key, item in self._simple_items.items():
             item.setCheckState(0, Qt.Checked if key in keys else Qt.Unchecked)
-        for widget in self._stat_widgets.values():
+        # Quanti attribute items
+        for base_key, widget in self._stat_widgets.items():
             widget.set_selected_keys(keys)
+            has_sel = widget.has_selection()
+            attr_item = self._attr_items[base_key]
+            stat_item = self._stat_items[base_key]
+            attr_item.setCheckState(0, Qt.Checked if has_sel else Qt.Unchecked)
+            stat_item.setHidden(not has_sel)
+            attr_item.setExpanded(has_sel)
         self._tree.blockSignals(False)
 
     # ------------------------------------------------------------------
@@ -188,12 +197,14 @@ class SGIndicatorSelectorPanel(QDockWidget):
         self._tree.clear()
         self._simple_items.clear()
         self._item_to_key.clear()
+        self._attr_items.clear()
+        self._attr_item_to_base_key.clear()
         self._stat_widgets.clear()
         self._stat_items.clear()
 
-        entities = {}   # name -> {population, entDef: {attr: key}, quanti: {attr: base_key}}
+        entities = {}
         sim_vars = []
-        players = {}    # name -> [key, ...]
+        players = {}
         game_actions = []
 
         for key in self._all_keys:
@@ -228,7 +239,7 @@ class SGIndicatorSelectorPanel(QDockWidget):
                 for attr, key in sorted(e["entDef"].items()):
                     self._add_simple(ent_item, attr, key)
                 for attr, base_key in sorted(e["quanti"].items()):
-                    self._add_stat(ent_item, attr, base_key)
+                    self._add_quanti(ent_item, attr, base_key)
 
         if sim_vars:
             cat = self._make_category("SimVars")
@@ -266,20 +277,53 @@ class SGIndicatorSelectorPanel(QDockWidget):
         self._item_to_key[id(item)] = key
         return item
 
-    def _add_stat(self, parent, attr_name, base_key):
-        item = QTreeWidgetItem(parent)
-        widget = SGStatSelectorWidget(attr_name, base_key, self._trigger_update)
-        self._tree.setItemWidget(item, 0, widget)
+    def _add_quanti(self, parent, attr_name, base_key):
+        # Row 1 — attribute checkbox (full name, no truncation issue)
+        attr_item = QTreeWidgetItem(parent, [attr_name])
+        attr_item.setFlags(attr_item.flags() | Qt.ItemIsUserCheckable)
+        attr_item.setCheckState(0, Qt.Unchecked)
+        self._attr_items[base_key] = attr_item
+        self._attr_item_to_base_key[id(attr_item)] = base_key
+
+        # Row 2 — stat selector (child, hidden until attribute is checked)
+        stat_item = QTreeWidgetItem(attr_item)
+        stat_item.setFlags(stat_item.flags() & ~Qt.ItemIsSelectable)
+        widget = SGStatSelectorWidget(base_key, self._trigger_update)
+        self._tree.setItemWidget(stat_item, 0, widget)
+        stat_item.setHidden(True)
+        attr_item.setExpanded(False)
+
         self._stat_widgets[base_key] = widget
-        self._stat_items[base_key] = item
-        return item
+        self._stat_items[base_key] = stat_item
 
     # ------------------------------------------------------------------
-    # Update trigger (auto-apply — no Apply button needed)
+    # Event handling
     # ------------------------------------------------------------------
 
     def _on_item_changed(self, item, _column):
-        self.on_apply(self.get_selected_keys())
+        item_id = id(item)
+
+        if item_id in self._attr_item_to_base_key:
+            # Quantitative attribute checkbox toggled
+            base_key = self._attr_item_to_base_key[item_id]
+            widget = self._stat_widgets[base_key]
+            stat_item = self._stat_items[base_key]
+
+            if item.checkState(0) == Qt.Checked:
+                stat_item.setHidden(False)
+                item.setExpanded(True)
+                if not widget.has_selection():
+                    widget.set_default()   # auto-select mean
+            else:
+                stat_item.setHidden(True)
+                item.setExpanded(False)
+                widget.clear()
+
+            self._trigger_update()
+
+        elif item_id in self._item_to_key:
+            # Simple indicator checkbox toggled
+            self._trigger_update()
 
     def _trigger_update(self):
         self.on_apply(self.get_selected_keys())
@@ -296,56 +340,55 @@ class SGIndicatorSelectorPanel(QDockWidget):
         root = self._tree.invisibleRootItem()
         for ci in range(root.childCount()):
             cat = root.child(ci)
-            cat_name = cat.text(0)
-
-            if group != "All" and cat_name != group:
+            if group != "All" and cat.text(0) != group:
                 cat.setHidden(True)
                 continue
 
             cat_visible = False
             for ei in range(cat.childCount()):
                 ent = cat.child(ei)
-                ent_visible = self._filter_subtree(ent, text, hide_flat)
+                ent_visible = self._filter_entity_or_leaf(ent, text, hide_flat)
                 ent.setHidden(not ent_visible)
                 if ent_visible:
                     cat_visible = True
-
             cat.setHidden(not cat_visible)
 
-    def _filter_subtree(self, parent_item, text, hide_flat):
+    def _filter_entity_or_leaf(self, item, text, hide_flat):
         """
-        Filter children of parent_item.
-        Returns True if at least one child is visible (or parent itself is a leaf).
+        If item has children that are attribute rows: filter those children.
+        If item is itself a leaf (SimVar, GameAction): filter the item directly.
         """
-        if parent_item.childCount() == 0:
-            # Leaf item (SimVar, GameAction, or player attr)
-            label = parent_item.text(0).lower()
+        # Leaf item (SimVar name, GameAction name, or player attr)
+        if id(item) in self._item_to_key and item.childCount() == 0:
+            label = item.text(0).lower()
             visible = not text or text in label
             if visible and hide_flat:
-                key = self._item_to_key.get(id(parent_item))
-                if key:
-                    visible = not self.data_provider.is_flat(key)
+                key = self._item_to_key[id(item)]
+                visible = not self.data_provider.is_flat(key)
             return visible
 
+        # Entity/player item: filter its attribute children
+        parent_label = item.text(0).lower()
         has_visible = False
-        ent_label = parent_item.text(0).lower()
-        for ai in range(parent_item.childCount()):
-            attr_item = parent_item.child(ai)
-            widget = self._tree.itemWidget(attr_item, 0)
 
-            if widget:
-                attr_label = widget.attr_name.lower()
-                key_for_flat = f"{widget.base_key}-:mean"
-            else:
-                attr_label = attr_item.text(0).lower()
-                key_for_flat = self._item_to_key.get(id(attr_item))
-
-            combined = ent_label + " " + attr_label
+        for ai in range(item.childCount()):
+            attr_item = item.child(ai)
+            attr_label = attr_item.text(0).lower()
+            combined = parent_label + " " + attr_label
             visible = not text or text in combined
 
-            if visible and hide_flat and key_for_flat:
-                visible = not self.data_provider.is_flat(key_for_flat)
+            if visible and hide_flat:
+                # For quanti attrs use mean key; for simple use direct key
+                if id(attr_item) in self._attr_item_to_base_key:
+                    base_key = self._attr_item_to_base_key[id(attr_item)]
+                    key_for_flat = f"{base_key}-:mean"
+                else:
+                    key_for_flat = self._item_to_key.get(id(attr_item))
+                if key_for_flat:
+                    visible = not self.data_provider.is_flat(key_for_flat)
 
+            # Never touch the stat_item child of attr_item here — its visibility
+            # is controlled solely by the attribute checkbox state.
             attr_item.setHidden(not visible)
             if visible:
                 has_visible = True
@@ -360,7 +403,10 @@ class SGIndicatorSelectorPanel(QDockWidget):
         self._tree.blockSignals(True)
         for item in self._simple_items.values():
             item.setCheckState(0, Qt.Unchecked)
+        for base_key, attr_item in self._attr_items.items():
+            attr_item.setCheckState(0, Qt.Unchecked)
+            self._stat_items[base_key].setHidden(True)
+            attr_item.setExpanded(False)
+            self._stat_widgets[base_key].clear()
         self._tree.blockSignals(False)
-        for widget in self._stat_widgets.values():
-            widget.clear()
         self._trigger_update()
