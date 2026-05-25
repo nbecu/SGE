@@ -888,6 +888,24 @@ myModel.newButton(
 
 
 #********************************************************************
+#ADD GRAPH PRESET
+mg = myModel.newMultiGraphWindow("Vue d'ensemble")
+mg.addPanel("linear", indicators=[
+                    ("entity", "marais salant", "potentiel accueil", "sum"),
+                    ("entity", "marais salee", "potentiel accueil", "sum"),
+                    ],
+                    x_axis = 'Rounds & Phases',)
+
+mg.addPanel("linear", indicators=[
+                    ("entity", "champs agricoles", "surface actuelle"),
+                    ("entity", "hebier", "surface actuelle"),
+                    ("entity", "marais doux", "surface actuelle"),
+                    ("entity", "marais doux agricole", "surface actuelle"),
+                    ])
+mg.addPanel("stackplot", indicators=[("entity", "grid1", "typeZH")])
+
+
+#********************************************************************
  #TEST AJOUT VALUER DS LES PLATEAUX
  
 # for i, aZHtype in enumerate(ordreZHs):

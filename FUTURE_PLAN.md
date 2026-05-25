@@ -44,6 +44,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [x] `addGraphPreset`: show the graph type icon in front of the preset name in the Graphs menu.
 - [x] `addGraphPreset` / `createGraphMenu`: add `myModel.hideDefaultGraphMenuItems()` API so the modeler can hide the default entries (Linear Chart, Histogram, Pie Chart, Stack Plot) that he wants to hide, while continuins to expose presets.
 - [ ] Graph color management: when possible, use entity or entity-state colors defined in the model (e.g. `SGEntityType.color`, quali attribute state colors) instead of the fixed COLORS palette — fallback to current palette when no model color is defined.
+- [ ] Graph indicator selection persistence: auto-save the selected indicators, group filter, and x_axis option when the user closes a graph window; auto-restore them on next open — no user interaction required. Use a `graph_config.json` file (same pattern as `layout_config.json` / `theme_config.json`), keyed by `model_name + graph_type` (or `model_name + preset_name`). Validate restored keys against available indicators on load and silently ignore missing ones (model may have changed). Note: fix the `sys.argv[0]` path issue first — it currently saves to the SGE root when running from an IDE instead of saving next to the model script.
 - [ ] Improve data record of gameactions (perhaps using SGAbstractAction.updateServer_gameAction_performed())
 
 ### Simulation Management & Data

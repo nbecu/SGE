@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox, QWidget, QGridLayout
 
-from mainClasses.SGBaseGraphWindow import SGBaseGraphWindow
+from .SGBaseGraphWindow import SGBaseGraphWindow
 
 
 class SGGraphWindow(QWidget):

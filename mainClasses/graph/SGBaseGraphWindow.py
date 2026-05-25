@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
-from mainClasses.SGGraphController import SGGraphController
+from .SGGraphController import SGGraphController
 
 
 _TITLES = {

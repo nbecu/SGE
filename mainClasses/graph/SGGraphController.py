@@ -8,9 +8,9 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
-from mainClasses.SGGraphDataProvider import SGGraphDataProvider
-from mainClasses.SGIndicatorSpec import SGIndicatorSpec
-from mainClasses.SGIndicatorSelectorPanel import SGIndicatorSelectorPanel
+from .SGGraphDataProvider import SGGraphDataProvider
+from .SGIndicatorSpec import SGIndicatorSpec
+from .SGIndicatorSelectorPanel import SGIndicatorSelectorPanel
 
 
 class SGGraphController(NavigationToolbar):

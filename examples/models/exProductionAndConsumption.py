@@ -167,7 +167,26 @@ DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 DashBoard.addIndicatorOnSimVariable(score)
 DashBoard.showIndicators()
 
+## Set the graphs presets
+myModel.addGraphPreset("linear", "Production Unit mean energy",
+                indicators=[
+                    ("entity", "Production Unit", "energy", "sum")])
+myModel.addGraphPreset("linear", "Consumer population",
+                indicators=[
+                    ("entity", "Consumer", "population"),
+                    ("entity", "Consumer", "energy", "mean")
+                    ])
+myModel.addGraphPreset("pie", "Consumer strategy distribution",
+                indicators=[
+                    ("entity", "Consumer", "strategy")])
+myModel.addGraphPreset("linear", "Scores obtenus",
+                indicators=[
+                    ("simvar", "Score")])
 
+myModel.addGraphPreset("hist", "Consumers' energy",
+                indicators=[
+                    ("entity", "Consumer", "energy")])
+myModel.hideDefaultGraphMenuItems()
 
 
 ## open the simulation

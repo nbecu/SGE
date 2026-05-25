@@ -180,7 +180,7 @@ class SGGraphDataProvider:
         """
         if self.graph_type not in ("linear", "hist"):
             return False
-        from mainClasses.SGIndicatorSpec import SGIndicatorSpec
+        from .SGIndicatorSpec import SGIndicatorSpec
         spec = SGIndicatorSpec(key, is_quantitative=True)
         values = spec.get_data(self.all_quantitative())
         return len(set(values)) <= 1
