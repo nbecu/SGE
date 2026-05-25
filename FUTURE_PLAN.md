@@ -40,6 +40,9 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Graphs interface : allow the modeler to specify the graphs that he wants to see in the menu
 - [ ] Graphs interface : allow to specify a multi-graph window with graphs specify by the modeler
 - [ ] Histogram : allow multiple indicators simultaneously — requires either (1) recomputing bins on-the-fly over the combined value range, or (2) a shared fixed bin grid [global_min, global_max]. Currently limited to single_select because each indicator's bins are pre-computed independently at recording time.
+- [x] `addGraphPreset`: add `x_axis` parameter to let the modeler specify the x-axis mode per preset (`'Rounds'`, `'Rounds & Phases'`, `'Specified phase'`).
+- [x] `addGraphPreset`: show the graph type icon in front of the preset name in the Graphs menu.
+- [x] `addGraphPreset` / `createGraphMenu`: add `myModel.hideDefaultGraphMenuItems()` API so the modeler can hide the default entries (Linear Chart, Histogram, Pie Chart, Stack Plot) that he wants to hide, while continuins to expose presets.
 - [ ] Improve data record of gameactions (perhaps using SGAbstractAction.updateServer_gameAction_performed())
 
 ### Simulation Management & Data

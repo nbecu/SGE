@@ -60,6 +60,8 @@ class SGGraphController(NavigationToolbar):
 
         # Indicator selector panel (QDockWidget, attached after toolbar is built)
         self._selector_panel = None
+        self.preset_title = None     # set by _open_graph when opened from a preset
+        self.preset_x_axis = None    # set by _open_graph when preset specifies an x-axis mode
 
         # Selector toggle button
         btn_sel = QPushButton("Indicators ▸", self)
@@ -99,6 +101,7 @@ class SGGraphController(NavigationToolbar):
             self._selector_panel.hide()
 
     def _on_indicators_applied(self, selected_keys):
+        self.preset_title = None   # user changed selection manually
         self.update_chart(reload=False)
 
     def _get_selected_keys(self):
@@ -150,6 +153,7 @@ class SGGraphController(NavigationToolbar):
         self._x_combobox.currentIndexChanged.connect(self._on_x_option_changed)
 
     def _on_x_option_changed(self):
+        self.preset_x_axis = None   # user overrides the preset x-axis mode
         if self._get_x_option() == "specified phase":
             nb = self.data_provider.nb_phases()
             dialog = QInputDialog(self.parent_window)
@@ -162,9 +166,22 @@ class SGGraphController(NavigationToolbar):
         self.update_chart(reload=False)
 
     def _get_x_option(self):
+        if self.preset_x_axis:
+            return self.preset_x_axis
         if self._x_combobox:
             return self._x_combobox.currentData() or "per round"
         return "per round"
+
+    def _sync_x_combobox(self, x_option):
+        """Update the combobox to visually reflect x_option without triggering a chart update."""
+        if self._x_combobox is None:
+            return
+        for i in range(self._x_combobox.count()):
+            if self._x_combobox.itemData(i) == x_option:
+                self._x_combobox.blockSignals(True)
+                self._x_combobox.setCurrentIndex(i)
+                self._x_combobox.blockSignals(False)
+                break
 
     # ------------------------------------------------------------------
     # Plotting — linear
@@ -189,7 +206,7 @@ class SGGraphController(NavigationToolbar):
         entities = ", ".join({
             k.split("-:")[1] for k in selected_keys if "entity" in k
         })
-        self.ax.set_title(f"Population over time — {entities}")
+        self.ax.set_title(self.preset_title or self._make_auto_title(selected_keys))
         self.canvas.draw()
 
     def _plot_linear_per_round(self, data, pos, spec, phase_to_display):
@@ -270,9 +287,7 @@ class SGGraphController(NavigationToolbar):
                 self.ax.set_xticks(x_intervals)
 
         self.ax.legend()
-        self.ax.set_title(
-            f"Frequency of {attrib_value} — {', '.join(entity_names)}"
-        )
+        self.ax.set_title(self.preset_title or self._make_auto_title(selected_keys))
         self.ax.set_xlabel(attrib_value)
         self.ax.set_ylabel("Number of occurrences")
         self.canvas.draw()
@@ -306,7 +321,7 @@ class SGGraphController(NavigationToolbar):
         self.ax.pie(values, labels=labels, autopct="%1.1f%%", startangle=90)
         self.ax.axis("equal")
         self.ax.legend()
-        self.ax.set_title(f"Répartition des {entity} par {attrib} en (%)")
+        self.ax.set_title(self.preset_title or self._make_auto_title(selected_keys))
         self.canvas.draw()
 
     # ------------------------------------------------------------------
@@ -399,14 +414,53 @@ class SGGraphController(NavigationToolbar):
 
         self.ax.legend()
         self.ax.set_xticks(self._x_value)
-        self.ax.set_title(
-            f"Breakdown of {attrib_value.capitalize()}"
-        )
+        self.ax.set_title(self.preset_title or self._make_auto_title(selected_keys))
         self.canvas.draw()
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _make_auto_title(self, selected_keys):
+        """Build a chart title from selected indicator keys.
+        Format: 'EntityA, EntityB — attr (stat1, stat2), other_attr'
+        Multiple stats for the same attribute are grouped: energy (mean, sum).
+        """
+        entities = []
+        attr_stats = {}    # {attr_name: [stat, ...]}  — preserves insertion order
+        simple_inds = []   # population, entDef attrs, simvars, players, actions
+
+        for key in selected_keys:
+            parts = key.split("-:")
+            if key.startswith("entity-:"):
+                if parts[1] not in entities:
+                    entities.append(parts[1])
+                if len(parts) == 4:   # quanti attr with stat
+                    attr, stat = parts[2], parts[3]
+                    attr_stats.setdefault(attr, [])
+                    if stat not in attr_stats[attr]:
+                        attr_stats[attr].append(stat)
+                else:                 # population or entDef attr
+                    if parts[2] not in simple_inds:
+                        simple_inds.append(parts[2])
+            elif key.startswith("simVariable-:"):
+                if parts[1] not in simple_inds:
+                    simple_inds.append(parts[1])
+            elif key.startswith("player-:"):
+                if parts[1] not in entities:
+                    entities.append(parts[1])
+                if parts[2] not in simple_inds:
+                    simple_inds.append(parts[2])
+            elif key.startswith("gameActions-:"):
+                if parts[1] not in simple_inds:
+                    simple_inds.append(parts[1])
+
+        indicators = simple_inds + [
+            f"{attr} ({', '.join(stats)})" for attr, stats in attr_stats.items()
+        ]
+        if entities and indicators:
+            return f"{', '.join(entities)} — {', '.join(indicators)}"
+        return ', '.join(indicators) if indicators else ""
 
     def _draw_step_lines(self, x_value):
         if self.data_provider.nb_phases() < 2 or self._get_x_option() != "per step":

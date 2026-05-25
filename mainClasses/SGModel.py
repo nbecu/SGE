@@ -1100,8 +1100,22 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Recreate the menu
         self.createTooltipMenu()
 
+    # Icon filename for each graph type — used by default entries and presets
+    _GRAPH_TYPE_ICONS = {
+        "linear":    "icon_linear.png",
+        "hist":      "icon_histogram.png",
+        "pie":       "icon_circular.jpg",
+        "stackplot": "icon_stackplot.jpg",
+    }
+
     def createGraphMenu(self):
         self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&Graphs")
+
+        # Separator between presets (above) and default entries (below).
+        # Presets are inserted before this separator via insertAction().
+        self._graph_preset_separator = self.chooseGraph.addSeparator()
+        self._graph_preset_separator.setVisible(False)
+        self._graph_preset_actions = []
 
         actionLinearDiagram = QAction(QIcon(f'{path_icon}/icon_linear.png'), 'Linear Chart', self)
         actionLinearDiagram.triggered.connect(self.openLinearGraph)
@@ -1119,10 +1133,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         actionStackPlotDiagram.triggered.connect(self.openStackPlotGraph)
         self.chooseGraph.addAction(actionStackPlotDiagram)
 
-        # Preset separator + entries (populated by addGraphPreset calls)
-        self._graph_preset_separator = self.chooseGraph.addSeparator()
-        self._graph_preset_separator.setVisible(False)
-        self._graph_preset_actions = []
+        # Keep references so hideDefaultGraphMenuItems() can hide them
+        self._graph_default_actions = {
+            "linear":    actionLinearDiagram,
+            "hist":      actionHistogramDiagram,
+            "pie":       actionCircularDiagram,
+            "stackplot": actionStackPlotDiagram,
+        }
 
     # Create all the action related to the menu
     def createAction(self):
@@ -1165,15 +1182,31 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # Graph windows — generic openers
     # ------------------------------------------------------------------
 
-    def _open_graph(self, graph_type, preset_keys=None):
+    def _open_graph(self, graph_type, preset_keys=None, preset_name=None, preset_x_axis=None, preset_x_axis_phase=None):
         """Open a graph window, optionally pre-selecting indicator keys."""
         from mainClasses.SGBaseGraphWindow import SGBaseGraphWindow
         if len(self.dataRecorder.getStats_ofEntities()) <= 2:
             SGGraphWindow(self)._show_error()
             return None
         graph = SGBaseGraphWindow(self, graph_type)
+        if preset_name:
+            graph.toolbar.preset_title = preset_name
+        if preset_x_axis:
+            graph.toolbar.preset_x_axis = preset_x_axis
+            graph.toolbar._sync_x_combobox(preset_x_axis)
+        if preset_x_axis_phase is not None:
+            graph.toolbar.specified_phase = preset_x_axis_phase
         if preset_keys and graph.toolbar._selector_panel:
-            graph.toolbar._selector_panel.set_selected_keys(preset_keys)
+            panel = graph.toolbar._selector_panel
+            panel.set_selected_keys(preset_keys)
+            if not panel.get_selected_keys():
+                from PyQt5.QtWidgets import QMessageBox
+                QMessageBox.warning(
+                    graph, "Graph preset warning",
+                    f"None of the preset indicators could be found in the current simulation.\n"
+                    f"Check indicator names, entity names, and stat names.\n\n"
+                    f"Requested keys:\n" + "\n".join(f"  • {k}" for k in preset_keys)
+                )
             graph.toolbar.update_chart(reload=False)
         graph.show()
         self.openedGraphs.append(graph)
@@ -1195,7 +1228,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # Graph preset — modeler API (Feature 3)
     # ------------------------------------------------------------------
 
-    def addGraphPreset(self, graph_type, name, indicators):
+    def addGraphPreset(self, graph_type, name, indicators, x_axis=None, x_axis_phase=None):
         """
         Register a pre-configured graph accessible from the graph menu.
 
@@ -1208,22 +1241,63 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 ("simvar",    simvar_name)
                 ("player",    player_name, attribute)
                 ("gameaction", action_type)
+            x_axis (str, optional): x-axis mode — "Rounds", "Rounds & Phases", or
+                "Specified phase". Applies to "linear" and "stackplot" only.
+                Defaults to None (uses the combobox default: "Rounds").
 
         Example:
-            myModel.addGraphPreset("linear", "Population des loups",
+            myModel.addGraphPreset("linear", "Wolf population",
                 indicators=[("entity", "Wolf", "population")])
-            myModel.addGraphPreset("linear", "Age moyen des loups",
-                indicators=[("entity", "Wolf", "age", "mean")])
+            myModel.addGraphPreset("linear", "Average age of wolves",
+                indicators=[("entity", "Wolf", "age", "mean")],
+                x_axis="Rounds & Phases")
         """
+        _VALID_TYPES = ("linear", "hist", "pie", "stackplot")
+        if graph_type not in _VALID_TYPES:
+            raise ValueError(f"addGraphPreset: invalid graph_type '{graph_type}'. "
+                             f"Must be one of {_VALID_TYPES}.")
+
+        _X_AXIS_MAP = {
+            "Rounds":          "per round",
+            "Rounds & Phases": "per step",
+            "Specified phase": "specified phase",
+        }
+        if x_axis is not None and x_axis not in _X_AXIS_MAP:
+            raise ValueError(f"addGraphPreset: invalid x_axis '{x_axis}'. "
+                             f"Must be one of {list(_X_AXIS_MAP.keys())}.")
+        if x_axis_phase is not None and x_axis != "Specified phase":
+            raise ValueError("addGraphPreset: x_axis_phase requires x_axis='Specified phase'.")
+        x_axis_internal = _X_AXIS_MAP.get(x_axis)
+
         keys = [self._preset_tuple_to_key(t) for t in indicators]
         keys = [k for k in keys if k]  # drop None (malformed tuples)
 
-        action = QAction(name, self)
-        action.triggered.connect(lambda _, gt=graph_type, ks=keys:
-                                 self._open_graph(gt, preset_keys=ks))
-        self.chooseGraph.addAction(action)
+        icon_file = self._GRAPH_TYPE_ICONS.get(graph_type)
+        action = QAction(QIcon(f"{path_icon}/{icon_file}"), name, self)
+        action.triggered.connect(
+            lambda _, gt=graph_type, ks=keys, pn=name, xa=x_axis_internal, xp=x_axis_phase:
+                self._open_graph(gt, preset_keys=ks, preset_name=pn, preset_x_axis=xa, preset_x_axis_phase=xp)
+        )
+        self.chooseGraph.insertAction(self._graph_preset_separator, action)
         self._graph_preset_separator.setVisible(True)
         self._graph_preset_actions.append(action)
+
+    def hideDefaultGraphMenuItems(self, *graph_types):
+        """Hide default graph menu entries.
+
+        With no arguments, hides all four default entries.
+        Pass graph type strings to hide only specific ones:
+            myModel.hideDefaultGraphMenuItems()                      # hide all
+            myModel.hideDefaultGraphMenuItems("linear", "hist")      # hide only these two
+        Valid types: "linear", "hist", "pie", "stackplot".
+        """
+        _VALID_TYPES = ("linear", "hist", "pie", "stackplot")
+        types_to_hide = graph_types if graph_types else _VALID_TYPES
+        for gt in types_to_hide:
+            if gt not in _VALID_TYPES:
+                raise ValueError(f"hideDefaultGraphMenuItems: invalid graph_type '{gt}'. "
+                                 f"Must be one of {_VALID_TYPES}.")
+            self._graph_default_actions[gt].setVisible(False)
 
     @staticmethod
     def _preset_tuple_to_key(t):
@@ -1236,6 +1310,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if len(t) == 3:
                 return f"entity-:{t[1]}-:{t[2]}"
             elif len(t) == 4:
+                _VALID_STATS = ("mean", "sum", "min", "max", "stdev")
+                if t[3] not in _VALID_STATS:
+                    raise ValueError(f"addGraphPreset: invalid stat '{t[3]}' "
+                                     f"for entity '{t[1]}' attribute '{t[2]}'. "
+                                     f"Must be one of {_VALID_STATS}.")
                 return f"entity-:{t[1]}-:{t[2]}-:{t[3]}"
         elif kind == "simvar":
             return f"simVariable-:{t[1]}"
