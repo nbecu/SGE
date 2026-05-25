@@ -245,7 +245,7 @@ class SGGraphController(NavigationToolbar):
             if len(x_value) > len(data_y):
                 data_y.extend([0] * (len(x_value) - len(data_y)))
             self.ax.plot(x_value, data_y, label=label, linestyle=linestyle, color=color)
-            self._draw_step_lines(x_value)
+            self.__draw_round_lines (x_value)
 
     # ------------------------------------------------------------------
     # Plotting — histogram
@@ -410,7 +410,7 @@ class SGGraphController(NavigationToolbar):
             self.ax.stackplot(self._x_value * len(values), values, labels=labels)
         else:
             self.ax.stackplot(self._x_value, values, labels=labels)
-            self._draw_step_lines(self._x_value)
+            self.__draw_round_lines (self._x_value)
 
         self.ax.legend()
         self.ax.set_xticks(self._x_value)
@@ -462,7 +462,7 @@ class SGGraphController(NavigationToolbar):
             return f"{', '.join(entities)} — {', '.join(indicators)}"
         return ', '.join(indicators) if indicators else ""
 
-    def _draw_step_lines(self, x_value):
+    def __draw_round_lines (self, x_value):
         if self.data_provider.nb_phases() < 2 or self._get_x_option() != "per step":
             return
         round_label = 1

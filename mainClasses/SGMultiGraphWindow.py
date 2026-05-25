@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QPushButton
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton
+from PyQt5.QtCore import Qt
 
 from mainClasses.SGGraphDataProvider import SGGraphDataProvider
 from mainClasses.SGIndicatorSpec import SGIndicatorSpec
@@ -13,13 +14,22 @@ class SGMultiGraphPanel:
     Created by SGMultiGraphWindow.addPanel().
     """
 
-    def __init__(self, graph_type, indicator_tuples):
+    _X_AXIS_MAP = {
+        "Rounds":          "per round",
+        "Rounds & Phases": "per step",
+        "Specified phase": "specified phase",
+    }
+
+    def __init__(self, graph_type, indicator_tuples, x_axis=None):
         self.graph_type = graph_type
-        # Convert modeler-facing tuples to internal key strings
         self.indicator_keys = [
             self._tuple_to_key(t) for t in indicator_tuples
             if self._tuple_to_key(t)
         ]
+        if x_axis is not None and x_axis not in self._X_AXIS_MAP:
+            raise ValueError(f"addPanel: invalid x_axis '{x_axis}'. "
+                             f"Must be one of {list(self._X_AXIS_MAP.keys())}.")
+        self.x_axis = self._X_AXIS_MAP.get(x_axis, "per round")
 
     @staticmethod
     def _tuple_to_key(t):
@@ -67,12 +77,13 @@ class SGMultiGraphWindow(QMainWindow):
         self.title = title
         self._panel_specs = []     # list of SGMultiGraphPanel, filled by addPanel()
         self._built = False
+        self.toolbar = self       # duck-type shim: SGTimeManager calls aGraph.toolbar.refresh_data()
 
     # ------------------------------------------------------------------
     # Modeler API
     # ------------------------------------------------------------------
 
-    def addPanel(self, graph_type, indicators=None):
+    def addPanel(self, graph_type, indicators=None, x_axis=None):
         """
         Register one sub-graph panel.
 
@@ -85,10 +96,12 @@ class SGMultiGraphWindow(QMainWindow):
                     ("simvar",    simvar_name)
                     ("player",    player_name, attribute)
                     ("gameaction", action_type)
+            x_axis (str, optional): "Rounds", "Rounds & Phases", or
+                "Specified phase". Applies to "linear" and "stackplot" only.
         Returns:
             self  (for fluent chaining if desired)
         """
-        panel = SGMultiGraphPanel(graph_type, indicators or [])
+        panel = SGMultiGraphPanel(graph_type, indicators or [], x_axis=x_axis)
         self._panel_specs.append(panel)
         return self
 
@@ -120,17 +133,36 @@ class SGMultiGraphWindow(QMainWindow):
 
         canvas = FigureCanvas(self._fig)
 
-        btn_refresh = QPushButton("Refresh")
+        btn_refresh = QPushButton("↺ refresh")
+        btn_refresh.setFixedHeight(20)
+        btn_refresh.setMaximumWidth(80)
+        btn_refresh.setToolTip("Refresh")
+        btn_refresh.setStyleSheet("QPushButton { font-size: 9pt; color: gray; }"
+                                  "QPushButton:hover { color: black; }")
         btn_refresh.clicked.connect(self._refresh)
+
+        top_bar = QHBoxLayout()
+        top_bar.addStretch()
+        top_bar.addWidget(btn_refresh)
+        top_bar.setContentsMargins(0, 2, 4, 0)
 
         central = QWidget()
         layout = QVBoxLayout(central)
-        layout.addWidget(btn_refresh)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addLayout(top_bar)
         layout.addWidget(canvas)
         self.setCentralWidget(central)
         self._canvas = canvas
+        self._built = True
 
         self._draw_all()
+
+    def refresh_data(self):
+        """Called automatically by SGTimeManager on each nextTurn."""
+        if self._built and self.isVisible():
+            self._draw_all()
+            self._canvas.draw()
 
     def _refresh(self):
         self._draw_all()
@@ -161,7 +193,7 @@ class SGMultiGraphWindow(QMainWindow):
             return
 
         is_quanti = spec.graph_type in ("linear", "hist")
-        x_value, nb_complete = dp.compute_x_axis("per round")
+        x_value, nb_complete = dp.compute_x_axis(spec.x_axis)
 
         if spec.graph_type == "linear":
             for pos, key in enumerate(spec.indicator_keys):
@@ -183,6 +215,7 @@ class SGMultiGraphWindow(QMainWindow):
                             linestyle=ispec.get_line_style())
             ax.legend(fontsize=7)
             ax.set_xlabel("Round")
+            self.__draw_round_lines (ax, x_value, dp, spec.x_axis)
 
         elif spec.graph_type in ("pie", "stackplot", "hist"):
             # For categorical types, draw only the first indicator key
@@ -242,6 +275,19 @@ class SGMultiGraphWindow(QMainWindow):
         if spec.indicator_keys:
             ispec0 = SGIndicatorSpec(spec.indicator_keys[0], is_quantitative=is_quanti)
             ax.set_title(ispec0.get_label(), fontsize=9)
+
+    def __draw_round_lines (self, ax, x_value, dp, x_axis):
+        if x_axis != "per step" or dp.nb_phases() < 2:
+            return
+        nb_phases = dp.nb_phases()
+        round_label = 1
+        for x in x_value:
+            if (x - 1) % nb_phases == 0 and x != 0:
+                ax.axvline(x, color="r", ls=":")
+                ax.text(x, 1, f"Round {round_label} ↓",
+                        color="r", ha="left", va="top", rotation=90,
+                        fontsize=7, transform=ax.get_xaxis_transform())
+                round_label += 1
 
     def closeEvent(self, event):
         if self in self.model.openedGraphs:

@@ -1111,8 +1111,17 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def createGraphMenu(self):
         self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&Graphs")
 
-        # Separator between presets (above) and default entries (below).
-        # Presets are inserted before this separator via insertAction().
+        # Menu order (top → bottom):
+        #   [multi-graph entries]  ← inserted before _multi_graph_separator
+        #   _multi_graph_separator (hidden until both multi-graphs and presets coexist)
+        #   [preset entries]       ← inserted before _graph_preset_separator
+        #   _graph_preset_separator (hidden until any custom entry exists)
+        #   Linear Chart | Histogram | Pie Chart | Stack Plot
+
+        self._multi_graph_separator = self.chooseGraph.addSeparator()
+        self._multi_graph_separator.setVisible(False)
+        self._multi_graph_actions = []
+
         self._graph_preset_separator = self.chooseGraph.addSeparator()
         self._graph_preset_separator.setVisible(False)
         self._graph_preset_actions = []
@@ -1281,6 +1290,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.chooseGraph.insertAction(self._graph_preset_separator, action)
         self._graph_preset_separator.setVisible(True)
         self._graph_preset_actions.append(action)
+        # Show the separator between multi-graphs and presets only when both coexist
+        self._multi_graph_separator.setVisible(bool(self._multi_graph_actions))
 
     def hideDefaultGraphMenuItems(self, *graph_types):
         """Hide default graph menu entries.
@@ -1353,13 +1364,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         mg = SGMultiGraphWindow(self, title)
         self.openedGraphs.append(mg)
 
-        # Add a separator before multi-graph entries (once)
-        if not hasattr(self, "_multi_graph_separator"):
-            self._multi_graph_separator = self.chooseGraph.addSeparator()
-
-        action = QAction(f"⊞ {title}", self)
+        action = QAction(QIcon(f"{path_icon}/icon_dashboards.png"), title, self)
         action.triggered.connect(lambda _, w=mg: w.open())
-        self.chooseGraph.addAction(action)
+        self.chooseGraph.insertAction(self._multi_graph_separator, action)
+        self._multi_graph_actions.append(action)
+
+        # Show the separator between multi-graphs and presets only when both coexist
+        self._multi_graph_separator.setVisible(bool(self._graph_preset_actions))
         return mg
 
     def createEnhancedGridLayoutMenu(self):
