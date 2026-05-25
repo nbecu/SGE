@@ -262,7 +262,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 'round': currentRound,
                 'phase': currentPhase,
                 'population': len(self.entities),
-                'entDefAttributes': dict(filter(lambda i: type(i[1]) in[int,float],self.dictAttributes.items())),
+                'entDefAttributes': dict(filter(lambda i: type(i[1]) in[int,float],self.dictAttributes.items())), #todo we don't used the keyword entDef anymore but we use 'type' instead.
                 'quantiAttributes': quantiAttributesStats,
                 'qualiAttributes': qualiAttributesStats
                     }    

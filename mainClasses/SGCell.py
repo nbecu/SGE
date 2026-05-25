@@ -305,7 +305,7 @@ class SGCell(SGEntity):
         Get all agents in this cell.
         
         Args:
-            type_name (str or SGAgentDef, optional): The name of the type or SGAgentDef object.
+            type_name (str or SGAgentDef, optional): The name of the type or SGAgentDef object. #todo we don't use AgentDef anymore but AgentType. Update docstring accordingly.
                 If None, returns all agents in the cell.
                 
         Returns:

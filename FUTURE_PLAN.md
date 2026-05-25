@@ -43,6 +43,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [x] `addGraphPreset`: add `x_axis` parameter to let the modeler specify the x-axis mode per preset (`'Rounds'`, `'Rounds & Phases'`, `'Specified phase'`).
 - [x] `addGraphPreset`: show the graph type icon in front of the preset name in the Graphs menu.
 - [x] `addGraphPreset` / `createGraphMenu`: add `myModel.hideDefaultGraphMenuItems()` API so the modeler can hide the default entries (Linear Chart, Histogram, Pie Chart, Stack Plot) that he wants to hide, while continuins to expose presets.
+- [ ] Graph color management: when possible, use entity or entity-state colors defined in the model (e.g. `SGEntityType.color`, quali attribute state colors) instead of the fixed COLORS palette — fallback to current palette when no model color is defined.
 - [ ] Improve data record of gameactions (perhaps using SGAbstractAction.updateServer_gameAction_performed())
 
 ### Simulation Management & Data
