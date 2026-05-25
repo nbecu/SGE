@@ -32,9 +32,9 @@ from mainClasses.SGEntity import SGEntity
 from mainClasses.SGEntityView import SGEntityView
 from mainClasses.SGEntityType import SGEntityType, SGAgentType, SGCellType, SGTileType
 from mainClasses.SGGrid import SGGrid
-from mainClasses.SGGraphController import SGGraphController
-from mainClasses.SGGraphWindow import SGGraphWindow
-from mainClasses.SGBaseGraphWindow import SGBaseGraphWindow
+from mainClasses.graph.SGGraphController import SGGraphController
+from mainClasses.graph.SGGraphWindow import SGGraphWindow
+from mainClasses.graph.SGBaseGraphWindow import SGBaseGraphWindow
 from mainClasses.SGLegend import SGLegend
 from mainClasses.SGModelAction import SGModelAction, SGModelAction_OnEntities
 from mainClasses.SGPlayer import SGPlayer
@@ -1193,7 +1193,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def _open_graph(self, graph_type, preset_keys=None, preset_name=None, preset_x_axis=None, preset_x_axis_phase=None):
         """Open a graph window, optionally pre-selecting indicator keys."""
-        from mainClasses.SGBaseGraphWindow import SGBaseGraphWindow
+        from mainClasses.graph.SGBaseGraphWindow import SGBaseGraphWindow
         if len(self.dataRecorder.getStats_ofEntities()) <= 2:
             SGGraphWindow(self)._show_error()
             return None
@@ -1360,7 +1360,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             ])
             mg.addPanel("stackplot", indicators=[("entity", "Sheep", "type")])
         """
-        from mainClasses.SGMultiGraphWindow import SGMultiGraphWindow
+        from mainClasses.graph.SGMultiGraphWindow import SGMultiGraphWindow
         mg = SGMultiGraphWindow(self, title)
         self.openedGraphs.append(mg)
 
