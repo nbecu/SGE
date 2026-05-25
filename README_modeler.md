@@ -261,6 +261,72 @@ For complete documentation on distributed games, see:
 - **Handle cancellation** - `enableDistributedGame()` returns `None` if the user cancels
 - **Error handling** - Connection errors display user-friendly warning messages (in English) instead of crashing the application
 
+## Graphs & Analytics
+
+SGE provides graph windows accessible from the **Graphs** menu in the main simulation window. Four types are available: Linear Chart, Histogram, Pie Chart, Stack Plot.
+
+### Graph Presets
+
+Register named, pre-configured graph windows before `launch()`:
+
+```python
+# Linear chart — multiple indicators, optional x_axis mode
+myModel.addGraphPreset("linear", "Wolf & Sheep populations",
+    indicators=[
+        ("entity", "Wolf",  "population"),
+        ("entity", "Sheep", "population"),
+        ("entity", "Wolf",  "energy", "mean"),   # stat: sum/mean/min/max/stdev
+    ])
+
+# SimVariable indicator
+myModel.addGraphPreset("linear", "Score over time",
+    indicators=[("simvar", "Score")])
+
+# Phase-level granularity (vertical lines mark round boundaries)
+myModel.addGraphPreset("linear", "Energy per phase",
+    indicators=[("entity", "Wolf", "energy", "mean")],
+    x_axis="Rounds & Phases")   # "Rounds" | "Rounds & Phases" | "Specified phase"
+
+# Single-indicator types
+myModel.addGraphPreset("hist",      "Energy distribution", indicators=[("entity", "Wolf", "energy")])
+myModel.addGraphPreset("pie",       "Wolf status",         indicators=[("entity", "Wolf", "status")])
+myModel.addGraphPreset("stackplot", "Status over rounds",  indicators=[("entity", "Wolf", "status")])
+```
+
+Preset names appear in the Graphs menu and as the matplotlib chart title.
+
+### Hiding Default Menu Entries
+
+```python
+myModel.hideDefaultGraphMenuItems()                  # hide all 4 default entries
+myModel.hideDefaultGraphMenuItems("hist", "pie")     # hide specific types only
+```
+
+### Multi-Graph Windows
+
+Display several sub-charts in a single window, auto-refreshed at each simulation step:
+
+```python
+overview = myModel.newMultiGraphWindow("Overview")
+
+overview.addPanel("linear",
+    indicators=[
+        ("entity", "Wolf",  "population"),
+        ("entity", "Sheep", "population"),
+    ])
+overview.addPanel("stackplot", indicators=[("entity", "Wolf", "status")])
+overview.addPanel("hist",      indicators=[("entity", "Sheep", "energy")])
+overview.addPanel("pie",       indicators=[("entity", "Sheep", "status")])
+
+# Phase-level granularity per panel
+details = myModel.newMultiGraphWindow("Energy details")
+details.addPanel("linear",
+    indicators=[("entity", "Wolf", "energy", "mean")],
+    x_axis="Rounds & Phases")
+```
+
+Panels are arranged in a 2-column grid. Multi-graph windows appear at the top of the Graphs menu, above presets. See `examples/syntax_examples/syntax_graphPreset.py` and `syntax_multiGraphWindow.py` for complete runnable examples.
+
 ## Folder hierarchy
 - Examples
   - example1.0.py

@@ -11,12 +11,43 @@ Ce fichier documente l'├®tat actuel du d├®veloppement SGE, les probl├¿m
 ### Date de dernière mise à jour : Mai 2026
 ### Dernier chat utilisé : Claude Sonnet 4.6 (Claude Code VSCode)
 ### Ordinateur de travail : Windows 11 (nbecu)
-### Branche actuelle : dev_claude_archi_improves
-### Dernier chantier : Améliorations architecturales + reorganisation tests pytest
+### Branche actuelle : dev_Graph_corrections (review terminée, à merger)
+### Dernier chantier : Refactoring graph + Features 1-4 (UX graphs)
 
 ---
 
 ## Travail en cours
+
+### Mai 2026 - Refactoring graph + Features 1-4 (TERMINÉ)
+- **Statut** : ✅ Terminé et validé (59 nouveaux tests passent)
+- **Branche** : `dev_Graph_corrections` (basée sur `dev_simvar_cell_api`)
+- **Description** : Refactoring complet du sous-système graph, implémentation de 4 features UX, réorganisation en sous-package `mainClasses/graph/`.
+- **Fichiers principaux** :
+  - `mainClasses/graph/` (nouveau sous-package — 7 fichiers actifs déplacés)
+  - `mainClasses/graph/SGBaseGraphWindow.py` (fenêtre unifiée linear/hist/pie/stackplot)
+  - `mainClasses/graph/SGGraphController.py` (toolbar matplotlib + logique de rendu)
+  - `mainClasses/graph/SGGraphDataProvider.py` (chargement données, calcul axe X)
+  - `mainClasses/graph/SGIndicatorSpec.py` (parsing clés indicateurs, labels, styles)
+  - `mainClasses/graph/SGIndicatorSelectorPanel.py` (panneau sélection indicateurs)
+  - `mainClasses/graph/SGMultiGraphWindow.py` (Feature 4 — fenêtre multi-panels)
+  - `mainClasses/SGModel.py` (addGraphPreset, hideDefaultGraphMenuItems, newMultiGraphWindow)
+  - `examples/syntax_examples/syntax_graphPreset.py` (nouvel exemple)
+  - `examples/syntax_examples/syntax_multiGraphWindow.py` (nouvel exemple)
+  - `tests/test_graph_data.py` (38 tests unitaires purs Python)
+  - `tests/test_graph_api.py` (21 tests avec Qt)
+- **Nouvelles fonctionnalités modeler** :
+  1. `myModel.addGraphPreset(graph_type, name, indicators, x_axis, x_axis_phase)` — preset nommé dans le menu Graphs, avec titre matplotlib automatique
+  2. `myModel.hideDefaultGraphMenuItems(*graph_types)` — masquer les entrées par défaut du menu
+  3. `myModel.newMultiGraphWindow(title)` + `.addPanel(graph_type, indicators, x_axis)` — fenêtre multi-panels auto-rafraîchie
+- **Améliorations UX graph** :
+  - Combobox groupes dynamique (Cells/Agents/Tiles séparément selon données présentes)
+  - `single_select` pour pie, stackplot, hist
+  - Bouton "Hide flat indicators" corrigé (ne plante plus sur pie/stackplot)
+  - Histogramme : source de données corrigée (quantiAttributes, pas qualiAttributes)
+  - Stackplot : plus d'erreur à l'ouverture
+  - Axe X : combobox "Rounds / Rounds & Phases / Specified phase"
+- **Refactoring** : 7 fichiers legacy supprimés (SGGraphLinear, SGGraphHistogram, SGGraphCircular, SGGraphStackPlot, SGMultiGraph, SGMultiGraphMixte, SGMultiGraphMultiWindow)
+- **Durée** : 3 sessions (Mai 2026)
 
 ### Mai 2026 - API SimVar et SGCell (TERMINÉ)
 - **Statut** : ✅ Terminé et validé (10 nouveaux tests passent)

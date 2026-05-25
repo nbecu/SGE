@@ -35,10 +35,10 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Allow placing agents on Tiles (add ability to place agents directly on tiles, not just on cells)
 
 ### Graphs & Analytics Interface
-- [ ] Graphs interface : improve the selection menu of graphs
-- [ ] Graphs interface : allow to hide all graphs that are flat (no value change)
-- [ ] Graphs interface : allow the modeler to specify the graphs that he wants to see in the menu
-- [ ] Graphs interface : allow to specify a multi-graph window with graphs specify by the modeler
+- [x] Graphs interface : improve the selection menu of graphs (dynamic group combobox: Cells/Agents/Tiles; single_select for pie/stackplot/hist; hide flat indicators)
+- [x] Graphs interface : allow to hide all graphs that are flat (no value change)
+- [x] Graphs interface : allow the modeler to specify the graphs that he wants to see in the menu (`addGraphPreset` + `hideDefaultGraphMenuItems`)
+- [x] Graphs interface : allow to specify a multi-graph window with graphs specify by the modeler (`newMultiGraphWindow` + `addPanel`)
 - [ ] Histogram : allow multiple indicators simultaneously — requires either (1) recomputing bins on-the-fly over the combined value range, or (2) a shared fixed bin grid [global_min, global_max]. Currently limited to single_select because each indicator's bins are pre-computed independently at recording time.
 - [x] `addGraphPreset`: add `x_axis` parameter to let the modeler specify the x-axis mode per preset (`'Rounds'`, `'Rounds & Phases'`, `'Specified phase'`).
 - [x] `addGraphPreset`: show the graph type icon in front of the preset name in the Graphs menu.
