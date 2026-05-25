@@ -4,8 +4,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton
 from PyQt5.QtCore import Qt
 
-from mainClasses.SGGraphDataProvider import SGGraphDataProvider
-from mainClasses.SGIndicatorSpec import SGIndicatorSpec
+from .SGGraphDataProvider import SGGraphDataProvider
+from .SGIndicatorSpec import SGIndicatorSpec
 
 
 class SGMultiGraphPanel:
@@ -218,18 +218,40 @@ class SGMultiGraphWindow(QMainWindow):
             self.__draw_round_lines (ax, x_value, dp, spec.x_axis)
 
         elif spec.graph_type in ("pie", "stackplot", "hist"):
-            # For categorical types, draw only the first indicator key
+            # Single-indicator types: use only the first key
             if not spec.indicator_keys:
                 return
             key = spec.indicator_keys[0]
-            ispec = SGIndicatorSpec(key, is_quantitative=False)
             data = dp.data_entities
             if not data:
                 return
             rounds = {e["round"] for e in data}
             max_round = max(rounds)
 
-            if spec.graph_type == "pie":
+            if spec.graph_type == "hist":
+                parts = key.split("-:")
+                if len(parts) < 3:
+                    return
+                entity, attrib = parts[1], parts[2]
+                hist_data = next(
+                    (e["quantiAttributes"][attrib]["histo"]
+                     for e in data
+                     if e["name"] == entity and e["round"] == max_round
+                     and "quantiAttributes" in e
+                     and attrib in e["quantiAttributes"]
+                     and "histo" in e["quantiAttributes"][attrib]),
+                    None
+                )
+                if hist_data:
+                    x_intervals = hist_data[1]
+                    x_centers = np.average([x_intervals[1:], x_intervals[:-1]], axis=0)
+                    heights = hist_data[0]
+                    ax.hist(x_centers, weights=heights, bins=x_intervals, edgecolor="black")
+                    ax.set_xticks(x_intervals)
+                    ax.set_xlabel(attrib)
+                    ax.set_ylabel("Occurrences")
+
+            elif spec.graph_type == "pie":
                 parts = key.split("-:")
                 if len(parts) < 3:
                     return
