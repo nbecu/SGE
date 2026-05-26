@@ -1233,146 +1233,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def openCircularGraph(self):
         self._open_graph("pie")
 
-    # ------------------------------------------------------------------
-    # Graph preset — modeler API (Feature 3)
-    # ------------------------------------------------------------------
-
-    def addGraphPreset(self, graph_type, name, indicators, x_axis=None, x_axis_phase=None):
-        """
-        Register a pre-configured graph accessible from the graph menu.
-
-        Args:
-            graph_type (str): "linear", "hist", "pie", or "stackplot"
-            name (str): label shown in the menu
-            indicators (list of tuple): each tuple is one of:
-                ("entity",    entity_name, attribute)
-                ("entity",    entity_name, attribute, stat)  # stat = mean/min/max/sum/stdev
-                ("simvar",    simvar_name)
-                ("player",    player_name, attribute)
-                ("gameaction", action_type)
-            x_axis (str, optional): x-axis mode — "Rounds", "Rounds & Phases", or
-                "Specified phase". Applies to "linear" and "stackplot" only.
-                Defaults to None (uses the combobox default: "Rounds").
-
-        Example:
-            myModel.addGraphPreset("linear", "Wolf population",
-                indicators=[("entity", "Wolf", "population")])
-            myModel.addGraphPreset("linear", "Average age of wolves",
-                indicators=[("entity", "Wolf", "age", "mean")],
-                x_axis="Rounds & Phases")
-        """
-        _VALID_TYPES = ("linear", "hist", "pie", "stackplot")
-        if graph_type not in _VALID_TYPES:
-            raise ValueError(f"addGraphPreset: invalid graph_type '{graph_type}'. "
-                             f"Must be one of {_VALID_TYPES}.")
-
-        _X_AXIS_MAP = {
-            "Rounds":          "per round",
-            "Rounds & Phases": "per step",
-            "Specified phase": "specified phase",
-        }
-        if x_axis is not None and x_axis not in _X_AXIS_MAP:
-            raise ValueError(f"addGraphPreset: invalid x_axis '{x_axis}'. "
-                             f"Must be one of {list(_X_AXIS_MAP.keys())}.")
-        if x_axis_phase is not None and x_axis != "Specified phase":
-            raise ValueError("addGraphPreset: x_axis_phase requires x_axis='Specified phase'.")
-        x_axis_internal = _X_AXIS_MAP.get(x_axis)
-
-        keys = [self._preset_tuple_to_key(t) for t in indicators]
-        keys = [k for k in keys if k]  # drop None (malformed tuples)
-
-        icon_file = self._GRAPH_TYPE_ICONS.get(graph_type)
-        action = QAction(QIcon(f"{path_icon}/{icon_file}"), name, self)
-        action.triggered.connect(
-            lambda _, gt=graph_type, ks=keys, pn=name, xa=x_axis_internal, xp=x_axis_phase:
-                self._open_graph(gt, preset_keys=ks, preset_name=pn, preset_x_axis=xa, preset_x_axis_phase=xp)
-        )
-        self.chooseGraph.insertAction(self._graph_preset_separator, action)
-        self._graph_preset_separator.setVisible(True)
-        self._graph_preset_actions.append(action)
-        # Show the separator between multi-graphs and presets only when both coexist
-        self._multi_graph_separator.setVisible(bool(self._multi_graph_actions))
-
-    def hideDefaultGraphMenuItems(self, *graph_types):
-        """Hide default graph menu entries.
-
-        With no arguments, hides all four default entries.
-        Pass graph type strings to hide only specific ones:
-            myModel.hideDefaultGraphMenuItems()                      # hide all
-            myModel.hideDefaultGraphMenuItems("linear", "hist")      # hide only these two
-        Valid types: "linear", "hist", "pie", "stackplot".
-        """
-        _VALID_TYPES = ("linear", "hist", "pie", "stackplot")
-        types_to_hide = graph_types if graph_types else _VALID_TYPES
-        for gt in types_to_hide:
-            if gt not in _VALID_TYPES:
-                raise ValueError(f"hideDefaultGraphMenuItems: invalid graph_type '{gt}'. "
-                                 f"Must be one of {_VALID_TYPES}.")
-            self._graph_default_actions[gt].setVisible(False)
-
-    @staticmethod
-    def _preset_tuple_to_key(t):
-        """Convert a modeler-facing tuple to the internal indicator key string."""
-        if not t:
-            return None
-        kind = t[0].lower()
-        if kind == "entity":
-            # ("entity", entity_name, attribute) or ("entity", entity_name, attribute, stat)
-            if len(t) == 3:
-                return f"entity-:{t[1]}-:{t[2]}"
-            elif len(t) == 4:
-                _VALID_STATS = ("mean", "sum", "min", "max", "stdev")
-                if t[3] not in _VALID_STATS:
-                    raise ValueError(f"addGraphPreset: invalid stat '{t[3]}' "
-                                     f"for entity '{t[1]}' attribute '{t[2]}'. "
-                                     f"Must be one of {_VALID_STATS}.")
-                return f"entity-:{t[1]}-:{t[2]}-:{t[3]}"
-        elif kind == "simvar":
-            return f"simVariable-:{t[1]}"
-        elif kind == "player":
-            return f"player-:{t[1]}-:{t[2]}"
-        elif kind == "gameaction":
-            return f"gameActions-:{t[1]}"
-        return None
-
-    # ------------------------------------------------------------------
-    # Multi-graph window — modeler API (Feature 4)
-    # ------------------------------------------------------------------
-
-    def newMultiGraphWindow(self, title):
-        """
-        Create a multi-graph window pre-configured by the modeler.
-
-        The window appears in the graph menu; the user opens it at runtime.
-        Panels are added via the returned object's addPanel() method.
-
-        Args:
-            title (str): window title and menu label
-
-        Returns:
-            SGMultiGraphWindow: call .addPanel() on it to configure panels.
-
-        Example:
-            mg = myModel.newMultiGraphWindow("Vue d'ensemble")
-            mg.addPanel("linear", indicators=[
-                ("entity", "Wolf", "population"),
-                ("entity", "Sheep", "population"),
-            ])
-            mg.addPanel("stackplot", indicators=[("entity", "Sheep", "type")])
-        """
-        from mainClasses.graph.SGMultiGraphWindow import SGMultiGraphWindow
-        mg = SGMultiGraphWindow(self, title)
-        self.openedGraphs.append(mg)
-
-        action = QAction(QIcon(f"{path_icon}/icon_dashboards.png"), title, self)
-        action.triggered.connect(lambda _, w=mg: w.open())
-        self.chooseGraph.insertAction(self._multi_graph_separator, action)
-        self._multi_graph_actions.append(action)
-
-        # Show the separator between multi-graphs and presets only when both coexist
-        self._multi_graph_separator.setVisible(bool(self._graph_preset_actions))
-        return mg
-
     def createEnhancedGridLayoutMenu(self):
         """Create Enhanced Grid Layout submenu in Settings menu"""
         if self.typeOfLayout == "enhanced_grid":
@@ -3267,6 +3127,40 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         msg.exec_()
         return
 
+    def newMultiGraphWindow(self, title):
+        """
+        Create a multi-graph window pre-configured by the modeler.
+
+        The window appears in the graph menu; the user opens it at runtime.
+        Panels are added via the returned object's addPanel() method.
+
+        Args:
+            title (str): window title and menu label
+
+        Returns:
+            SGMultiGraphWindow: call .addPanel() on it to configure panels.
+
+        Example:
+            mg = myModel.newMultiGraphWindow("Vue d'ensemble")
+            mg.addPanel("linear", indicators=[
+                ("entity", "Wolf", "population"),
+                ("entity", "Sheep", "population"),
+            ])
+            mg.addPanel("stackplot", indicators=[("entity", "Sheep", "type")])
+        """
+        from mainClasses.graph.SGMultiGraphWindow import SGMultiGraphWindow
+        mg = SGMultiGraphWindow(self, title)
+        self.openedGraphs.append(mg)
+
+        action = QAction(QIcon(f"{path_icon}/icon_dashboards.png"), title, self)
+        action.triggered.connect(lambda _, w=mg: w.open())
+        self.chooseGraph.insertAction(self._multi_graph_separator, action)
+        self._multi_graph_actions.append(action)
+
+        # Show the separator between multi-graphs and presets only when both coexist
+        self._multi_graph_separator.setVisible(bool(self._graph_preset_actions))
+        return mg
+
     # ============================================================================
     # SET METHODS
     # ============================================================================
@@ -3565,6 +3459,103 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.shouldDisplayAdminControlPanel = True
         if not self.timeManager.isInitialization():
             self.show_adminControlPanel()
+
+    def addGraphPreset(self, graph_type, name, indicators, x_axis=None, x_axis_phase=None):
+        """
+        Register a pre-configured graph accessible from the graph menu.
+
+        Args:
+            graph_type (str): "linear", "hist", "pie", or "stackplot"
+            name (str): label shown in the menu
+            indicators (list of tuple): each tuple is one of:
+                ("entity",    entity_name, attribute)
+                ("entity",    entity_name, attribute, stat)  # stat = mean/min/max/sum/stdev
+                ("simvar",    simvar_name)
+                ("player",    player_name, attribute)
+                ("gameaction", action_type)
+            x_axis (str, optional): x-axis mode — "Rounds", "Rounds & Phases", or
+                "Specified phase". Applies to "linear" and "stackplot" only.
+                Defaults to None (uses the combobox default: "Rounds").
+
+        Example:
+            myModel.addGraphPreset("linear", "Wolf population",
+                indicators=[("entity", "Wolf", "population")])
+            myModel.addGraphPreset("linear", "Average age of wolves",
+                indicators=[("entity", "Wolf", "age", "mean")],
+                x_axis="Rounds & Phases")
+        """
+        _VALID_TYPES = ("linear", "hist", "pie", "stackplot")
+        if graph_type not in _VALID_TYPES:
+            raise ValueError(f"addGraphPreset: invalid graph_type '{graph_type}'. "
+                             f"Must be one of {_VALID_TYPES}.")
+
+        _X_AXIS_MAP = {
+            "Rounds":          "per round",
+            "Rounds & Phases": "per step",
+            "Specified phase": "specified phase",
+        }
+        if x_axis is not None and x_axis not in _X_AXIS_MAP:
+            raise ValueError(f"addGraphPreset: invalid x_axis '{x_axis}'. "
+                             f"Must be one of {list(_X_AXIS_MAP.keys())}.")
+        if x_axis_phase is not None and x_axis != "Specified phase":
+            raise ValueError("addGraphPreset: x_axis_phase requires x_axis='Specified phase'.")
+        x_axis_internal = _X_AXIS_MAP.get(x_axis)
+
+        keys = [self._preset_tuple_to_key(t) for t in indicators]
+        keys = [k for k in keys if k]  # drop None (malformed tuples)
+
+        icon_file = self._GRAPH_TYPE_ICONS.get(graph_type)
+        action = QAction(QIcon(f"{path_icon}/{icon_file}"), name, self)
+        action.triggered.connect(
+            lambda _, gt=graph_type, ks=keys, pn=name, xa=x_axis_internal, xp=x_axis_phase:
+                self._open_graph(gt, preset_keys=ks, preset_name=pn, preset_x_axis=xa, preset_x_axis_phase=xp)
+        )
+        self.chooseGraph.insertAction(self._graph_preset_separator, action)
+        self._graph_preset_separator.setVisible(True)
+        self._graph_preset_actions.append(action)
+        # Show the separator between multi-graphs and presets only when both coexist
+        self._multi_graph_separator.setVisible(bool(self._multi_graph_actions))
+
+    @staticmethod
+    def _preset_tuple_to_key(t):
+        """Convert a modeler-facing tuple to the internal indicator key string."""
+        if not t:
+            return None
+        kind = t[0].lower()
+        if kind == "entity":
+            if len(t) == 3:
+                return f"entity-:{t[1]}-:{t[2]}"
+            elif len(t) == 4:
+                _VALID_STATS = ("mean", "sum", "min", "max", "stdev")
+                if t[3] not in _VALID_STATS:
+                    raise ValueError(f"addGraphPreset: invalid stat '{t[3]}' "
+                                     f"for entity '{t[1]}' attribute '{t[2]}'. "
+                                     f"Must be one of {_VALID_STATS}.")
+                return f"entity-:{t[1]}-:{t[2]}-:{t[3]}"
+        elif kind == "simvar":
+            return f"simVariable-:{t[1]}"
+        elif kind == "player":
+            return f"player-:{t[1]}-:{t[2]}"
+        elif kind == "gameaction":
+            return f"gameActions-:{t[1]}"
+        return None
+
+    def hideDefaultGraphMenuItems(self, *graph_types):
+        """Hide default graph menu entries.
+
+        With no arguments, hides all four default entries.
+        Pass graph type strings to hide only specific ones:
+            myModel.hideDefaultGraphMenuItems()                      # hide all
+            myModel.hideDefaultGraphMenuItems("linear", "hist")      # hide only these two
+        Valid types: "linear", "hist", "pie", "stackplot".
+        """
+        _VALID_TYPES = ("linear", "hist", "pie", "stackplot")
+        types_to_hide = graph_types if graph_types else _VALID_TYPES
+        for gt in types_to_hide:
+            if gt not in _VALID_TYPES:
+                raise ValueError(f"hideDefaultGraphMenuItems: invalid graph_type '{gt}'. "
+                                 f"Must be one of {_VALID_TYPES}.")
+            self._graph_default_actions[gt].setVisible(False)
 
     def enableBotPlayer(self, player_name, adapter, strategy="random", **kwargs):
         """

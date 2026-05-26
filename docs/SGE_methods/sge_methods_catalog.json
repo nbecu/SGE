@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "generated_date": "2024-12-19",
     "total_classes": 20,
-    "total_methods": 522
+    "total_methods": 525
   },
   "classes": {
     "SGAgent": {
@@ -923,14 +923,14 @@
             "name": "getAgents",
             "signature": "def getAgents(self, type_name=None):",
             "description": "Get all agents in this cell.",
-            "docstring": "Get all agents in this cell.\n\nArgs:\n    type_name (str or SGAgentDef, optional): The name of the type or SGAgentDef object.\n        If None, returns all agents in the cell.\n        \nReturns:\n    list[SGAgent]: List of agents of the specified type, or all agents if type_name is None\n    \nExample:\n    # Get all agents in the cell\n    all_agents = cell.getAgents()\n    \n    # Get only sheep agents\n    sheep_agents = cell.getAgents(\"Sheeps\")\n    \n    # Get agents using agent type object\n    sheep_agents = cell.getAgents(sheepType)",
+            "docstring": "Get all agents in this cell.\n\nArgs:\n    type_name (str or SGAgentDef, optional): The name of the type or SGAgentDef object. #todo we don't use AgentDef anymore but AgentType. Update docstring accordingly.\n        If None, returns all agents in the cell.\n        \nReturns:\n    list[SGAgent]: List of agents of the specified type, or all agents if type_name is None\n    \nExample:\n    # Get all agents in the cell\n    all_agents = cell.getAgents()\n    \n    # Get only sheep agents\n    sheep_agents = cell.getAgents(\"Sheeps\")\n    \n    # Get agents using agent type object\n    sheep_agents = cell.getAgents(sheepType)",
             "category": "GET",
             "class_name": "SGCell",
             "parameters": [
               {
                 "name": "type_name",
                 "type": "str or SGAgentDef, optional",
-                "description": "The name of the type or SGAgentDef object.\nIf None, returns all agents in the cell."
+                "description": "The name of the type or SGAgentDef object. #todo we don't use AgentDef anymore but AgentType. Update docstring accordingly.\nIf None, returns all agents in the cell."
               }
             ],
             "returns": "list[SGAgent]: List of agents of the specified type, or all agents if type_name is None",
@@ -9747,7 +9747,7 @@
     "SGModel": {
       "class_name": "SGModel",
       "description": "SGModel model class for SGE framework",
-      "total_methods": 66,
+      "total_methods": 69,
       "categories": {
         "NEW": [
           {
@@ -9836,7 +9836,7 @@
             ],
             "returns": "SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid.",
             "examples": [],
-            "line_number": 1895,
+            "line_number": 1951,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9918,7 +9918,7 @@
             ],
             "returns": "SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid.",
             "examples": [],
-            "line_number": 1961,
+            "line_number": 2017,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9980,7 +9980,7 @@
             ],
             "returns": "a agentType",
             "examples": [],
-            "line_number": 1994,
+            "line_number": 2050,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10059,7 +10059,7 @@
             "examples": [
               "# Create a simple tile type\ntileType = model.newTileType(\"Forest\", shape=\"rectTile\", frontColor=Qt.green)\n\n# Create a tile type with stack rendering\ncardType = model.newTileType(\n\"Card\",\nshape=\"rectTile\",\nfrontColor=Qt.blue,\nbackColor=Qt.red,\nstackRendering={\"mode\": \"offset\", \"showCounter\": True, \"counterPosition\": \"topLeft\"}\n)"
             ],
-            "line_number": 2028,
+            "line_number": 2084,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10086,7 +10086,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2138,
+            "line_number": 2194,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10143,7 +10143,7 @@
             ],
             "returns": "The created play phase (an instance of SGPlayPhase)",
             "examples": [],
-            "line_number": 2163,
+            "line_number": 2219,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10215,7 +10215,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2201,
+            "line_number": 2257,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10282,7 +10282,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2222,
+            "line_number": 2278,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10349,7 +10349,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2242,
+            "line_number": 2298,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10406,7 +10406,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2267,
+            "line_number": 2323,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10473,7 +10473,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2285,
+            "line_number": 2341,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10530,7 +10530,7 @@
             ],
             "returns": "SGFlip: The created flip action",
             "examples": [],
-            "line_number": 2307,
+            "line_number": 2363,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10592,7 +10592,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2329,
+            "line_number": 2385,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10639,7 +10639,7 @@
             ],
             "returns": "SGTimePhase: The created time phase",
             "examples": [],
-            "line_number": 2367,
+            "line_number": 2423,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10671,7 +10671,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2392,
+            "line_number": 2448,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10703,7 +10703,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2407,
+            "line_number": 2463,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10740,7 +10740,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2421,
+            "line_number": 2477,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10777,7 +10777,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2436,
+            "line_number": 2493,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10824,7 +10824,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2611,
+            "line_number": 2668,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10931,7 +10931,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2637,
+            "line_number": 2694,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10963,7 +10963,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2683,
+            "line_number": 2740,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11045,7 +11045,7 @@
             ],
             "returns": "SGProgressGauge: The created SGProgressGauge instance.",
             "examples": [],
-            "line_number": 2702,
+            "line_number": 2759,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11072,7 +11072,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2771,
+            "line_number": 2828,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11099,7 +11099,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2792,
+            "line_number": 2849,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11166,7 +11166,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2820,
+            "line_number": 2877,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11228,7 +11228,7 @@
             ],
             "returns": "SGTextBox: The created text box widget",
             "examples": [],
-            "line_number": 2872,
+            "line_number": 2929,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11285,7 +11285,7 @@
             ],
             "returns": "SGLabel: An instance of SGLabel with the specified properties.",
             "examples": [],
-            "line_number": 2909,
+            "line_number": 2966,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11377,7 +11377,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2932,
+            "line_number": 2989,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11509,7 +11509,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2967,
+            "line_number": 3024,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11536,7 +11536,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3055,
+            "line_number": 3112,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11563,7 +11563,31 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3064,
+            "line_number": 3121,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newMultiGraphWindow",
+            "signature": "def newMultiGraphWindow(self, title):",
+            "description": "Create a multi-graph window pre-configured by the modeler.",
+            "docstring": "Create a multi-graph window pre-configured by the modeler.\n\nThe window appears in the graph menu; the user opens it at runtime.\nPanels are added via the returned object's addPanel() method.\n\nArgs:\n    title (str): window title and menu label\n\nReturns:\n    SGMultiGraphWindow: call .addPanel() on it to configure panels.\n\nExample:\n    mg = myModel.newMultiGraphWindow(\"Vue d'ensemble\")\n    mg.addPanel(\"linear\", indicators=[\n        (\"entity\", \"Wolf\", \"population\"),\n        (\"entity\", \"Sheep\", \"population\"),\n    ])\n    mg.addPanel(\"stackplot\", indicators=[(\"entity\", \"Sheep\", \"type\")])",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "title",
+                "type": "str",
+                "description": "window title and menu label"
+              }
+            ],
+            "returns": "SGMultiGraphWindow: call .addPanel() on it to configure panels.",
+            "examples": [
+              "mg = myModel.newMultiGraphWindow(\"Vue d'ensemble\")\nmg.addPanel(\"linear\", indicators=[\n(\"entity\", \"Wolf\", \"population\"),\n(\"entity\", \"Sheep\", \"population\"),\n])\nmg.addPanel(\"stackplot\", indicators=[(\"entity\", \"Sheep\", \"type\")])"
+            ],
+            "line_number": 3130,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11622,7 +11646,7 @@
             ],
             "returns": "SGDistributedGameConfig or None: Configuration object if distributed mode enabled, None if cancelled or local mode.",
             "examples": [],
-            "line_number": 2447,
+            "line_number": 2504,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11638,7 +11662,7 @@
             "parameters": [],
             "returns": "bool: True if setup completed successfully, False if cancelled or not in distributed mode",
             "examples": [],
-            "line_number": 2535,
+            "line_number": 2592,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11670,7 +11694,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3042,
+            "line_number": 3099,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11686,7 +11710,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3181,
+            "line_number": 3272,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11702,7 +11726,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3185,
+            "line_number": 3276,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11726,7 +11750,23 @@
             "examples": [
               "# Apply a saved theme configuration (will be applied when launch() is called)\nmodel.applyThemeConfig(\"my_theme_setup\")\nmodel.launch()  # Theme will be applied after all GameSpaces are created\n\n# Check before applying\nif model.hasThemeConfig(\"setup1\"):\nmodel.applyThemeConfig(\"setup1\")"
             ],
-            "line_number": 3304,
+            "line_number": 3395,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "hideDefaultGraphMenuItems",
+            "signature": "def hideDefaultGraphMenuItems(self, *graph_types):",
+            "description": "Hide default graph menu entries.",
+            "docstring": "Hide default graph menu entries.\n\nWith no arguments, hides all four default entries.\nPass graph type strings to hide only specific ones:\n    myModel.hideDefaultGraphMenuItems()                      # hide all\n    myModel.hideDefaultGraphMenuItems(\"linear\", \"hist\")      # hide only these two\nValid types: \"linear\", \"hist\", \"pie\", \"stackplot\".",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 3543,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11758,7 +11798,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3372,
+            "line_number": 3560,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11780,7 +11820,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3392,
+            "line_number": 3580,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11807,7 +11847,7 @@
             ],
             "returns": "str: Path to exported file",
             "examples": [],
-            "line_number": 3407,
+            "line_number": 3595,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11836,7 +11876,7 @@
             "examples": [
               "# Save automatically to a specific directory\nmyModel.enableAutoSaveGameActionLogs(format=\"csv\", save_path=\"/path/to/logs\")\n\n# Save with user choosing the location\nmyModel.enableAutoSaveGameActionLogs(format=\"json\")\n\n# Save CSV to current directory\nmyModel.enableAutoSaveGameActionLogs(save_path=\".\")"
             ],
-            "line_number": 3434,
+            "line_number": 3622,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11860,7 +11900,7 @@
             "examples": [
               "# Load images from directory\nimages = myModel.loadImagesFromDirectory(\"./images\")\n\n# Use random image for a tile\nimport random\ntile = TileType.newTileOnCell(cell, backImage=random.choice(images))"
             ],
-            "line_number": 3466,
+            "line_number": 3654,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11884,7 +11924,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3080,
+            "line_number": 3171,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11921,7 +11961,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3105,
+            "line_number": 3196,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11945,7 +11985,7 @@
             "examples": [
               "# Disable icons in context menu\nmyModel.setShowIconsInContextMenu(False)"
             ],
-            "line_number": 3340,
+            "line_number": 3431,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11963,7 +12003,7 @@
             "parameters": [],
             "returns": "bool: True if distributed mode is enabled, False otherwise",
             "examples": [],
-            "line_number": 3141,
+            "line_number": 3232,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11989,7 +12029,7 @@
             "examples": [
               "count = myModel.getConnectedInstancesCount()\nif count >= 2:\nprint(\"Minimum players reached!\")\n\n# With custom default value\ncount = myModel.getConnectedInstancesCount(default=1)"
             ],
-            "line_number": 3150,
+            "line_number": 3241,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12005,7 +12045,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3189,
+            "line_number": 3280,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12027,7 +12067,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3192,
+            "line_number": 3283,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12049,7 +12089,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3202,
+            "line_number": 3293,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12065,7 +12105,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3208,
+            "line_number": 3299,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12087,7 +12127,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3212,
+            "line_number": 3303,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12103,7 +12143,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3216,
+            "line_number": 3307,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12119,7 +12159,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3225,
+            "line_number": 3316,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12141,7 +12181,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3236,
+            "line_number": 3327,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12168,7 +12208,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3242,
+            "line_number": 3333,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12184,7 +12224,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3247,
+            "line_number": 3338,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12206,7 +12246,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3254,
+            "line_number": 3345,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12222,7 +12262,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3259,
+            "line_number": 3350,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12244,7 +12284,7 @@
             ],
             "returns": "list: List of grids (SGGrid instances) owned by the specified owner",
             "examples": [],
-            "line_number": 3263,
+            "line_number": 3354,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12266,7 +12306,7 @@
             ],
             "returns": "SGGrid or None: The first grid owned by the specified owner, or None if no grid is owned",
             "examples": [],
-            "line_number": 3274,
+            "line_number": 3365,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12288,7 +12328,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3398,
+            "line_number": 3586,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12304,7 +12344,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3403,
+            "line_number": 3591,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12322,7 +12362,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3292,
+            "line_number": 3383,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12346,7 +12386,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3353,
+            "line_number": 3444,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12362,7 +12402,53 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3364,
+            "line_number": 3455,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          }
+        ],
+        "ADD": [
+          {
+            "name": "addGraphPreset",
+            "signature": "def addGraphPreset(self, graph_type, name, indicators, x_axis=None, x_axis_phase=None):",
+            "description": "Register a pre-configured graph accessible from the graph menu.",
+            "docstring": "Register a pre-configured graph accessible from the graph menu.\n\nArgs:\n    graph_type (str): \"linear\", \"hist\", \"pie\", or \"stackplot\"\n    name (str): label shown in the menu\n    indicators (list of tuple): each tuple is one of:\n        (\"entity\",    entity_name, attribute)\n        (\"entity\",    entity_name, attribute, stat)  # stat = mean/min/max/sum/stdev\n        (\"simvar\",    simvar_name)\n        (\"player\",    player_name, attribute)\n        (\"gameaction\", action_type)\n    x_axis (str, optional): x-axis mode — \"Rounds\", \"Rounds & Phases\", or\n        \"Specified phase\". Applies to \"linear\" and \"stackplot\" only.\n        Defaults to None (uses the combobox default: \"Rounds\").\n\nExample:\n    myModel.addGraphPreset(\"linear\", \"Wolf population\",\n        indicators=[(\"entity\", \"Wolf\", \"population\")])\n    myModel.addGraphPreset(\"linear\", \"Average age of wolves\",\n        indicators=[(\"entity\", \"Wolf\", \"age\", \"mean\")],\n        x_axis=\"Rounds & Phases\")",
+            "category": "ADD",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "graph_type",
+                "type": "str",
+                "description": "\"linear\", \"hist\", \"pie\", or \"stackplot\""
+              },
+              {
+                "name": "name",
+                "type": "str",
+                "description": "label shown in the menu"
+              },
+              {
+                "name": "indicators",
+                "type": "list of tuple",
+                "description": "each tuple is one of:\n(\"entity\",    entity_name, attribute)\n(\"entity\",    entity_name, attribute, stat)  # stat = mean/min/max/sum/stdev\n(\"simvar\",    simvar_name)\n(\"player\",    player_name, attribute)\n(\"gameaction\", action_type)"
+              },
+              {
+                "name": "x_axis",
+                "type": "str, optional",
+                "description": "x-axis mode — \"Rounds\", \"Rounds & Phases\", or\n\"Specified phase\". Applies to \"linear\" and \"stackplot\" only."
+              },
+              {
+                "name": "x_axis_phase",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "myModel.addGraphPreset(\"linear\", \"Wolf population\",\nindicators=[(\"entity\", \"Wolf\", \"population\")])\nmyModel.addGraphPreset(\"linear\", \"Average age of wolves\",\nindicators=[(\"entity\", \"Wolf\", \"age\", \"mean\")],\nx_axis=\"Rounds & Phases\")"
+            ],
+            "line_number": 3463,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"

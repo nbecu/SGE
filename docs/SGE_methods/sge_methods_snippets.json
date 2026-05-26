@@ -2530,6 +2530,13 @@
     ],
     "description": "Add a MoveAction to the game."
   },
+  "SGModel.newMultiGraphWindow": {
+    "prefix": "sgmodel.newMultiGraphWindow",
+    "body": [
+      "${1:result} = ${2:instance}.newMultiGraphWindow(${3:})"
+    ],
+    "description": "Create a multi-graph window pre-configured by the modeler."
+  },
   "SGModel.newPlayer": {
     "prefix": "sgmodel.newPlayer",
     "body": [
@@ -2662,6 +2669,13 @@
       "${1:result} = ${2:instance}.exportGameActionLogs(${3:filename}, ${4:format})"
     ],
     "description": "Export gameAction logs to file"
+  },
+  "SGModel.hideDefaultGraphMenuItems": {
+    "prefix": "sgmodel.hideDefaultGraphMenuItems",
+    "body": [
+      "${1:result} = ${2:instance}.hideDefaultGraphMenuItems()"
+    ],
+    "description": "Hide default graph menu entries."
   },
   "SGModel.loadImagesFromDirectory": {
     "prefix": "sgmodel.loadImagesFromDirectory",
@@ -2852,6 +2866,13 @@
       "${1:result} = ${2:instance}.displayTimeInWindowTitle(${3:setting})"
     ],
     "description": "Set whether to display the time (Round number and Phase number) in the window title."
+  },
+  "SGModel.addGraphPreset": {
+    "prefix": "sgmodel.addGraphPreset",
+    "body": [
+      "${1:result} = ${2:instance}.addGraphPreset(${3:graph_type}, ${4:name}, ${5:indicators}, ${6:x_axis}, ${7:x_axis_phase})"
+    ],
+    "description": "Register a pre-configured graph accessible from the graph menu."
   },
   "SGPlayer.addActionPoints": {
     "prefix": "sgplayer.addActionPoints",

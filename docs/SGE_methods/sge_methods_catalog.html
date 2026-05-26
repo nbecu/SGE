@@ -79,7 +79,7 @@
         <p>Comprehensive catalog of SGE modeler methods</p>
         <div class="stats">
             <div class="stat-item">
-                <div class="stat-number">522</div>
+                <div class="stat-number">525</div>
                 <div class="stat-label">Methods</div>
             </div>
             <div class="stat-item">
@@ -915,15 +915,15 @@ cell.setValue_randomChoice(&quot;terrain&quot;, (&quot;forest&quot;, &quot;grass
                     <div class="method-header" onclick="toggleMethod(this)">
                         <h4>getAgents</h4>
                         <div class="method-header-controls">
-                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def getAgents(self, type_name=None):&#x27;, &#x27;getAgents&#x27;, &#x27;SGCell&#x27;, [{&quot;name&quot;: &quot;type_name&quot;, &quot;type&quot;: &quot;str or SGAgentDef, optional&quot;, &quot;description&quot;: &quot;The name of the type or SGAgentDef object.\nIf None, returns all agents in the cell.&quot;}], false)" title="Copy method syntax without parameters">📋</button>
-                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def getAgents(self, type_name=None):&#x27;, &#x27;getAgents&#x27;, &#x27;SGCell&#x27;, [{&quot;name&quot;: &quot;type_name&quot;, &quot;type&quot;: &quot;str or SGAgentDef, optional&quot;, &quot;description&quot;: &quot;The name of the type or SGAgentDef object.\nIf None, returns all agents in the cell.&quot;}], true)" title="Copy method syntax with parameters">📝</button>
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def getAgents(self, type_name=None):&#x27;, &#x27;getAgents&#x27;, &#x27;SGCell&#x27;, [{&quot;name&quot;: &quot;type_name&quot;, &quot;type&quot;: &quot;str or SGAgentDef, optional&quot;, &quot;description&quot;: &quot;The name of the type or SGAgentDef object. #todo we don&#x27;t use AgentDef anymore but AgentType. Update docstring accordingly.\nIf None, returns all agents in the cell.&quot;}], false)" title="Copy method syntax without parameters">📋</button>
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def getAgents(self, type_name=None):&#x27;, &#x27;getAgents&#x27;, &#x27;SGCell&#x27;, [{&quot;name&quot;: &quot;type_name&quot;, &quot;type&quot;: &quot;str or SGAgentDef, optional&quot;, &quot;description&quot;: &quot;The name of the type or SGAgentDef object. #todo we don&#x27;t use AgentDef anymore but AgentType. Update docstring accordingly.\nIf None, returns all agents in the cell.&quot;}], true)" title="Copy method syntax with parameters">📝</button>
                             <span class="method-toggle">+</span>
                         </div>
                     </div>
                     <div class="method-content">
                         <div class="method-signature">def getAgents(self, type_name=None):</div>
                         <p><strong>Description:</strong> Get all agents in this cell.</p>
-<p><strong>Parameters:</strong></p><ul><li><strong>type_name</strong> (str or SGAgentDef, optional): The name of the type or SGAgentDef object.<br>If None, returns all agents in the cell.</li></ul><p><strong>Returns:</strong> list[SGAgent]: List of agents of the specified type, or all agents if type_name is None</p><div class='examples'><strong>Examples:</strong><pre># Get all agents in the cell
+<p><strong>Parameters:</strong></p><ul><li><strong>type_name</strong> (str or SGAgentDef, optional): The name of the type or SGAgentDef object. #todo we don&#x27;t use AgentDef anymore but AgentType. Update docstring accordingly.<br>If None, returns all agents in the cell.</li></ul><p><strong>Returns:</strong> list[SGAgent]: List of agents of the specified type, or all agents if type_name is None</p><div class='examples'><strong>Examples:</strong><pre># Get all agents in the cell
 all_agents = cell.getAgents()
 
 # Get only sheep agents
@@ -6016,7 +6016,7 @@ grid.isOwnedBy(&quot;Player 1&quot;)  # Check by player name
             <p class="class-method-count" id="count-SGModel">0 methods</p>
 
             <div class="category-section">
-                <h3>NEW Methods<span class="category-method-count" id="count-SGModel-NEW">(31)</span></h3>
+                <h3>NEW Methods<span class="category-method-count" id="count-SGModel-NEW">(32)</span></h3>
 
                 <div class="method-card" data-category="NEW" data-class="SGModel" data-examples="without-examples" data-parameters="with-params">
                     <div class="method-header" onclick="toggleMethod(this)">
@@ -6318,6 +6318,27 @@ grid.isOwnedBy(&quot;Player 1&quot;)  # Check by player name
 <p><strong>Parameters:</strong></p><ul><li><strong>agent_type</strong> (Any)</li><li><strong>uses_per_round</strong> (Any)</li><li><strong>conditions</strong> (Any)</li><li><strong>feedbacks</strong> (Any)</li><li><strong>conditionsOfFeedback</strong> (Any)</li><li><strong>feedbacksAgent</strong> (Any)</li><li><strong>conditionsOfFeedBackAgent</strong> (Any)</li><li><strong>label</strong> (Any)</li><li><strong>action_controler</strong> (Any)</li><li><strong>action_points_cost</strong> (Any)</li></ul>
                     </div>
                 </div>
+                <div class="method-card" data-category="NEW" data-class="SGModel" data-examples="with-examples" data-parameters="with-params">
+                    <div class="method-header" onclick="toggleMethod(this)">
+                        <h4>newMultiGraphWindow</h4>
+                        <div class="method-header-controls">
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def newMultiGraphWindow(self, title):&#x27;, &#x27;newMultiGraphWindow&#x27;, &#x27;SGModel&#x27;, [{&quot;name&quot;: &quot;title&quot;, &quot;type&quot;: &quot;str&quot;, &quot;description&quot;: &quot;window title and menu label&quot;}], false)" title="Copy method syntax without parameters">📋</button>
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def newMultiGraphWindow(self, title):&#x27;, &#x27;newMultiGraphWindow&#x27;, &#x27;SGModel&#x27;, [{&quot;name&quot;: &quot;title&quot;, &quot;type&quot;: &quot;str&quot;, &quot;description&quot;: &quot;window title and menu label&quot;}], true)" title="Copy method syntax with parameters">📝</button>
+                            <span class="method-toggle">+</span>
+                        </div>
+                    </div>
+                    <div class="method-content">
+                        <div class="method-signature">def newMultiGraphWindow(self, title):</div>
+                        <p><strong>Description:</strong> Create a multi-graph window pre-configured by the modeler.</p>
+<p><strong>Parameters:</strong></p><ul><li><strong>title</strong> (str): window title and menu label</li></ul><p><strong>Returns:</strong> SGMultiGraphWindow: call .addPanel() on it to configure panels.</p><div class='examples'><strong>Examples:</strong><pre>mg = myModel.newMultiGraphWindow(&quot;Vue d&#x27;ensemble&quot;)
+mg.addPanel(&quot;linear&quot;, indicators=[
+(&quot;entity&quot;, &quot;Wolf&quot;, &quot;population&quot;),
+(&quot;entity&quot;, &quot;Sheep&quot;, &quot;population&quot;),
+])
+mg.addPanel(&quot;stackplot&quot;, indicators=[(&quot;entity&quot;, &quot;Sheep&quot;, &quot;type&quot;)])
+</pre></div>
+                    </div>
+                </div>
                 <div class="method-card" data-category="NEW" data-class="SGModel" data-examples="without-examples" data-parameters="with-params">
                     <div class="method-header" onclick="toggleMethod(this)">
                         <h4>newPlayer</h4>
@@ -6492,6 +6513,29 @@ stackRendering={&quot;mode&quot;: &quot;offset&quot;, &quot;showCounter&quot;: T
                         <div class="method-signature">def newWarningPopUp(self,aTitle, aMessage):</div>
                         <p><strong>Description:</strong> </p>
 <p><strong>Parameters:</strong></p><ul><li><strong>aTitle</strong> (Any)</li><li><strong>aMessage</strong> (Any)</li></ul>
+                    </div>
+                </div></div>
+            <div class="category-section">
+                <h3>ADD Methods<span class="category-method-count" id="count-SGModel-ADD">(1)</span></h3>
+
+                <div class="method-card" data-category="ADD" data-class="SGModel" data-examples="with-examples" data-parameters="with-params">
+                    <div class="method-header" onclick="toggleMethod(this)">
+                        <h4>addGraphPreset</h4>
+                        <div class="method-header-controls">
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def addGraphPreset(self, graph_type, name, indicators, x_axis=None, x_axis_phase=None):&#x27;, &#x27;addGraphPreset&#x27;, &#x27;SGModel&#x27;, [{&quot;name&quot;: &quot;graph_type&quot;, &quot;type&quot;: &quot;str&quot;, &quot;description&quot;: &quot;\&quot;linear\&quot;, \&quot;hist\&quot;, \&quot;pie\&quot;, or \&quot;stackplot\&quot;&quot;}, {&quot;name&quot;: &quot;name&quot;, &quot;type&quot;: &quot;str&quot;, &quot;description&quot;: &quot;label shown in the menu&quot;}, {&quot;name&quot;: &quot;indicators&quot;, &quot;type&quot;: &quot;list of tuple&quot;, &quot;description&quot;: &quot;each tuple is one of:\n(\&quot;entity\&quot;,    entity_name, attribute)\n(\&quot;entity\&quot;,    entity_name, attribute, stat)  # stat = mean/min/max/sum/stdev\n(\&quot;simvar\&quot;,    simvar_name)\n(\&quot;player\&quot;,    player_name, attribute)\n(\&quot;gameaction\&quot;, action_type)&quot;}, {&quot;name&quot;: &quot;x_axis&quot;, &quot;type&quot;: &quot;str, optional&quot;, &quot;description&quot;: &quot;x-axis mode \u2014 \&quot;Rounds\&quot;, \&quot;Rounds &amp; Phases\&quot;, or\n\&quot;Specified phase\&quot;. Applies to \&quot;linear\&quot; and \&quot;stackplot\&quot; only.&quot;}, {&quot;name&quot;: &quot;x_axis_phase&quot;, &quot;type&quot;: &quot;Any&quot;, &quot;description&quot;: &quot;&quot;}], false)" title="Copy method syntax without parameters">📋</button>
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def addGraphPreset(self, graph_type, name, indicators, x_axis=None, x_axis_phase=None):&#x27;, &#x27;addGraphPreset&#x27;, &#x27;SGModel&#x27;, [{&quot;name&quot;: &quot;graph_type&quot;, &quot;type&quot;: &quot;str&quot;, &quot;description&quot;: &quot;\&quot;linear\&quot;, \&quot;hist\&quot;, \&quot;pie\&quot;, or \&quot;stackplot\&quot;&quot;}, {&quot;name&quot;: &quot;name&quot;, &quot;type&quot;: &quot;str&quot;, &quot;description&quot;: &quot;label shown in the menu&quot;}, {&quot;name&quot;: &quot;indicators&quot;, &quot;type&quot;: &quot;list of tuple&quot;, &quot;description&quot;: &quot;each tuple is one of:\n(\&quot;entity\&quot;,    entity_name, attribute)\n(\&quot;entity\&quot;,    entity_name, attribute, stat)  # stat = mean/min/max/sum/stdev\n(\&quot;simvar\&quot;,    simvar_name)\n(\&quot;player\&quot;,    player_name, attribute)\n(\&quot;gameaction\&quot;, action_type)&quot;}, {&quot;name&quot;: &quot;x_axis&quot;, &quot;type&quot;: &quot;str, optional&quot;, &quot;description&quot;: &quot;x-axis mode \u2014 \&quot;Rounds\&quot;, \&quot;Rounds &amp; Phases\&quot;, or\n\&quot;Specified phase\&quot;. Applies to \&quot;linear\&quot; and \&quot;stackplot\&quot; only.&quot;}, {&quot;name&quot;: &quot;x_axis_phase&quot;, &quot;type&quot;: &quot;Any&quot;, &quot;description&quot;: &quot;&quot;}], true)" title="Copy method syntax with parameters">📝</button>
+                            <span class="method-toggle">+</span>
+                        </div>
+                    </div>
+                    <div class="method-content">
+                        <div class="method-signature">def addGraphPreset(self, graph_type, name, indicators, x_axis=None, x_axis_phase=None):</div>
+                        <p><strong>Description:</strong> Register a pre-configured graph accessible from the graph menu.</p>
+<p><strong>Parameters:</strong></p><ul><li><strong>graph_type</strong> (str): &quot;linear&quot;, &quot;hist&quot;, &quot;pie&quot;, or &quot;stackplot&quot;</li><li><strong>name</strong> (str): label shown in the menu</li><li><strong>indicators</strong> (list of tuple): each tuple is one of:<br>(&quot;entity&quot;,    entity_name, attribute)<br>(&quot;entity&quot;,    entity_name, attribute, stat)  # stat = mean/min/max/sum/stdev<br>(&quot;simvar&quot;,    simvar_name)<br>(&quot;player&quot;,    player_name, attribute)<br>(&quot;gameaction&quot;, action_type)</li><li><strong>x_axis</strong> (str, optional): x-axis mode — &quot;Rounds&quot;, &quot;Rounds &amp; Phases&quot;, or<br>&quot;Specified phase&quot;. Applies to &quot;linear&quot; and &quot;stackplot&quot; only.</li><li><strong>x_axis_phase</strong> (Any)</li></ul><div class='examples'><strong>Examples:</strong><pre>myModel.addGraphPreset(&quot;linear&quot;, &quot;Wolf population&quot;,
+indicators=[(&quot;entity&quot;, &quot;Wolf&quot;, &quot;population&quot;)])
+myModel.addGraphPreset(&quot;linear&quot;, &quot;Average age of wolves&quot;,
+indicators=[(&quot;entity&quot;, &quot;Wolf&quot;, &quot;age&quot;, &quot;mean&quot;)],
+x_axis=&quot;Rounds &amp; Phases&quot;)
+</pre></div>
                     </div>
                 </div></div>
             <div class="category-section">
@@ -6878,7 +6922,7 @@ count = myModel.getConnectedInstancesCount(default=1)
                     </div>
                 </div></div>
             <div class="category-section">
-                <h3>OTHER MODELER METHODS Methods<span class="category-method-count" id="count-SGModel-OTHER-MODELER-METHODS">(11)</span></h3>
+                <h3>OTHER MODELER METHODS Methods<span class="category-method-count" id="count-SGModel-OTHER-MODELER-METHODS">(12)</span></h3>
 
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGModel" data-examples="with-examples" data-parameters="with-params">
                     <div class="method-header" onclick="toggleMethod(this)">
@@ -7013,6 +7057,21 @@ myModel.enableAutoSaveGameActionLogs(save_path=&quot;.&quot;)
                         <div class="method-signature">def exportGameActionLogs(self, filename=None, format=&quot;csv&quot;):</div>
                         <p><strong>Description:</strong> Export gameAction logs to file</p>
 <p><strong>Parameters:</strong></p><ul><li><strong>filename</strong> (str, optional): Output filename. If None, generates automatic filename</li><li><strong>format</strong> (str): Export format - &quot;json&quot; or &quot;csv&quot; (default: &quot;csv&quot;)</li></ul><p><strong>Returns:</strong> str: Path to exported file</p>
+                    </div>
+                </div>
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGModel" data-examples="without-examples" data-parameters="without-params">
+                    <div class="method-header" onclick="toggleMethod(this)">
+                        <h4>hideDefaultGraphMenuItems</h4>
+                        <div class="method-header-controls">
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def hideDefaultGraphMenuItems(self, *graph_types):&#x27;, &#x27;hideDefaultGraphMenuItems&#x27;, &#x27;SGModel&#x27;, [], false)" title="Copy method syntax without parameters">📋</button>
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax(&#x27;def hideDefaultGraphMenuItems(self, *graph_types):&#x27;, &#x27;hideDefaultGraphMenuItems&#x27;, &#x27;SGModel&#x27;, [], true)" title="Copy method syntax with parameters">📝</button>
+                            <span class="method-toggle">+</span>
+                        </div>
+                    </div>
+                    <div class="method-content">
+                        <div class="method-signature">def hideDefaultGraphMenuItems(self, *graph_types):</div>
+                        <p><strong>Description:</strong> Hide default graph menu entries.</p>
+
                     </div>
                 </div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGModel" data-examples="with-examples" data-parameters="with-params">
