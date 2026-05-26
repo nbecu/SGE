@@ -112,3 +112,10 @@ SGE.egg-info/*
 venv/*
 venv_sge_ml/*
 .claude/
+
+# Internal/private files — not for public repo
+CONTEXT_SGE_FOR_CHATBOT.md
+DEV_NOTES.md
+FUTURE_PLAN.md
+notes for FUTURE_PLAN/
+data/
