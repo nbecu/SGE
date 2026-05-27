@@ -6,8 +6,8 @@ Example: methods dynamically added to QPainter, QWidget, list, dict, etc.
 
 import sys
 from pathlib import Path
-from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor
-from PyQt5.QtCore import QRectF, Qt
+from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor
+from PyQt6.QtCore import QRectF, Qt
 
 __all__ = [
     "SGColors",
@@ -49,7 +49,7 @@ def drawTextAutoSized(self, aleft, atop, text, font=None, align=0, padding_width
         font = QFont("Verdana", 8)
     self.setFont(font)
     metrics = QFontMetrics(font)
-    width = metrics.width(text) + padding_width
+    width = metrics.horizontalAdvance(text) + padding_width
     height = metrics.height() + padding_height
     rect = QRectF(aleft, atop, width, height)
     self.drawText(rect, align, text)
@@ -268,19 +268,16 @@ def fillTransparentAreas(pixmap, fillColor):
     Returns:
         QPixmap: New pixmap with transparent areas filled, or original pixmap if None/invalid
     """
-    from PyQt5.QtGui import QPainter
-    
+    from PyQt6.QtGui import QPainter
+
     if pixmap is None or pixmap.isNull():
         return pixmap
-    
-    # Create a new pixmap with the same size
+
     filled_pixmap = QPixmap(pixmap.size())
-    # Fill with the background color
     filled_pixmap.fill(fillColor)
-    
-    # Create a painter to composite the original image over the filled background
+
     painter = QPainter(filled_pixmap)
-    painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+    painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
     painter.drawPixmap(0, 0, pixmap)
     painter.end()
     
@@ -408,8 +405,8 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
     generate_color_gradient("red", "blue", mapping={"values":[0,50,100], "value_min":0, "value_max":100}, as_dict=True)
     generate_color_gradient("green", mapping={"values":[1,3,5], "value_min":0, "value_max":7}, as_ranges=True)
     """
-    from PyQt5.QtGui import QColor
-    from PyQt5.QtCore import Qt  # <-- important pour Qt.GlobalColor
+    from PyQt6.QtGui import QColor
+    from PyQt6.QtCore import Qt
 
     # --- robust converter ---
     def to_qcolor(value) -> QColor:
@@ -424,14 +421,7 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
         if isinstance(value, (tuple, list)):
             return QColor(*value)
 
-        # PyQt5: Qt.GlobalColor as int (e.g., Qt.red == 7)
-        # PyQt6: real enum; QColor(value) usually handles it
-        try:
-            return QColor(Qt.GlobalColor(int(value)))
-        except Exception:
-            pass
-
-        # Last resort: try QColor(value) (QRgb/int)
+        # Qt.GlobalColor enum (e.g., Qt.red, Qt.GlobalColor.red) or QRgb int
         try:
             q = QColor(value)
             if q.isValid():
@@ -590,21 +580,22 @@ def mapAlignmentStringToQtFlags(alignment_str):
     if not isinstance(alignment_str, str):
         return None
     
+    AF = Qt.AlignmentFlag
     a = alignment_str.lower()
     if a == 'left':
-        return Qt.AlignLeft | Qt.AlignVCenter
+        return AF.AlignLeft | AF.AlignVCenter
     if a == 'right':
-        return Qt.AlignRight | Qt.AlignVCenter
+        return AF.AlignRight | AF.AlignVCenter
     if a in ('center', 'hcenter'):
-        return Qt.AlignHCenter | Qt.AlignVCenter
+        return AF.AlignHCenter | AF.AlignVCenter
     if a == 'top':
-        return Qt.AlignTop | Qt.AlignHCenter
+        return AF.AlignTop | AF.AlignHCenter
     if a == 'bottom':
-        return Qt.AlignBottom | Qt.AlignHCenter
+        return AF.AlignBottom | AF.AlignHCenter
     if a == 'vcenter':
-        return Qt.AlignVCenter | Qt.AlignHCenter
+        return AF.AlignVCenter | AF.AlignHCenter
     if a == 'justify':
-        return Qt.AlignJustify
+        return AF.AlignJustify
     return None
 
 
@@ -619,41 +610,34 @@ def position_dialog_to_right(dialog, parent=None):
     :param parent: The parent window to position relative to. If None, attempts to find parent
                    from dialog.parent() or dialog.model (if available). If still None, no positioning is done.
     """
-    from PyQt5.QtWidgets import QWidget, QApplication
-    
+    from PyQt6.QtWidgets import QWidget, QApplication
+
     try:
-        # Try to get parent from various sources
         if parent is None:
             parent = dialog.parent() if isinstance(dialog.parent(), QWidget) else None
         if parent is None and hasattr(dialog, 'model') and isinstance(dialog.model, QWidget):
             parent = dialog.model
         if parent is None:
             return
-        
-        # Parent frame geometry is already in global coords
+
         pg = parent.frameGeometry() if hasattr(parent, 'frameGeometry') else parent.geometry()
-        
-        # Compute desired to-the-right position
         target_x = pg.right()
         target_y = pg.top()
-        
-        # Fit inside available screen geometry of the parent's screen
-        desk = QApplication.desktop()
-        try:
-            screen_num = desk.screenNumber(parent)
-            available = desk.availableGeometry(screen_num)
-        except Exception:
-            available = desk.availableGeometry()
-        
+
+        # Qt6: QApplication.desktop() removed — use screenAt() / primaryScreen()
+        screen = QApplication.screenAt(parent.mapToGlobal(parent.rect().topLeft()))
+        if screen is None:
+            screen = QApplication.primaryScreen()
+        available = screen.availableGeometry()
+
         w = dialog.width()
         h = dialog.height()
-        
-        # Adjust if overflowing to the right/bottom
+
         if target_x + w > available.right():
             target_x = max(available.left(), available.right() - w)
         if target_y + h > available.bottom():
             target_y = max(available.top(), available.bottom() - h)
-        
+
         dialog.move(target_x, target_y)
     except Exception:
         pass
