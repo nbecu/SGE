@@ -7,11 +7,11 @@ from mainClasses.SGExtensions import *
 import mainClasses.SGExtensions as _SGExtensions
 from mainClasses.SGCell import SGCell
 from mainClasses.SGBotPlayer import SGBotPlayer
-from PyQt5 import QtWidgets 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QInputDialog
-from PyQt5.QtCore import QPoint
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import QInputDialog
+from PyQt6.QtCore import QPoint
 from random import randint
 import random
 from tkinter import simpledialog
@@ -20,6 +20,21 @@ import ast as ast
 import math as math
 from math import inf
 import copy
+
+# PyQt6 compatibility: restore Qt.color shortcuts removed from the Qt namespace.
+# In PyQt5, Qt.red / Qt.black / etc. were direct attributes of Qt.
+# In PyQt6, they live under Qt.GlobalColor.red / Qt.GlobalColor.black / etc.
+# This block recreates the shortcuts so all modeler code continues to work unchanged.
+_GLOBAL_COLORS = [
+    'color0', 'color1', 'black', 'white',
+    'darkGray', 'gray', 'lightGray',
+    'red', 'green', 'blue', 'cyan', 'magenta', 'yellow',
+    'darkRed', 'darkGreen', 'darkBlue',
+    'darkCyan', 'darkMagenta', 'darkYellow',
+    'transparent',
+]
+for _c in _GLOBAL_COLORS:
+    setattr(Qt, _c, getattr(Qt.GlobalColor, _c))
 
 # Public API for modelers importing * from this module
 __all__ = [
