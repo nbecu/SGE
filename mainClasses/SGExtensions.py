@@ -6,7 +6,7 @@ Example: methods dynamically added to QPainter, QWidget, list, dict, etc.
 
 import sys
 from pathlib import Path
-from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor, QTextOption
+from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor, QTextOption, QRegion, QPalette
 from PyQt6.QtCore import QRectF, Qt
 from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit
 
@@ -348,6 +348,20 @@ def _extend_qt_colors():
         'Fixed', 'Minimum', 'Maximum', 'Preferred', 'Expanding',
         'MinimumExpanding', 'Ignored',
     ])
+
+    # ── QPalette: ColorRole shortcuts ─────────────────────────────────────────
+    _patch(QPalette, QPalette.ColorRole, [
+        'Window', 'WindowText', 'Base', 'AlternateBase', 'Text',
+        'Button', 'ButtonText', 'BrightText', 'Highlight', 'HighlightedText',
+        'Link', 'LinkVisited', 'Light', 'Midlight', 'Dark', 'Mid', 'Shadow',
+        'ToolTipBase', 'ToolTipText', 'PlaceholderText', 'Accent',
+    ])
+    # QPalette.Background was deprecated in Qt5 and removed in Qt6 → alias to Window
+    setattr(QPalette, 'Background', QPalette.ColorRole.Window)
+    setattr(QPalette, 'Foreground', QPalette.ColorRole.WindowText)
+
+    # ── QRegion: RegionType shortcuts ─────────────────────────────────────────
+    _patch(QRegion, QRegion.RegionType, ['Rectangle', 'Ellipse'])
 
     # ── QTextEdit: LineWrapMode shortcuts ─────────────────────────────────────
     _patch(QTextEdit, QTextEdit.LineWrapMode, [

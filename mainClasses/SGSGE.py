@@ -35,10 +35,14 @@ __all__ = [
     "QPoint",
     "random",
     "randint",
+    "pd",
+    "ast",
+    "math",
     "inf",
     "copy",
     "Path",
     "sys",
+    "simpledialog",
 ]
 
 # Export all SGExtensions helpers in __all__
