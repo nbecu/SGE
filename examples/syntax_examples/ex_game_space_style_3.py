@@ -210,4 +210,4 @@ myModel.launch()
 
 print("Style dictionary method test completed!")
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

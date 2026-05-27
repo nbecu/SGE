@@ -24,5 +24,5 @@ myModel.newButton(lambda: score.setValue(0),'Reset',(80,150))
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

@@ -2,9 +2,9 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGModel import SGModel
-from PyQt5 import QtWidgets 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt6 import QtWidgets 
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
 
 monApp=QtWidgets.QApplication([])
 #Example of forms available for agent
@@ -45,4 +45,4 @@ Arrow2Agent.newAgentAtCoords(Cells,5,2)
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

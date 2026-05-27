@@ -43,4 +43,4 @@ myModel.newModelPhase(
 # and will be performed after every Phase 1
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -139,5 +139,5 @@ i6 = DashBoard.addIndicator('Bird', "sumAtt", attribute='nb reproduction',color=
 myModel.launch()
 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

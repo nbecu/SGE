@@ -28,4 +28,4 @@ Cell.setLayoutOrder(4) # This syntax is equivalent to Cell.grid.setLayoutOrder(3
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -1,7 +1,7 @@
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
-from PyQt5.QtGui import QCursor
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import QMenu, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
+from PyQt6.QtGui import QCursor
 import random
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGCell import SGCell
@@ -413,7 +413,7 @@ class SGAgent(SGEntity):
             self.updatePositionInEntity()  # Update position
             if hasattr(self, 'view') and self.view is not None:
                 # Force layout recalculation before positioning
-                from PyQt5.QtWidgets import QApplication
+                from PyQt6.QtWidgets import QApplication
                 QApplication.processEvents()
                 self.view.updatePositionInEntity()  # Force view repositioning
                 self.view.show()  # Ensure view is visible
@@ -450,7 +450,7 @@ class SGAgent(SGEntity):
             self.updatePositionInEntity()
             if hasattr(self, 'view') and self.view is not None:
                 # Force layout recalculation before positioning
-                from PyQt5.QtWidgets import QApplication
+                from PyQt6.QtWidgets import QApplication
                 QApplication.processEvents()
                 self.view.updatePositionInEntity()  # Force view repositioning
                 self.view.show()  # Ensure view is visible

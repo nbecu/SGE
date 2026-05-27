@@ -28,4 +28,4 @@ p1.addAction(lambda : Sheeps.moveRandomly())
 
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

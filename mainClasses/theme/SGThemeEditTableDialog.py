@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
 from mainClasses.theme.SGThemeCustomEditorDialog import SGThemeCustomEditorDialog
 from mainClasses.theme.SGThemeCodeGeneratorDialog import SGThemeCodeGeneratorDialog
 
@@ -217,7 +217,7 @@ class SGThemeEditTableDialog(QDialog):
                     else:
                         init_theme = t
         editor = SGThemeCustomEditorDialog(self.model, gs, self, init_theme=init_theme)
-        editor.exec_()
+        editor.exec()
         # After closing editor, refresh table to reflect new runtime themes and selection
         self.populateTable()
 
@@ -298,7 +298,7 @@ class SGThemeEditTableDialog(QDialog):
         dialog.setLayout(layout)
         dialog.resize(400, 120)
         
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.Accepted:
             theme = combo.currentText().strip()
             if theme:
                 # Remove custom theme prefix if present
@@ -315,6 +315,6 @@ class SGThemeEditTableDialog(QDialog):
     def _openThemeCodeGenerator(self):
         """Open the Theme Code Generator dialog."""
         dialog = SGThemeCodeGeneratorDialog(self.model, self)
-        dialog.exec_()
+        dialog.exec()
 
 

@@ -19,4 +19,4 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

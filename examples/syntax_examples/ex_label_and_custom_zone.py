@@ -54,5 +54,5 @@ zone.add_shape("triangle", (150, 100), (100, 50))  # (x, y, size)
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

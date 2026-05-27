@@ -2,12 +2,12 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QColor
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton
+from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QColor
 from collections import defaultdict
 from mainClasses.SGProgressGauge import SGProgressGauge  
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 import random
 import time
 
@@ -27,8 +27,8 @@ class SimVariable:
             watcher.checkAndUpdate()
 
 # ======= Test direct avec SGProgressGauge modifié =======
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
-from PyQt5.QtCore import QTimer
+from PyQt6.QtWidgets import QWidget, QVBoxLayout
+from PyQt6.QtCore import QTimer
 
 class MyModel(QWidget):
     def __init__(self):
@@ -45,8 +45,8 @@ class MyModel(QWidget):
         return gauge
 
 # ======= Version adaptée de SGProgressGauge (simplifiée pour test) =======
-from PyQt5.QtWidgets import QProgressBar, QLabel, QVBoxLayout
-from PyQt5.QtGui import QPainter, QBrush, QPen
+from PyQt6.QtWidgets import QProgressBar, QLabel, QVBoxLayout
+from PyQt6.QtGui import QPainter, QBrush, QPen
 
 class SGProgressGauge(QWidget):
     def __init__(self, parent, simVar, title, maximum, minimum, 
@@ -136,7 +136,7 @@ def run_test():
     timer.start(1000)
 
     model.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     run_test()

@@ -1,6 +1,6 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets, QtGui, QtCore
 from sqlalchemy import true
-# from PyQt5.QtWidgets import QStyleFactory
+# from PyQt6.QtWidgets import QStyleFactory
 # from mainClasses.SGGameSpace import SGGameSpace
 
 class SGCustomZone(QtWidgets.QWidget):

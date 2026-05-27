@@ -111,4 +111,4 @@ myModel.hideDefaultGraphMenuItems()
 # myModel.hideDefaultGraphMenuItems("hist", "pie")
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

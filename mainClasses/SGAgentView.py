@@ -1,7 +1,7 @@
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
-from PyQt5.QtGui import QCursor
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import QMenu, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
+from PyQt6.QtGui import QCursor
 from mainClasses.SGEntityView import SGEntityView
 from mainClasses.gameAction.SGMove import SGMove
 import random
@@ -434,7 +434,7 @@ class SGAgentView(SGEntityView):
 
         # Check if we've moved enough to start a drag operation
         # Use QApplication.startDragDistance() to determine minimum movement
-        from PyQt5.QtWidgets import QApplication
+        from PyQt6.QtWidgets import QApplication
         if self.press_position is None:
             return
         distance = (e.pos() - self.press_position).manhattanLength()

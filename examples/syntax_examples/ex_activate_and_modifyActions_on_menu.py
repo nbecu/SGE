@@ -67,4 +67,4 @@ myModel.newPlayPhase('Phase 1', [Player1])
 myModel.newModelPhase(lambda: Cell.setRandomEntities_withValue("landUse","grass",2,"landUse","short grass"),auto_forward=True,message_auto_forward=False)
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -56,4 +56,4 @@ def wolf_hunt_step():
 p1.addAction(wolf_hunt_step)
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

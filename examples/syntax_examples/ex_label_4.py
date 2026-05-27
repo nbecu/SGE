@@ -50,5 +50,5 @@ myModel.newLabel(text, (300, 200), textStyle_specs4, borderStyle_specs4, backgro
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

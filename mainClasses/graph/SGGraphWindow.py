@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMessageBox, QWidget, QGridLayout
+from PyQt6.QtWidgets import QMessageBox, QWidget, QGridLayout
 
 from .SGBaseGraphWindow import SGBaseGraphWindow
 
@@ -28,4 +28,4 @@ class SGGraphWindow(QWidget):
             "Example: Click the play button (>) at least twice"
         )
         dlg.setStandardButtons(QMessageBox.Ok)
-        dlg.exec_()
+        dlg.exec()

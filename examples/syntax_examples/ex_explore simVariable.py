@@ -26,4 +26,4 @@ dashboard.addIndicatorOnSimVariable(score2)
 
 myModel.newTimeLabel('Test')
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

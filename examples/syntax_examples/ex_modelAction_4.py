@@ -45,4 +45,4 @@ myModel.newModelPhase(aModelAction4)
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

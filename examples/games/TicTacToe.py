@@ -91,7 +91,7 @@ if __name__ == "__main__":
     monApp = QtWidgets.QApplication([])
     myModel = tic_tac_toe_game()
     myModel.launch()
-    exit_code = monApp.exec_()
+    exit_code = monApp.exec()
     if myModel.winner is not None:
         print(f"The winner is: {myModel.winner}")
     else:

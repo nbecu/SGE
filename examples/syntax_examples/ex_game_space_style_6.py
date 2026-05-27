@@ -242,4 +242,4 @@ myModel.launch()
 
 print("Mixed approach test completed!")
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

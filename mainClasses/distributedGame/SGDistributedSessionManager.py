@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional
 
 # --- Third-party imports ---
-from PyQt5.QtCore import QObject, pyqtSignal, QTimer
+from PyQt6.QtCore import QObject, pyqtSignal, QTimer
 
 # --- Project imports ---
 from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession

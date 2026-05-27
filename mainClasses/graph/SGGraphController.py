@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
-    QApplication, QMessageBox, QComboBox, QWidget, QAction,
+from PyQt6.QtGui import QIcon, QAction
+from PyQt6.QtWidgets import (
+    QApplication, QMessageBox, QComboBox, QWidget,
     QPushButton, QInputDialog,
 )
-from PyQt5.QtCore import Qt
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from PyQt6.QtCore import Qt
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 
 from .SGGraphDataProvider import SGGraphDataProvider
 from .SGIndicatorSpec import SGIndicatorSpec
@@ -161,7 +161,7 @@ class SGGraphController(NavigationToolbar):
             dialog.setLabelText(f"Sélectionnez la phase (1-{nb}):")
             dialog.setComboBoxItems([str(i) for i in range(1, nb + 1)])
             dialog.setComboBoxEditable(False)
-            if dialog.exec_() == QInputDialog.Accepted:
+            if dialog.exec() == QInputDialog.Accepted:
                 self.specified_phase = int(dialog.textValue())
         self.update_chart(reload=False)
 
@@ -480,4 +480,4 @@ class SGGraphController(NavigationToolbar):
         dlg.setWindowTitle(title)
         dlg.setText(message)
         dlg.setStandardButtons(QMessageBox.Ok)
-        dlg.exec_()
+        dlg.exec()

@@ -67,4 +67,4 @@ aTextBox = myModel.newTextBox(
 )
 aTextBox.setTextFormat(fontName="Arial", size=10)
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

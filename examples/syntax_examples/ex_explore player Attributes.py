@@ -27,4 +27,4 @@ dashboard.addIndicatorOnEntity(player_Clara,'foo')
 dashboard.addIndicatorOnEntity(player_Clara,"Clara score")
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

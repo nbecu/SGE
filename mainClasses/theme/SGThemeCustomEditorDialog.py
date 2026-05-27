@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
 from mainClasses.SGAspect import SGAspect
 
 
@@ -493,7 +493,7 @@ class SGThemeCustomEditorDialog(QDialog):
 
         # Save to persistent storage via SGThemeConfigManager
         from mainClasses.theme.SGThemeConfigManager import SGThemeConfigManager
-        from PyQt5.QtWidgets import QMessageBox
+        from PyQt6.QtWidgets import QMessageBox
         manager = SGThemeConfigManager(self.model)
         
         # Try to save (returns None if theme exists and needs confirmation)

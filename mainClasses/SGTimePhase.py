@@ -1,5 +1,5 @@
 from mainClasses.SGModelAction import SGModelAction
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox
 
 # Class who define a gaming phase
 
@@ -92,7 +92,7 @@ class SGTimePhase():
             msg_box.setText(aText)
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.setDefaultButton(QMessageBox.Ok)
-            msg_box.exec_()
+            msg_box.exec()
         
         # We can execute the actions           
         if len(self.modelActions) != 0:
@@ -134,7 +134,7 @@ class SGTimePhase():
             msg_box.setText(aText)
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.setDefaultButton(QMessageBox.Ok)
-            msg_box.exec_()
+            msg_box.exec()
 
     def shouldForwardAutomatically(self):
         """Détermine si la phase doit passer automatiquement à la suivante"""

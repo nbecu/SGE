@@ -1,8 +1,8 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
 from sqlalchemy import true
-from PyQt5.QtWidgets import QMenu, QAction
+from PyQt6.QtWidgets import QMenu
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGAspect import SGAspect
 
@@ -570,7 +570,7 @@ class SGTextBox(SGGameSpace):
     
     def show_inspect_dialog(self):
         """Show inspection dialog with widget information."""
-        from PyQt5.QtWidgets import QMessageBox
+        from PyQt6.QtWidgets import QMessageBox
         info = f"Widget ID: {self.id}\n"
         info += f"Title: {self.title}\n"
         info += f"Size: {self.getSizeXGlobal()}x{self.getSizeYGlobal()}\n"

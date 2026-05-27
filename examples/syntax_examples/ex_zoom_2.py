@@ -58,4 +58,4 @@ aTextBox = myModel.newTextBox(
 )
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -58,7 +58,7 @@ def resetTextBox():
     """Reset text box to initial state"""
     # Recreate title if deleted
     if not hasattr(testTextBox, 'labelTitle') or testTextBox.labelTitle is None:
-        from PyQt5.QtWidgets import QLabel
+        from PyQt6.QtWidgets import QLabel
         testTextBox.labelTitle = QLabel("Test TextBox - Click buttons to update", testTextBox)
         testTextBox.labelTitle.setAlignment(Qt.AlignCenter)
         testTextBox.textLayout.insertWidget(0, testTextBox.labelTitle)
@@ -132,5 +132,5 @@ myModel.newButton(
 
 # Launch the model
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

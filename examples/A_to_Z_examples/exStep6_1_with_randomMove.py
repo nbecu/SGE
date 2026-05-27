@@ -55,4 +55,4 @@ i1 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

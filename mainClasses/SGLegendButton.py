@@ -1,7 +1,7 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QPushButton, QToolTip
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt6 import QtWidgets
+from PyQt6.QtWidgets import QPushButton, QToolTip
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
 from math import inf
 
 
@@ -66,7 +66,7 @@ class SGLegendButton(QtWidgets.QWidget):
     
     def event(self, e):
         # Intercept tooltip event to show the number of remaining actions
-        if e.type() == QEvent.ToolTip:
+        if e.type() == QEvent.Type.ToolTip:
             if self.gameAction is not None:
                 # Dynamically update tooltip
                 aNumber = self.gameAction.getNbRemainingActions()

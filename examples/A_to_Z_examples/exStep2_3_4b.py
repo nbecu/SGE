@@ -29,4 +29,4 @@ Legend.setLayoutOrder(1)      # Set legend as first in layout
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

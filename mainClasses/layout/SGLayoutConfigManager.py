@@ -2,8 +2,8 @@ import json
 import os
 import sys
 from pathlib import Path
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QObject
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import QObject
 
 
 class SGLayoutConfigManager(QObject):

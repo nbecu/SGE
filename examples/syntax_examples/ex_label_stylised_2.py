@@ -102,5 +102,5 @@ for i in range(25):  # Repeat 15 times
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

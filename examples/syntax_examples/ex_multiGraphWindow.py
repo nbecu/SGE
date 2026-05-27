@@ -105,4 +105,4 @@ details.addPanel("linear",
     indicators=[("simvar", "Score")])
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

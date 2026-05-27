@@ -39,4 +39,4 @@ Sheeps.newAgentAtRandom(condition = lambda aCell: aCell.value('landUse')=='fores
 Legend=myModel.newLegend()
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

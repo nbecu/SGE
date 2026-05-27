@@ -102,5 +102,5 @@ textBox6.onTextAspectsChanged()
 
 # Launch the model
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

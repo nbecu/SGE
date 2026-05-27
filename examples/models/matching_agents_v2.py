@@ -8,7 +8,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(450,375,windowTitle="Agents preference matching simulation",nb_columns=2)
 
 # Popup to choose number of preference types
-from PyQt5.QtWidgets import QInputDialog
+from PyQt6.QtWidgets import QInputDialog
 num_types, ok = QInputDialog.getInt(None, "Preference Types", "Number of preference types (2-5):", 3, 2, 5, 1)
 if not ok:
     num_types = 3  # Default value
@@ -71,4 +71,4 @@ endGameRule.setLayoutOrder(4)
 
 myModel.launch()
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -33,4 +33,4 @@ scores.addIndicatorOnEntity(Pawn.getEntity(2),'age')
 scores.addIndicator(Pawn,'avgAtt',attribute='age')
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

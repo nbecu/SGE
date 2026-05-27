@@ -82,4 +82,4 @@ myModel.newModelPhase(actions=move_and_check, name="Move")
 myModel.newTimeLabel("Rounds")
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

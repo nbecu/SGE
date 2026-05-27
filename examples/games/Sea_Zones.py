@@ -526,4 +526,4 @@ endGameRule.setEndGameDisplay(
 # Launch the game
 myModel.launch()
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -1,7 +1,7 @@
 from mainClasses.SGTimePhase import *
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
 from mainClasses.SGModelAction import SGModelAction
 from mainClasses.SGModelAction import SGModelAction_OnEntities
 

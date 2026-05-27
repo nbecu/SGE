@@ -1,7 +1,7 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
 from sqlalchemy import true
 
 from mainClasses.SGGameSpace import SGGameSpace
@@ -216,7 +216,7 @@ class SGEndGameRule(SGGameSpace):
     
     def _startPulseAnimation(self):
         """Start the pulse animation effect using QTimer."""
-        from PyQt5.QtCore import QTimer
+        from PyQt6.QtCore import QTimer
         
         if self._highlight_animation is not None:
             self._highlight_animation.stop()

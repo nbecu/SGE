@@ -144,4 +144,4 @@ myModel.launch()
 
 print("Individual style methods test completed!")
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

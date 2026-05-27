@@ -11,13 +11,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 # --- Third-party imports ---
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog, QInputDialog
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QIcon
-from PyQt5 import QtWidgets
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtSvg import *
+from PyQt6.QtWidgets import QMenu, QMainWindow, QMessageBox, QApplication, QFileDialog, QInputDialog
+from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QIcon
+from PyQt6 import QtWidgets
 from screeninfo import get_monitors
 
 # --- Project imports ---
@@ -234,7 +234,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Use QPalette instead of stylesheet to avoid cascading to child widgets
         if self.windowBackgroundColor:
             # Normalize color to QColor
-            from PyQt5.QtGui import QColor, QPalette
+            from PyQt6.QtGui import QColor, QPalette
             if isinstance(self.windowBackgroundColor, QColor):
                 bg_color = self.windowBackgroundColor
             elif isinstance(self.windowBackgroundColor, str):
@@ -576,7 +576,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # msg_box.setText("A " + agent_model.type.name +" cannot be moved here")
             # msg_box.setStandardButtons(QMessageBox.Ok)
             # msg_box.setDefaultButton(QMessageBox.Ok)
-            # msg_box.exec_()
+            # msg_box.exec()
             return
         position = e.pos()
         # Get the agent model from the view
@@ -999,7 +999,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         default_filename = f"gameAction_logs_{timestamp}.{format_type}"
         
         # Open file dialog
-        from PyQt5.QtWidgets import QFileDialog
+        from PyQt6.QtWidgets import QFileDialog
         
         if format_type == "json":
             file_filter = "JSON Files (*.json);;All Files (*)"
@@ -1209,7 +1209,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             panel = graph.toolbar._selector_panel
             panel.set_selected_keys(preset_keys)
             if not panel.get_selected_keys():
-                from PyQt5.QtWidgets import QMessageBox
+                from PyQt6.QtWidgets import QMessageBox
                 QMessageBox.warning(
                     graph, "Graph preset warning",
                     f"None of the preset indicators could be found in the current simulation.\n"
@@ -1300,18 +1300,18 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def openThemeConfigManagerDialog(self):
         """Open the Theme Configuration Manager dialog."""
         dialog = SGThemeConfigManagerDialog(self)
-        dialog.exec_()
+        dialog.exec()
 
     def openThemeEditTableDialog(self):
         """Open the per-GameSpace theme assignment dialog (table)."""
         dialog = SGThemeEditTableDialog(self)
-        dialog.exec_()
+        dialog.exec()
 
     def openWindowBackgroundColorDialog(self):
         """Open a color dialog to change the window background color."""
-        from PyQt5.QtWidgets import QColorDialog, QWidget
-        from PyQt5.QtGui import QColor
-        from PyQt5.QtCore import Qt
+        from PyQt6.QtWidgets import QColorDialog, QWidget
+        from PyQt6.QtGui import QColor
+        from PyQt6.QtCore import Qt
         
         # Get current color if set, otherwise default to white
         if self.windowBackgroundColor:
@@ -1344,13 +1344,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         position_dialog_to_right(dialog, self)
         
         # Open dialog
-        if dialog.exec_() == QColorDialog.Accepted:
+        if dialog.exec() == QColorDialog.Accepted:
             color = dialog.currentColor()
             if color.isValid():
                 # Store as QColor object for consistency
                 self.windowBackgroundColor = color.name()  # Store as hex string for serialization
                 # Use QPalette to set background without affecting child widgets
-                from PyQt5.QtGui import QPalette
+                from PyQt6.QtGui import QPalette
                 palette = self.window.palette()
                 palette.setColor(QPalette.Window, color)
                 self.window.setPalette(palette)
@@ -1677,7 +1677,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if self.typeOfLayout == "enhanced_grid":
             from mainClasses.layout.SGLayoutOrderTableDialog import SGLayoutOrderTableDialog
             dialog = SGLayoutOrderTableDialog(self)
-            dialog.exec_()
+            dialog.exec()
 
     def reorganizeEnhancedGridLayoutOrders(self):
         """
@@ -1718,7 +1718,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 available_configs = self.getAvailableLayoutConfigs()
 
                 dialog = SGLayoutConfigSaveDialog(self, available_configs)
-                result = dialog.exec_()
+                result = dialog.exec()
 
                 if result == QDialog.Accepted:
                     config_name = dialog.getConfigName()
@@ -1854,7 +1854,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         from mainClasses.layout.SGLayoutConfigManagerDialog import SGLayoutConfigManagerDialog
         dialog = SGLayoutConfigManagerDialog(self)
-        dialog.exec_()
+        dialog.exec()
 
     # ============================================================================
     # GAME FLOW MANAGEMENT METHODS
@@ -2570,7 +2570,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         from mainClasses.distributedGame.SGDistributedConnectionDialog import SGDistributedConnectionDialog
         while True:
             dialog = SGDistributedConnectionDialog(self, config, self, session_manager)
-            result = dialog.exec_()
+            result = dialog.exec()
             reopen = dialog.shouldReopenAfterBrokerChange()
             dialog.deleteLater()
             
@@ -2616,7 +2616,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         from mainClasses.distributedGame.SGDistributedGameDialog import SGDistributedGameDialog
         dialog = SGDistributedGameDialog(self, config, self, session_manager)
         
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.Accepted:
             # User confirmed - get selected player
             assigned_player_name = dialog.getSelectedPlayerName()
             
@@ -3115,7 +3115,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         msg.setWindowTitle(aTitle)
         msg.setText(aMessage)
         msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        msg.exec()
         return
     
     def newPopUp(self, aTitle, aMessage):
@@ -3124,7 +3124,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         msg.setWindowTitle(aTitle)
         msg.setText(aMessage)
         msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        msg.exec()
         return
 
     def newMultiGraphWindow(self, title):
@@ -3671,7 +3671,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             tile = TileType.newTileOnCell(cell, backImage=random.choice(images))
         """
         from pathlib import Path
-        from PyQt5.QtGui import QPixmap
+        from PyQt6.QtGui import QPixmap
         
         # Convert to Path if string
         images_dir = Path(images_directory) if isinstance(images_directory, str) else images_directory

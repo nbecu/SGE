@@ -32,4 +32,4 @@ Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 Legend=myModel.newLegend()
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

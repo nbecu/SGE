@@ -2,9 +2,9 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QColor
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton
+from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QColor
 from mainClasses.SGProgressGauge import SGProgressGauge 
 
 # SimVariable simplifiée
@@ -63,4 +63,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     win = TestTemperature()
     win.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

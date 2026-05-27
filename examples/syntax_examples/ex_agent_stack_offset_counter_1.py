@@ -59,4 +59,4 @@ for _ in range(3):
 
 myModel.launch()
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

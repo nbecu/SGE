@@ -1,6 +1,6 @@
 from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 import importlib.util
 import sys
 

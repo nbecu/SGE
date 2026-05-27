@@ -24,5 +24,5 @@ myModel.newLabel_stylised("This is a second test", (50, 100),
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

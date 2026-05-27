@@ -18,5 +18,5 @@ myModel.newButton(button2Clicked,'Click me 2',(70,140))
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

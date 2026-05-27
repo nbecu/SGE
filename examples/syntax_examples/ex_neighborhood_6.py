@@ -37,4 +37,4 @@ def wolf_hunt():
 p1.addAction(wolf_hunt)
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

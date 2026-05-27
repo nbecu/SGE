@@ -4,7 +4,7 @@ import random
 import itertools
 import string
 import numpy as np
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets, QtGui, QtCore
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
@@ -431,7 +431,7 @@ def run_bot_vs_human(model_path=None, bot_player="O", bot_epsilon=0, randomize_f
 
     model.launch()
     QtCore.QTimer.singleShot(200, bot_tick)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 def evaluate_saved_model(model_path, games=200, bot_player="X"):

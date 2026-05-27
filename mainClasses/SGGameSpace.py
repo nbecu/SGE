@@ -1,7 +1,7 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QToolTip
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import QToolTip
 from mainClasses.SGAspect import *
 from mainClasses.SGGameSpaceSizeManager import SGGameSpaceSizeManager
 from mainClasses.SGEventHandlerGuide import *
@@ -137,7 +137,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         Handle events including tooltip display for layoutOrder
         """
-        if event.type() == QEvent.ToolTip:
+        if event.type() == QEvent.Type.ToolTip:
             # Check if layoutOrder tooltips are enabled
             if (hasattr(self, '_enhanced_grid_tooltip_enabled') and 
                 self._enhanced_grid_tooltip_enabled and 

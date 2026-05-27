@@ -43,4 +43,4 @@ aTextBox = myModel.newTextBox(
 aTextBox.moveToCoords(350, 200)
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -61,4 +61,4 @@ Sheeps.newAgentsAtRandom(10,Cell)
 Legend=myModel.newLegend(alwaysDisplayDefaultAgentSymbology=True)
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

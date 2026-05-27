@@ -54,4 +54,4 @@ aLegend=myModel.newLegend()
 myModel.newModelPhase([lambda: AgentsA.moveRandomly(),lambda: AgentsB.moveRandomly()])
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

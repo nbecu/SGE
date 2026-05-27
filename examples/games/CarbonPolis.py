@@ -957,4 +957,4 @@ calcSequestrationTot()
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -14,4 +14,4 @@ myModel = SGModel(550, 550)
 
 # This launchs your model and it will ALWAYS be the last two lines of the code.
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

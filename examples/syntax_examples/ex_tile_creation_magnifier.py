@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QColor
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import QColor
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
@@ -111,4 +111,4 @@ myModel.setCurrentPlayer("Player 1")
 # Launch the game
 myModel.launch()
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

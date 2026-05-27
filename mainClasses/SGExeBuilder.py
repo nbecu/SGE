@@ -221,21 +221,19 @@ exe = EXE(
     def _get_sge_dependencies(self) -> List[str]:
         """Get all SGE dependencies from pyproject.toml and known requirements"""
         dependencies = [
-            # PyQt5 modules
-            'PyQt5.QtCore',
-            'PyQt5.QtGui', 
-            'PyQt5.QtWidgets',
-            'PyQt5.QtSvg',
-            'PyQt5.QtPrintSupport',
-            'PyQt5.QtOpenGL',
-            'PyQt5.QtNetwork',
-            'PyQt5.QtMultimedia',
-            'PyQt5.QtTest',
-            'PyQt5.QtXml',
-            'PyQt5.QtXmlPatterns',
-            'PyQt5.QtHelp',
-            'PyQt5.QtDesigner',
-            'PyQt5.QtSql',
+            # PyQt6 modules
+            'PyQt6.QtCore',
+            'PyQt6.QtGui',
+            'PyQt6.QtWidgets',
+            'PyQt6.QtSvg',
+            'PyQt6.QtPrintSupport',
+            'PyQt6.QtOpenGL',
+            'PyQt6.QtNetwork',
+            'PyQt6.QtMultimedia',
+            'PyQt6.QtTest',
+            'PyQt6.QtXml',
+            'PyQt6.QtHelp',
+            'PyQt6.QtSql',
             
             # Core Python modules
             'logging.config',
@@ -250,7 +248,7 @@ exe = EXE(
             
             # Visualization
             'matplotlib',
-            'matplotlib.backends.backend_qt5agg',
+            'matplotlib.backends.backend_qtagg',
             'matplotlib.backends.backend_qtagg',
             'matplotlib.backends.backend_agg',
             'matplotlib.backends.backend_tkagg',

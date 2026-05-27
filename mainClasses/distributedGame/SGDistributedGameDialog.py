@@ -1,7 +1,7 @@
 # --- Standard library imports ---
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
 
 
 class SGDistributedGameDialog(QDialog):
@@ -357,7 +357,7 @@ class SGDistributedGameDialog(QDialog):
                         self.waiting_for_others = False
                         
                         # Close dialog - use QMetaObject.invokeMethod to ensure we're in the main Qt thread
-                        from PyQt5.QtCore import QMetaObject, Qt
+                        from PyQt6.QtCore import QMetaObject, Qt
                         QMetaObject.invokeMethod(
                             self,
                             "accept",
@@ -525,7 +525,7 @@ class SGDistributedGameDialog(QDialog):
         import time
         start_time = time.time()
         while (time.time() - start_time) * 1000 < wait_time_ms:
-            from PyQt5.QtWidgets import QApplication
+            from PyQt6.QtWidgets import QApplication
             QApplication.processEvents()  # Process events to receive MQTT messages
             if self.conflict_detected:
                 break

@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QApplication
-from PyQt5.QtGui import QPainter, QPen, QBrush, QColor, QPolygon
-from PyQt5.QtCore import Qt, QPoint
+from PyQt6.QtWidgets import QWidget, QApplication
+from PyQt6.QtGui import QPainter, QPen, QBrush, QColor, QPolygon
+from PyQt6.QtCore import Qt, QPoint
 import sys
 
 class DrawingWidget(QWidget):
@@ -27,4 +27,4 @@ app = QApplication(sys.argv)
 window = DrawingWidget()
 window.setGeometry(100, 100, 500, 200)
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())

@@ -127,4 +127,4 @@ textBox12.moveToCoords(490, 480)
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

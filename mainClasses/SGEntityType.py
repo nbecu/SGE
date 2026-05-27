@@ -1,6 +1,6 @@
 # Imports
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
 from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGTile import SGTile
@@ -2649,7 +2649,7 @@ class SGTileType(SGEntityType):
             )
         """
         from pathlib import Path
-        from PyQt5.QtGui import QPixmap
+        from PyQt6.QtGui import QPixmap
         import random
         
         # Convert to Path if string

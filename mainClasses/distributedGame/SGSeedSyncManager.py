@@ -1,7 +1,7 @@
 # --- Standard library imports ---
 import json
 from typing import Optional, Callable, Set
-from PyQt5.QtCore import QTimer, QObject, pyqtSignal
+from PyQt6.QtCore import QTimer, QObject, pyqtSignal
 
 # --- Project imports ---
 from mainClasses.distributedGame.SGMQTTHandlerManager import SGMQTTHandlerManager, HandlerPriority

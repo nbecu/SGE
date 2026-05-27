@@ -85,4 +85,4 @@ resizeTextBox = myModel.newTextBox(
 resizeTextBox.moveToCoords(400, 400)
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

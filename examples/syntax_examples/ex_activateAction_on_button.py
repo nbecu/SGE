@@ -53,4 +53,4 @@ myModel.applyLayoutConfig("ex_activateAction_onButton")
 
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

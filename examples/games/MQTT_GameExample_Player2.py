@@ -85,4 +85,4 @@ myModel.launch_withMQTT("Instantaneous", broker_host="test.mosquitto.org")
 # Option 3: Use another online broker
 # myModel.launch_withMQTT("Instantaneous", broker_host="broker.hivemq.com")
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

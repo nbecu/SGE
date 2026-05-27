@@ -24,4 +24,4 @@ dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnEntity(Pawn,'foo')
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

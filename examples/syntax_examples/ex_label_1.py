@@ -16,5 +16,5 @@ myModel.newLabel('This is a text in a label',(70,100))
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

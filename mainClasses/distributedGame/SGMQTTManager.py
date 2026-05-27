@@ -3,7 +3,7 @@ import json
 import queue
 import struct
 import uuid
-from PyQt5.QtCore import QTimer
+from PyQt6.QtCore import QTimer
 
 # --- Third-party imports ---
 from paho.mqtt import client as mqtt_client

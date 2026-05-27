@@ -53,4 +53,4 @@ userSelector=myModel.newUserSelector()
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

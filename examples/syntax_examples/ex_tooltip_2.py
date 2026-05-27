@@ -75,4 +75,4 @@ Fishes.setTooltip("Info", lambda fish: f"{fish.value('type')} ({fish.value('size
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -120,5 +120,5 @@ myModel.newLabel('This is a text in a label',(70,100),textStyle_specs, borderSty
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

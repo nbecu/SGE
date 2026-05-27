@@ -22,4 +22,4 @@ Legend.moveToCoords(0,100)
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

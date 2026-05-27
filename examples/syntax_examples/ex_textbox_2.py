@@ -135,4 +135,4 @@ textBox9.moveToCoords(490, 330)
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

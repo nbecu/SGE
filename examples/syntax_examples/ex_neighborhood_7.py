@@ -31,4 +31,4 @@ p1.addAction(lambda: Rabbit.moveRandomly(numberOfMovement=3, condition=lambda c:
 
 myModel.launch()
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

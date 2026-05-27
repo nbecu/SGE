@@ -44,4 +44,4 @@ myModel.newModelPhase([modelAction1, modelAction2])
 
 ## open the simulation
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

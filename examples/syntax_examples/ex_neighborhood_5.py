@@ -23,4 +23,4 @@ p1 = myModel.newModelPhase()
 p1.addAction(lambda: Fish.moveRandomly(condition=lambda cell: cell.isValue("landForm", "lac")))
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

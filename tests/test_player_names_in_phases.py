@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from mainClasses.SGSGE import *
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 @pytest.fixture(scope="module")
 def app():

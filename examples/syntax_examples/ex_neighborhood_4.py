@@ -23,4 +23,4 @@ p1 = myModel.newModelPhase()
 p1.addAction(lambda: Bees.moveRandomly(condition=lambda cell: cell.isValue("landForm", "plain")))
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -98,4 +98,4 @@ myModel.setCurrentPlayer("Player 1")
 myModel.launch()
 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

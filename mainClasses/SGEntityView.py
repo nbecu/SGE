@@ -1,7 +1,7 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import QMenu, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
 from mainClasses.SGEventHandlerGuide import *
 
 class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
@@ -410,7 +410,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         grid_pos = self.mapTo(grid, event.pos())
         
         # Create a new event with grid coordinates
-        from PyQt5.QtGui import QMouseEvent
+        from PyQt6.QtGui import QMouseEvent
         grid_event = QMouseEvent(
             event.type(),
             grid_pos,

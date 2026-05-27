@@ -35,4 +35,4 @@ Legend=myModel.newLegend()
 myModel.displayAdminControlPanel()
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

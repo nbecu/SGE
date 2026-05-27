@@ -287,7 +287,7 @@ class SGEntity(AttributeAndValueFunctionalities):
 
             # Fill transparent areas like in SGTile.__init__
             try:
-                from PyQt5.QtGui import QPixmap
+                from PyQt6.QtGui import QPixmap
                 from mainClasses.SGExtensions import fillTransparentAreas
                 if image is not None and isinstance(image, QPixmap):
                     if target_face == "front":

@@ -70,4 +70,4 @@ p2.addAction(wolf_eat_step)
 
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

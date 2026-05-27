@@ -28,4 +28,4 @@ myModel.newModelPhase(
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

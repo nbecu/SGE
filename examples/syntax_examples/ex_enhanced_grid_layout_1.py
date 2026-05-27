@@ -73,7 +73,7 @@ def main():
     print("EGL test completed!")
     
     # Keep the application running
-    sys.exit(monApp.exec_())
+    sys.exit(monApp.exec())
 
 if __name__ == "__main__":
     main()

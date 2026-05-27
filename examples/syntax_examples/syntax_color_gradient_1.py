@@ -1,8 +1,8 @@
 import sys
 from pathlib import Path
-from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
-from PyQt5.QtGui import QPixmap, QPainter, QColor
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+from PyQt6.QtGui import QPixmap, QPainter, QColor
+from PyQt6.QtCore import Qt
 
 # Import from your project structure
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -50,4 +50,4 @@ if __name__ == "__main__":
 
 
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

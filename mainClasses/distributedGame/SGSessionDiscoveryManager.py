@@ -5,7 +5,7 @@ from typing import Dict, Set, Optional, Callable
 from datetime import datetime
 
 # --- Third-party imports ---
-from PyQt5.QtCore import QTimer
+from PyQt6.QtCore import QTimer
 
 # --- Project imports ---
 from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession

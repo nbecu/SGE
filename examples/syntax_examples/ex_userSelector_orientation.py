@@ -48,4 +48,4 @@ print("- Close window to exit")
 
 # Launch and run
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

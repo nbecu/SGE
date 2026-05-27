@@ -1,6 +1,6 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
 
 
             
@@ -593,7 +593,7 @@ class SGAspect():
             except Exception:
                 # Fallback to QColor.name() if _qt_color_to_css fails
                 try:
-                    from PyQt5.QtGui import QColor
+                    from PyQt6.QtGui import QColor
                     css_color = QColor(self.color).name()
                     if css_color:
                         css_parts.append(f"color: {css_color}")
@@ -618,7 +618,7 @@ class SGAspect():
             label (QLabel): QLabel instance to style
             game_space_instance (SGGameSpace, optional): GameSpace instance for applyFontWeightToQFont
         """
-        from PyQt5.QtWidgets import QLabel
+        from PyQt6.QtWidgets import QLabel
         from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
         
         if not isinstance(label, QLabel):

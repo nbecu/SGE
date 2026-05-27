@@ -1,8 +1,8 @@
 # --- Standard library imports ---
 from datetime import datetime
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
 
 # --- Project imports ---
 from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession
@@ -397,7 +397,7 @@ class SGDistributedConnectionDialog(QDialog):
         from mainClasses.distributedGame.SGDistributedBrokerSettingsDialog import SGDistributedBrokerSettingsDialog
         previous_config = self._snapshotBrokerConfig()
         dialog = SGDistributedBrokerSettingsDialog(self, self.config)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.Accepted:
             if not self._hasBrokerConfigChanged(previous_config):
                 self._updateBrokerInfoLabel()
                 return
@@ -2137,7 +2137,7 @@ class SGDistributedConnectionDialog(QDialog):
                 # Close dialog - use QMetaObject.invokeMethod to ensure we're in the main Qt thread
                 # CRITICAL: QTimer.singleShot cannot be called from MQTT thread
                 # Use QueuedConnection to execute accept() in the main thread
-                from PyQt5.QtCore import QMetaObject, Qt
+                from PyQt6.QtCore import QMetaObject, Qt
                 QMetaObject.invokeMethod(
                     self, 
                     "accept", 

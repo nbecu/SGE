@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets, QtGui, QtCore
 import math
 
 
@@ -192,4 +192,4 @@ if __name__ == "__main__":
         aWidget.show()  # Show each shape widget
 
     window.show()  # Show the main window
-    app.exec_()
+    app.exec()

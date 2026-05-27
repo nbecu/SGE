@@ -44,4 +44,4 @@ Sheeps.getEntity(2).setValue('hunger',90)
 Legend=myModel.newLegend()
 
 myModel.launch() 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

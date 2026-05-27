@@ -1,8 +1,8 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
-from PyQt5.QtGui import QColor, QPolygon, QPainter
-from PyQt5.QtCore import QPoint
-from PyQt5.QtWidgets import QGraphicsColorizeEffect
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+from PyQt6.QtGui import QColor, QPolygon, QPainter
+from PyQt6.QtCore import QPoint
+from PyQt6.QtWidgets import QGraphicsColorizeEffect
 
 class PolygonWidget(QWidget):
     def __init__(self):
@@ -69,4 +69,4 @@ class MainWindow(QWidget):
 app = QApplication(sys.argv)
 window = MainWindow()
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())

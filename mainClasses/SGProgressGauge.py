@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar
-from PyQt5.QtCore import Qt, QRect
-from PyQt5.QtGui import QPalette, QColor, QPainter, QPen, QBrush, QFont
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar
+from PyQt6.QtCore import Qt, QRect
+from PyQt6.QtGui import QPalette, QColor, QPainter, QPen, QBrush, QFont
 from mainClasses.SGGameSpace import SGGameSpace
 
 class SGProgressGauge(SGGameSpace):

@@ -6,8 +6,9 @@ Example: methods dynamically added to QPainter, QWidget, list, dict, etc.
 
 import sys
 from pathlib import Path
-from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor
+from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor, QTextOption
 from PyQt6.QtCore import QRectF, Qt
+from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit
 
 __all__ = [
     "SGColors",
@@ -159,7 +160,207 @@ class SGColors:
 
 
 def _extend_qt_colors():
-    """Inject SGColors constants into the Qt namespace for backward compatibility."""
+    """Restore PyQt5-style Qt.* shortcuts removed in PyQt6's strict-enum system.
+
+    PyQt6 moved every Qt enum value under a qualified enum class
+    (e.g. Qt.AlignCenter → Qt.AlignmentFlag.AlignCenter). This function
+    re-injects the old unqualified shortcuts on the Qt, QPainter, QFont,
+    QDialog, QAbstractItemView and QSizePolicy objects so that all existing
+    model code continues to work without modification.
+
+    It also injects custom SGColors constants (Qt.orange, Qt.lightGreen, …).
+
+    Called once at import time of SGExtensions, which is imported early in every
+    mainClasses file, before any class default-parameter expressions are evaluated.
+    """
+    def _patch(obj, enum_class, names):
+        for n in names:
+            if hasattr(enum_class, n):
+                setattr(obj, n, getattr(enum_class, n))
+
+    # ── Qt.GlobalColor shortcuts (Qt.black, Qt.white, …) ─────────────────────
+    _patch(Qt, Qt.GlobalColor, [
+        'color0', 'color1', 'black', 'white',
+        'darkGray', 'gray', 'lightGray',
+        'red', 'green', 'blue', 'cyan', 'magenta', 'yellow',
+        'darkRed', 'darkGreen', 'darkBlue',
+        'darkCyan', 'darkMagenta', 'darkYellow',
+        'transparent',
+    ])
+
+    # ── Qt.AlignmentFlag ──────────────────────────────────────────────────────
+    _patch(Qt, Qt.AlignmentFlag, [
+        'AlignLeft', 'AlignRight', 'AlignHCenter', 'AlignVCenter',
+        'AlignTop', 'AlignBottom', 'AlignCenter', 'AlignJustify',
+        'AlignAbsolute', 'AlignLeading', 'AlignTrailing', 'AlignBaseline',
+    ])
+
+    # ── Qt.BrushStyle / Qt.PenStyle ───────────────────────────────────────────
+    _patch(Qt, Qt.BrushStyle, [
+        'NoBrush', 'SolidPattern', 'Dense1Pattern', 'Dense2Pattern',
+        'Dense3Pattern', 'Dense4Pattern', 'Dense5Pattern', 'Dense6Pattern',
+        'Dense7Pattern', 'HorPattern', 'VerPattern', 'CrossPattern',
+        'BDiagPattern', 'FDiagPattern', 'DiagCrossPattern',
+        'LinearGradientPattern', 'RadialGradientPattern',
+        'ConicalGradientPattern', 'TexturePattern',
+    ])
+    _patch(Qt, Qt.PenStyle, [
+        'NoPen', 'SolidLine', 'DashLine', 'DotLine',
+        'DashDotLine', 'DashDotDotLine', 'CustomDashLine',
+    ])
+
+    # ── Qt.ContextMenuPolicy ──────────────────────────────────────────────────
+    _patch(Qt, Qt.ContextMenuPolicy, [
+        'NoContextMenu', 'DefaultContextMenu', 'ActionsContextMenu',
+        'CustomContextMenu', 'PreventContextMenu',
+    ])
+
+    # ── Qt.Orientation ────────────────────────────────────────────────────────
+    _patch(Qt, Qt.Orientation, ['Horizontal', 'Vertical'])
+
+    # ── Qt.AspectRatioMode / Qt.TransformationMode ────────────────────────────
+    _patch(Qt, Qt.AspectRatioMode, [
+        'IgnoreAspectRatio', 'KeepAspectRatio', 'KeepAspectRatioByExpanding',
+    ])
+    _patch(Qt, Qt.TransformationMode, ['FastTransformation', 'SmoothTransformation'])
+
+    # ── Qt.MouseButton ────────────────────────────────────────────────────────
+    _patch(Qt, Qt.MouseButton, [
+        'NoButton', 'LeftButton', 'RightButton', 'MiddleButton',
+        'BackButton', 'ForwardButton', 'AllButtons',
+    ])
+
+    # ── Qt.KeyboardModifier ───────────────────────────────────────────────────
+    _patch(Qt, Qt.KeyboardModifier, [
+        'NoModifier', 'ShiftModifier', 'ControlModifier', 'AltModifier',
+        'MetaModifier', 'KeypadModifier', 'GroupSwitchModifier',
+    ])
+
+    # ── Qt.ItemFlag ───────────────────────────────────────────────────────────
+    _patch(Qt, Qt.ItemFlag, [
+        'NoItemFlags', 'ItemIsSelectable', 'ItemIsEditable',
+        'ItemIsDragEnabled', 'ItemIsDropEnabled', 'ItemIsUserCheckable',
+        'ItemIsEnabled', 'ItemIsAutoTristate', 'ItemNeverHasChildren',
+        'ItemIsUserTristate',
+    ])
+
+    # ── Qt.CheckState ─────────────────────────────────────────────────────────
+    _patch(Qt, Qt.CheckState, ['Unchecked', 'PartiallyChecked', 'Checked'])
+
+    # ── Qt.ItemDataRole ───────────────────────────────────────────────────────
+    _patch(Qt, Qt.ItemDataRole, [
+        'DisplayRole', 'DecorationRole', 'EditRole', 'ToolTipRole',
+        'StatusTipRole', 'WhatsThisRole', 'SizeHintRole', 'FontRole',
+        'TextAlignmentRole', 'BackgroundRole', 'ForegroundRole',
+        'CheckStateRole', 'UserRole',
+    ])
+
+    # ── Qt.DockWidgetArea ─────────────────────────────────────────────────────
+    _patch(Qt, Qt.DockWidgetArea, [
+        'LeftDockWidgetArea', 'RightDockWidgetArea',
+        'TopDockWidgetArea', 'BottomDockWidgetArea',
+        'AllDockWidgetAreas', 'NoDockWidgetArea',
+    ])
+
+    # ── Qt.ConnectionType ─────────────────────────────────────────────────────
+    _patch(Qt, Qt.ConnectionType, [
+        'AutoConnection', 'DirectConnection', 'QueuedConnection',
+        'BlockingQueuedConnection', 'UniqueConnection',
+    ])
+
+    # ── Qt.WindowType ─────────────────────────────────────────────────────────
+    _patch(Qt, Qt.WindowType, [
+        'Widget', 'Window', 'Dialog', 'Sheet', 'Drawer', 'Popup',
+        'Tool', 'SplashScreen', 'Desktop', 'SubWindow',
+        'FramelessWindowHint', 'WindowTitleHint', 'WindowSystemMenuHint',
+        'WindowMinimizeButtonHint', 'WindowMaximizeButtonHint',
+        'WindowMinMaxButtonsHint', 'WindowCloseButtonHint',
+        'WindowContextHelpButtonHint', 'WindowStaysOnTopHint',
+        'WindowStaysOnBottomHint', 'CustomizeWindowHint',
+        'WindowTransparentForInput',
+    ])
+
+    # ── Qt.ScrollBarPolicy ────────────────────────────────────────────────────
+    _patch(Qt, Qt.ScrollBarPolicy, [
+        'ScrollBarAsNeeded', 'ScrollBarAlwaysOff', 'ScrollBarAlwaysOn',
+    ])
+
+    # ── Qt.CursorShape ────────────────────────────────────────────────────────
+    _patch(Qt, Qt.CursorShape, [
+        'ArrowCursor', 'UpArrowCursor', 'CrossCursor', 'WaitCursor',
+        'IBeamCursor', 'SizeVerCursor', 'SizeHorCursor', 'SizeBDiagCursor',
+        'SizeFDiagCursor', 'SizeAllCursor', 'BlankCursor', 'SplitVCursor',
+        'SplitHCursor', 'PointingHandCursor', 'ForbiddenCursor',
+        'OpenHandCursor', 'ClosedHandCursor', 'WhatsThisCursor', 'BusyCursor',
+        'DragMoveCursor', 'DragCopyCursor', 'DragLinkCursor',
+    ])
+
+    # ── Qt.WidgetAttribute (Qt.WA_*) ──────────────────────────────────────────
+    _patch(Qt, Qt.WidgetAttribute, [
+        'WA_TranslucentBackground', 'WA_NoSystemBackground',
+        'WA_OpaquePaintEvent', 'WA_TransparentForMouseEvents',
+        'WA_DeleteOnClose', 'WA_Hover', 'WA_MouseTracking',
+        'WA_ShowWithoutActivating', 'WA_StyledBackground',
+        'WA_AcceptTouchEvents',
+    ])
+
+    # ── QPainter: RenderHint and CompositionMode shortcuts ────────────────────
+    _patch(QPainter, QPainter.RenderHint, [
+        'Antialiasing', 'TextAntialiasing', 'SmoothPixmapTransform',
+        'VerticalSubpixelPositioning', 'LosslessImageRendering',
+    ])
+    _patch(QPainter, QPainter.CompositionMode, [
+        'CompositionMode_SourceOver', 'CompositionMode_DestinationOver',
+        'CompositionMode_Clear', 'CompositionMode_Source',
+        'CompositionMode_Destination', 'CompositionMode_SourceIn',
+        'CompositionMode_DestinationIn', 'CompositionMode_SourceOut',
+        'CompositionMode_DestinationOut', 'CompositionMode_SourceAtop',
+        'CompositionMode_DestinationAtop', 'CompositionMode_Xor',
+        'CompositionMode_Plus', 'CompositionMode_Multiply',
+        'CompositionMode_Screen', 'CompositionMode_Overlay',
+        'CompositionMode_Darken', 'CompositionMode_Lighten',
+        'CompositionMode_ColorDodge', 'CompositionMode_ColorBurn',
+        'CompositionMode_HardLight', 'CompositionMode_SoftLight',
+        'CompositionMode_Difference', 'CompositionMode_Exclusion',
+        'RasterOp_SourceOrDestination',
+    ])
+
+    # ── QFont: Weight shortcuts ───────────────────────────────────────────────
+    _patch(QFont, QFont.Weight, [
+        'Thin', 'ExtraLight', 'Light', 'Normal', 'Medium',
+        'DemiBold', 'Bold', 'ExtraBold', 'Black',
+    ])
+
+    # ── QDialog: DialogCode shortcuts ─────────────────────────────────────────
+    _patch(QDialog, QDialog.DialogCode, ['Accepted', 'Rejected'])
+
+    # ── QAbstractItemView: SelectionMode and SelectionBehavior shortcuts ──────
+    _patch(QAbstractItemView, QAbstractItemView.SelectionMode, [
+        'NoSelection', 'SingleSelection', 'MultiSelection',
+        'ExtendedSelection', 'ContiguousSelection',
+    ])
+    _patch(QAbstractItemView, QAbstractItemView.SelectionBehavior, [
+        'SelectItems', 'SelectRows', 'SelectColumns',
+    ])
+
+    # ── QSizePolicy: Policy shortcuts ─────────────────────────────────────────
+    _patch(QSizePolicy, QSizePolicy.Policy, [
+        'Fixed', 'Minimum', 'Maximum', 'Preferred', 'Expanding',
+        'MinimumExpanding', 'Ignored',
+    ])
+
+    # ── QTextEdit: LineWrapMode shortcuts ─────────────────────────────────────
+    _patch(QTextEdit, QTextEdit.LineWrapMode, [
+        'NoWrap', 'WidgetWidth', 'FixedPixelWidth', 'FixedColumnWidth',
+    ])
+
+    # ── QTextOption: WrapMode shortcuts ───────────────────────────────────────
+    _patch(QTextOption, QTextOption.WrapMode, [
+        'NoWrap', 'WordWrap', 'ManualWrap', 'WrapAnywhere',
+        'WrapAtWordBoundaryOrAnywhere',
+    ])
+
+    # ── Custom SGColors (Qt.orange, Qt.lightGreen, Qt.pink, …) ───────────────
     for name, value in vars(SGColors).items():
         if not name.startswith('_') and isinstance(value, QColor):
             setattr(Qt, name, value)

@@ -42,4 +42,4 @@ Bees.displayTooltip('coords')  # Display coordinates (x, y)
 # comment and uncomment the lines above to test the different tooltip types
 
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

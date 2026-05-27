@@ -1,8 +1,8 @@
 import sys
 import random
 from pathlib import Path
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QColor, QPixmap
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import QColor, QPixmap
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
@@ -255,5 +255,5 @@ myModel.applyLayoutConfig("interaction_modes_ex")
 # Launch the game
 myModel.launch()
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())
 

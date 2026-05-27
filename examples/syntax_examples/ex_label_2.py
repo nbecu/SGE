@@ -60,4 +60,4 @@ myModel.newLabel(text, (430, 300), textStyle_specs6, borderStyle_specs6, "", ali
 
 # Launch the application
 myModel.launch()
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

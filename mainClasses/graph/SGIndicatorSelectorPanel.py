@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QDockWidget, QWidget, QVBoxLayout, QHBoxLayout,
     QLineEdit, QTreeWidget, QTreeWidgetItem, QCheckBox,
     QPushButton, QLabel, QComboBox,
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 QUANTI_STATS = ["mean", "sum", "min", "max", "stdev"]
 
