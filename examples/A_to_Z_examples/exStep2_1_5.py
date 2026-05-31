@@ -8,7 +8,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(700,700, windowTitle="Create your grid with a custom background image")
 
 # First thing first: define the size of the grid (x, y), the shape of cells, their size, and other parameters
-Cell = myModel.newCellsOnGrid(10, 10, "square", size=30,gap=20,backGroundImage=QPixmap("images/background_sea.jpg"))
+Cell = myModel.newCellsOnGrid(10, 10, "square", size=30,gap=20,backgroundImage=QPixmap("images/background_sea.jpg"))
 
 # Then set the value of the cells for a given parameter
 # In this example the parameter is landUse, and the values given are 'grass', 'forest' and 'shrub'

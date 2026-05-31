@@ -20,7 +20,7 @@ dataEvents=pd.read_excel(localLink+"/data/data_events.xlsx")
 #* --------------------------
 def constructPlateau():
     """Permet de construire le plateau de jeu principal de Solutré"""
-    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap(localLink+"/icon/solutre/fond_solutre.jpg"))
+    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backgroundImage=QPixmap(localLink+"/icon/solutre/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
     Plateau.deleteEntity(Plateau.getEntity(2,1))
     Plateau.deleteEntity(Plateau.getEntity(3,1))

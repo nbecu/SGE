@@ -5,7 +5,7 @@ from mainClasses.SGModel import *
 
 # Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, backGroundImage=None,neighborhood='moore',boundaries='open', zoomMode="resize"):
+    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, backgroundImage=None,neighborhood='moore',boundaries='open', zoomMode="resize"):
         super().__init__(parent, 0, 60, 0, 0)
         # Type identification attributes
         self.isAGrid = True
@@ -66,8 +66,8 @@ class SGGrid(SGGameSpace):
         if aColor != "None":
             self.setColor(aColor)
         # Store background image via gs_aspect (supports both QPixmap and file path)
-        if backGroundImage is not None:
-            self.setBackgroundImage(backGroundImage)
+        if backgroundImage is not None:
+            self.setBackgroundImage(backgroundImage)
         
         # If in magnifier mode, set fixed size immediately
         if self.zoomMode == "magnifier":

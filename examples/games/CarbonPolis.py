@@ -456,7 +456,7 @@ def updateSurfaceAllZH():
 
 
 # construction du plateau
-cases=myModel.newCellsOnGrid(21,21,"square",size=40,gap=0,backGroundImage=QPixmap("./icon/MTZC/plateau-jeu.jpg"))
+cases=myModel.newCellsOnGrid(21,21,"square",size=40,gap=0,backgroundImage=QPixmap("./icon/MTZC/plateau-jeu.jpg"))
 # Liste des coordonnées spécifiques à préserver avec leur valeur de surface
 cases_preservees = {
                                                          (10,2): [sPC, tH2], (11,2): [sGC, tPS], (13,2): [sGC, tA],
