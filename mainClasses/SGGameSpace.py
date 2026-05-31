@@ -176,7 +176,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             self._drag_mode_changed = True
 
         # Get the global mouse position
-        global_mouse_pos = QtWidgets.QApplication.desktop().cursor().pos()
+        global_mouse_pos = QCursor.pos()
         
         # Convert to parent coordinates
         if self.parent():
