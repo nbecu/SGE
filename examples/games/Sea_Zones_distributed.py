@@ -5,6 +5,7 @@ from mainClasses.SGSGE import *
 
 # Application initialization
 monApp = QtWidgets.QApplication([])
+applySGELightTheme()  # Optional: apply a light theme to the application (can be called at any point before launching the model)
 
 # Model creation
 myModel = SGModel(1200, 850, windowTitle="Sea Zones")
