@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor, QTextOption, QRegion, QPalette
 from PyQt6.QtCore import QRectF, Qt
-from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit
+from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit, QMessageBox, QHeaderView, QStandardItem
 
 __all__ = [
     "SGColors",
@@ -372,6 +372,48 @@ def _extend_qt_colors():
     _patch(QTextOption, QTextOption.WrapMode, [
         'NoWrap', 'WordWrap', 'ManualWrap', 'WrapAnywhere',
         'WrapAtWordBoundaryOrAnywhere',
+    ])
+
+    # ── Qt.DropAction shortcuts ────────────────────────────────────────────────
+    _patch(Qt, Qt.DropAction, [
+        'CopyAction', 'MoveAction', 'LinkAction', 'ActionMask', 'IgnoreAction',
+    ])
+
+    # ── QMessageBox.Icon shortcuts ─────────────────────────────────────────────
+    _patch(QMessageBox, QMessageBox.Icon, [
+        'NoIcon', 'Information', 'Warning', 'Critical', 'Question',
+    ])
+
+    # ── QMessageBox.StandardButton shortcuts ───────────────────────────────────
+    _patch(QMessageBox, QMessageBox.StandardButton, [
+        'Ok', 'Cancel', 'Save', 'Discard', 'Yes', 'No', 'Retry', 'Ignore',
+        'SaveAll', 'NoButton', 'Help', 'Open', 'Apply', 'Close', 'Abort', 'RestoreDefaults',
+    ])
+
+    # ── Qt.FocusPolicy shortcuts ───────────────────────────────────────────────
+    _patch(Qt, Qt.FocusPolicy, [
+        'NoFocus', 'TabFocus', 'ClickFocus', 'StrongFocus', 'WheelFocus',
+    ])
+
+    # ── Qt.TextInteractionFlag shortcuts ───────────────────────────────────────
+    _patch(Qt, Qt.TextInteractionFlag, [
+        'NoTextInteraction', 'TextSelectableByMouse', 'TextSelectableByKeyboard',
+        'LinksAccessibleByMouse', 'LinksAccessibleByKeyboard', 'TextEditable',
+    ])
+
+    # ── Qt.Corner shortcuts ────────────────────────────────────────────────────
+    _patch(Qt, Qt.Corner, [
+        'TopLeftCorner', 'TopRightCorner', 'BottomLeftCorner', 'BottomRightCorner',
+    ])
+
+    # ── QHeaderView.ResizeMode shortcuts ───────────────────────────────────────
+    _patch(QHeaderView, QHeaderView.ResizeMode, [
+        'Interactive', 'Stretch', 'ResizeToContents', 'Fixed',
+    ])
+
+    # ── QStandardItem.ItemType shortcuts ───────────────────────────────────────
+    _patch(QStandardItem, QStandardItem.ItemType, [
+        'Type', 'UserType',
     ])
 
     # ── Custom SGColors (Qt.orange, Qt.lightGreen, Qt.pink, …) ───────────────
