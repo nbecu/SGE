@@ -46,6 +46,7 @@ class SGExeBuilder:
             ('mainClasses', 'mainClasses'),
             ('icon', 'icon'),
             ('images', 'images'),
+            ('data', 'data'),
         ]
     
     def build_exe(self, model_path: str, output_name: Optional[str] = None, 

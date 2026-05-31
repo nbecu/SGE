@@ -100,6 +100,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         super().__init__()
         # Remove Qt6's 256 MB image-decoding limit so large background images load correctly.
         QImageReader.setAllocationLimit(0)
+        # Force light color scheme early (for frozen executables and UI consistency)
+        app = QApplication.instance()
+        if app is not None:
+            try:
+                from PyQt6.QtCore import Qt
+                app.styleHints().setColorScheme(Qt.ColorScheme.Light)
+            except Exception:
+                pass
+            app.setStyle("Fusion")
         # Definition the size of the window ( temporary here)
         primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
 
