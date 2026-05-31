@@ -184,13 +184,16 @@ class SGGrid(SGGameSpace):
         Handle mouse wheel events for zoom functionality
         """
         # Only zoom if mouse is over this grid
-        if self.rect().contains(event.pos()):
+        # PyQt6: event.position() returns QPointF, convert to QPoint
+        mouse_pos_f = event.position()
+        mouse_pos = mouse_pos_f.toPoint() if hasattr(mouse_pos_f, 'toPoint') else mouse_pos_f
+
+        if self.rect().contains(mouse_pos):
             # Get wheel delta (positive = up, negative = down)
             delta = event.angleDelta().y()
-            
+
             if self.zoomMode == "magnifier":
                 # Magnifier mode: zoom centered on mouse position
-                mouse_pos = event.pos()
                 if delta > 0:
                     self.newZoomIn(mouse_pos=mouse_pos)
                 elif delta < 0:
