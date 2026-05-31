@@ -466,8 +466,12 @@ class SGDistributedConnectionDialog(QDialog):
                     # Wait for retained messages to be received by the handler
                     # The handler will update the cache, then we update the list
                     def update_list_after_retained_messages():
-                        self._updateSessionsList()
-                    
+                        try:
+                            self._updateSessionsList()
+                        except RuntimeError:
+                            # Widget has been deleted in PyQt6 (dialog closed/destroyed)
+                            pass
+
                     QTimer.singleShot(800, update_list_after_retained_messages)
                 
                 QTimer.singleShot(100, resubscribe_after_delay)
@@ -720,10 +724,6 @@ class SGDistributedConnectionDialog(QDialog):
     
     def _updateSessionsList(self):
         """Update the sessions list widget with discovered sessions"""
-        # Check if widget still exists (may have been deleted in PyQt6)
-        if not self.sessions_list or self.sessions_list.isHidden():
-            return
-
         # Preserve currently selected session_id before clearing
         selected_session_id = self._selected_session_id
 
