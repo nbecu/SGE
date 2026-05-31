@@ -12,6 +12,16 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from PyQt6.QtWidgets import QInputDialog
 from PyQt6.QtCore import QPoint
+
+# Initialize light theme for all SGE applications (especially important for frozen executables)
+try:
+    app = QtWidgets.QApplication.instance()
+    if app is not None:
+        app.styleHints().setColorScheme(Qt.ColorScheme.Light)
+        app.setStyle("Fusion")
+except Exception:
+    pass
+
 from random import randint
 import random
 from tkinter import simpledialog
