@@ -13,8 +13,13 @@ from PyQt6.QtCore import *
 from PyQt6.QtWidgets import QInputDialog
 from PyQt6.QtCore import QPoint
 
-# Initialize light theme for all SGE applications (especially important for frozen executables)
-def _init_sge_light_theme():
+def applySGELightTheme():
+    """
+    Apply SGE's light theme (gray/white) to the QApplication.
+    MUST be called AFTER creating QApplication, typically right after:
+        monApp = QtWidgets.QApplication([])
+        applySGELightTheme()  # <-- Call here
+    """
     try:
         app = QtWidgets.QApplication.instance()
         if app is not None:
@@ -45,8 +50,6 @@ def _init_sge_light_theme():
     except Exception:
         pass
 
-_init_sge_light_theme()
-
 from random import randint
 import random
 from tkinter import simpledialog
@@ -62,6 +65,7 @@ __all__ = [
     "SGCell",
     "SGBotPlayer",
     "SGColors",
+    "applySGELightTheme",
     "QtWidgets",
     "Qt",
     "QColor",
