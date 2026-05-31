@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor, QTextOption, QRegion, QPalette, QStandardItem
 from PyQt6.QtCore import QRectF, Qt
-from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit, QMessageBox, QHeaderView
+from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit, QMessageBox, QHeaderView, QDockWidget
 
 __all__ = [
     "SGColors",
@@ -414,6 +414,12 @@ def _extend_qt_colors():
     # ── QStandardItem.ItemType shortcuts ───────────────────────────────────────
     _patch(QStandardItem, QStandardItem.ItemType, [
         'Type', 'UserType',
+    ])
+
+    # ── QDockWidget.DockWidgetFeature shortcuts ────────────────────────────────
+    _patch(QDockWidget, QDockWidget.DockWidgetFeature, [
+        'DockWidgetClosable', 'DockWidgetMovable', 'DockWidgetFloatable',
+        'DockWidgetVerticalTitleBar', 'NoDockWidgetFeatures', 'AllDockWidgetFeatures',
     ])
 
     # ── Custom SGColors (Qt.orange, Qt.lightGreen, Qt.pink, …) ───────────────
