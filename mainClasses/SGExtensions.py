@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor, QTextOption, QRegion, QPalette, QStandardItem
 from PyQt6.QtCore import QRectF, Qt
-from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit, QMessageBox, QHeaderView, QDockWidget
+from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit, QMessageBox, QHeaderView, QDockWidget, QDialogButtonBox
 
 __all__ = [
     "SGColors",
@@ -420,6 +420,12 @@ def _extend_qt_colors():
     _patch(QDockWidget, QDockWidget.DockWidgetFeature, [
         'DockWidgetClosable', 'DockWidgetMovable', 'DockWidgetFloatable',
         'DockWidgetVerticalTitleBar', 'NoDockWidgetFeatures', 'AllDockWidgetFeatures',
+    ])
+
+    # ── QDialogButtonBox.StandardButton shortcuts ──────────────────────────────
+    _patch(QDialogButtonBox, QDialogButtonBox.StandardButton, [
+        'Ok', 'Cancel', 'Yes', 'No', 'Save', 'Discard', 'Apply', 'Help',
+        'Reset', 'RestoreDefaults', 'Ignore', 'Retry', 'Abort', 'Close', 'Open',
     ])
 
     # ── Custom SGColors (Qt.orange, Qt.lightGreen, Qt.pink, …) ───────────────
