@@ -800,8 +800,8 @@ class SGGrid(SGGameSpace):
             # Start panning - lock viewport to prevent reset
             self.panning = True
             self._viewport_locked = True
-            self.panStartX = event.x()
-            self.panStartY = event.y()
+            self.panStartX = int(event.position().x())
+            self.panStartY = int(event.position().y())
             self.panViewportStartX = self.viewportX
             self.panViewportStartY = self.viewportY
             event.accept()
@@ -830,8 +830,8 @@ class SGGrid(SGGameSpace):
             if e.buttons() & Qt.LeftButton and e.modifiers() & Qt.ShiftModifier:
                 # Calculate pan delta (mouse movement)
                 # When mouse moves right, we want to see more of the right side (viewport moves left)
-                delta_x = e.x() - self.panStartX
-                delta_y = e.y() - self.panStartY
+                delta_x = int(e.position().x()) - self.panStartX
+                delta_y = int(e.position().y()) - self.panStartY
                 
                 # Convert screen delta to grid coordinate delta
                 # When mouse moves right (positive delta_x), viewport should move left (negative)
