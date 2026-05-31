@@ -408,12 +408,14 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         
         # Convert coordinates from entity to grid
         grid_pos = self.mapTo(grid, event.pos())
-        
+
         # Create a new event with grid coordinates
+        # PyQt6: QMouseEvent requires QPointF, not QPoint
         from PyQt6.QtGui import QMouseEvent
+        from PyQt6.QtCore import QPointF
         grid_event = QMouseEvent(
             event.type(),
-            grid_pos,
+            QPointF(grid_pos),
             event.button(),
             event.buttons(),
             event.modifiers()
