@@ -508,7 +508,7 @@ class SGTextBox(SGGameSpace):
         close_action.triggered.connect(self.close)
         menu.addAction(close_action)
         
-        menu.exec_(self.mapToGlobal(position))
+        menu.exec(self.mapToGlobal(position))
     
     def _recreateTextWidget(self):
         """

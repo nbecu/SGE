@@ -475,7 +475,7 @@ class SGAgentView(SGEntityView):
         drag.setHotSpot(e.pos())
 
         # Start the drag operation
-        result = drag.exec_(Qt.CopyAction | Qt.MoveAction)
+        result = drag.exec(Qt.CopyAction | Qt.MoveAction)
         
         # Reset dragging state after drag operation completes
         self.dragging = False

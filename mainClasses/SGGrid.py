@@ -888,7 +888,7 @@ class SGGrid(SGGameSpace):
         left, up = getCPos(self)
         xC, yC = toCenter(self, left, up)
 
-        drag.exec_(Qt.MoveAction)
+        drag.exec(Qt.MoveAction)
 
         leftf, upf = getCPos(self)
         xCorr = xclic-xC

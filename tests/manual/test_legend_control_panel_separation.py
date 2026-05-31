@@ -139,4 +139,4 @@ print("  - After 'Next Turn': Player1 actions should work")
 
 myModel.launch() 
 
-sys.exit(monApp.exec_())
+sys.exit(monApp.exec())

@@ -242,7 +242,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         if not menu.isEmpty():
             # Always show the menu - the signal customContextMenuRequested is only triggered
             # when the right-click occurs on the widget, so we can trust the point is valid
-            menu.exec_(self.mapToGlobal(point))
+            menu.exec(self.mapToGlobal(point))
 
     def getObjectIdentiferForJsonDumps(self):
         """Get object identifier for JSON serialization"""
