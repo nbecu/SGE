@@ -33,15 +33,42 @@ class SGCellView(SGEntityView):
         
         # Allow drops for agents
         self.setAcceptDrops(True)
-    
-    
+
+    # ------------------------------------------------------------------
+    # Background image helper
+    # ------------------------------------------------------------------
+    def _drawBackgroundImagePortion(self, painter, cell_x, cell_y, cell_size):
+        """Draw the grid's background image portion that covers this cell.
+
+        Qt6 clips the parent's paintEvent to exclude child widget areas, so
+        transparent cells must paint their own background slice.
+        cell_x / cell_y are the cell's position in grid pixel coordinates.
+        """
+        bg_pixmap = self.grid.getBackgroundImagePixmap()
+        if bg_pixmap is None or bg_pixmap.isNull():
+            return
+        grid_w = self.grid.width()
+        grid_h = self.grid.height()
+        if grid_w <= 0 or grid_h <= 0:
+            return
+        src_x = int(cell_x * bg_pixmap.width()  / grid_w)
+        src_y = int(cell_y * bg_pixmap.height() / grid_h)
+        src_w = max(1, int(cell_size * bg_pixmap.width()  / grid_w))
+        src_h = max(1, int(cell_size * bg_pixmap.height() / grid_h))
+        painter.drawPixmap(
+            QRect(0, 0, cell_size, cell_size),
+            bg_pixmap,
+            QRect(src_x, src_y, src_w, src_h),
+        )
+
     def paintEvent(self, event):
         """Paint the cell"""
         painter = QPainter()
         painter.begin(self)
         region = self.getRegion()
         image = self.getImage()
-        
+        is_transparent = False
+
         # Check if the cell should be displayed based on the model
         if self.cell_model.isDisplay == True:
             if self.defaultImage != None:
@@ -52,18 +79,28 @@ class SGCellView(SGEntityView):
                 rect, scaledImage = self.rescaleImage(image)
                 painter.setClipRegion(region)
                 painter.drawPixmap(rect, scaledImage)
-            else: 
-                painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-                
+            else:
+                color = self.getColor()
+                qcolor = color if isinstance(color, QColor) else QColor(color)
+                is_transparent = qcolor.alpha() == 0
+                if not is_transparent:
+                    painter.setBrush(QBrush(color, Qt.SolidPattern))
+                # For transparent cells the brush is set to NoBrush below,
+                # after calculatePosition() gives us the correct cell_x/cell_y.
+
             penColorAndWidth = self.getBorderColorAndWidth()
             painter.setPen(QPen(penColorAndWidth['color'], penColorAndWidth['width']))
-            
+
             # Use current grid values for size
             current_size = self.grid.size
-            
+
             # In magnifier mode, don't recalculate position or move cell
             # Position is managed by grid's _updatePositionsForViewport()
             if hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier":
+                if is_transparent:
+                    pos = self.pos()
+                    self._drawBackgroundImagePortion(painter, pos.x(), pos.y(), current_size)
+                    painter.setBrush(Qt.NoBrush)
                 # Just draw the cell, position is managed by grid
                 if(self.shape == "square"):
                     painter.drawRect(0, 0, current_size, current_size)
@@ -76,14 +113,17 @@ class SGCellView(SGEntityView):
                         QPoint(current_size, int(3 * current_size / 4)),
                         QPoint(int(current_size / 2), current_size),
                         QPoint(0, int(3 * current_size / 4)),
-                        QPoint(0, int(current_size / 4))              
+                        QPoint(0, int(current_size / 4))
                     ])
                     painter.drawPolygon(points)
             else:
-                # In resize mode, calculate position and move cell
-                # Calculate position based on current zoom
+                # In resize mode, calculate position first (needed for bg image sampling)
                 self.calculatePosition()
-                    
+                if is_transparent:
+                    self._drawBackgroundImagePortion(
+                        painter, self.startX, self.startY, current_size)
+                    painter.setBrush(Qt.NoBrush)
+
                 # Base of the gameBoard
                 if(self.shape == "square"):
                     painter.drawRect(0, 0, current_size, current_size)
@@ -97,7 +137,7 @@ class SGCellView(SGEntityView):
                         QPoint(current_size, int(3 * current_size / 4)),
                         QPoint(int(current_size / 2), current_size),
                         QPoint(0, int(3 * current_size / 4)),
-                        QPoint(0, int(current_size / 4))              
+                        QPoint(0, int(current_size / 4))
                     ])
                     painter.drawPolygon(points)
                     self.move(self.startX, self.startY)

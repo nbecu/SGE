@@ -98,6 +98,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             windowBackgroundColor (QColor or Qt.GlobalColor, optional): The background color of the main window (default:None)
         """
         super().__init__()
+        # Remove Qt6's 256 MB image-decoding limit so large background images load correctly.
+        QImageReader.setAllocationLimit(0)
         # Definition the size of the window ( temporary here)
         primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
 
@@ -345,6 +347,17 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 session_id=self.distributedConfig.session_id
             )
         else:
+            # Force a light colour scheme regardless of OS dark mode.
+            # PyQt6 (Qt 6.5+) inherits the system palette; setColorScheme(Light)
+            # overrides that before setStyle so Fusion picks up light colours.
+            app = QApplication.instance()
+            if app is not None:
+                try:
+                    from PyQt6.QtCore import Qt
+                    app.styleHints().setColorScheme(Qt.ColorScheme.Light)
+                except Exception:
+                    pass
+                app.setStyle("Fusion")
             # Normal local launch
             self.initBeforeShowing()
             self.show()
@@ -1948,7 +1961,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def __MODELER_METHODS__NEW__(self):
         pass
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open', zoomMode="magnifier") -> SGCellType:
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backgroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open', zoomMode="magnifier") -> SGCellType:
         """
         Create a grid that contains cells.
         
@@ -1966,7 +1979,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             borderColor (Qt.Color, optional): border color of the grid. Defaults to Qt.black.
             moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
             name (st): name of the grid.
-            backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
+            backgroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
             defaultCellColor (Qt.Color, optional): Default color for each cell as a Qt.Color. If None, cells are displayed with background image.
             defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.
             neighborhood ("moore","neumann"): Neighborhood type for cell os the grid. Defaults to "moore".
@@ -1989,7 +2002,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if name in self.gameSpaces:
                 name = name + 'bis'
         # Create a grid with default values (will be overridden by setters below)
-        aGrid = SGGrid(self, name, columns, rows, format, gap, size, None, moveable, backGroundImage, neighborhood, boundaries, zoomMode)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, None, moveable, backgroundImage, neighborhood, boundaries, zoomMode)
         
         # Apply styles via modeler methods (ensures everything goes through gs_aspect)
         aGrid.setBackgroundColor(backgroundColor)
@@ -2014,7 +2027,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         
         return aCellDef
     
-    def newGridWithCells(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellImage=None, neighborhood='moore', boundaries='open') -> SGCellType:
+    def newGridWithCells(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backgroundImage=None, defaultCellImage=None, neighborhood='moore', boundaries='open') -> SGCellType:
         """
         Create a grid that contains cells.
 
@@ -2030,7 +2043,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             borderColor (Qt.Color, optional): border color of the grid. Defaults to Qt.black.
             moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
             name (st): name of the grid.
-            backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
+            backgroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
             defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.
             neighborhood ("moore","neumann"): Neighborhood type for cell os the grid. Defaults to "moore".
                 - "moore": Moore neighborhood (8 neighbors for square cells, 6 for hexagonal cells).
@@ -2043,7 +2056,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid. 
                        Note: This is NOT a SGGrid object, but the CellDef that manages the cells on the grid.
         """
-        return self.newCellsOnGrid(columns, rows, format, size, gap, backgroundColor, borderColor, moveable, name, backGroundImage, defaultCellImage, neighborhood, boundaries)
+        return self.newCellsOnGrid(columns, rows, format, size, gap, backgroundColor, borderColor, moveable, name, backgroundImage, defaultCellImage, neighborhood, boundaries)
 
 
     # To create a New kind of agents

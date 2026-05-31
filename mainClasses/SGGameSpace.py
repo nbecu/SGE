@@ -515,38 +515,29 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     @staticmethod
     def _getPredefinedThemeMethods(SGAspect):
         """Discover all predefined theme classmethods in SGAspect dynamically."""
-        # Known utility methods that are NOT themes
         excluded_methods = {
-            'baseBorder', 'title1', 'title2', 'title3', 
+            'baseBorder', 'title1', 'title2', 'title3',
             'text1', 'text2', 'text3', 'success', 'inactive'
         }
         theme_methods = {}
-        # Inspect all class methods
         for name in dir(SGAspect):
             if name.startswith('_'):
                 continue
-            attr = getattr(SGAspect, name, None)
-            if not attr or not callable(attr):
-                continue
-            # Exclude known utility methods
             if name in excluded_methods:
                 continue
-            # Only consider classmethods (not instance methods)
-            # When accessing @classmethod via getattr on the class, Python returns
-            # a bound method (type 'method'), not a classmethod object
-            # Try calling it without arguments - classmethods work, instance methods need self
+            # A @classmethod accessed on its class is a bound method whose __self__ IS the class.
+            # Instance methods and static methods do NOT have __self__ == SGAspect.
+            # This avoids calling arbitrary instance methods to "discover" themes.
+            attr = getattr(SGAspect, name, None)
+            if attr is None:
+                continue
+            if not (callable(attr) and getattr(attr, '__self__', None) is SGAspect):
+                continue
             try:
-                # Skip getter methods (they start with 'get' and are instance methods)
-                if name.startswith('get'):
-                    continue
                 instance = attr()
                 if isinstance(instance, SGAspect):
                     theme_methods[name] = attr
-            except TypeError:
-                # Needs arguments (likely an instance method), skip it
-                continue
             except Exception:
-                # Any other error, skip it
                 continue
         return theme_methods
 
@@ -755,7 +746,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     def getBackgroundImagePixmap(self):
         """
         Get the background image as a QPixmap.
-        
+
         Returns:
             QPixmap or None: The background image as QPixmap, or None if no image is set
         """
@@ -767,6 +758,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             try:
                 pix = QPixmap(self.gs_aspect.background_image)
                 if not pix.isNull():
+                    self._background_pixmap = pix  # Cache for future calls
                     return pix
             except Exception:
                 pass

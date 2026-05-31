@@ -399,24 +399,17 @@ class SGAspect():
         if color is None:
             return None
         try:
-            # Explicit transparent support
             if isinstance(color, str) and color.lower() == 'transparent':
                 return 'transparent'
-            # If it's already a QColor, get its name
-            if hasattr(color, 'name'):
+            # Must use isinstance(QColor) — PyQt6 enums also have a .name property
+            # (returns the enum member name as str), so hasattr('name') is unreliable.
+            if isinstance(color, QColor):
                 return color.name()
-            # If it's a Qt color constant, convert to QColor first
-            elif hasattr(color, 'value'):
-                qcolor = QColor(color)
+            qcolor = QColor(color)
+            if qcolor.isValid():
                 return qcolor.name()
-            # Handle Qt color constants directly
-            else:
-                qcolor = QColor(color)
-                if qcolor.isValid():
-                    return qcolor.name()
-                else:
-                    return str(color)
-        except:
+            return str(color)
+        except Exception:
             return str(color)
     
     def _css_to_qcolor(self, value):
