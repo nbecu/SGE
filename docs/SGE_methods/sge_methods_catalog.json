@@ -9407,7 +9407,7 @@
             "examples": [
               "grid.setOwners(player1)  # Single owner\ngrid.setOwners([player1, player2])  # Multiple owners\ngrid.setOwners(\"Player 1\")  # Single owner by name\ngrid.setOwners([\"Player 1\", \"Player 2\"])  # Multiple owners by name"
             ],
-            "line_number": 1015,
+            "line_number": 1018,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9430,7 +9430,7 @@
             "examples": [
               "grid.setZoomMode(\"magnifier\")  # Enable magnifier mode\ngrid.setZoomMode(\"resize\")    # Use default resize mode"
             ],
-            "line_number": 1056,
+            "line_number": 1059,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9458,7 +9458,7 @@
             "examples": [
               "cellA = grid.getCell_withCoords(5, 5)\ncellB = grid.getCell_withCoords(15, 15)\ngrid.setMagnifierOnArea(cellA, cellB)"
             ],
-            "line_number": 1176,
+            "line_number": 1179,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9481,7 +9481,7 @@
             "examples": [
               "# Show all cells with terrain=\"forest\"\ngrid.setMagnifierToCoverAllCellsWith(lambda cell: cell.isValue(\"terrain\", \"forest\"))\n\n# Show all cells with agents\ngrid.setMagnifierToCoverAllCellsWith(lambda cell: cell.hasAgent())"
             ],
-            "line_number": 1258,
+            "line_number": 1261,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9498,7 +9498,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 1093,
+            "line_number": 1096,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9513,7 +9513,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 1097,
+            "line_number": 1100,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9528,7 +9528,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 1101,
+            "line_number": 1104,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9543,7 +9543,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 1105,
+            "line_number": 1108,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9564,7 +9564,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1109,
+            "line_number": 1112,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9590,7 +9590,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1116,
+            "line_number": 1119,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9611,7 +9611,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1121,
+            "line_number": 1124,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9632,7 +9632,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1130,
+            "line_number": 1133,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9660,7 +9660,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1113,
+            "line_number": 1116,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9685,7 +9685,7 @@
             "examples": [
               "grid.isOwnedBy(player1)  # Check by player instance\ngrid.isOwnedBy(\"Player 1\")  # Check by player name"
             ],
-            "line_number": 1144,
+            "line_number": 1147,
             "parent_classes": [
               "SGGameSpace"
             ]
@@ -9836,7 +9836,7 @@
             ],
             "returns": "SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid.",
             "examples": [],
-            "line_number": 1951,
+            "line_number": 1973,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9918,7 +9918,7 @@
             ],
             "returns": "SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid.",
             "examples": [],
-            "line_number": 2017,
+            "line_number": 2039,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -9980,7 +9980,7 @@
             ],
             "returns": "a agentType",
             "examples": [],
-            "line_number": 2050,
+            "line_number": 2072,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10059,7 +10059,7 @@
             "examples": [
               "# Create a simple tile type\ntileType = model.newTileType(\"Forest\", shape=\"rectTile\", frontColor=Qt.green)\n\n# Create a tile type with stack rendering\ncardType = model.newTileType(\n\"Card\",\nshape=\"rectTile\",\nfrontColor=Qt.blue,\nbackColor=Qt.red,\nstackRendering={\"mode\": \"offset\", \"showCounter\": True, \"counterPosition\": \"topLeft\"}\n)"
             ],
-            "line_number": 2084,
+            "line_number": 2106,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10086,7 +10086,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2194,
+            "line_number": 2216,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10143,7 +10143,7 @@
             ],
             "returns": "The created play phase (an instance of SGPlayPhase)",
             "examples": [],
-            "line_number": 2219,
+            "line_number": 2241,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10215,7 +10215,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2257,
+            "line_number": 2279,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10282,7 +10282,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2278,
+            "line_number": 2300,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10349,7 +10349,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2298,
+            "line_number": 2320,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10406,7 +10406,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2323,
+            "line_number": 2345,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10473,7 +10473,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2341,
+            "line_number": 2363,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10530,7 +10530,7 @@
             ],
             "returns": "SGFlip: The created flip action",
             "examples": [],
-            "line_number": 2363,
+            "line_number": 2385,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10592,7 +10592,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2385,
+            "line_number": 2407,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10639,7 +10639,7 @@
             ],
             "returns": "SGTimePhase: The created time phase",
             "examples": [],
-            "line_number": 2423,
+            "line_number": 2445,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10671,7 +10671,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2448,
+            "line_number": 2470,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10703,7 +10703,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2463,
+            "line_number": 2485,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10740,7 +10740,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2477,
+            "line_number": 2499,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10777,7 +10777,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2493,
+            "line_number": 2515,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10824,7 +10824,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2668,
+            "line_number": 2700,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10931,7 +10931,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2694,
+            "line_number": 2726,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -10963,7 +10963,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2740,
+            "line_number": 2772,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11045,7 +11045,7 @@
             ],
             "returns": "SGProgressGauge: The created SGProgressGauge instance.",
             "examples": [],
-            "line_number": 2759,
+            "line_number": 2791,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11072,7 +11072,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2828,
+            "line_number": 2860,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11099,7 +11099,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2849,
+            "line_number": 2881,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11166,7 +11166,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2877,
+            "line_number": 2909,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11228,7 +11228,7 @@
             ],
             "returns": "SGTextBox: The created text box widget",
             "examples": [],
-            "line_number": 2929,
+            "line_number": 2961,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11285,7 +11285,7 @@
             ],
             "returns": "SGLabel: An instance of SGLabel with the specified properties.",
             "examples": [],
-            "line_number": 2966,
+            "line_number": 2998,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11377,7 +11377,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 2989,
+            "line_number": 3021,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11509,7 +11509,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3024,
+            "line_number": 3056,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11536,7 +11536,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3112,
+            "line_number": 3144,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11563,7 +11563,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3121,
+            "line_number": 3153,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11587,7 +11587,7 @@
             "examples": [
               "mg = myModel.newMultiGraphWindow(\"Vue d'ensemble\")\nmg.addPanel(\"linear\", indicators=[\n(\"entity\", \"Wolf\", \"population\"),\n(\"entity\", \"Sheep\", \"population\"),\n])\nmg.addPanel(\"stackplot\", indicators=[(\"entity\", \"Sheep\", \"type\")])"
             ],
-            "line_number": 3130,
+            "line_number": 3162,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11599,7 +11599,7 @@
             "name": "enableDistributedGame",
             "signature": "def enableDistributedGame(self, num_players, session_id=None, shared_seed=None, broker_host=\"localhost\", broker_port=1883, additional_brokers=None, mqtt_update_type=\"Instantaneous\", seed_sync_timeout=1.0):",
             "description": "Enable distributed multiplayer game mode.",
-            "docstring": "Enable distributed multiplayer game mode.\nOpens minimal dialog for user to connect to broker and synchronize seed.\nPlayer selection happens later in completeDistributedGameSetup().\n\nIMPORTANT: Call this method BEFORE any random operations in your model script.\nThe seed will be synchronized and applied immediately after this call returns.\n\nArgs:\n    num_players (int or tuple): Number of players. Can be:\n        - int: Fixed number of players (e.g., 2)\n        - tuple: Range of players (min, max) (e.g., (2, 4) for 2-4 players)\n        Game can start when number of connected instances is within this range.\n    session_id (str, optional): Session ID. Auto-generated if None.\n    shared_seed (int, optional): Shared seed. Auto-generated and synced if None.\n    broker_host (str): MQTT broker host (default: \"localhost\")\n    broker_port (int): MQTT broker port (default: 1883)\n    additional_brokers (list, optional): List of additional brokers (dicts with name, host, port)\n    mqtt_update_type (str): \"Instantaneous\" or \"Phase\" (default: \"Instantaneous\")\n    seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed \n        before becoming leader (default: 1.0). Increase this value if you need more time \n        to detect an existing seed from other instances.\n\nReturns:\n    SGDistributedGameConfig or None: Configuration object if distributed mode enabled,\n                                     None if cancelled or local mode.",
+            "docstring": "Enable distributed multiplayer game mode.\nOpens minimal dialog for user to connect to broker and synchronize seed.\nPlayer selection happens later in completeDistributedGameSetup().\n\nIMPORTANT: Call this method BEFORE any random operations in your model script.\nThe seed will be synchronized and applied immediately after this call returns.\n\nArgs:\n    num_players (int or tuple): Number of players. Can be:\n        - int: Fixed number of players (e.g., 2)\n        - tuple: Range of players (min, max) (e.g., (2, 4) for 2-4 players)\n        Game can start when number of connected instances is within this range.\n    session_id (str, optional): Session ID. Auto-generated if None.\n    shared_seed (int, optional): Shared seed. Auto-generated and synced if None.\n    broker_host (str): MQTT broker host (default: \"localhost\")\n    broker_port (int): MQTT broker port (default: 1883)\n    additional_brokers (list, optional): List of additional brokers (dicts with name, host, port)\n    mqtt_update_type (str): \"Instantaneous\" or \"Phase\" (default: \"Instantaneous\")\n    seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed\n        before becoming leader (default: 1.0). Increase this value if you need more time\n        to detect an existing seed from other instances.\n\nReturns:\n    SGDistributedGameConfig or None: Configuration object if distributed mode enabled,\n                                     None if cancelled or local mode.",
             "category": "OTHER MODELER METHODS",
             "class_name": "SGModel",
             "parameters": [
@@ -11646,7 +11646,7 @@
             ],
             "returns": "SGDistributedGameConfig or None: Configuration object if distributed mode enabled, None if cancelled or local mode.",
             "examples": [],
-            "line_number": 2504,
+            "line_number": 2526,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11662,7 +11662,7 @@
             "parameters": [],
             "returns": "bool: True if setup completed successfully, False if cancelled or not in distributed mode",
             "examples": [],
-            "line_number": 2592,
+            "line_number": 2624,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11694,7 +11694,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3099,
+            "line_number": 3131,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11710,7 +11710,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3272,
+            "line_number": 3304,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11726,7 +11726,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3276,
+            "line_number": 3308,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11750,7 +11750,7 @@
             "examples": [
               "# Apply a saved theme configuration (will be applied when launch() is called)\nmodel.applyThemeConfig(\"my_theme_setup\")\nmodel.launch()  # Theme will be applied after all GameSpaces are created\n\n# Check before applying\nif model.hasThemeConfig(\"setup1\"):\nmodel.applyThemeConfig(\"setup1\")"
             ],
-            "line_number": 3395,
+            "line_number": 3427,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11766,7 +11766,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3543,
+            "line_number": 3575,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11798,7 +11798,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3560,
+            "line_number": 3592,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11820,7 +11820,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3580,
+            "line_number": 3612,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11847,7 +11847,7 @@
             ],
             "returns": "str: Path to exported file",
             "examples": [],
-            "line_number": 3595,
+            "line_number": 3627,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11876,7 +11876,7 @@
             "examples": [
               "# Save automatically to a specific directory\nmyModel.enableAutoSaveGameActionLogs(format=\"csv\", save_path=\"/path/to/logs\")\n\n# Save with user choosing the location\nmyModel.enableAutoSaveGameActionLogs(format=\"json\")\n\n# Save CSV to current directory\nmyModel.enableAutoSaveGameActionLogs(save_path=\".\")"
             ],
-            "line_number": 3622,
+            "line_number": 3654,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11900,7 +11900,7 @@
             "examples": [
               "# Load images from directory\nimages = myModel.loadImagesFromDirectory(\"./images\")\n\n# Use random image for a tile\nimport random\ntile = TileType.newTileOnCell(cell, backImage=random.choice(images))"
             ],
-            "line_number": 3654,
+            "line_number": 3686,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11924,7 +11924,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3171,
+            "line_number": 3203,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11961,7 +11961,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3196,
+            "line_number": 3228,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -11985,7 +11985,7 @@
             "examples": [
               "# Disable icons in context menu\nmyModel.setShowIconsInContextMenu(False)"
             ],
-            "line_number": 3431,
+            "line_number": 3463,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12003,7 +12003,7 @@
             "parameters": [],
             "returns": "bool: True if distributed mode is enabled, False otherwise",
             "examples": [],
-            "line_number": 3232,
+            "line_number": 3264,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12029,7 +12029,7 @@
             "examples": [
               "count = myModel.getConnectedInstancesCount()\nif count >= 2:\nprint(\"Minimum players reached!\")\n\n# With custom default value\ncount = myModel.getConnectedInstancesCount(default=1)"
             ],
-            "line_number": 3241,
+            "line_number": 3273,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12045,7 +12045,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3280,
+            "line_number": 3312,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12067,7 +12067,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3283,
+            "line_number": 3315,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12089,7 +12089,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3293,
+            "line_number": 3325,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12105,7 +12105,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3299,
+            "line_number": 3331,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12127,7 +12127,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3303,
+            "line_number": 3335,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12143,7 +12143,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3307,
+            "line_number": 3339,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12159,7 +12159,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3316,
+            "line_number": 3348,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12181,7 +12181,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3327,
+            "line_number": 3359,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12208,7 +12208,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3333,
+            "line_number": 3365,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12224,7 +12224,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3338,
+            "line_number": 3370,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12246,7 +12246,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3345,
+            "line_number": 3377,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12262,7 +12262,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3350,
+            "line_number": 3382,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12284,7 +12284,7 @@
             ],
             "returns": "list: List of grids (SGGrid instances) owned by the specified owner",
             "examples": [],
-            "line_number": 3354,
+            "line_number": 3386,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12306,7 +12306,7 @@
             ],
             "returns": "SGGrid or None: The first grid owned by the specified owner, or None if no grid is owned",
             "examples": [],
-            "line_number": 3365,
+            "line_number": 3397,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12328,7 +12328,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3586,
+            "line_number": 3618,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12344,7 +12344,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3591,
+            "line_number": 3623,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12362,7 +12362,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3383,
+            "line_number": 3415,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12386,7 +12386,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 3444,
+            "line_number": 3476,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12402,7 +12402,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 3455,
+            "line_number": 3487,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -12448,7 +12448,7 @@
             "examples": [
               "myModel.addGraphPreset(\"linear\", \"Wolf population\",\nindicators=[(\"entity\", \"Wolf\", \"population\")])\nmyModel.addGraphPreset(\"linear\", \"Average age of wolves\",\nindicators=[(\"entity\", \"Wolf\", \"age\", \"mean\")],\nx_axis=\"Rounds & Phases\")"
             ],
-            "line_number": 3463,
+            "line_number": 3495,
             "parent_classes": [
               "QMainWindow",
               "SGEventHandlerGuide"
@@ -15094,7 +15094,7 @@
               "base_path (str or Path, optional): Custom base path override.\n\nReturns:\nPath: Absolute path to the resource folder or file.",
               "# Get a path that works in dev or exe\nimages_dir = getResourcePath(\"examples/syntax_examples/images\")"
             ],
-            "line_number": 187,
+            "line_number": 456,
             "parent_classes": null
           },
           {
@@ -15123,7 +15123,7 @@
             ],
             "returns": "list[Path]: List of matching image paths (may be empty).",
             "examples": [],
-            "line_number": 212,
+            "line_number": 481,
             "parent_classes": null
           },
           {
@@ -15147,7 +15147,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 290,
+            "line_number": 556,
             "parent_classes": null
           },
           {
@@ -15171,7 +15171,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 304,
+            "line_number": 570,
             "parent_classes": null
           },
           {
@@ -15195,7 +15195,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 318,
+            "line_number": 584,
             "parent_classes": null
           }
         ],
@@ -15223,7 +15223,7 @@
             "examples": [
               "Cells.newModelAction(copyValue(\"bufferState\", \"state\"))"
             ],
-            "line_number": 245,
+            "line_number": 514,
             "parent_classes": null
           },
           {
@@ -15247,7 +15247,7 @@
             ],
             "returns": "QPixmap: New pixmap with transparent areas filled, or original pixmap if None/invalid",
             "examples": [],
-            "line_number": 257,
+            "line_number": 526,
             "parent_classes": null
           },
           {
@@ -15271,7 +15271,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 332,
+            "line_number": 598,
             "parent_classes": null
           },
           {
@@ -15322,7 +15322,7 @@
             "examples": [
               "--------\ngenerate_color_gradient(\"green\", steps=6)\ngenerate_color_gradient(\"red\", \"blue\", steps=8)\ngenerate_color_gradient(\"red\", \"blue\", mapping={\"values\":[0,50,100], \"value_min\":0, \"value_max\":100}, as_dict=True)\ngenerate_color_gradient(\"green\", mapping={\"values\":[1,3,5], \"value_min\":0, \"value_max\":7}, as_ranges=True)"
             ],
-            "line_number": 376,
+            "line_number": 642,
             "parent_classes": null
           }
         ]
