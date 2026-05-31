@@ -31,6 +31,7 @@ Simulation data and player actions are automatically recorded and can be visuali
 
 - Python 3.10 or higher
 - Git
+- **PyQt6** (automatically installed as a dependency)
 
 ## Installation Steps
 
@@ -57,4 +58,6 @@ pip install .
 ```
 This command reads the `pyproject.toml` file and will automatically install SGE along with all dependencies listed in it.
 
-**Note:** On Windows, `pywin32` will be automatically installed as part of the dependencies. On macOS/Linux, this dependency will be skipped.
+**Note:** 
+- On Windows, `pywin32` will be automatically installed as part of the dependencies. On macOS/Linux, this dependency will be skipped.
+- **PyQt6** is required and will be installed automatically. SGE migrated from PyQt5 to PyQt6 as of May 31, 2026. If you need the last PyQt5 version, use: `git checkout version_release_2026_05_26_last_pyqt5`
