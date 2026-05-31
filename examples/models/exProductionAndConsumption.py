@@ -186,7 +186,7 @@ myModel.addGraphPreset("linear", "Scores obtenus",
 myModel.addGraphPreset("hist", "Consumers' energy",
                 indicators=[
                     ("entity", "Consumer", "energy")])
-myModel.hideDefaultGraphMenuItems()
+# myModel.hideDefaultGraphMenuItems()
 
 
 ## open the simulation
