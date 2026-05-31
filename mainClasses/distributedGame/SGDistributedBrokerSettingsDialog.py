@@ -150,15 +150,26 @@ class SGDistributedBrokerSettingsDialog(QDialog):
 
         display = self._formatBrokerDisplay(name, host, port)
         try:
-            socket.create_connection((host, port), timeout=2).close()
-            QMessageBox.information(self, "Test Successful", f"Broker test successful for {display}.")
+            try:
+                socket.create_connection((host, port), timeout=2).close()
+                QMessageBox.information(self, "Test Successful", f"Broker test successful for {display}.")
+            except (OSError, TimeoutError) as e:
+                QMessageBox.warning(self, "Test Failed", f"Broker test failed for {display}.\n\n{str(e)}")
         except Exception as e:
-            QMessageBox.warning(self, "Test Failed", f"Broker test failed for {display}.\n\n{str(e)}")
+            # Fallback for any other exception
+            QMessageBox.warning(self, "Test Failed", f"Broker test failed for {display}.\n\nUnexpected error: {str(e)}")
 
     def _onAccept(self):
         name, host, port = self._getSelectedBrokerTarget()
         if not host:
             QMessageBox.warning(self, "Invalid Broker", "Please enter a valid host for the custom broker.")
+            return
+
+        # Validate broker connection before accepting
+        try:
+            socket.create_connection((host, port), timeout=2).close()
+        except (OSError, TimeoutError) as e:
+            QMessageBox.warning(self, "Invalid Broker", f"Cannot connect to broker at {host}:{port}.\n\n{str(e)}")
             return
 
         if name == "Custom broker":
