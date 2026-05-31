@@ -720,9 +720,13 @@ class SGDistributedConnectionDialog(QDialog):
     
     def _updateSessionsList(self):
         """Update the sessions list widget with discovered sessions"""
+        # Check if widget still exists (may have been deleted in PyQt6)
+        if not self.sessions_list or self.sessions_list.isHidden():
+            return
+
         # Preserve currently selected session_id before clearing
         selected_session_id = self._selected_session_id
-        
+
         self.sessions_list.clear()
         
         if not self.available_sessions:
