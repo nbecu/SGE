@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtSvg import *
-from PyQt6.QtWidgets import QMenu, QMainWindow, QMessageBox, QApplication, QFileDialog, QInputDialog
+from PyQt6.QtWidgets import QMenu, QMainWindow, QMessageBox, QApplication, QFileDialog, QInputDialog, QDialog
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QIcon
 from PyQt6 import QtWidgets
