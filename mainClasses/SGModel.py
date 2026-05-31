@@ -2527,10 +2527,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         Enable distributed multiplayer game mode.
         Opens minimal dialog for user to connect to broker and synchronize seed.
         Player selection happens later in completeDistributedGameSetup().
-        
+
         IMPORTANT: Call this method BEFORE any random operations in your model script.
         The seed will be synchronized and applied immediately after this call returns.
-        
+
         Args:
             num_players (int or tuple): Number of players. Can be:
                 - int: Fixed number of players (e.g., 2)
@@ -2542,14 +2542,24 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             broker_port (int): MQTT broker port (default: 1883)
             additional_brokers (list, optional): List of additional brokers (dicts with name, host, port)
             mqtt_update_type (str): "Instantaneous" or "Phase" (default: "Instantaneous")
-            seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed 
-                before becoming leader (default: 1.0). Increase this value if you need more time 
+            seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed
+                before becoming leader (default: 1.0). Increase this value if you need more time
                 to detect an existing seed from other instances.
-        
+
         Returns:
             SGDistributedGameConfig or None: Configuration object if distributed mode enabled,
                                              None if cancelled or local mode.
         """
+        # Force light color scheme for distributed dialogs
+        app = QApplication.instance()
+        if app is not None:
+            try:
+                from PyQt6.QtCore import Qt
+                app.styleHints().setColorScheme(Qt.ColorScheme.Light)
+            except Exception:
+                pass
+            app.setStyle("Fusion")
+
         # Create configuration
         config = SGDistributedGameConfig()
         config.set_num_players(num_players)
