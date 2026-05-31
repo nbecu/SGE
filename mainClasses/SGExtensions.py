@@ -6,9 +6,9 @@ Example: methods dynamically added to QPainter, QWidget, list, dict, etc.
 
 import sys
 from pathlib import Path
-from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor, QTextOption, QRegion, QPalette
+from PyQt6.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QColor, QTextOption, QRegion, QPalette, QStandardItem
 from PyQt6.QtCore import QRectF, Qt
-from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit, QMessageBox, QHeaderView, QStandardItem
+from PyQt6.QtWidgets import QDialog, QAbstractItemView, QSizePolicy, QTextEdit, QMessageBox, QHeaderView
 
 __all__ = [
     "SGColors",
