@@ -813,7 +813,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
 
         if mode == 'stretch':
             scaled = pixmap.scaled(widget_width, widget_height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-            return scaled, target_rect, source_rect
+            return scaled, target_rect, QRect()
 
         elif mode == 'cover':
             scale = max(widget_width / img_w, widget_height / img_h)
