@@ -8,7 +8,7 @@ Shows three modes for scaling background images in GameSpaces:
 
 Usage:
 1. Run the script
-2. Click through the game phases to see grid with different background modes
+2. See three grids side-by-side with different background modes
 3. Resize the window to see how each mode responds
 """
 
@@ -27,10 +27,11 @@ myModel = SGModel(1200, 750, windowTitle="Background Image Modes Demo")
 # Create three grids side-by-side with different background modes
 # Use a non-square image to clearly see the difference in scaling
 
-# Grid 1: stretch mode (default) - may distort
+# Grid 1: stretch mode - may distort
 Cell1 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
                                backgroundImage="./images/background_sea.jpg")
 grid1 = Cell1.grid
+grid1.moveToCoords(40, 100)
 grid1.setStyle({
     'background_image_mode': 'stretch',
     'border_color': Qt.red,
@@ -41,6 +42,7 @@ grid1.setStyle({
 Cell2 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
                                backgroundImage="./images/background_sea.jpg")
 grid2 = Cell2.grid
+grid2.moveToCoords(450, 100)
 grid2.setStyle({
     'background_image_mode': 'cover',
     'border_color': Qt.green,
@@ -51,6 +53,7 @@ grid2.setStyle({
 Cell3 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
                                backgroundImage="./images/background_sea.jpg")
 grid3 = Cell3.grid
+grid3.moveToCoords(860, 100)
 grid3.setStyle({
     'background_image_mode': 'contain',
     'border_color': Qt.blue,
@@ -58,14 +61,14 @@ grid3.setStyle({
 })
 
 # Labels for clarity
-label1 = myModel.newGameSpace("SGLabel", "Mode: stretch\n(may distort)", 40, 340)
-label1.setStyle({'text_color': Qt.red, 'font_size': 12, 'font_weight': 'bold'})
+label1 = myModel.newLabel("Mode: stretch\n(may distort)", position=(40, 340),
+                          textStyle_specs="color: red; font-weight: bold; font-size: 12px;")
 
-label2 = myModel.newGameSpace("SGLabel", "Mode: cover\n(may crop)", 450, 340)
-label2.setStyle({'text_color': Qt.green, 'font_size': 12, 'font_weight': 'bold'})
+label2 = myModel.newLabel("Mode: cover\n(may crop)", position=(450, 340),
+                          textStyle_specs="color: green; font-weight: bold; font-size: 12px;")
 
-label3 = myModel.newGameSpace("SGLabel", "Mode: contain\n(may have margins)", 850, 340)
-label3.setStyle({'text_color': Qt.blue, 'font_size': 12, 'font_weight': 'bold'})
+label3 = myModel.newLabel("Mode: contain\n(may have margins)", position=(860, 340),
+                          textStyle_specs="color: blue; font-weight: bold; font-size: 12px;")
 
 # Test zoom feature (Item B) on the first grid
 print("Grid 1 (stretch mode) has zoom enabled by default")
@@ -74,7 +77,6 @@ print("  - Use setBackgroundImageZoom(False) to disable zoom")
 
 # Optional: disable zoom on grid2 to show the difference
 # grid2.setBackgroundImageZoom(False)
-# label2.setText("Mode: cover\n(zoom disabled)")
 
 myModel.show()
 QtWidgets.QApplication.instance().exec()
