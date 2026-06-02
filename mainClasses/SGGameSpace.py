@@ -835,6 +835,25 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
 
         return pixmap, target_rect, source_rect
 
+    def _drawBackgroundImage(self, painter):
+        """
+        Draw background image with mode support (used by all GameSpaces).
+
+        This method centralizes background image rendering logic to avoid duplication
+        across the 11 GameSpace subclasses. Each GameSpace paintEvent calls this method
+        instead of reimplementing the same logic.
+
+        Args:
+            painter (QPainter): The painter to draw with
+        """
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            mode = self.gs_aspect.background_image_mode or 'stretch'
+            scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
+                bg_pixmap, self.width(), self.height(), mode
+            )
+            painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
+
     def setBorderColor(self, color):
         """
         Set the border color of the gameSpace.
