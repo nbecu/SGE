@@ -12,6 +12,9 @@ Usage:
 3. Resize the window to see how each mode responds
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 
 # Application initialization
@@ -25,9 +28,9 @@ myModel = SGModel(1200, 750, windowTitle="Background Image Modes Demo")
 # Use a non-square image to clearly see the difference in scaling
 
 # Grid 1: stretch mode (default) - may distort
-grid1 = myModel.newGameSpace("SGGrid", "Grid 1 (stretch)", 0, 0)
 Cell1 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
                                backgroundImage="./images/background_sea.jpg")
+grid1 = Cell1.grid
 grid1.setStyle({
     'background_image_mode': 'stretch',
     'border_color': Qt.red,
@@ -35,9 +38,9 @@ grid1.setStyle({
 })
 
 # Grid 2: cover mode - covers all area, may crop
-grid2 = myModel.newGameSpace("SGGrid", "Grid 2 (cover)", 410, 0)
 Cell2 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
                                backgroundImage="./images/background_sea.jpg")
+grid2 = Cell2.grid
 grid2.setStyle({
     'background_image_mode': 'cover',
     'border_color': Qt.green,
@@ -45,9 +48,9 @@ grid2.setStyle({
 })
 
 # Grid 3: contain mode - fits inside, may have margins
-grid3 = myModel.newGameSpace("SGGrid", "Grid 3 (contain)", 820, 0)
 Cell3 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
                                backgroundImage="./images/background_sea.jpg")
+grid3 = Cell3.grid
 grid3.setStyle({
     'background_image_mode': 'contain',
     'border_color': Qt.blue,
