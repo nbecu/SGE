@@ -42,6 +42,9 @@ class SGCellView(SGEntityView):
 
         Qt6 clips the parent's paintEvent to exclude child widget areas, so
         transparent cells must paint their own background slice.
+        Uses proportional sampling: each cell draws the portion of the background image
+        that corresponds to its grid position. Background image mode (stretch/cover/contain)
+        is applied at the SGGrid level; this method samples proportionally regardless of mode.
         cell_x / cell_y are the cell's position in grid pixel coordinates.
         """
         bg_pixmap = self.grid.getBackgroundImagePixmap()
