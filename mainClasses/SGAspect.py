@@ -41,6 +41,8 @@ class SGAspect():
         self.padding = None
         self.word_wrap = False
         self.background_image = None
+        self.background_image_mode = 'stretch'
+        self.background_image_zoom_enabled = True
         self.fixed_width = None
         self.fixed_height = None
         

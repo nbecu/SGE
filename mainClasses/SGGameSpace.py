@@ -762,7 +762,78 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                     return pix
             except Exception:
                 pass
-        return None    
+        return None
+
+    def setBackgroundImageMode(self, mode):
+        """
+        Set the background image scaling mode.
+
+        Args:
+            mode (str): Scaling mode — 'stretch' (default), 'cover', or 'contain'
+                - 'stretch': Scale to fill widget (may distort aspect ratio)
+                - 'cover': Scale to cover widget, maintain aspect (may crop)
+                - 'contain': Scale to fit inside widget, maintain aspect (may have margins)
+        """
+        if mode in ('stretch', 'cover', 'contain'):
+            self.gs_aspect.background_image_mode = mode
+            self.update()
+
+    def setBackgroundImageZoom(self, enabled):
+        """
+        Enable or disable background image zoom with grid zoom.
+
+        Args:
+            enabled (bool): True to scale background image with zoom level, False to keep fixed
+        """
+        self.gs_aspect.background_image_zoom_enabled = bool(enabled)
+        self.update()
+
+    def _scaleBackgroundImage(self, pixmap, widget_width, widget_height, mode):
+        """
+        Scale background image according to scaling mode.
+
+        Args:
+            pixmap (QPixmap): Original background image
+            widget_width (int): Target widget width
+            widget_height (int): Target widget height
+            mode (str): Scaling mode ('stretch', 'cover', 'contain')
+
+        Returns:
+            tuple: (scaled_pixmap, target_rect, source_rect) for drawPixmap
+                - scaled_pixmap: The scaled QPixmap to draw
+                - target_rect: QRect where to draw in widget coordinates
+                - source_rect: QRect to sample from pixmap (for clipping)
+        """
+        if pixmap.isNull() or widget_width <= 0 or widget_height <= 0:
+            return pixmap, QRect(0, 0, widget_width, widget_height), QRect()
+
+        img_w, img_h = pixmap.width(), pixmap.height()
+        target_rect = QRect(0, 0, widget_width, widget_height)
+        source_rect = QRect(0, 0, img_w, img_h)
+
+        if mode == 'stretch':
+            scaled = pixmap.scaled(widget_width, widget_height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            return scaled, target_rect, source_rect
+
+        elif mode == 'cover':
+            scale = max(widget_width / img_w, widget_height / img_h)
+            scaled_w = int(img_w * scale)
+            scaled_h = int(img_h * scale)
+            scaled = pixmap.scaled(scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            offset_x = (scaled_w - widget_width) // 2
+            offset_y = (scaled_h - widget_height) // 2
+            return scaled, target_rect, QRect(offset_x, offset_y, widget_width, widget_height)
+
+        elif mode == 'contain':
+            scale = min(widget_width / img_w, widget_height / img_h)
+            scaled_w = int(img_w * scale)
+            scaled_h = int(img_h * scale)
+            scaled = pixmap.scaled(scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            offset_x = (widget_width - scaled_w) // 2
+            offset_y = (widget_height - scaled_h) // 2
+            return scaled, QRect(offset_x, offset_y, scaled_w, scaled_h), source_rect
+
+        return pixmap, target_rect, source_rect
 
     def setBorderColor(self, color):
         """
@@ -1108,6 +1179,10 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.setWordWrap(value)
             elif key == 'background_image':
                 self.setBackgroundImage(value)
+            elif key == 'background_image_mode':
+                self.setBackgroundImageMode(value)
+            elif key == 'background_image_zoom_enabled':
+                self.setBackgroundImageZoom(value)
         self.applyContainerAspectStyle()
         self.update()
 

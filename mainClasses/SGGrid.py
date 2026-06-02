@@ -93,8 +93,42 @@ class SGGrid(SGGameSpace):
         # Background: prefer image (via gs_aspect), else color/pattern with transparency handling
         bg_pixmap = self.getBackgroundImagePixmap()
         if bg_pixmap is not None:
-            rect = QRect(0, 0, self.width(), self.height())
-            painter.drawPixmap(rect, bg_pixmap)
+            mode = self.gs_aspect.background_image_mode or 'stretch'
+            zoom_enabled = self.gs_aspect.background_image_zoom_enabled
+
+            if self.zoomMode == "resize" or (self.zoomMode == "magnifier" and self.zoom == 1.0):
+                # Resize mode or no zoom: use standard scaling
+                scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
+                    bg_pixmap, self.width(), self.height(), mode
+                )
+                painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
+
+            elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0:
+                # Magnifier mode with zoom enabled: scale background with zoom level
+                # In magnifier mode, only the visible cells are shown (via viewport clipping)
+                # We need to draw the background portion that matches the viewport at zoomed size
+                img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
+                widget_w, widget_h = self.width(), self.height()
+
+                # Map viewport coordinates to image coordinates
+                src_x = int(self.viewportX * img_w / self.getBounds().width()) if self.getBounds().width() > 0 else 0
+                src_y = int(self.viewportY * img_h / self.getBounds().height()) if self.getBounds().height() > 0 else 0
+                src_w = int(widget_w / self.zoom * img_w / self.getBounds().width()) if self.getBounds().width() > 0 else img_w
+                src_h = int(widget_h / self.zoom * img_h / self.getBounds().height()) if self.getBounds().height() > 0 else img_h
+
+                # Clamp source rect to pixmap bounds
+                src_x = max(0, min(src_x, img_w - 1))
+                src_y = max(0, min(src_y, img_h - 1))
+                src_w = min(src_w, img_w - src_x)
+                src_h = min(src_h, img_h - src_y)
+
+                if src_w > 0 and src_h > 0:
+                    painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
+
+            else:
+                # Magnifier mode but zoom disabled: draw background fixed (no scaling)
+                rect = QRect(0, 0, self.width(), self.height())
+                painter.drawPixmap(rect, bg_pixmap)
         else:
             if self.isActive:
                 bg = self.gs_aspect.getBackgroundColorValue()
