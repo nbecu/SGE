@@ -459,7 +459,7 @@ class SGTextBox(SGGameSpace):
         
         # Background: prefer image, else color
         self._drawBackgroundImage(painter)
-        else:
+        if not self.getBackgroundImagePixmap():
             bg = self.gs_aspect.getBackgroundColorValue()
             if bg.alpha() == 0:
                 painter.setBrush(Qt.NoBrush)

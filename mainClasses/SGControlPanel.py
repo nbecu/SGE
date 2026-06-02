@@ -274,7 +274,7 @@ class SGControlPanel(SGGameSpace):
             painter.begin(self)
             # Background: prefer image, else color (active/inactive)
             self._drawBackgroundImage(painter)
-            else:
+            if not self.getBackgroundImagePixmap():
                 if self.isActive:
                     bg_color = self.gs_aspect.getBackgroundColorValue()
                     painter.setBrush(QBrush(bg_color, Qt.SolidPattern))

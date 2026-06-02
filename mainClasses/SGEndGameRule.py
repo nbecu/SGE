@@ -64,7 +64,7 @@ class SGEndGameRule(SGGameSpace):
 
             # Background: prefer image, else color (support transparent)
             self._drawBackgroundImage(painter)
-            else:
+            if not self.getBackgroundImagePixmap():
                 bg = self.gs_aspect.getBackgroundColorValue()
                 if bg.alpha() == 0:
                     painter.setBrush(Qt.NoBrush)

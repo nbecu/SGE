@@ -234,7 +234,7 @@ class SGButton(SGGameSpace):
         painter.setRenderHint(QPainter.Antialiasing, True)
         # Background: prefer image, else color (use hover color if hovered)
         self._drawBackgroundImage(painter)
-        else:
+        if not self.getBackgroundImagePixmap():
             bg = self.gs_aspect.getBackgroundColorValue()
             if self._hovered and isinstance(self._hover_background_color, str):
                 try:
