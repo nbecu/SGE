@@ -122,6 +122,7 @@ class SGGrid(SGGameSpace):
                 base_region_y = 0
                 base_region_w = img_w
                 base_region_h = img_h
+                scale_factor = 1.0  # For contain mode, track the scale factor
 
                 if mode == 'cover':
                     # Cover: image is scaled to cover, centered (crop from center)
@@ -136,10 +137,10 @@ class SGGrid(SGGameSpace):
                     base_region_h = int(widget_h / scale)
 
                 elif mode == 'contain':
-                    # Contain: image is scaled to fit, centered (image may have margins)
+                    # Contain: image is scaled to fit, zoom into the scaled visible region
                     scale = min(widget_w / img_w, widget_h / img_h)
-                    # In contain, margins are added, not cropped from image
-                    # So region shown is the entire scaled image region
+                    scale_factor = scale
+                    # base_region is the visible region in image coordinates (entire image)
                     base_region_x = 0
                     base_region_y = 0
                     base_region_w = img_w
@@ -177,7 +178,22 @@ class SGGrid(SGGameSpace):
                 src_h = min(src_h, img_h - src_y)
 
                 if src_w > 0 and src_h > 0:
-                    painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
+                    # For contain mode, apply scaling to the extracted region
+                    if mode == 'contain' and scale_factor < 1.0:
+                        # Extract region and scale it
+                        region_pixmap = bg_pixmap.copy(QRect(src_x, src_y, src_w, src_h))
+                        scaled_region = region_pixmap.scaled(
+                            int(src_w * scale_factor),
+                            int(src_h * scale_factor),
+                            Qt.KeepAspectRatio,
+                            Qt.SmoothTransformation
+                        )
+                        # Center scaled region in widget
+                        offset_x = (widget_w - scaled_region.width()) // 2
+                        offset_y = (widget_h - scaled_region.height()) // 2
+                        painter.drawPixmap(offset_x, offset_y, scaled_region)
+                    else:
+                        painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
 
             else:
                 # Magnifier mode with zoom disabled OR cover/contain with zoom (Option C)
