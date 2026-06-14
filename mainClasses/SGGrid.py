@@ -50,9 +50,11 @@ class SGGrid(SGGameSpace):
         self._viewport_locked = False
         # Store original widget size for magnifier mode
         # Initialize with base size (will be set properly in updateGridSize if needed)
+        # FIX: Use correct formula for grid bounds (columns * (size + gap) instead of columns*size + (columns+1)*gap + 1)
+        # This ensures cells stay within widget bounds, fixing the right border drag bug
         if self.cellShape == "square":
-            self.originalWidth = int(self.columns * self.saveSize + (self.columns + 1) * self.saveGap + 1) + 2 * self.frameMargin
-            self.originalHeight = int(self.rows * self.saveSize + (self.rows + 1) * self.saveGap) + 1 + 2 * self.frameMargin
+            self.originalWidth = int(self.columns * (self.saveSize + self.saveGap)) + 2 * self.frameMargin
+            self.originalHeight = int(self.rows * (self.saveSize + self.saveGap)) + 2 * self.frameMargin
         elif self.cellShape == "hexagonal":
             hex_factor = self._get_hexagonal_vertical_factor()
             hex_height = self.saveSize * hex_factor  # Vertical spacing between hexagon centers
@@ -69,9 +71,10 @@ class SGGrid(SGGameSpace):
         if backgroundImage is not None:
             self.setBackgroundImage(backgroundImage)
         
-        # If in magnifier mode, set fixed size immediately
+        # If in magnifier mode, set minimum size (allows widget to grow if needed for drag/drop)
+        # Previously used setFixedSize, which prevented cells from being droppable if they extended beyond bounds
         if self.zoomMode == "magnifier":
-            self.setFixedSize(self.originalWidth, self.originalHeight)
+            self.setMinimumSize(self.originalWidth, self.originalHeight)
     
     # Drawing the game board with the cell
     def paintEvent(self, event): 
@@ -579,9 +582,11 @@ class SGGrid(SGGameSpace):
             cell_top = widget_y
             cell_bottom = widget_y + cell_size
             
-            # Move cell view to calculated position
+            # Move cell view to calculated position and set correct size
+            # In magnifier mode, cells get a default size of 100x30 from Qt and need explicit resizing
             cell.view.move(int(widget_x), int(widget_y))
-            
+            cell.view.resize(int(cell_size), int(cell_size))
+
             # Clip cell to visible area (handles visibility, clipping mask, and show/hide)
             self._clipEntityToVisibleArea(cell.view, widget_x, widget_y, cell_size)
             
@@ -732,9 +737,9 @@ class SGGrid(SGGameSpace):
         self.gap = round(self.saveGap * self.zoom)
         
         if self.zoomMode == "magnifier":
-            # Magnifier mode: keep widget size fixed at original size
-            # originalWidth and originalHeight are initialized in __init__
-            self.setFixedSize(self.originalWidth, self.originalHeight)
+            # Magnifier mode: use minimum size to allow widget to grow if needed for drag/drop
+            # Previously used setFixedSize, which prevented cells from being droppable
+            self.setMinimumSize(self.originalWidth, self.originalHeight)
             
             # Clamp viewport to ensure it stays within bounds
             self._clampViewport()
