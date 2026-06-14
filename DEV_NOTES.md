@@ -21,10 +21,12 @@ Ce fichier documente l'├®tat actuel du d├®veloppement SGE, les probl├¿m
 ### Juin 2026 - Background Image UI Features A+B - Finalization (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
 - **Branche** : `dev_background_image_ui`
-- **Description** : Finalisation des items A (scaling modes) et B (zoom integration). Correction du problème d'alignment des cells transparentes quand on zoom.
+- **Description** : Finalisation des items A (scaling modes) et B (zoom integration). Correction du problème d'alignment des cells transparentes quand on zoom, et refactorisation pour éliminer la duplication de code.
 - **Fichiers modifiés** :
   - `mainClasses/SGCellView.py` (refactorisation de `_drawBackgroundImagePortion()` pour accepter mode, zoom, viewportX, viewportY ; recalcul des portions avec base_region logic)
-  - `FUTURE_PLAN.md` (marqué transparent cells alignment comme completed)
+  - `mainClasses/SGGrid.py` (utilisation du helper viewport_calculation)
+  - `mainClasses/SGGameSpace.py` (nouveau helper `_calculateBackgroundImageViewport()`)
+  - `FUTURE_PLAN.md` (marqué transparent cells alignment comme completed, code deduplication comme completed, contain mode zoom comme known limitation)
 - **Problème résolu** :
   - **Issue 7 (Transparent cells misaligned during zoom)** : Quand un grid a une image de fond avec cells transparentes (montrant l'image de fond à travers), le zoom causait un misalignment. Les portions d'image affichées dans les cells transparentes ne correspondaient pas à celle du grid principal.
   - **Root cause** : `_drawBackgroundImagePortion()` utilisait un simple ratio proportionnel sans tenir compte du viewport offset et zoom du grid.
@@ -33,10 +35,19 @@ Ce fichier documente l'├®tat actuel du d├®veloppement SGE, les probl├¿m
     2. Convertir les coordonnées du widget en coordonnées de grid (en compte du zoom)
     3. Recalculer la base_region selon le mode (cover/contain/stretch) comme SGGrid.paintEvent() le fait
     4. Appliquer la same viewport logic que SGGrid pour assurer l'alignment
+  - **Issue 8 (Cover mode background shift during zoom)** : En mode cover, le premier zoom (1.0→1.1) causait un décalage vers la droite.
+  - **Root cause** : Le helper retournait des coordonnées relatives à base_region au lieu de coordonnées absolutes en image.
+  - **Solution** : Changé le contrat du helper pour retourner directement les coordonnées absolutes (src_x = base_region_x + viewport_offset_x).
 - **Commits** :
-  - `319434f` — Fix: Transparent cells now properly align with background image during zoom
+  - `f98a908` — Refactor: Rewrite _drawBackgroundImagePortion to reproduce SGGrid viewport logic
+  - `ea9c972` — Refactor: Extract viewport calculation to helper function and clean debug prints
+  - `e09d3fb` — Fix: Background image shift in cover mode during zoom
   - `bb35818` — Doc: Update FUTURE_PLAN to mark transparent cells alignment as completed
-- **Durée** : 1 session (Juin 2026)
+- **Validation** : 
+  - ✅ `examples/syntax_examples/ex_transparent_cells.py` — transparent cells align correctly
+  - ✅ `examples/syntax_examples/ex_background_image_modes.py` — all 3 modes (stretch/cover/contain) work at zoom=1.0 and during zoom
+  - ✅ `examples/A_to_Z_examples/exStep2_1_5.py` — background image displays correctly
+- **Durée** : 2 sessions (Juin 2026)
 
 ### Mai 2026 - Refactoring graph + Features 1-4 (TERMINÉ)
 - **Statut** : ✅ Terminé et validé (59 nouveaux tests passent)

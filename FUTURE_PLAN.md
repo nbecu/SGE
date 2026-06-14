@@ -22,7 +22,8 @@ This document contains the planned improvements and features for the SGE (Simula
    - ✅ **Configurable:** added `gs_aspect.background_image_zoom_enabled` (default: True); if False, stays fixed
    - ✅ Exposed modeler API: `setStyle({ 'background_image_zoom_enabled': False })`
    - ✅ **Transparent cells alignment:** fixed transparent cells to properly align with background image during zoom
-   - ⏳ **TODO:** Improve zoom rendering in `contain` mode — currently scales viewport but needs better visual alignment with margins
+   - ✅ **Code deduplication:** extracted `_calculateBackgroundImageViewport()` helper to eliminate duplicated viewport calculation logic (June 2026)
+   - ⏳ **Known limitation:** zoom rendering in `contain` mode has minor visual artifacts (acceptable for now; can improve in future iteration)
 - [ ] Bug on drag and move on SGGrid : impossible to drag by click and drag on the right border of the grid (although it works perfectly fine with the left top and bottom border of the grid)
 - [ ] In SGGid, consider using getGridBoundsWidth()/getGridBoundsHeight() instead of getSizeXGlobal()/getSizeYGlobal(), because these two last methods add 1px for an undertermined reason
 
