@@ -820,8 +820,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             scaled_w = int(img_w * scale)
             scaled_h = int(img_h * scale)
             scaled = pixmap.scaled(scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            offset_x = (scaled_w - widget_width) // 2
-            offset_y = (scaled_h - widget_height) // 2
+            offset_x = max(0, (scaled_w - widget_width) // 2)
+            offset_y = max(0, (scaled_h - widget_height) // 2)
             return scaled, target_rect, QRect(offset_x, offset_y, widget_width, widget_height)
 
         elif mode == 'contain':

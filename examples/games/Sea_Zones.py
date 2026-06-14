@@ -24,6 +24,8 @@ images_dir = getResourcePath("data/import/sea_zones")
 # ============================================================================
 Board = myModel.newCellsOnGrid(13, 13, "square", size=50, gap=1, name="Board",neighborhood="neumann",defaultCellColor=Qt.transparent)
 Board.grid.setBackgroundImage(QPixmap(f"{images_dir}/fond_plateau.png"))
+Board.grid.setStyle({'background_image_mode': 'cover',
+    'background_image_zoom_enabled': False})
 
 # ============================================================================
 # Create river (1 deck cell + 3 slots for drafting)
