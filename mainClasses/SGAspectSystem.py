@@ -231,10 +231,10 @@ class SGAspectResolver:
     def resolve_color(entity, symbology_name, attribute, default_color=None):
         """Resolve a color from an entity's visual aspects.
 
-        Uses hierarchical resolution: Entity → EntityType → default
+        Uses hierarchical resolution: Entity → EntityType → Model → default
 
         Args:
-            entity: The entity to resolve for (has .instance_aspects and .type)
+            entity: The entity to resolve for (has .instance_aspects, .type, .model)
             symbology_name (str): Name of the symbology to look up
             attribute (str): Attribute name to resolve
             default_color: Color to return if not found
@@ -253,10 +253,10 @@ class SGAspectResolver:
                 if color is not None:
                     return color
 
-        # 2. Try EntityType aspects
-        if hasattr(entity, 'type') and hasattr(entity.type, 'symbologies'):
-            if symbology_name in entity.type.symbologies:
-                symbology = entity.type.symbologies[symbology_name]
+        # 2. Try Model-level symbologies (now authoritative source)
+        if hasattr(entity, 'model') and hasattr(entity.model, 'symbologies'):
+            if symbology_name in entity.model.symbologies:
+                symbology = entity.model.symbologies[symbology_name]
                 aspect = symbology.get_aspect_by_type('color')
                 if aspect:
                     color = aspect.get_symbol(value)
@@ -270,7 +270,7 @@ class SGAspectResolver:
     def resolve_border(entity, symbology_name, attribute, default_color=None, default_width=1):
         """Resolve a border (color + width) from an entity's visual aspects.
 
-        Uses hierarchical resolution: Entity → EntityType → default
+        Uses hierarchical resolution: Entity → Model → default
 
         Args:
             entity: The entity to resolve for
@@ -293,10 +293,10 @@ class SGAspectResolver:
                 if border_dict is not None:
                     return border_dict
 
-        # 2. Try EntityType aspects
-        if hasattr(entity, 'type') and hasattr(entity.type, 'symbologies'):
-            if symbology_name in entity.type.symbologies:
-                symbology = entity.type.symbologies[symbology_name]
+        # 2. Try Model-level symbologies (now authoritative source)
+        if hasattr(entity, 'model') and hasattr(entity.model, 'symbologies'):
+            if symbology_name in entity.model.symbologies:
+                symbology = entity.model.symbologies[symbology_name]
                 aspect = symbology.get_aspect_by_type('border')
                 if aspect:
                     border_dict = aspect.get_symbol(value)
