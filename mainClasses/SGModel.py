@@ -82,7 +82,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True,windowBackgroundColor=None):
+    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True, windowBackgroundColor=None, autoResize=False):
         """
         Declaration of a new model
 
@@ -96,6 +96,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
             createAdminPlayer (boolean, optional): Automatically create a Admin player (default:True), that can perform all possible gameActions
             windowBackgroundColor (QColor or Qt.GlobalColor, optional): The background color of the main window (default:None)
+            autoResize (bool, optional): If True, window automatically resizes to fit content instead of using fixed width/height (default:False)
         """
         super().__init__()
         # Remove Qt6's 256 MB image-decoding limit so large background images load correctly.
@@ -109,18 +110,27 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             except Exception:
                 pass
             app.setStyle("Fusion")
-        # Definition the size of the window ( temporary here)
+        # Definition the size of the window
+        self.autoResize = autoResize
+
         primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
 
         if primary_monitor:
            width_screen = primary_monitor.width
            height_screen = primary_monitor.height
-        
+
         else: raise ValueError("Screen problem")
 
         screensize = width_screen, height_screen
-        self.setGeometry(
-            int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
+
+        if not autoResize:
+            # Fixed size: center window with specified dimensions
+            self.setGeometry(
+                int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
+        else:
+            # Auto-resize mode: set minimal initial size, will be adjusted later based on content
+            self.setGeometry(
+                int(screensize[0]/2), int(screensize[1]/2), 400, 300)
         # Init of variable of the Model
         self.name = name
         # Unique identifier for this application instance
@@ -310,14 +320,18 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Set up dashboards
         self.setDashboards()
-        
+
+        # Auto-resize window to fit content if enabled
+        if self.autoResize:
+            self.adjustSize()
+
         # Load pending theme configuration if one was memorized by applyThemeConfig()
         if self._pending_theme_config:
             config_name = self._pending_theme_config
             self._pending_theme_config = None  # Clear to avoid reloading
             manager = SGThemeConfigManager(self)
             manager.loadConfig(config_name, suppress_dialogs=True)
-        
+
         # Apply pending layout configuration if one was memorized by applyLayoutConfig()
         if self._pending_layout_config:
             config_name = self._pending_layout_config
