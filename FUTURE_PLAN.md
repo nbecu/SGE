@@ -11,52 +11,22 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Refactor SGModel: Extract Game Action Export (lines 458-824) and Layout Management (lines 1271-1424) methods into separate classes using composition pattern
 
 ### User Interface & Display
-- [x] Main window auto resize (June 2026) ✅
-  - ✅ Added `autoResize` parameter to SGModel.__init__() (default: False for backward compatibility)
-  - ✅ When True: window automatically resizes to fit content via adjustSize()
-  - ✅ When False: uses fixed width/height as before (existing behavior preserved)
-  - ✅ Example: `examples/syntax_examples/ex_window_auto_resize.py`
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
-- [x] Background images in GameSpaces: add scaling modes (cover/contain/stretch) (June 2026) ✅ RELEASED
-   - ✅ Added `gs_aspect.background_image_mode` with values: `cover`, `contain`, `stretch` (default: `stretch`)
-   - ✅ Implemented rendering logic in all GameSpaces `paintEvent` with proper zoom integration
-   - ✅ Exposed modeler API: `setStyle({ 'background_image_mode': 'cover' })`
-- [x] GameSpace background image zoom: scale background image proportionally with zoom level (June 2026) ✅ RELEASED
-   - ✅ **Default behavior:** background image scales with zoom (resize & magnifier modes)
-   - ✅ **Configurable:** `setBackgroundImageZoom(False)` or `setStyle({ 'background_image_zoom_enabled': False })`
-   - ✅ **Transparent cells alignment:** fixed to properly align with background image during zoom
-   - ✅ **Code deduplication:** extracted `_calculateBackgroundImageViewport()` helper (single source of truth)
-   - ✅ **Cover mode fix:** corrected negative offset coordinates in cover mode
-   - ⏳ **Known limitation:** magnifier mode with `zoom_enabled=False` in complex scenarios (deferred to future iteration)
-- [x] Bug on drag and move on SGGrid : impossible to drag on the right border (June 2026) ✅ FIXED
-   - ✅ **Root cause:** Cells in magnifier mode were getting Qt's default geometry (100x30px) instead of intended size (40x40px)
-   - ✅ **Fix:** Added explicit `cell.view.resize()` call in `_updatePositionsForViewport()` to set correct cell dimensions
-   - ✅ **Result:** Cells now fit within grid bounds (257px right edge <= 266px grid width), right border drag works
 - [ ] In SGGid, consider using getGridBoundsWidth()/getGridBoundsHeight() instead of getSizeXGlobal()/getSizeYGlobal(), because these two last methods add 1px for an undertermined reason
 
 ### POV System & Visual Elements
 - [ ] Create a aspect system for entities to replace pov (résolution hierarchique des aspects) + create views to manage groups of symbologies
-- [x] Add image support (JPG) in POV for legends and control panels
 - [ ] Add possibility to integrate image icons in dashboards and progressGauge
 
 ### New Entities & Features
 - [X] New `entity`: Tile
 - [ ] Add configurable min/max values for simulation variables
-- [x] Add a method to cell entity: getLastArrivedAgent
-- [x] Add addEndGameCondition_onSimVar to SGEndGameRule — takes a SimVar directly instead of requiring the modeler to go through an Indicator
 - [ ] Enhance Tile integration with POV system (improve existing inheritance-based integration for better tile-specific POV support)
 - [ ] Clean and refactor SGDashboard to identify properly the modeler methods (and tests them), to rename better args : name title, displayName which are confusing,....
 - [ ] Allow placing agents on Tiles (add ability to place agents directly on tiles, not just on cells)
 
 ### Graphs & Analytics Interface
-- [x] Graphs interface : improve the selection menu of graphs (dynamic group combobox: Cells/Agents/Tiles; single_select for pie/stackplot/hist; hide flat indicators)
-- [x] Graphs interface : allow to hide all graphs that are flat (no value change)
-- [x] Graphs interface : allow the modeler to specify the graphs that he wants to see in the menu (`addGraphPreset` + `hideDefaultGraphMenuItems`)
-- [x] Graphs interface : allow to specify a multi-graph window with graphs specify by the modeler (`newMultiGraphWindow` + `addPanel`)
 - [ ] Histogram : allow multiple indicators simultaneously — requires either (1) recomputing bins on-the-fly over the combined value range, or (2) a shared fixed bin grid [global_min, global_max]. Currently limited to single_select because each indicator's bins are pre-computed independently at recording time.
-- [x] `addGraphPreset`: add `x_axis` parameter to let the modeler specify the x-axis mode per preset (`'Rounds'`, `'Rounds & Phases'`, `'Specified phase'`).
-- [x] `addGraphPreset`: show the graph type icon in front of the preset name in the Graphs menu.
-- [x] `addGraphPreset` / `createGraphMenu`: add `myModel.hideDefaultGraphMenuItems()` API so the modeler can hide the default entries (Linear Chart, Histogram, Pie Chart, Stack Plot) that he wants to hide, while continuins to expose presets.
 - [ ] Graph color management: when possible, use entity or entity-state colors defined in the model (e.g. `SGEntityType.color`, quali attribute state colors) instead of the fixed COLORS palette — fallback to current palette when no model color is defined.
 - [ ] Graph indicator selection persistence: auto-save the selected indicators, group filter, and x_axis option when the user closes a graph window; auto-restore them on next open — no user interaction required. Use a `graph_config.json` file (same pattern as `layout_config.json` / `theme_config.json`), keyed by `model_name + graph_type` (or `model_name + preset_name`). Validate restored keys against available indicators on load and silently ignore missing ones (model may have changed). **Note: `sys.argv[0]` path issue is now FIXED (June 2026) ✅**
 - [ ] Improve data record of gameactions (perhaps using SGAbstractAction.updateServer_gameAction_performed())
@@ -69,7 +39,6 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Add a item in SGModel menu bar to record the state of the world (state of model entities), and add the possibility to use a saved state of the world, as an initialization state for a new simulation
 - [ ] Add the possibility to export gameAction logs
 - [ ] Define writable export paths for exe mode (see notes for FUTURE_PLAN/EXPORT_WRITE_PATHS.md)
-- [x] Implement BotPlayer system for automated gameplay and testing (see docs/guides/BOT_PLAYER_SYSTEM.md). Bot tested and validated on TicTacToe.
 
 ### Multiplayer & Configuration
 - [ ] Adapt Solutre game to the new Distributed Game Session system
@@ -78,6 +47,54 @@ This document contains the planned improvements and features for the SGE (Simula
 
 
 ## Completed Items
+
+- [x] Main window auto resize (June 2026) ✅
+  - ✅ Added `autoResize` parameter to SGModel.__init__()
+  - ✅ Smart default: auto-enabled when width/height not specified
+  - ✅ Window automatically resizes to fit content (calculated from gameSpace bounding box)
+  - ✅ Window centers on screen after resize
+  - ✅ moveToCoords() works correctly without bounds validation in autoResize mode
+  - ✅ Examples: `ex_window_auto_resize.py`, `ex_auto_resize_smart_default.py`
+
+- [x] Background images in GameSpaces: add scaling modes (cover/contain/stretch) (June 2026) ✅ RELEASED
+  - ✅ Added `gs_aspect.background_image_mode` with values: `cover`, `contain`, `stretch` (default: `stretch`)
+  - ✅ Implemented rendering logic in all GameSpaces `paintEvent` with proper zoom integration
+  - ✅ Exposed modeler API: `setStyle({ 'background_image_mode': 'cover' })`
+
+- [x] GameSpace background image zoom: scale background image proportionally with zoom level (June 2026) ✅ RELEASED
+  - ✅ **Default behavior:** background image scales with zoom (resize & magnifier modes)
+  - ✅ **Configurable:** `setBackgroundImageZoom(False)` or `setStyle({ 'background_image_zoom_enabled': False })`
+  - ✅ **Transparent cells alignment:** fixed to properly align with background image during zoom
+  - ✅ **Code deduplication:** extracted `_calculateBackgroundImageViewport()` helper (single source of truth)
+  - ✅ **Cover mode fix:** corrected negative offset coordinates in cover mode
+
+- [x] Bug on drag and move on SGGrid: impossible to drag on the right border (June 2026) ✅ FIXED
+  - ✅ **Root cause:** Cells in magnifier mode were getting Qt's default geometry instead of intended size
+  - ✅ **Fix:** Added explicit `cell.view.resize()` call in `_updatePositionsForViewport()`
+  - ✅ **Result:** Cells now fit within grid bounds correctly
+
+- [x] Add image support (JPG) in POV for legends and control panels
+  - ✅ Implemented image support in POV system
+
+- [x] Add a method to cell entity: getLastArrivedAgent
+  - ✅ Added `getLastArrivedAgent()` method to SGCell
+
+- [x] Add addEndGameCondition_onSimVar to SGEndGameRule
+  - ✅ Implemented method to add end game conditions directly on SimVariable
+
+- [x] Graphs interface improvements (June 2026) ✅
+  - ✅ Improved the selection menu of graphs (dynamic group combobox: Cells/Agents/Tiles; single_select for pie/stackplot/hist; hide flat indicators)
+  - ✅ Allow to hide all graphs that are flat (no value change)
+  - ✅ Allow the modeler to specify the graphs to see in menu (`addGraphPreset` + `hideDefaultGraphMenuItems`)
+  - ✅ Allow to specify a multi-graph window with graphs specify by the modeler (`newMultiGraphWindow` + `addPanel`)
+  - ✅ `addGraphPreset`: add `x_axis` parameter to let modeler specify the x-axis mode per preset
+  - ✅ `addGraphPreset`: show the graph type icon in front of the preset name
+  - ✅ `hideDefaultGraphMenuItems()` API to hide default entries (Linear Chart, Histogram, Pie Chart, Stack Plot)
+
+- [x] Implement BotPlayer system for automated gameplay and testing (June 2026) ✅
+  - ✅ Created BotPlayer class for automated gameplay
+  - ✅ Tested and validated on TicTacToe
+  - ✅ Full documentation in docs/guides/BOT_PLAYER_SYSTEM.md
 
 - [x] Architectural improvements — branch `dev_claude_archi_improves` (May 2026)
   - ✅ P1: Replaced all 30 star imports in SGModel.py with explicit named imports — eliminates silent namespace collisions and makes dependencies visible
