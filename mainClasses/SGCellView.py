@@ -294,7 +294,9 @@ class SGCellView(SGEntityView):
             if hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier":
                 # DEBUG: Print for cell (6,5) in magnifier mode
                 if self.xCoord == 6 and self.yCoord == 5:
-                    print(f"\n>>> CELL (6,5) IN MAGNIFIER MODE: is_transparent={is_transparent}, color alpha={self.getColor().alpha() if hasattr(self, 'getColor') else 'N/A'}")
+                    color = self.getColor()
+                    color_qcolor = color if isinstance(color, QColor) else QColor(color)
+                    print(f"\n>>> CELL (6,5) IN MAGNIFIER MODE: is_transparent={is_transparent}, color alpha={color_qcolor.alpha()}")
 
                 if is_transparent:
                     pos = self.pos()
