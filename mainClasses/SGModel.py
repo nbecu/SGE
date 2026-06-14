@@ -82,13 +82,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True, windowBackgroundColor=None, autoResize=False):
+    def __init__(self, width=None, height=None, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True, windowBackgroundColor=None, autoResize=None):
         """
         Declaration of a new model
 
         Args:
-            width (int): width of the main window in pixels (default:1800)
-            height (int): height of the main window in pixels (default:900)
+            width (int, optional): width of the main window in pixels. If None, autoResize is enabled (default:None)
+            height (int, optional): height of the main window in pixels. If None, autoResize is enabled (default:None)
             typeOfLayout ("vertical", "horizontal", "grid" or "enhanced_grid"): the type of layout used to position the different graphic elements of the simulation (default:"grid")
             nb_columns (int, optional): used for grid and enhanced_grid layouts. defines the number of columns (default:3)
             y (int, optional): used only for grid layout. defines the number layout grid height (default:3)
@@ -96,7 +96,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
             createAdminPlayer (boolean, optional): Automatically create a Admin player (default:True), that can perform all possible gameActions
             windowBackgroundColor (QColor or Qt.GlobalColor, optional): The background color of the main window (default:None)
-            autoResize (bool, optional): If True, window automatically resizes to fit content (calculated from actual layout size + margins) instead of using fixed width/height. Minimum size is 500x400. (default:False)
+            autoResize (bool, optional): If True, window auto-resizes to fit content. If None (default), auto-enabled when width/height are not specified. If False, uses fixed size.
+
+        Examples:
+            SGModel(windowTitle="Game")  # Auto-resize (smart default)
+            SGModel(800, 600, windowTitle="Game")  # Fixed 800x600
+            SGModel(autoResize=False, windowTitle="Game")  # Fixed size with defaults
         """
         super().__init__()
         # Remove Qt6's 256 MB image-decoding limit so large background images load correctly.
@@ -110,8 +115,19 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             except Exception:
                 pass
             app.setStyle("Fusion")
-        # Definition the size of the window
-        self.autoResize = autoResize
+        # Determine autoResize behavior
+        # If width/height not specified, auto-enable autoResize (smart default)
+        # If autoResize explicitly set, respect it
+        if autoResize is None:
+            self.autoResize = (width is None and height is None)
+        else:
+            self.autoResize = autoResize
+
+        # Use defaults if not specified
+        if width is None:
+            width = 1800
+        if height is None:
+            height = 900
 
         primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
 
@@ -123,7 +139,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         screensize = width_screen, height_screen
 
-        if not autoResize:
+        if not self.autoResize:
             # Fixed size: center window with specified dimensions
             self.setGeometry(
                 int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
