@@ -8,15 +8,35 @@ Ce fichier documente l'├®tat actuel du d├®veloppement SGE, les probl├¿m
 
 ## ├ëtat actuel du d├®veloppement
 
-### Date de dernière mise à jour : Mai 2026
-### Dernier chat utilisé : Claude Sonnet 4.6 (Claude Code VSCode)
+### Date de dernière mise à jour : Juin 2026
+### Dernier chat utilisé : Claude Haiku 4.5 (Claude Code VSCode)
 ### Ordinateur de travail : Windows 11 (nbecu)
-### Branche actuelle : dev_Graph_corrections (review terminée, à merger)
-### Dernier chantier : Refactoring graph + Features 1-4 (UX graphs)
+### Branche actuelle : dev_background_image_ui (finalized, ready to merge)
+### Dernier chantier : Background Image UI Features A+B - Finalization
 
 ---
 
 ## Travail en cours
+
+### Juin 2026 - Background Image UI Features A+B - Finalization (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Branche** : `dev_background_image_ui`
+- **Description** : Finalisation des items A (scaling modes) et B (zoom integration). Correction du problème d'alignment des cells transparentes quand on zoom.
+- **Fichiers modifiés** :
+  - `mainClasses/SGCellView.py` (refactorisation de `_drawBackgroundImagePortion()` pour accepter mode, zoom, viewportX, viewportY ; recalcul des portions avec base_region logic)
+  - `FUTURE_PLAN.md` (marqué transparent cells alignment comme completed)
+- **Problème résolu** :
+  - **Issue 7 (Transparent cells misaligned during zoom)** : Quand un grid a une image de fond avec cells transparentes (montrant l'image de fond à travers), le zoom causait un misalignment. Les portions d'image affichées dans les cells transparentes ne correspondaient pas à celle du grid principal.
+  - **Root cause** : `_drawBackgroundImagePortion()` utilisait un simple ratio proportionnel sans tenir compte du viewport offset et zoom du grid.
+  - **Solution** : Modifié `_drawBackgroundImagePortion()` pour :
+    1. Accepter les paramètres mode, zoom, viewportX, viewportY du grid
+    2. Convertir les coordonnées du widget en coordonnées de grid (en compte du zoom)
+    3. Recalculer la base_region selon le mode (cover/contain/stretch) comme SGGrid.paintEvent() le fait
+    4. Appliquer la same viewport logic que SGGrid pour assurer l'alignment
+- **Commits** :
+  - `319434f` — Fix: Transparent cells now properly align with background image during zoom
+  - `bb35818` — Doc: Update FUTURE_PLAN to mark transparent cells alignment as completed
+- **Durée** : 1 session (Juin 2026)
 
 ### Mai 2026 - Refactoring graph + Features 1-4 (TERMINÉ)
 - **Statut** : ✅ Terminé et validé (59 nouveaux tests passent)
