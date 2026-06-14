@@ -1243,10 +1243,39 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
 
     def setStyle(self, style_dict):
         """
-        Set multiple style properties at once.
-        
+        Set multiple style properties at once via a dictionary.
+
+        Applies styling properties to the GameSpace. Supports border, background, text,
+        layout, and background image configuration in a single call.
+
         Args:
-            style_dict (dict): Dictionary of style properties
+            style_dict (dict): Dictionary of style properties. Supported keys:
+                - 'border_color': QColor or color name (e.g., Qt.red, 'red', '#FF0000')
+                - 'border_size': int (pixels)
+                - 'border_radius': int (pixels, for rounded corners)
+                - 'background_color': QColor or color name
+                - 'background_image': QPixmap or file path string
+                - 'background_image_mode': 'stretch' (default), 'cover', or 'contain'
+                - 'background_image_zoom_enabled': bool (True = image zooms with grid)
+                - 'text_color': QColor or color name
+                - 'font_family': str (e.g., 'Arial', 'Georgia')
+                - 'font_size': int (pixels)
+                - 'font_weight': str ('normal', 'bold', 'lighter', etc.)
+                - 'font_style': str ('normal', 'italic', 'oblique')
+                - 'title_alignment': str ('Left', 'Right', 'Center', etc.)
+                - 'padding': int (padding in pixels)
+                - 'min_width': int (minimum width in pixels)
+                - 'min_height': int (minimum height in pixels)
+                - 'word_wrap': bool (enable text wrapping)
+
+        Example:
+            grid.setStyle({
+                'background_image': 'path/to/image.png',
+                'background_image_mode': 'cover',
+                'border_color': Qt.black,
+                'border_size': 2,
+                'border_radius': 5
+            })
         """
         for key, value in style_dict.items():
             if hasattr(self, f'set{key.title()}'):
