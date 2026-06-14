@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 from mainClasses.SGTestGetData import SGTestGetData
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(950,520, windowTitle="Add a TextBox")
+myModel=SGModel(windowTitle="Add a TextBox")
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=45, gap=2)
 Cell.setEntities("landUse","grass")

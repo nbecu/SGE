@@ -61,6 +61,20 @@
           "theme": "blue_custom2"
         }
       }
+    },
+    "custom2": {
+      "model_name": null,
+      "timestamp": "2026-06-14 15:23:38",
+      "version": "1.0",
+      "global_theme": null,
+      "gameSpaces": {
+        "Legend": {
+          "theme": "custom2"
+        },
+        "userSelector": {
+          "theme": "custom2"
+        }
+      }
     }
   },
   "custom_themes": {
@@ -251,6 +265,70 @@
         "text3": {
           "color": "#424242",
           "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "italic",
+          "text_decoration": "none",
+          "alignment": "Left"
+        }
+      }
+    },
+    "custom2": {
+      "base": {
+        "background_color": "#ff557f",
+        "border_color": "#0000ff",
+        "border_size": 5,
+        "border_style": "ridge",
+        "border_radius": 20
+      },
+      "text_aspects": {
+        "title1": {
+          "font": "Arial",
+          "size": 14,
+          "font_weight": "normal",
+          "font_style": "italic",
+          "text_decoration": "none",
+          "alignment": "Justify"
+        },
+        "title2": {
+          "color": "#0000ff",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "title3": {
+          "color": "#00ff00",
+          "font": "Georgia",
+          "size": 11,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text1": {
+          "color": "#aaaa00",
+          "font": "Georgia",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text2": {
+          "color": "#000000",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text3": {
+          "color": "#000000",
+          "font": "Georgia",
           "size": 12,
           "font_weight": "normal",
           "font_style": "italic",

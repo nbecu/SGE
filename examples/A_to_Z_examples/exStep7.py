@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="Add a TextBox")
+myModel=SGModel(windowTitle="Add a TextBox")
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=45, gap=2)
 Cell.setEntities("landUse","grass")
