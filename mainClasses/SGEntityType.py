@@ -10,7 +10,7 @@ from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGModelAction import SGModelAction_OnEntities
 from mainClasses.SGStack import SGStack
 from mainClasses.SGExtensions import *
-from mainClasses.SGAspectSystem import SGVisualAspect, SGSymbology, SGAspectView, SGAspectResolver
+from mainClasses.SGAspectSystem import SGVisualAspect, SGSymbology, SGSymbologyGroup, SGAspectView, SGAspectResolver
 import numpy as np
 from collections import Counter, defaultdict
 import random
@@ -37,6 +37,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         self.symbologies = {}  # {name: SGSymbology}
         self.aspect_views = {}  # {name: SGAspectView}
         self.active_aspect_view = None
+        self._auto_derived_symbologies = set()  # Track auto-derived names per EntityType (to catch duplicates)
         
         # Type identification attributes
         self.isAgentType = False
@@ -820,17 +821,22 @@ class SGEntityType(AttributeAndValueFunctionalities):
             ValueError: If trying to create 2nd symbology with same auto-derived name
         """
         # Auto-derive name if not provided
+        auto_derived = False
         if name is None:
             name = self._capitalize_attribute_name(attribute)
+            auto_derived = True
 
-        # Check for conflict: 2nd symbology with same auto-derived name
-        auto_derived_name = self._capitalize_attribute_name(attribute)
-        if name == auto_derived_name and name in self.symbologies:
+        # Check for conflict: THIS entity type trying to create 2nd symbology with same auto-derived name
+        if auto_derived and name in self._auto_derived_symbologies:
             raise ValueError(
-                f"Cannot create 2nd symbology with auto-derived name '{name}' for attribute '{attribute}'. "
+                f"Cannot create 2nd symbology with auto-derived name '{name}' for attribute '{attribute}' in {self.name}. "
                 f"Use name= parameter to specify a unique name for the 2nd symbology. "
                 f"Example: newSymbology('{attribute}', ..., name='{name}Color')"
             )
+
+        # Track auto-derived names for this entity type
+        if auto_derived:
+            self._auto_derived_symbologies.add(name)
 
         # Get or create symbology at Model level
         if name not in self.model.symbologies:
