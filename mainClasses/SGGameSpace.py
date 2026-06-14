@@ -1227,20 +1227,23 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             else:
                 y = x[1]
                 x = x[0]
-                
-        if x < self.model.width() + self.width() or x < 0:
-            if y < self.model.height() + self.height() or y < 0:
+
+        # Skip bounds validation if model is in autoResize mode (window size will be determined later)
+        auto_resize_mode = getattr(self.model, 'autoResize', False)
+
+        if auto_resize_mode or x < self.model.width() + self.width() and x >= 0:
+            if auto_resize_mode or y < self.model.height() + self.height() and y >= 0:
                 self.positionDefineByModeler=(x,y)
                 self.move(x,y)
-                
+
                 # If using Enhanced Grid Layout, set to absolute position type
-                if (hasattr(self.model, 'typeOfLayout') and 
+                if (hasattr(self.model, 'typeOfLayout') and
                     self.model.typeOfLayout == "enhanced_grid" and
                     hasattr(self.model, 'layoutOfModel')):
                     self.setToAbsolute()
-            else:
+            elif not auto_resize_mode:
                 raise ValueError('The y value is too high or negative')
-        else:
+        elif not auto_resize_mode:
             raise ValueError('The x value is too high or negative')
 
 
