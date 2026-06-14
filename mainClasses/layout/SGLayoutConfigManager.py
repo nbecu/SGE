@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import inspect
 from pathlib import Path
 from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtCore import QObject
@@ -23,18 +24,30 @@ class SGLayoutConfigManager(QObject):
     def _getConfigPath(self):
         """
         Get the path for layout configuration file.
-        
+
+        Saves the config in the directory of the model script, not the SGE root.
+        When running from IDE, uses the caller's directory; falls back to cwd if needed.
+
         Returns:
             str: Path to the layout configuration file
         """
-        # Option A: Save in the application's working directory
-        script_dir = os.path.dirname(sys.argv[0]) if sys.argv else os.getcwd()
-        
-        # If script_dir is empty (when running from IDE), use current working directory
-        if not script_dir:
-            script_dir = os.getcwd()
-            
-        return os.path.join(script_dir, "layout_config.json")
+        # Try to get the directory of the script that created the model
+        # Walk up the stack to find the first frame outside of SGE's internal code
+        try:
+            for frame_info in inspect.stack():
+                frame_file = frame_info.filename
+                # Skip frames from SGE internals
+                if '/mainClasses/' not in frame_file and '\\mainClasses\\' not in frame_file:
+                    script_dir = os.path.dirname(os.path.abspath(frame_file))
+                    if script_dir and os.path.exists(script_dir):
+                        return os.path.join(script_dir, "layout_config.json")
+        except Exception:
+            pass
+
+        # Fallback: use current working directory
+        # This is reliable when run from a model script directory
+        cwd = os.getcwd()
+        return os.path.join(cwd, "layout_config.json")
     
     def _getCurrentModelName(self):
         """Get the current model name"""

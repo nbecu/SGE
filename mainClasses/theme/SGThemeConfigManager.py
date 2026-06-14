@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import inspect
 from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QMessageBox
 
@@ -23,13 +24,29 @@ class SGThemeConfigManager(QObject):
         """
         Get the path for theme configuration file.
 
+        Saves the config in the directory of the model script, not the SGE root.
+        When running from IDE, uses the caller's directory; falls back to cwd if needed.
+
         Returns:
             str: Path to the theme configuration file
         """
-        script_dir = os.path.dirname(sys.argv[0]) if sys.argv else os.getcwd()
-        if not script_dir:
-            script_dir = os.getcwd()
-        return os.path.join(script_dir, "theme_config.json")
+        # Try to get the directory of the script that created the model
+        # Walk up the stack to find the first frame outside of SGE's internal code
+        try:
+            for frame_info in inspect.stack():
+                frame_file = frame_info.filename
+                # Skip frames from SGE internals
+                if '/mainClasses/' not in frame_file and '\\mainClasses\\' not in frame_file:
+                    script_dir = os.path.dirname(os.path.abspath(frame_file))
+                    if script_dir and os.path.exists(script_dir):
+                        return os.path.join(script_dir, "theme_config.json")
+        except Exception:
+            pass
+
+        # Fallback: use current working directory
+        # This is reliable when run from a model script directory
+        cwd = os.getcwd()
+        return os.path.join(cwd, "theme_config.json")
 
     def _getCurrentModelName(self):
         """Get the current model name"""
