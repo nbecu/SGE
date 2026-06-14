@@ -96,7 +96,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
             createAdminPlayer (boolean, optional): Automatically create a Admin player (default:True), that can perform all possible gameActions
             windowBackgroundColor (QColor or Qt.GlobalColor, optional): The background color of the main window (default:None)
-            autoResize (bool, optional): If True, window automatically resizes to fit content instead of using fixed width/height (default:False)
+            autoResize (bool, optional): If True, window automatically resizes to fit content (calculated from actual layout size + margins) instead of using fixed width/height. Minimum size is 500x400. (default:False)
         """
         super().__init__()
         # Remove Qt6's 256 MB image-decoding limit so large background images load correctly.
