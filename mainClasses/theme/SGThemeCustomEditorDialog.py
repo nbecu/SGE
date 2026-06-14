@@ -480,7 +480,7 @@ class SGThemeCustomEditorDialog(QDialog):
             self,
             "Save Custom Theme",
             "Enter theme name:",
-            QLineEdit.Normal,
+            QLineEdit.EchoMode.Normal,
             default_name
         )
         if not ok or not name.strip():
