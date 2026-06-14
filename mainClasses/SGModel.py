@@ -68,6 +68,7 @@ from mainClasses.distributedGame.SGDistributedGameConfig import SGDistributedGam
 from mainClasses.distributedGame.SGDistributedSessionManager import SGDistributedSessionManager
 from mainClasses.distributedGame.SGDistributedGameDialog import SGDistributedGameDialog
 from mainClasses.distributedGame.SGConnectionStatusWidget import SGConnectionStatusWidget
+from mainClasses.SGAspectSystem import SGSymbology, SGSymbologyGroup, SGAspectResolver
 
 
 
@@ -240,6 +241,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._pending_theme_config = None
         # Store pending layout configuration to apply after initBeforeShowing
         self._pending_layout_config = None
+
+        # Aspect System: Global symbology management (Model level)
+        self.symbologies = {}  # {name: SGSymbology} - definitions at model level
+        self.symbology_groups = {}  # {name: SGSymbologyGroup} - groups of symbologies with same name across entity types
+        self.active_symbology_groups = set()  # Names of currently active groups
 
         self.initUI()
 

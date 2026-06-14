@@ -5,8 +5,16 @@ This module provides a structured way to manage visual representations (symbolog
 of entities with support for:
 - Multiple visual properties (color, border, icon, pattern, transparency)
 - Hierarchical resolution (Entity → EntityType → Default)
+- Grouping of symbologies across entity types
 - Grouping of symbologies into views
 - Both color and border (color + width) representations
+
+Class hierarchy:
+- SGVisualAspect: Single visual property (color, border, icon, etc.)
+- SGSymbology: Collection of aspects (managed at Model level)
+- SGSymbologyGroup: Collection of same-named symbologies from different entity types
+- SGAspectView: Named group of symbologies to display together
+- SGAspectResolver: Hierarchical resolution engine
 """
 
 from PyQt6.QtGui import QColor
@@ -102,6 +110,70 @@ class SGSymbology:
 
     def __repr__(self):
         return f"SGSymbology({self.name}, {len(self.aspects)} aspects)"
+
+
+class SGSymbologyGroup:
+    """
+    Represents a group of symbologies with the same name across different entity types.
+
+    When multiple entity types (Cell, Agent, Tile) define a symbology with the same name,
+    they automatically form a group. This allows activating a visual representation
+    globally across all entity types that have it.
+
+    Example:
+        Cell.newSymbology("health", {100: green, 50: red})
+        Agent.newSymbology("health", {100: green, 50: red})
+        → Automatically creates SGSymbologyGroup("Health")
+        → Contains: Cell.Health and Agent.Health
+    """
+
+    def __init__(self, name):
+        """
+        Args:
+            name (str): Group name (e.g., 'Health', 'Owner')
+        """
+        self.name = name
+        self.symbologies_by_type = {}  # {entity_type_name: SGSymbology}
+
+    def add_symbology(self, entity_type_name, symbology):
+        """Add a symbology to this group.
+
+        Args:
+            entity_type_name (str): Name of the entity type (e.g., 'Cell', 'Agent')
+            symbology (SGSymbology): The symbology to add
+        """
+        self.symbologies_by_type[entity_type_name] = symbology
+
+    def get_symbology_for_type(self, entity_type_name):
+        """Get the symbology for a specific entity type.
+
+        Args:
+            entity_type_name (str): Name of the entity type
+
+        Returns:
+            SGSymbology or None
+        """
+        return self.symbologies_by_type.get(entity_type_name)
+
+    def get_all_entity_types(self):
+        """Get all entity types in this group.
+
+        Returns:
+            List[str]: Entity type names
+        """
+        return list(self.symbologies_by_type.keys())
+
+    def get_all_symbologies(self):
+        """Get all symbologies in this group.
+
+        Returns:
+            List[SGSymbology]
+        """
+        return list(self.symbologies_by_type.values())
+
+    def __repr__(self):
+        types = ', '.join(self.get_all_entity_types())
+        return f"SGSymbologyGroup({self.name}, types=[{types}])"
 
 
 class SGAspectView:
@@ -262,3 +334,18 @@ class SGAspectResolver:
         if hasattr(entity_type, 'aspect_views') and view_name in entity_type.aspect_views:
             return entity_type.aspect_views[view_name].get_symbologies()
         return []
+
+    @staticmethod
+    def get_symbology_group(model, group_name):
+        """Get a symbology group by name.
+
+        Args:
+            model: The SGModel instance
+            group_name (str): Name of the group to retrieve
+
+        Returns:
+            SGSymbologyGroup or None
+        """
+        if hasattr(model, 'symbology_groups') and group_name in model.symbology_groups:
+            return model.symbology_groups[group_name]
+        return None
