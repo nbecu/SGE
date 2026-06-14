@@ -141,10 +141,21 @@ class SGGrid(SGGameSpace):
                         painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
 
             else:
-                # Magnifier mode with zoom disabled OR cover/contain with zoom (Option C)
-                # Apply scaling mode without zoom distortion
+                # Magnifier mode with zoom disabled OR resize mode with scaling mode
+                # When zoom_enabled=False in resize mode, use ORIGINAL size to keep image fixed
+                # This prevents the image from zooming while cells zoom
+                if self.zoomMode == "resize" and not zoom_enabled and hasattr(self, 'originalWidth'):
+                    # Use original grid size (calculated at init, before any zoom)
+                    # This keeps the background image fixed at its initial size/position during zoom
+                    orig_w = self.originalWidth - 2 * self.frameMargin
+                    orig_h = self.originalHeight - 2 * self.frameMargin
+                else:
+                    # Magnifier mode (always fixed size) or resize mode with zoom enabled (follows widget)
+                    orig_w = self.width()
+                    orig_h = self.height()
+
                 scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
-                    bg_pixmap, self.width(), self.height(), mode
+                    bg_pixmap, orig_w, orig_h, mode
                 )
                 painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
         else:
