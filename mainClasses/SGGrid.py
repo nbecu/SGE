@@ -105,52 +105,61 @@ class SGGrid(SGGameSpace):
 
             elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0:
                 # Magnifier mode with zoom: preserve initial image alignment during zoom
-                # Calculate alignment offset at zoom=1.0 based on mode, then apply to zoomed viewport
+                # Key insight: calculate which region of the image was shown at zoom=1.0,
+                # then zoom INTO that region (don't shift it)
                 img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
                 widget_w, widget_h = self.width(), self.height()
 
-                # Calculate alignment offsets based on mode (as if at zoom=1.0)
-                alignment_offset_x = 0
-                alignment_offset_y = 0
+                # Step 1: Calculate region shown at zoom=1.0 based on mode
+                base_region_x = 0
+                base_region_y = 0
+                base_region_w = img_w
+                base_region_h = img_h
 
                 if mode == 'cover':
-                    # Cover: image is centered
+                    # Cover: image is scaled to cover, centered (crop from center)
                     scale = max(widget_w / img_w, widget_h / img_h)
                     scaled_w = int(img_w * scale)
                     scaled_h = int(img_h * scale)
-                    alignment_offset_x = (scaled_w - widget_w) // 2
-                    alignment_offset_y = (scaled_h - widget_h) // 2
+                    offset_x = (scaled_w - widget_w) // 2
+                    offset_y = (scaled_h - widget_h) // 2
+                    base_region_x = int(offset_x / scale)
+                    base_region_y = int(offset_y / scale)
+                    base_region_w = int(widget_w / scale)
+                    base_region_h = int(widget_h / scale)
 
                 elif mode == 'contain':
-                    # Contain: image is centered with margins
+                    # Contain: image is scaled to fit, centered (image may have margins)
                     scale = min(widget_w / img_w, widget_h / img_h)
-                    scaled_w = int(img_w * scale)
-                    scaled_h = int(img_h * scale)
-                    alignment_offset_x = (widget_w - scaled_w) // 2
-                    alignment_offset_y = (widget_h - scaled_h) // 2
-                # else stretch: offset stays (0, 0)
+                    # In contain, margins are added, not cropped from image
+                    # So region shown is the entire scaled image region
+                    base_region_x = 0
+                    base_region_y = 0
+                    base_region_w = img_w
+                    base_region_h = img_h
+                # else stretch: base_region is entire image
 
-                # Map viewport coordinates to image coordinates
+                # Step 2: Calculate zoomed viewport within the base region
                 bounds_w = self.getGridBoundsWidth()
                 bounds_h = self.getGridBoundsHeight()
-                src_x = int(self.viewportX * img_w / bounds_w) if bounds_w > 0 else 0
-                src_y = int(self.viewportY * img_h / bounds_h) if bounds_h > 0 else 0
-                src_w = int(widget_w / self.zoom * img_w / bounds_w) if bounds_w > 0 else img_w
-                src_h = int(widget_h / self.zoom * img_h / bounds_h) if bounds_h > 0 else img_h
 
-                # Apply alignment offset to viewport region (preserve initial alignment)
-                src_x += alignment_offset_x
-                src_y += alignment_offset_y
+                # Viewport in grid coordinates
+                vp_x = int(self.viewportX * base_region_w / bounds_w) if bounds_w > 0 else 0
+                vp_y = int(self.viewportY * base_region_h / bounds_h) if bounds_h > 0 else 0
+                vp_w = int(widget_w / self.zoom * base_region_w / bounds_w) if bounds_w > 0 else base_region_w
+                vp_h = int(widget_h / self.zoom * base_region_h / bounds_h) if bounds_h > 0 else base_region_h
 
-                # Intelligent clamping: keep src_w and src_h constant, only adjust src_x/y position
-                src_x = max(0, src_x)
-                src_y = max(0, src_y)
+                # Convert to image coordinates
+                src_x = base_region_x + vp_x
+                src_y = base_region_y + vp_y
+                src_w = vp_w
+                src_h = vp_h
 
-                # If region exceeds bounds, shift it back into bounds (don't shrink it)
-                if src_x + src_w > img_w:
-                    src_x = max(0, img_w - src_w)
-                if src_y + src_h > img_h:
-                    src_y = max(0, img_h - src_h)
+                # Clamp to image bounds
+                src_x = max(0, min(src_x, img_w - 1))
+                src_y = max(0, min(src_y, img_h - 1))
+                src_w = min(src_w, img_w - src_x)
+                src_h = min(src_h, img_h - src_y)
 
                 if src_w > 0 and src_h > 0:
                     painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
