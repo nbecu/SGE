@@ -127,8 +127,6 @@ class SGCellView(SGEntityView):
             contain_scale = min(grid_w / img_w, grid_h / img_h)
             scaled_w = int(img_w * contain_scale)
             scaled_h = int(img_h * contain_scale)
-            contain_offset_x = (grid_w - scaled_w) // 2
-            contain_offset_y = (grid_h - scaled_h) // 2
             # base_region is entire image
             base_region_x = 0
             base_region_y = 0
@@ -138,6 +136,28 @@ class SGCellView(SGEntityView):
         # Calculate grid bounds for proportional mapping
         bounds_w = self.grid.getGridBoundsWidth() if hasattr(self.grid, 'getGridBoundsWidth') else grid_w
         bounds_h = self.grid.getGridBoundsHeight() if hasattr(self.grid, 'getGridBoundsHeight') else grid_h
+
+        # CRITICAL: For contain mode in magnifier zoom, recalculate the centring offset
+        # In magnifier zoom, the offset changes based on the visible viewport (src_w)
+        # not the full image width (img_w)
+        contain_offset_x = 0
+        contain_offset_y = 0
+        if mode == 'contain':
+            if zoom != 1.0 and bounds_w > 0:
+                # Magnifier zoom: offset depends on viewport width (src_w)
+                # Calculate viewport width in grid coordinates
+                vp_w = int(grid_w / zoom * base_region_w / bounds_w) if bounds_w > 0 else base_region_w
+                vp_h = int(grid_h / zoom * base_region_h / bounds_h) if bounds_h > 0 else base_region_h
+                # Scaled viewport dimensions
+                scaled_vp_w = int(vp_w * contain_scale)
+                scaled_vp_h = int(vp_h * contain_scale)
+                # Centring offset for the scaled viewport
+                contain_offset_x = (grid_w - scaled_vp_w) // 2
+                contain_offset_y = (grid_h - scaled_vp_h) // 2
+            else:
+                # No zoom: offset is based on full scaled image
+                contain_offset_x = (grid_w - scaled_w) // 2
+                contain_offset_y = (grid_h - scaled_h) // 2
 
         # Calculate source region with viewport awareness
         # For contain mode, subtract the centring offset to get position relative to image
