@@ -323,23 +323,26 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Auto-resize window to fit content if enabled
         if self.autoResize:
-            # sizeHint() is unreliable for complex layouts, so use centralWidget actual size
-            if self.centralWidget():
-                cw = self.centralWidget()
-                cw_size = cw.size()
+            # GameSpaces use absolute positioning, not layout, so calculate bounding box
+            if self.gameSpaces:
+                # Find the bounding box of all gameSpaces (including non-visible ones)
+                max_right = 0
+                max_bottom = 0
 
-                # Account for window decorations, menu bars, etc. (estimate ~50px)
-                frame_width = self.frameGeometry().width() - self.geometry().width()
-                frame_height = self.frameGeometry().height() - self.geometry().height()
-                margins = 50
+                for gs in self.gameSpaces.values():
+                    # Include all gameSpaces regardless of visibility (they will be shown later)
+                    geom = gs.geometry()
+                    max_right = max(max_right, geom.right())
+                    max_bottom = max(max_bottom, geom.bottom())
 
-                # Calculate required window size
-                required_width = cw_size.width() + frame_width + margins
-                required_height = cw_size.height() + frame_height + margins
+                # Add small margins for padding
+                margins = 20
+                required_width = max_right + margins
+                required_height = max_bottom + margins
 
-                # Ensure minimum reasonable size
-                min_width = 500
-                min_height = 400
+                # Ensure minimum reasonable size (but don't force if content is smaller)
+                min_width = 300
+                min_height = 250
                 final_width = max(required_width, min_width)
                 final_height = max(required_height, min_height)
 
