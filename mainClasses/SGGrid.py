@@ -104,12 +104,31 @@ class SGGrid(SGGameSpace):
                 painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
 
             elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0:
-                # Magnifier mode with zoom enabled: zoom background with zoom level
-                # IMPORTANT: Keep image/cell alignment during zoom by using stretch on viewport
-                # (cover/contain break alignment when zooming on sides/corners)
-                # The viewport already maps correctly to cells, so just stretch it directly
+                # Magnifier mode with zoom: preserve initial image alignment during zoom
+                # Calculate alignment offset at zoom=1.0 based on mode, then apply to zoomed viewport
                 img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
                 widget_w, widget_h = self.width(), self.height()
+
+                # Calculate alignment offsets based on mode (as if at zoom=1.0)
+                alignment_offset_x = 0
+                alignment_offset_y = 0
+
+                if mode == 'cover':
+                    # Cover: image is centered
+                    scale = max(widget_w / img_w, widget_h / img_h)
+                    scaled_w = int(img_w * scale)
+                    scaled_h = int(img_h * scale)
+                    alignment_offset_x = (scaled_w - widget_w) // 2
+                    alignment_offset_y = (scaled_h - widget_h) // 2
+
+                elif mode == 'contain':
+                    # Contain: image is centered with margins
+                    scale = min(widget_w / img_w, widget_h / img_h)
+                    scaled_w = int(img_w * scale)
+                    scaled_h = int(img_h * scale)
+                    alignment_offset_x = (widget_w - scaled_w) // 2
+                    alignment_offset_y = (widget_h - scaled_h) // 2
+                # else stretch: offset stays (0, 0)
 
                 # Map viewport coordinates to image coordinates
                 bounds_w = self.getGridBoundsWidth()
@@ -119,6 +138,10 @@ class SGGrid(SGGameSpace):
                 src_w = int(widget_w / self.zoom * img_w / bounds_w) if bounds_w > 0 else img_w
                 src_h = int(widget_h / self.zoom * img_h / bounds_h) if bounds_h > 0 else img_h
 
+                # Apply alignment offset to viewport region (preserve initial alignment)
+                src_x += alignment_offset_x
+                src_y += alignment_offset_y
+
                 # Clamp source rect to pixmap bounds
                 src_x = max(0, min(src_x, img_w - 1))
                 src_y = max(0, min(src_y, img_h - 1))
@@ -126,7 +149,6 @@ class SGGrid(SGGameSpace):
                 src_h = min(src_h, img_h - src_y)
 
                 if src_w > 0 and src_h > 0:
-                    # Direct stretch of viewport region to preserve image/cell alignment
                     painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
 
             else:
