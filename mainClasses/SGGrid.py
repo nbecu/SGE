@@ -156,6 +156,10 @@ class SGGrid(SGGameSpace):
                 vp_w = int(widget_w / self.zoom * base_region_w / bounds_w) if bounds_w > 0 else base_region_w
                 vp_h = int(widget_h / self.zoom * base_region_h / bounds_h) if bounds_h > 0 else base_region_h
 
+                # Clamp viewport to stay within base_region bounds
+                vp_w = min(vp_w, base_region_w - vp_x)
+                vp_h = min(vp_h, base_region_h - vp_y)
+
                 # Convert to image coordinates
                 src_x = base_region_x + vp_x
                 src_y = base_region_y + vp_y
