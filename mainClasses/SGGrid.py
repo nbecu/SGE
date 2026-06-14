@@ -142,11 +142,15 @@ class SGGrid(SGGameSpace):
                 src_x += alignment_offset_x
                 src_y += alignment_offset_y
 
-                # Clamp source rect to pixmap bounds
-                src_x = max(0, min(src_x, img_w - 1))
-                src_y = max(0, min(src_y, img_h - 1))
-                src_w = min(src_w, img_w - src_x)
-                src_h = min(src_h, img_h - src_y)
+                # Intelligent clamping: keep src_w and src_h constant, only adjust src_x/y position
+                src_x = max(0, src_x)
+                src_y = max(0, src_y)
+
+                # If region exceeds bounds, shift it back into bounds (don't shrink it)
+                if src_x + src_w > img_w:
+                    src_x = max(0, img_w - src_w)
+                if src_y + src_h > img_h:
+                    src_y = max(0, img_h - src_h)
 
                 if src_w > 0 and src_h > 0:
                     painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
