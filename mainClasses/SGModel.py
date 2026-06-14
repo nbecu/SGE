@@ -323,7 +323,27 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Auto-resize window to fit content if enabled
         if self.autoResize:
-            self.adjustSize()
+            # sizeHint() is unreliable for complex layouts, so use centralWidget actual size
+            if self.centralWidget():
+                cw = self.centralWidget()
+                cw_size = cw.size()
+
+                # Account for window decorations, menu bars, etc. (estimate ~50px)
+                frame_width = self.frameGeometry().width() - self.geometry().width()
+                frame_height = self.frameGeometry().height() - self.geometry().height()
+                margins = 50
+
+                # Calculate required window size
+                required_width = cw_size.width() + frame_width + margins
+                required_height = cw_size.height() + frame_height + margins
+
+                # Ensure minimum reasonable size
+                min_width = 500
+                min_height = 400
+                final_width = max(required_width, min_width)
+                final_height = max(required_height, min_height)
+
+                self.resize(final_width, final_height)
 
         # Load pending theme configuration if one was memorized by applyThemeConfig()
         if self._pending_theme_config:
