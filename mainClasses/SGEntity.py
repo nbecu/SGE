@@ -42,6 +42,9 @@ class SGEntity(AttributeAndValueFunctionalities):
 
         # Reference to the view
         self.view = None
+
+        # Aspect system: instance-level symbology overrides (hierarchical resolution)
+        self.instance_aspects = {}  # {name: SGSymbology}
     
     def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
         """Initialize attributes and values"""
@@ -61,12 +64,46 @@ class SGEntity(AttributeAndValueFunctionalities):
 
     def readColorFromPovDef(self, aPovDef, aDefaultColor):
         """Read color from POV definition"""
-        if aPovDef is None: 
+        if aPovDef is None:
             return aDefaultColor
         aAtt = list(aPovDef.keys())[0]
         aDictOfValueAndColor = list(aPovDef.values())[0]
         aColor = aDictOfValueAndColor.get(self.value(aAtt))
         return aColor if aColor is not None else aDefaultColor
+
+    def setInstanceSymbology(self, symbology_name, attribute, value_to_symbol_dict, symbol_type='color'):
+        """
+        Override a symbology for this specific entity instance.
+
+        This allows individual entities to have different visual representations
+        than their EntityType default.
+
+        Args:
+            symbology_name (str): Name of the symbology to override
+            attribute (str): Attribute name
+            value_to_symbol_dict (dict): Value-to-symbol mapping
+            symbol_type (str): Type of symbol ('color', 'border', etc.)
+        """
+        from mainClasses.SGAspectSystem import SGVisualAspect, SGSymbology
+
+        if symbology_name not in self.instance_aspects:
+            self.instance_aspects[symbology_name] = SGSymbology(symbology_name)
+
+        symbology = self.instance_aspects[symbology_name]
+        aspect = SGVisualAspect(symbol_type, attribute, value_to_symbol_dict)
+        symbology.add_aspect(aspect)
+
+    def clearInstanceSymbology(self, symbology_name):
+        """
+        Clear the instance override for a symbology.
+
+        After clearing, the entity will use the EntityType definition.
+
+        Args:
+            symbology_name (str): Name of the symbology to clear
+        """
+        if symbology_name in self.instance_aspects:
+            del self.instance_aspects[symbology_name]
 
     def readColorAndWidthFromBorderPovDef(self, aBorderPovDef, aDefaultColor, aDefaultWidth):
         """Read color and width from border POV definition"""
