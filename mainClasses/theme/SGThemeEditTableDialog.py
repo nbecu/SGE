@@ -23,40 +23,7 @@ class SGThemeEditTableDialog(QDialog):
     def _discoverPredefinedThemes(self):
         """Discover all predefined themes in SGAspect dynamically."""
         from mainClasses.SGAspect import SGAspect
-        # Known utility methods that are NOT themes
-        excluded_methods = {
-            'baseBorder', 'title1', 'title2', 'title3',
-            'text1', 'text2', 'text3', 'success', 'inactive',
-            'applyToQFont', 'applyToQLabel'
-        }
-        themes = []
-        # Inspect all class methods
-        for name in dir(SGAspect):
-            if name.startswith('_'):
-                continue
-            attr = getattr(SGAspect, name, None)
-            if attr and callable(attr):
-                # Exclude known utility methods
-                if name in excluded_methods:
-                    continue
-                # Only consider classmethods (not instance methods)
-                # When accessing @classmethod via getattr on the class, Python returns
-                # a bound method (type 'method'), not a classmethod object
-                # Try calling it without arguments - classmethods work, instance methods need self
-                try:
-                    # Skip getter methods (they start with 'get' and are instance methods)
-                    if name.startswith('get'):
-                        continue
-                    instance = attr()
-                    if isinstance(instance, SGAspect):
-                        themes.append(name)
-                except TypeError:
-                    # Needs arguments (likely an instance method), skip it
-                    continue
-                except Exception:
-                    # Any other error, skip it
-                    continue
-        return sorted(themes)
+        return SGAspect.getPredefinedThemeNames()
 
     def setupUI(self):
         self.setWindowTitle("Theme Assignment - GameSpaces")

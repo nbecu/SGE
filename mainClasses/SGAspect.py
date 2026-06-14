@@ -270,8 +270,84 @@ class SGAspect():
             'text3': {'color': '#424242', 'font': 'Arial', 'size': 12, 'font_style': 'italic'}
         }
         return instance
+
     # ------------------------------------------------------------------------------------------------
-   
+    # Theme discovery utility
+
+    @staticmethod
+    def getPredefinedThemeNames():
+        """
+        Discover all predefined theme names by inspecting SGAspect classmethods.
+
+        Single source of truth for theme discovery across the codebase.
+        Excludes utility methods and instance methods.
+
+        Returns:
+            list: Sorted list of predefined theme names
+        """
+        excluded_methods = {
+            '__init__', '__new__', '__repr__', '__str__', '__eq__', '__hash__',
+            'baseBorder', 'title1', 'title2', 'title3',
+            'text1', 'text2', 'text3', 'success', 'inactive',
+            'applyToQFont', 'applyToQLabel'
+        }
+
+        theme_names = []
+        for name in dir(SGAspect):
+            if name.startswith('_') or name in excluded_methods:
+                continue
+            attr = getattr(SGAspect, name, None)
+            if not attr or not callable(attr):
+                continue
+            if name.startswith('get'):
+                continue
+            try:
+                instance = attr()
+                if isinstance(instance, SGAspect):
+                    theme_names.append(name)
+            except (TypeError, Exception):
+                continue
+
+        return sorted(theme_names)
+
+    @staticmethod
+    def getPredefinedThemeMethods():
+        """
+        Get all predefined theme methods as a dictionary.
+
+        Returns:
+            dict: {theme_name: classmethod} for all predefined themes
+        """
+        excluded_methods = {
+            '__init__', '__new__', '__repr__', '__str__', '__eq__', '__hash__',
+            'baseBorder', 'title1', 'title2', 'title3',
+            'text1', 'text2', 'text3', 'success', 'inactive',
+            'applyToQFont', 'applyToQLabel'
+        }
+
+        theme_methods = {}
+        for name in dir(SGAspect):
+            if name.startswith('_') or name in excluded_methods:
+                continue
+            attr = getattr(SGAspect, name, None)
+            if not attr or not callable(attr):
+                continue
+            if name.startswith('get'):
+                continue
+            # Check if it's a classmethod (bound method with __self__ == SGAspect)
+            if not (callable(attr) and getattr(attr, '__self__', None) is SGAspect):
+                continue
+            try:
+                instance = attr()
+                if isinstance(instance, SGAspect):
+                    theme_methods[name] = attr
+            except (TypeError, Exception):
+                continue
+
+        return theme_methods
+
+    # ------------------------------------------------------------------------------------------------
+
 
     # Methods to get the parameters
     def getFont(self):

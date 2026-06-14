@@ -296,28 +296,7 @@ class SGThemeConfigManager(QObject):
             list: List of predefined theme names
         """
         from mainClasses.SGAspect import SGAspect
-        excluded_methods = {
-            '__init__', '__new__', '__repr__', '__str__', '__eq__', '__hash__',
-            'baseBorder', 'title1', 'title2', 'title3',
-            'text1', 'text2', 'text3', 'success', 'inactive',
-            'applyToQFont', 'applyToQLabel'
-        }
-        theme_names = []
-        for name in dir(SGAspect):
-            if name.startswith('_') or name in excluded_methods:
-                continue
-            attr = getattr(SGAspect, name, None)
-            if not attr or not callable(attr):
-                continue
-            if name.startswith('get'):
-                continue
-            try:
-                instance = attr()
-                if isinstance(instance, SGAspect):
-                    theme_names.append(name)
-            except (TypeError, Exception):
-                continue
-        return theme_names
+        return SGAspect.getPredefinedThemeNames()
 
     def saveCustomTheme(self, theme_name, theme_spec, overwrite=False):
         """

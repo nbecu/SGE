@@ -515,32 +515,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     @staticmethod
     def _getPredefinedThemeMethods(SGAspect):
         """Discover all predefined theme classmethods in SGAspect dynamically."""
-        excluded_methods = {
-            'baseBorder', 'title1', 'title2', 'title3',
-            'text1', 'text2', 'text3', 'success', 'inactive',
-            'applyToQFont', 'applyToQLabel'
-        }
-        theme_methods = {}
-        for name in dir(SGAspect):
-            if name.startswith('_'):
-                continue
-            if name in excluded_methods:
-                continue
-            # A @classmethod accessed on its class is a bound method whose __self__ IS the class.
-            # Instance methods and static methods do NOT have __self__ == SGAspect.
-            # This avoids calling arbitrary instance methods to "discover" themes.
-            attr = getattr(SGAspect, name, None)
-            if attr is None:
-                continue
-            if not (callable(attr) and getattr(attr, '__self__', None) is SGAspect):
-                continue
-            try:
-                instance = attr()
-                if isinstance(instance, SGAspect):
-                    theme_methods[name] = attr
-            except Exception:
-                continue
-        return theme_methods
+        return SGAspect.getPredefinedThemeMethods()
 
 
     def setToAbsolute(self):
