@@ -155,6 +155,10 @@ class SGGrid(SGGameSpace):
                 src_w = vp_w
                 src_h = vp_h
 
+                # DEBUG
+                if mode in ('cover', 'contain'):
+                    print(f"[{mode.upper()}] zoom={self.zoom}, base_region=({base_region_x},{base_region_y},{base_region_w}x{base_region_h}), vp=({vp_x},{vp_y},{vp_w}x{vp_h}), src=({src_x},{src_y},{src_w}x{src_h})", flush=True)
+
                 # Clamp to image bounds
                 src_x = max(0, min(src_x, img_w - 1))
                 src_y = max(0, min(src_y, img_h - 1))
