@@ -37,32 +37,115 @@ class SGCellView(SGEntityView):
     # ------------------------------------------------------------------
     # Background image helper
     # ------------------------------------------------------------------
-    def _drawBackgroundImagePortion(self, painter, cell_x, cell_y, cell_size):
+    def _drawBackgroundImagePortion(self, painter, cell_x, cell_y, cell_size,
+                                    mode='stretch', zoom=1.0, viewportX=0, viewportY=0):
         """Draw the grid's background image portion that covers this cell.
 
         Qt6 clips the parent's paintEvent to exclude child widget areas, so
         transparent cells must paint their own background slice.
-        Uses proportional sampling: each cell draws the portion of the background image
-        that corresponds to its grid position. Background image mode (stretch/cover/contain)
-        is applied at the SGGrid level; this method samples proportionally regardless of mode.
-        cell_x / cell_y are the cell's position in grid pixel coordinates.
+
+        In magnifier zoom mode, this respects the viewport offset and zoom level to ensure
+        transparent cells show the same background image portion that would appear in those
+        positions if the grid were scrolled and zoomed.
+
+        Args:
+            painter: QPainter for drawing
+            cell_x: Cell position X in widget coordinates (after zoom/viewport transform)
+            cell_y: Cell position Y in widget coordinates (after zoom/viewport transform)
+            cell_size: Cell size in pixels
+            mode: Background image mode ('stretch', 'cover', 'contain')
+            zoom: Current zoom level (1.0 if no zoom)
+            viewportX: Viewport offset X in grid coordinates
+            viewportY: Viewport offset Y in grid coordinates
         """
         bg_pixmap = self.grid.getBackgroundImagePixmap()
         if bg_pixmap is None or bg_pixmap.isNull():
             return
+
         grid_w = self.grid.width()
         grid_h = self.grid.height()
         if grid_w <= 0 or grid_h <= 0:
             return
-        src_x = int(cell_x * bg_pixmap.width()  / grid_w)
-        src_y = int(cell_y * bg_pixmap.height() / grid_h)
-        src_w = max(1, int(cell_size * bg_pixmap.width()  / grid_w))
-        src_h = max(1, int(cell_size * bg_pixmap.height() / grid_h))
-        painter.drawPixmap(
-            QRect(0, 0, cell_size, cell_size),
-            bg_pixmap,
-            QRect(src_x, src_y, src_w, src_h),
-        )
+
+        img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
+        frame_margin = self.grid.frameMargin if hasattr(self.grid, 'frameMargin') else 0
+
+        # Convert cell position from widget coordinates to grid coordinates
+        if zoom != 1.0:
+            grid_cell_x = (cell_x - frame_margin) / zoom + viewportX
+            grid_cell_y = (cell_y - frame_margin) / zoom + viewportY
+            grid_cell_size = cell_size / zoom
+        else:
+            grid_cell_x = cell_x
+            grid_cell_y = cell_y
+            grid_cell_size = cell_size
+
+        # Calculate base region based on mode (same logic as SGGrid.paintEvent)
+        base_region_x = 0
+        base_region_y = 0
+        base_region_w = img_w
+        base_region_h = img_h
+
+        if mode == 'cover':
+            # Cover mode: scale to cover, centered (crop from center)
+            scale = max(grid_w / img_w, grid_h / img_h)
+            scaled_w = int(img_w * scale)
+            scaled_h = int(img_h * scale)
+            offset_x = (scaled_w - grid_w) // 2
+            offset_y = (scaled_h - grid_h) // 2
+            base_region_x = int(offset_x / scale)
+            base_region_y = int(offset_y / scale)
+            base_region_w = int(grid_w / scale)
+            base_region_h = int(grid_h / scale)
+
+        elif mode == 'contain':
+            # Contain mode: scale to fit, may have margins
+            # base_region is entire image
+            base_region_x = 0
+            base_region_y = 0
+            base_region_w = img_w
+            base_region_h = img_h
+
+        # Calculate grid bounds for proportional mapping
+        bounds_w = self.grid.getGridBoundsWidth() if hasattr(self.grid, 'getGridBoundsWidth') else grid_w
+        bounds_h = self.grid.getGridBoundsHeight() if hasattr(self.grid, 'getGridBoundsHeight') else grid_h
+
+        # Calculate source region with viewport awareness
+        if bounds_w > 0 and bounds_h > 0:
+            # Map grid coordinates to base_region
+            portion_x = int(grid_cell_x * base_region_w / bounds_w)
+            portion_y = int(grid_cell_y * base_region_h / bounds_h)
+            portion_w = max(1, int(grid_cell_size * base_region_w / bounds_w))
+            portion_h = max(1, int(grid_cell_size * base_region_h / bounds_h))
+        else:
+            # Fallback to simple proportional sampling
+            portion_x = int(grid_cell_x * base_region_w / grid_w) if grid_w > 0 else 0
+            portion_y = int(grid_cell_y * base_region_h / grid_h) if grid_h > 0 else 0
+            portion_w = max(1, int(grid_cell_size * base_region_w / grid_w)) if grid_w > 0 else base_region_w
+            portion_h = max(1, int(grid_cell_size * base_region_h / grid_h)) if grid_h > 0 else base_region_h
+
+        # Clamp portion to stay within base_region bounds
+        portion_w = min(portion_w, base_region_w - portion_x)
+        portion_h = min(portion_h, base_region_h - portion_y)
+
+        # Convert to image coordinates
+        src_x = base_region_x + portion_x
+        src_y = base_region_y + portion_y
+        src_w = portion_w
+        src_h = portion_h
+
+        # Clamp to image bounds
+        src_x = max(0, min(src_x, img_w - 1))
+        src_y = max(0, min(src_y, img_h - 1))
+        src_w = min(src_w, img_w - src_x)
+        src_h = min(src_h, img_h - src_y)
+
+        if src_w > 0 and src_h > 0:
+            painter.drawPixmap(
+                QRect(0, 0, cell_size, cell_size),
+                bg_pixmap,
+                QRect(src_x, src_y, src_w, src_h),
+            )
 
     def paintEvent(self, event):
         """Paint the cell"""
@@ -102,7 +185,12 @@ class SGCellView(SGEntityView):
             if hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier":
                 if is_transparent:
                     pos = self.pos()
-                    self._drawBackgroundImagePortion(painter, pos.x(), pos.y(), current_size)
+                    mode = self.grid.gs_aspect.background_image_mode or 'stretch'
+                    zoom = self.grid.zoom if hasattr(self.grid, 'zoom') else 1.0
+                    viewportX = self.grid.viewportX if hasattr(self.grid, 'viewportX') else 0
+                    viewportY = self.grid.viewportY if hasattr(self.grid, 'viewportY') else 0
+                    self._drawBackgroundImagePortion(painter, pos.x(), pos.y(), current_size,
+                                                      mode, zoom, viewportX, viewportY)
                     painter.setBrush(Qt.NoBrush)
                 # Just draw the cell, position is managed by grid
                 if(self.shape == "square"):
@@ -123,8 +211,9 @@ class SGCellView(SGEntityView):
                 # In resize mode, calculate position first (needed for bg image sampling)
                 self.calculatePosition()
                 if is_transparent:
+                    mode = self.grid.gs_aspect.background_image_mode or 'stretch'
                     self._drawBackgroundImagePortion(
-                        painter, self.startX, self.startY, current_size)
+                        painter, self.startX, self.startY, current_size, mode)
                     painter.setBrush(Qt.NoBrush)
 
                 # Base of the gameBoard
