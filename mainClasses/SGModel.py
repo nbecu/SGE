@@ -364,6 +364,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
                 self.resize(final_width, final_height)
 
+                # Center the window after resizing
+                primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
+                if primary_monitor:
+                    screen_width = primary_monitor.width
+                    screen_height = primary_monitor.height
+                    # Calculate centered position
+                    x = int((screen_width - final_width) / 2)
+                    y = int((screen_height - final_height) / 2)
+                    self.move(x, y)
+
         # Load pending theme configuration if one was memorized by applyThemeConfig()
         if self._pending_theme_config:
             config_name = self._pending_theme_config
