@@ -70,15 +70,27 @@ class SGCellView(SGEntityView):
         img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
         frame_margin = self.grid.frameMargin if hasattr(self.grid, 'frameMargin') else 0
 
-        # Convert cell position from widget coordinates to grid coordinates
-        if zoom != 1.0:
-            grid_cell_x = (cell_x - frame_margin) / zoom + viewportX
-            grid_cell_y = (cell_y - frame_margin) / zoom + viewportY
-            grid_cell_size = cell_size / zoom
+        # Calculate base position in grid coordinate space (same logic as _updatePositionsForViewport)
+        # This avoids rounding errors from converting widget coordinates
+        base_x = 0
+        base_y = 0
+
+        if self.grid.cellShape == "square":
+            grid_cell_x = base_x + (self.xCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
+            grid_cell_y = base_y + (self.yCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
+        elif self.grid.cellShape == "hexagonal":
+            grid_cell_x = base_x + (self.xCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
+            hex_factor = self.grid._get_hexagonal_vertical_factor()
+            hex_height = self.grid.saveSize * hex_factor
+            grid_cell_y = base_y + (self.yCoord - 1) * (hex_height + self.grid.saveGap) + self.grid.saveGap
+            if self.yCoord % 2 == 0:
+                grid_cell_x += self.grid.saveSize / 2
         else:
-            grid_cell_x = cell_x
-            grid_cell_y = cell_y
-            grid_cell_size = cell_size
+            # Fallback: convert from widget coordinates
+            grid_cell_x = (cell_x - frame_margin) / zoom + viewportX if zoom != 1.0 else cell_x
+            grid_cell_y = (cell_y - frame_margin) / zoom + viewportY if zoom != 1.0 else cell_y
+
+        grid_cell_size = self.grid.saveSize
 
         # Calculate base region based on mode (same logic as SGGrid.paintEvent)
         base_region_x = 0
