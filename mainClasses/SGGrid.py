@@ -104,9 +104,10 @@ class SGGrid(SGGameSpace):
                 painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
 
             elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0:
-                # Magnifier mode with zoom enabled: scale background with zoom level
-                # Use _scaleBackgroundImageWithViewport to respect the scaling mode even during zoom
-                # This keeps cover/contain consistent while zooming
+                # Magnifier mode with zoom enabled: zoom background with zoom level
+                # IMPORTANT: Keep image/cell alignment during zoom by using stretch on viewport
+                # (cover/contain break alignment when zooming on sides/corners)
+                # The viewport already maps correctly to cells, so just stretch it directly
                 img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
                 widget_w, widget_h = self.width(), self.height()
 
@@ -125,11 +126,8 @@ class SGGrid(SGGameSpace):
                 src_h = min(src_h, img_h - src_y)
 
                 if src_w > 0 and src_h > 0:
-                    source_region = QRect(src_x, src_y, src_w, src_h)
-                    scaled_pixmap, target_rect, src_rect = self._scaleBackgroundImageWithViewport(
-                        bg_pixmap, source_region, widget_w, widget_h, mode
-                    )
-                    painter.drawPixmap(target_rect, scaled_pixmap, src_rect if not src_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
+                    # Direct stretch of viewport region to preserve image/cell alignment
+                    painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
 
             else:
                 # Magnifier mode with zoom disabled OR cover/contain with zoom (Option C)
