@@ -101,69 +101,28 @@ class SGGrid(SGGameSpace):
                 scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
                     bg_pixmap, self.width(), self.height(), mode
                 )
-                # DEBUG: Print in contain mode
-                if mode == 'contain':
-                    print(f"[SGGrid] NON-ZOOM CONTAIN: target_rect={target_rect.x()},{target_rect.y()} {target_rect.width()}x{target_rect.height()}")
-                    print(f"[SGGrid] source_rect={source_rect.x()},{source_rect.y()} {source_rect.width()}x{source_rect.height()}")
                 painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
 
             elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0:
                 # Magnifier mode with zoom: preserve initial image alignment during zoom
-                # Key insight: calculate which region of the image was shown at zoom=1.0,
-                # then zoom INTO that region (don't shift it)
                 img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
                 widget_w, widget_h = self.width(), self.height()
 
-                # Step 1: Calculate region shown at zoom=1.0 based on mode
-                base_region_x = 0
-                base_region_y = 0
-                base_region_w = img_w
-                base_region_h = img_h
-                scale_factor = 1.0  # For contain mode, track the scale factor
+                # Calculate viewport using shared helper function
+                vp_x, vp_y, vp_w, vp_h = self._calculateBackgroundImageViewport(
+                    bg_pixmap, widget_w, widget_h, mode, self.zoom, self.viewportX, self.viewportY
+                )
 
-                if mode == 'cover':
-                    # Cover: image is scaled to cover, centered (crop from center)
-                    scale = max(widget_w / img_w, widget_h / img_h)
-                    scaled_w = int(img_w * scale)
-                    scaled_h = int(img_h * scale)
-                    offset_x = (scaled_w - widget_w) // 2
-                    offset_y = (scaled_h - widget_h) // 2
-                    base_region_x = int(offset_x / scale)
-                    base_region_y = int(offset_y / scale)
-                    base_region_w = int(widget_w / scale)
-                    base_region_h = int(widget_h / scale)
+                # Calculate scale factor for contain mode
+                scale_factor = 1.0
+                if mode == 'contain':
+                    scale_factor = min(widget_w / img_w, widget_h / img_h)
 
-                elif mode == 'contain':
-                    # Contain: image is scaled to fit, zoom into the scaled visible region
-                    scale = min(widget_w / img_w, widget_h / img_h)
-                    scale_factor = scale
-                    # base_region is the visible region in image coordinates (entire image)
-                    base_region_x = 0
-                    base_region_y = 0
-                    base_region_w = img_w
-                    base_region_h = img_h
-                # else stretch: base_region is entire image
-
-                # Step 2: Calculate zoomed viewport within the base region
-                bounds_w = self.getGridBoundsWidth()
-                bounds_h = self.getGridBoundsHeight()
-
-                # Viewport in grid coordinates
-                vp_x = int(self.viewportX * base_region_w / bounds_w) if bounds_w > 0 else 0
-                vp_y = int(self.viewportY * base_region_h / bounds_h) if bounds_h > 0 else 0
-                vp_w = int(widget_w / self.zoom * base_region_w / bounds_w) if bounds_w > 0 else base_region_w
-                vp_h = int(widget_h / self.zoom * base_region_h / bounds_h) if bounds_h > 0 else base_region_h
-
-                # Clamp viewport to stay within base_region bounds
-                vp_w = min(vp_w, base_region_w - vp_x)
-                vp_h = min(vp_h, base_region_h - vp_y)
-
-                # Convert to image coordinates
-                src_x = base_region_x + vp_x
-                src_y = base_region_y + vp_y
+                # Convert viewport to image coordinates
+                src_x = vp_x
+                src_y = vp_y
                 src_w = vp_w
                 src_h = vp_h
-
 
                 # Clamp to image bounds
                 src_x = max(0, min(src_x, img_w - 1))
@@ -174,7 +133,6 @@ class SGGrid(SGGameSpace):
                 if src_w > 0 and src_h > 0:
                     # For contain mode, apply scaling to the extracted region
                     if mode == 'contain' and scale_factor < 1.0:
-                        # Extract region and scale it
                         region_pixmap = bg_pixmap.copy(QRect(src_x, src_y, src_w, src_h))
                         scaled_region = region_pixmap.scaled(
                             int(src_w * scale_factor),
@@ -182,16 +140,10 @@ class SGGrid(SGGameSpace):
                             Qt.KeepAspectRatio,
                             Qt.SmoothTransformation
                         )
-                        # Center scaled region in widget
                         offset_x = (widget_w - scaled_region.width()) // 2
                         offset_y = (widget_h - scaled_region.height()) // 2
                         painter.drawPixmap(offset_x, offset_y, scaled_region)
                     else:
-                        # DEBUG: Print what SGGrid draws in magnifier zoom contain mode
-                        if mode == 'contain':
-                            print(f"[SGGrid] MAGNIFIER CONTAIN: src_x={src_x}, src_y={src_y}, src_w={src_w}, src_h={src_h}")
-                            print(f"[SGGrid] offset_x={offset_x}, offset_y={offset_y}")
-                            print(f"[SGGrid] zoom={self.zoom}, viewportX={self.viewportX}, viewportY={self.viewportY}")
                         painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
 
             else:

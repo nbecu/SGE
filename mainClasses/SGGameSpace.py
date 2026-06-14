@@ -917,6 +917,74 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
 
         return pixmap, target_rect, source_rect
 
+    def _calculateBackgroundImageViewport(self, pixmap, widget_width, widget_height, mode,
+                                          zoom=1.0, viewportX=0, viewportY=0):
+        """
+        Calculate the viewport rectangle for background image rendering in magnifier zoom mode.
+
+        This helper encapsulates the shared viewport calculation logic used by both
+        SGGrid.paintEvent() and SGCellView._drawBackgroundImagePortion() to ensure
+        pixel-perfect alignment when rendering transparent cells.
+
+        Args:
+            pixmap (QPixmap): Background image
+            widget_width (int): Widget width in pixels
+            widget_height (int): Widget height in pixels
+            mode (str): Background image mode ('stretch', 'cover', 'contain')
+            zoom (float): Current zoom level (1.0 if no zoom, default 1.0)
+            viewportX (int): Viewport offset X in grid coordinates (default 0)
+            viewportY (int): Viewport offset Y in grid coordinates (default 0)
+
+        Returns:
+            tuple: (vp_x, vp_y, vp_w, vp_h) — viewport rectangle in image coordinates
+        """
+        img_w, img_h = pixmap.width(), pixmap.height()
+
+        # Calculate base region based on mode
+        base_region_x = 0
+        base_region_y = 0
+        base_region_w = img_w
+        base_region_h = img_h
+
+        if mode == 'cover':
+            # Cover mode: scale to cover, centered (crop from center)
+            scale = max(widget_width / img_w, widget_height / img_h)
+            scaled_w = int(img_w * scale)
+            scaled_h = int(img_h * scale)
+            offset_x = (scaled_w - widget_width) // 2
+            offset_y = (scaled_h - widget_height) // 2
+            base_region_x = int(offset_x / scale)
+            base_region_y = int(offset_y / scale)
+            base_region_w = int(widget_width / scale)
+            base_region_h = int(widget_height / scale)
+
+        elif mode == 'contain':
+            # Contain mode: scale to fit, may have margins (base_region is entire image)
+            base_region_x = 0
+            base_region_y = 0
+            base_region_w = img_w
+            base_region_h = img_h
+
+        # Calculate grid bounds for proportional mapping
+        bounds_w = self.getGridBoundsWidth() if hasattr(self, 'getGridBoundsWidth') else widget_width
+        bounds_h = self.getGridBoundsHeight() if hasattr(self, 'getGridBoundsHeight') else widget_height
+
+        # Calculate viewport within base region
+        if zoom != 1.0 and bounds_w > 0 and bounds_h > 0:
+            vp_x = int(viewportX * base_region_w / bounds_w)
+            vp_y = int(viewportY * base_region_h / bounds_h)
+            vp_w = int(widget_width / zoom * base_region_w / bounds_w)
+            vp_h = int(widget_height / zoom * base_region_h / bounds_h)
+            vp_w = min(vp_w, base_region_w - vp_x)
+            vp_h = min(vp_h, base_region_h - vp_y)
+        else:
+            vp_x = base_region_x
+            vp_y = base_region_y
+            vp_w = base_region_w
+            vp_h = base_region_h
+
+        return vp_x, vp_y, vp_w, vp_h
+
     def _drawBackgroundImage(self, painter):
         """
         Draw background image with mode support (used by all GameSpaces).

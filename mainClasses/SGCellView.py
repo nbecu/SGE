@@ -8,18 +8,18 @@ class SGCellView(SGEntityView):
     View class for SGCell - handles all UI and display logic for cells
     Separated from the model to enable Model-View architecture
     """
-    
+
     def __init__(self, cell_model, parent=None):
         """
         Initialize the cell view
-        
+
         Args:
             cell_model: The SGCell model instance
             parent: Parent widget
         """
         super().__init__(cell_model, parent)
         self.cell_model = cell_model
-        
+
         # Cell-specific properties
         self.grid = cell_model.grid
         self.xCoord = cell_model.xCoord
@@ -30,7 +30,7 @@ class SGCellView(SGEntityView):
         self.startXBase = cell_model.startXBase
         self.startYBase = cell_model.startYBase
         self.defaultImage = cell_model.defaultImage
-        
+
         # Allow drops for agents
         self.setAcceptDrops(True)
 
@@ -41,12 +41,8 @@ class SGCellView(SGEntityView):
                                     mode='stretch', zoom=1.0, viewportX=0, viewportY=0):
         """Draw the grid's background image portion that covers this cell.
 
-        This method reproduces EXACTLY what SGGrid.paintEvent() does for background images,
-        but applied to a single transparent cell. It uses the same viewport and scaling logic.
-
-        Key insight: In magnifier zoom mode, SGGrid calculates a viewport (vp_x, vp_y, vp_w, vp_h)
-        from the full image, then scales that region to the widget. This method must use the SAME
-        viewport calculation to ensure transparent cells show the identical image portion as the grid.
+        Maps the grid's background image viewport to a single transparent cell.
+        Uses the same viewport calculation as SGGrid to ensure pixel-perfect alignment.
 
         Args:
             painter: QPainter for drawing
@@ -58,14 +54,8 @@ class SGCellView(SGEntityView):
             viewportX: Viewport offset X in grid coordinates
             viewportY: Viewport offset Y in grid coordinates
         """
-        # DEBUG: Print entry point
-        if self.xCoord == 6 and self.yCoord == 4:
-            print(f">>> _drawBackgroundImagePortion CALLED for (6,4): mode={mode}, zoom={zoom}")
-
         bg_pixmap = self.grid.getBackgroundImagePixmap()
         if bg_pixmap is None or bg_pixmap.isNull():
-            if self.xCoord == 6 and self.yCoord == 4:
-                print(f">>> (6,4) bg_pixmap is None or Null, returning")
             return
 
         grid_w = self.grid.width()
@@ -76,23 +66,11 @@ class SGCellView(SGEntityView):
         img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
         frame_margin = self.grid.frameMargin if hasattr(self.grid, 'frameMargin') else 0
 
-        # Calculate base position in grid coordinate space (same logic as _updatePositionsForViewport)
-        # This avoids rounding errors from converting widget coordinates
         base_x = 0
         base_y = 0
-
         if self.grid.cellShape == "square":
             grid_cell_x = base_x + (self.xCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
             grid_cell_y = base_y + (self.yCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
-
-        # DEBUG: Print for cell (6,4)
-        if self.xCoord == 6 and self.yCoord == 4:
-            print(f"\n=== CELL (6,4) DEBUG ===")
-            print(f"xCoord={self.xCoord}, yCoord={self.yCoord}")
-            print(f"grid_cell_x={grid_cell_x}, grid_cell_y={grid_cell_y}")
-            print(f"saveSize={self.grid.saveSize}, saveGap={self.grid.saveGap}")
-            print(f"cell_x(widget)={cell_x}, cell_y(widget)={cell_y}")
-            print(f"zoom={zoom}, viewportX={viewportX}, viewportY={viewportY}")
         elif self.grid.cellShape == "hexagonal":
             grid_cell_x = base_x + (self.xCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
             hex_factor = self.grid._get_hexagonal_vertical_factor()
@@ -101,166 +79,57 @@ class SGCellView(SGEntityView):
             if self.yCoord % 2 == 0:
                 grid_cell_x += self.grid.saveSize / 2
         else:
-            # Fallback: convert from widget coordinates
             grid_cell_x = (cell_x - frame_margin) / zoom + viewportX if zoom != 1.0 else cell_x
             grid_cell_y = (cell_y - frame_margin) / zoom + viewportY if zoom != 1.0 else cell_y
 
-        grid_cell_size = self.grid.saveSize
-
-        # Transform grid coordinates to widget coordinates (same formula as _updatePositionsForViewport)
-        # In magnifier mode with zoom: widget_x = (grid_x - viewportX) * zoom + frameMargin
-        # In resize/no-zoom: widget_x = grid_x + frameMargin (zoom=1.0, viewportX=0)
         widget_cell_x = (grid_cell_x - viewportX) * zoom + frame_margin
         widget_cell_y = (grid_cell_y - viewportY) * zoom + frame_margin
 
-        # DEBUG: Print widget coordinates
-        if self.xCoord == 6 and self.yCoord == 4:
-            print(f"widget_cell_x={widget_cell_x}, widget_cell_y={widget_cell_y}")
-            print(f"frame_margin={frame_margin}, grid_w={grid_w}, grid_h={grid_h}")
+        # Use helper function to calculate viewport (shared logic with SGGrid)
+        vp_x, vp_y, vp_w, vp_h = self.grid._calculateBackgroundImageViewport(
+            bg_pixmap, grid_w, grid_h, mode, zoom, viewportX, viewportY
+        )
 
-        # Calculate base region based on mode (same logic as SGGrid.paintEvent)
-        base_region_x = 0
-        base_region_y = 0
-        base_region_w = img_w
-        base_region_h = img_h
-
-        # For contain mode, calculate the centring offset (image is centred in widget)
-        contain_offset_x = 0
-        contain_offset_y = 0
-        contain_scale = 1.0
-
-        if mode == 'cover':
-            # Cover mode: scale to cover, centered (crop from center)
-            scale = max(grid_w / img_w, grid_h / img_h)
-            scaled_w = int(img_w * scale)
-            scaled_h = int(img_h * scale)
-            offset_x = (scaled_w - grid_w) // 2
-            offset_y = (scaled_h - grid_h) // 2
-            base_region_x = int(offset_x / scale)
-            base_region_y = int(offset_y / scale)
-            base_region_w = int(grid_w / scale)
-            base_region_h = int(grid_h / scale)
-
-        elif mode == 'contain':
-            # Contain mode: scale to fit, may have margins
-            # Image is centered in the widget, so we need to account for the centring offset
-            contain_scale = min(grid_w / img_w, grid_h / img_h)
-            scaled_w = int(img_w * contain_scale)
-            scaled_h = int(img_h * contain_scale)
-            # base_region is entire image
-            base_region_x = 0
-            base_region_y = 0
-            base_region_w = img_w
-            base_region_h = img_h
-
-        # Calculate grid bounds for proportional mapping
-        bounds_w = self.grid.getGridBoundsWidth() if hasattr(self.grid, 'getGridBoundsWidth') else grid_w
-        bounds_h = self.grid.getGridBoundsHeight() if hasattr(self.grid, 'getGridBoundsHeight') else grid_h
-
-        # CRITICAL: For contain mode in magnifier zoom, recalculate the centring offset
-        # In magnifier zoom, the offset changes based on the visible viewport (src_w)
-        # not the full image width (img_w)
+        # Calculate contain mode centering offset if needed
         contain_offset_x = 0
         contain_offset_y = 0
         if mode == 'contain':
-            if zoom != 1.0 and bounds_w > 0:
-                # Magnifier zoom: offset depends on viewport width (src_w)
-                # Calculate viewport width in grid coordinates
-                vp_w = int(grid_w / zoom * base_region_w / bounds_w) if bounds_w > 0 else base_region_w
-                vp_h = int(grid_h / zoom * base_region_h / bounds_h) if bounds_h > 0 else base_region_h
-                # Scaled viewport dimensions
+            contain_scale = min(grid_w / img_w, grid_h / img_h)
+            if zoom != 1.0:
                 scaled_vp_w = int(vp_w * contain_scale)
                 scaled_vp_h = int(vp_h * contain_scale)
-                # Centring offset for the scaled viewport
                 contain_offset_x = (grid_w - scaled_vp_w) // 2
                 contain_offset_y = (grid_h - scaled_vp_h) // 2
             else:
-                # No zoom: offset is based on full scaled image
+                scaled_w = int(img_w * contain_scale)
+                scaled_h = int(img_h * contain_scale)
                 contain_offset_x = (grid_w - scaled_w) // 2
                 contain_offset_y = (grid_h - scaled_h) // 2
 
-        # Calculate source region - THIS IS THE CRITICAL PART
-        # In magnifier zoom, we MUST calculate the viewport exactly like SGGrid does,
-        # not just use a simple ratio. The ratio assumes the entire image is displayed,
-        # but SGGrid may only display a viewport portion.
-
-        # Step 1: Calculate viewport in image coordinates (same as SGGrid.paintEvent)
-        if zoom != 1.0 and bounds_w > 0 and bounds_h > 0:
-            # Magnifier zoom mode: calculate the visible viewport region
-            vp_x = int(viewportX * base_region_w / bounds_w)
-            vp_y = int(viewportY * base_region_h / bounds_h)
-            vp_w = int(grid_w / zoom * base_region_w / bounds_w)
-            vp_h = int(grid_h / zoom * base_region_h / bounds_h)
-
-            # Clamp viewport to stay within base_region bounds
-            vp_w = min(vp_w, base_region_w - vp_x)
-            vp_h = min(vp_h, base_region_h - vp_y)
-
-            # DEBUG
-            if self.xCoord == 6 and self.yCoord == 4:
-                print(f"MAGNIFIER ZOOM: vp_x={vp_x}, vp_y={vp_y}, vp_w={vp_w}, vp_h={vp_h}")
-                print(f"base_region: ({base_region_x},{base_region_y}) {base_region_w}x{base_region_h}")
-        else:
-            # No zoom: entire base_region is visible as a viewport
-            vp_x = base_region_x
-            vp_y = base_region_y
-            vp_w = base_region_w
-            vp_h = base_region_h
-
-        # Step 2: Map cell position to viewport coordinates, then to image coordinates
-        # The cell is at widget_cell_x in the widget. Map it to the viewport region.
-        # viewport goes from 0 to grid_w in widget coordinates
-        # and corresponds to image region (vp_x, vp_y) to (vp_x+vp_w, vp_y+vp_h)
-
+        # Map cell position within viewport to image coordinates
         if grid_w > 0 and grid_h > 0:
-            # Position within the widget/viewport (in pixels)
-            cell_x_in_vp = widget_cell_x
-            cell_y_in_vp = widget_cell_y
-
-            # Map to viewport image coordinates
-            # cell_x_in_vp / grid_w maps to vp_x to vp_x+vp_w in image space
-            portion_x = int(vp_x + (cell_x_in_vp / grid_w) * vp_w)
-            portion_y = int(vp_y + (cell_y_in_vp / grid_h) * vp_h)
+            portion_x = int(vp_x + (widget_cell_x / grid_w) * vp_w)
+            portion_y = int(vp_y + (widget_cell_y / grid_h) * vp_h)
             portion_w = max(1, int((cell_size / grid_w) * vp_w))
             portion_h = max(1, int((cell_size / grid_h) * vp_h))
-
-            # DEBUG
-            if self.xCoord == 6 and self.yCoord == 4:
-                print(f"CELL MAPPING: cell_x_in_vp={cell_x_in_vp}, portion=({portion_x},{portion_y}) {portion_w}x{portion_h}")
         else:
             portion_x = vp_x
             portion_y = vp_y
             portion_w = vp_w
             portion_h = vp_h
 
-        # Apply mode-specific adjustments for contain mode centring offset
+        # Apply contain mode centering offset
         if mode == 'contain':
-            # In contain mode, offset the portion by the centering offset
             portion_x -= contain_offset_x
             portion_y -= contain_offset_y
 
-        # Clamp portion to stay within base_region bounds
-        portion_w = min(portion_w, base_region_w - portion_x)
-        portion_h = min(portion_h, base_region_h - portion_y)
-
-        # Convert to image coordinates
-        src_x = base_region_x + portion_x
-        src_y = base_region_y + portion_y
-        src_w = portion_w
-        src_h = portion_h
-
-        # Clamp to image bounds
-        src_x = max(0, min(src_x, img_w - 1))
-        src_y = max(0, min(src_y, img_h - 1))
-        src_w = min(src_w, img_w - src_x)
-        src_h = min(src_h, img_h - src_y)
-
-        # DEBUG: Print final source region
-        if self.xCoord == 6 and self.yCoord == 4:
-            print(f"FINAL: src_x={src_x}, src_y={src_y}, src_w={src_w}, src_h={src_h}")
-            print(f"img dimensions: {img_w}x{img_h}")
-            print(f"mode={mode}, zoom={zoom}")
-            print("---")
+        # Clamp to bounds and convert to final source rectangle
+        portion_w = min(portion_w, img_w - portion_x)
+        portion_h = min(portion_h, img_h - portion_y)
+        src_x = max(0, min(portion_x, img_w - 1))
+        src_y = max(0, min(portion_y, img_h - 1))
+        src_w = min(portion_w, img_w - src_x)
+        src_h = min(portion_h, img_h - src_y)
 
         if src_w > 0 and src_h > 0:
             painter.drawPixmap(
@@ -292,14 +161,6 @@ class SGCellView(SGEntityView):
                 qcolor = color if isinstance(color, QColor) else QColor(color)
                 is_transparent = qcolor.alpha() == 0
 
-                # DEBUG: Print actual cell value for (6,4)
-                if self.xCoord == 6 and self.yCoord == 4:
-                    try:
-                        cell_type = self.cell_model.getValue("type")
-                        print(f">>> CELL (6,4) MODEL VALUE: type='{cell_type}', getColor()={color}, alpha={qcolor.alpha()}, is_transparent={is_transparent}")
-                    except Exception as e:
-                        print(f">>> CELL (6,4) ERROR getting value: {e}")
-
                 if not is_transparent:
                     painter.setBrush(QBrush(color, Qt.SolidPattern))
                 # For transparent cells the brush is set to NoBrush below,
@@ -314,22 +175,12 @@ class SGCellView(SGEntityView):
             # In magnifier mode, don't recalculate position or move cell
             # Position is managed by grid's _updatePositionsForViewport()
             if hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier":
-                # DEBUG: Print for cell (6,4) in magnifier mode
-                if self.xCoord == 6 and self.yCoord == 4:
-                    color = self.getColor()
-                    color_qcolor = color if isinstance(color, QColor) else QColor(color)
-                    print(f"\n>>> CELL (6,4) IN MAGNIFIER MODE: is_transparent={is_transparent}, color alpha={color_qcolor.alpha()}")
-
                 if is_transparent:
                     pos = self.pos()
                     mode = self.grid.gs_aspect.background_image_mode or 'stretch'
                     zoom = self.grid.zoom if hasattr(self.grid, 'zoom') else 1.0
                     viewportX = self.grid.viewportX if hasattr(self.grid, 'viewportX') else 0
                     viewportY = self.grid.viewportY if hasattr(self.grid, 'viewportY') else 0
-
-                    # DEBUG: Print before calling _drawBackgroundImagePortion
-                    if self.xCoord == 6 and self.yCoord == 4:
-                        print(f">>> Calling _drawBackgroundImagePortion: mode={mode}, zoom={zoom}")
 
                     self._drawBackgroundImagePortion(painter, pos.x(), pos.y(), current_size,
                                                       mode, zoom, viewportX, viewportY)
@@ -353,16 +204,8 @@ class SGCellView(SGEntityView):
                 # In resize mode, calculate position first (needed for bg image sampling)
                 self.calculatePosition()
 
-                # DEBUG: Print for cell (6,4) in resize mode
-                if self.xCoord == 6 and self.yCoord == 4:
-                    print(f"\n>>> CELL (6,4) IN RESIZE MODE: is_transparent={is_transparent}")
-
                 if is_transparent:
                     mode = self.grid.gs_aspect.background_image_mode or 'stretch'
-
-                    # DEBUG: Print before calling _drawBackgroundImagePortion
-                    if self.xCoord == 6 and self.yCoord == 4:
-                        print(f">>> Calling _drawBackgroundImagePortion in RESIZE: mode={mode}")
 
                     self._drawBackgroundImagePortion(
                         painter, self.startX, self.startY, current_size, mode)
@@ -388,9 +231,9 @@ class SGCellView(SGEntityView):
         else:
             # Cell is deleted/hidden, don't draw anything
             pass
-                        
+
         painter.end()
-    
+
     def calculatePosition(self):
         """
         Calculate cell position based on coordinates and current zoom
@@ -399,40 +242,40 @@ class SGCellView(SGEntityView):
         grid_size = self.grid.size
         grid_gap = self.grid.gap
         grid_frame_margin = self.grid.frameMargin
-        
+
         # Calculate base position with current zoom values
         self.startXBase = grid_frame_margin
         self.startYBase = grid_frame_margin
-        
+
         # Calculate position for square grids
         if self.shape == "square":
             self.startX = int(self.startXBase + (self.xCoord - 1) * (grid_size + grid_gap) + grid_gap)
             self.startY = int(self.startYBase + (self.yCoord - 1) * (grid_size + grid_gap) + grid_gap)
-        
+
         # Calculate position for hexagonal grids
         elif self.shape == "hexagonal":
             # For hexagonal grids, we need to account for the offset pattern
             # Hexagonal grids use "Pointy-top hex grid with even-r offset"
-            
+
             # Base position calculation (similar to square)
             self.startX = int(self.startXBase + (self.xCoord - 1) * (grid_size + grid_gap) + grid_gap)
-            
+
             # Hexagonal Y position: use fixed factor (same as SGGrid calculations)
             # This ensures consistency with grid height calculations and prevents vertical spacing issues
             hex_factor = self.grid._get_hexagonal_vertical_factor()
             hex_height = grid_size * hex_factor
             self.startY = int(self.startYBase + (self.yCoord - 1) * (hex_height + grid_gap) + grid_gap)
-            
+
             # Apply hexagonal horizontal offset for even-r offset pattern
             if self.yCoord % 2 == 0:
                 # Even rows: shift right by half a hexagon width
                 self.startX = int(self.startX + grid_size / 2)
-    
+
     def getRegion(self):
         """Get the region for the cell shape"""
         cellShape = self.type.shape
         current_size = self.grid.size  # Use current grid size
-        
+
         if cellShape == "square":
             region = QRegion(0, 0, current_size, current_size)
         if cellShape == "hexagonal":
@@ -442,7 +285,7 @@ class SGCellView(SGEntityView):
                 QPoint(current_size, int(3 * current_size / 4)),
                 QPoint(int(current_size / 2), current_size),
                 QPoint(0, int(3 * current_size / 4)),
-                QPoint(0, int(current_size / 4))              
+                QPoint(0, int(current_size / 4))
             ])
             region = QRegion(points)
         return region
@@ -452,20 +295,20 @@ class SGCellView(SGEntityView):
         # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
         if self._forwardPanEventToGrid(event, self.grid, 'press'):
             return
-        
+
         if event.button() == Qt.LeftButton:
             # Validate that the click is within the cell bounds
             click_pos = event.pos()
-            
+
             # Use rect() with a small tolerance to account for any offset issues
             cell_rect = self.rect()
             tolerance = 2  # 2 pixels tolerance
-            
+
             # Check if click is within the cell boundaries with tolerance
-            if (click_pos.x() < -tolerance or click_pos.x() > cell_rect.width() + tolerance or 
+            if (click_pos.x() < -tolerance or click_pos.x() > cell_rect.width() + tolerance or
                 click_pos.y() < -tolerance or click_pos.y() > cell_rect.height() + tolerance):
                 return  # Exit if click is outside cell bounds
-            
+
             # First, try to find an action with directClick=True (priority over ControlPanel selection)
             selected_action = None
             try:
@@ -476,27 +319,27 @@ class SGCellView(SGEntityView):
             except (ValueError, AttributeError):
                 # Current player not defined yet or not a valid player object, skip directClick
                 pass
-            
+
             # If no directClick action found, fall back to selected action from ControlPanel
             if selected_action is None:
                 aLegendItem = self.cell_model.model.getSelectedLegendItem()
                 selected_action = aLegendItem.gameAction if aLegendItem is not None else None
-            
+
             if selected_action is None:
                 return  # No action available
-            
+
             # Check if this action was triggered via directClick
             action_was_directclick = (
                 hasattr(selected_action, 'action_controler') and
                 selected_action.action_controler.get("directClick") == True
             )
-            
+
             # Note: We removed the isDisplay check to allow actions on deleted cells
             # This allows create actions to work on deleted cells
-            
+
             # Use the gameAction system for ALL players (including Admin)
             selected_action.perform_with(self.cell_model)
-            
+
             # If action was triggered via directClick, update ControlPanel selection
             if action_was_directclick:
                 self._updateControlPanelSelection(selected_action)
@@ -505,7 +348,7 @@ class SGCellView(SGEntityView):
     def _updateControlPanelSelection(self, action):
         """
         Update the ControlPanel selection to reflect the action that was just executed via directClick
-        
+
         Args:
             action: The game action that was just executed
         """
@@ -513,19 +356,19 @@ class SGCellView(SGEntityView):
             currentPlayer = self.cell_model.model.getCurrentPlayer()
             if currentPlayer is None or currentPlayer == "Admin":
                 return
-            
+
             # Find the ControlPanel for the current player
             controlPanel = currentPlayer.controlPanel
             if controlPanel is None:
                 return
-            
+
             # Find the SGLegendItem corresponding to this action
             legend_item = next(
-                (item for item in controlPanel.legendItems 
+                (item for item in controlPanel.legendItems
                  if hasattr(item, 'gameAction') and item.gameAction == action),
                 None
             )
-            
+
             # Update the selection
             if legend_item is not None:
                 controlPanel.selected = legend_item
@@ -533,7 +376,7 @@ class SGCellView(SGEntityView):
         except (ValueError, AttributeError):
             # Current player not defined or other error, skip update
             pass
-    
+
     def dropEvent(self, e):
         """Handle drop events for agent and tile movement"""
         e.acceptProposedAction()
@@ -552,12 +395,12 @@ class SGCellView(SGEntityView):
         # Delegate type checking to the model
         if not self.cell_model.shouldAcceptDropFrom(entity):
             return
-        
+
         currentPlayer = self.cell_model.model.getCurrentPlayer()
-    
+
         # Get authorized move action from player
         authorizedMoveAction = currentPlayer.getAuthorizedMoveActionForDrop(entity, self.cell_model)
-        
+
         # Execute the move action if found
         if authorizedMoveAction is not None:
             authorizedMoveAction.perform_with(entity, self.cell_model)
@@ -566,7 +409,7 @@ class SGCellView(SGEntityView):
 
     def dragEnterEvent(self, e):
         """Handle drag enter events"""
-        # This event is called during an agent drag 
+        # This event is called during an agent drag
         e.accept()
 
     def mouseMoveEvent(self, e):
@@ -574,11 +417,11 @@ class SGCellView(SGEntityView):
         # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
         if self._forwardPanEventToGrid(e, self.grid, 'move'):
             return
-        
+
         # This method is used to prevent the drag of a cell
         if e.buttons() != Qt.LeftButton:
             return
-    
+
     def mouseReleaseEvent(self, event):
         """Handle mouse release events"""
         # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
