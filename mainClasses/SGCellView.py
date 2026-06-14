@@ -41,12 +41,12 @@ class SGCellView(SGEntityView):
                                     mode='stretch', zoom=1.0, viewportX=0, viewportY=0):
         """Draw the grid's background image portion that covers this cell.
 
-        Qt6 clips the parent's paintEvent to exclude child widget areas, so
-        transparent cells must paint their own background slice.
+        This method reproduces EXACTLY what SGGrid.paintEvent() does for background images,
+        but applied to a single transparent cell. It uses the same viewport and scaling logic.
 
-        In magnifier zoom mode, this respects the viewport offset and zoom level to ensure
-        transparent cells show the same background image portion that would appear in those
-        positions if the grid were scrolled and zoomed.
+        Key insight: In magnifier zoom mode, SGGrid calculates a viewport (vp_x, vp_y, vp_w, vp_h)
+        from the full image, then scales that region to the widget. This method must use the SAME
+        viewport calculation to ensure transparent cells show the identical image portion as the grid.
 
         Args:
             painter: QPainter for drawing
@@ -179,52 +179,65 @@ class SGCellView(SGEntityView):
                 contain_offset_x = (grid_w - scaled_w) // 2
                 contain_offset_y = (grid_h - scaled_h) // 2
 
-        # Calculate source region with viewport awareness
-        # For contain mode, subtract the centring offset to get position relative to image
-        if mode == 'contain':
-            # In contain mode, the image starts at (contain_offset_x, contain_offset_y) in the widget
-            # So we need to subtract this offset to get the position RELATIVE to the image
-            cell_relative_x = widget_cell_x - contain_offset_x
-            cell_relative_y = widget_cell_y - contain_offset_y
+        # Calculate source region - THIS IS THE CRITICAL PART
+        # In magnifier zoom, we MUST calculate the viewport exactly like SGGrid does,
+        # not just use a simple ratio. The ratio assumes the entire image is displayed,
+        # but SGGrid may only display a viewport portion.
 
-            # DEBUG: Print contain mode details
+        # Step 1: Calculate viewport in image coordinates (same as SGGrid.paintEvent)
+        if zoom != 1.0 and bounds_w > 0 and bounds_h > 0:
+            # Magnifier zoom mode: calculate the visible viewport region
+            vp_x = int(viewportX * base_region_w / bounds_w)
+            vp_y = int(viewportY * base_region_h / bounds_h)
+            vp_w = int(grid_w / zoom * base_region_w / bounds_w)
+            vp_h = int(grid_h / zoom * base_region_h / bounds_h)
+
+            # Clamp viewport to stay within base_region bounds
+            vp_w = min(vp_w, base_region_w - vp_x)
+            vp_h = min(vp_h, base_region_h - vp_y)
+
+            # DEBUG
             if self.xCoord == 6 and self.yCoord == 4:
-                print(f"MODE: contain, bounds_w={bounds_w}, bounds_h={bounds_h}")
-                print(f"contain_offset_x={contain_offset_x}, contain_offset_y={contain_offset_y}")
-                print(f"contain_scale={contain_scale}, scaled_w={scaled_w}, scaled_h={scaled_h}")
-                print(f"cell_relative_x={cell_relative_x}, cell_relative_y={cell_relative_y}")
-
-            if bounds_w > 0 and bounds_h > 0:
-                # Map grid coordinates to image coordinates
-                portion_x = int(cell_relative_x * base_region_w / bounds_w)
-                portion_y = int(cell_relative_y * base_region_h / bounds_h)
-                portion_w = max(1, int(grid_cell_size * base_region_w / bounds_w))
-                portion_h = max(1, int(grid_cell_size * base_region_h / bounds_h))
-
-                # DEBUG: Print portions
-                if self.xCoord == 6 and self.yCoord == 4:
-                    print(f"portion_x={portion_x}, portion_y={portion_y}")
-                    print(f"portion_w={portion_w}, portion_h={portion_h}")
-            else:
-                # Fallback to simple proportional sampling
-                portion_x = int(cell_relative_x * base_region_w / scaled_w) if scaled_w > 0 else 0
-                portion_y = int(cell_relative_y * base_region_h / scaled_h) if scaled_h > 0 else 0
-                portion_w = max(1, int(grid_cell_size * base_region_w / scaled_w)) if scaled_w > 0 else base_region_w
-                portion_h = max(1, int(grid_cell_size * base_region_h / scaled_h)) if scaled_h > 0 else base_region_h
+                print(f"MAGNIFIER ZOOM: vp_x={vp_x}, vp_y={vp_y}, vp_w={vp_w}, vp_h={vp_h}")
+                print(f"base_region: ({base_region_x},{base_region_y}) {base_region_w}x{base_region_h}")
         else:
-            # For stretch and cover modes
-            if bounds_w > 0 and bounds_h > 0:
-                # Map widget coordinates to base_region
-                portion_x = int(widget_cell_x * base_region_w / grid_w)
-                portion_y = int(widget_cell_y * base_region_h / grid_h)
-                portion_w = max(1, int(grid_cell_size * base_region_w / grid_w))
-                portion_h = max(1, int(grid_cell_size * base_region_h / grid_h))
-            else:
-                # Fallback to simple proportional sampling
-                portion_x = int(widget_cell_x * base_region_w / grid_w) if grid_w > 0 else 0
-                portion_y = int(widget_cell_y * base_region_h / grid_h) if grid_h > 0 else 0
-                portion_w = max(1, int(grid_cell_size * base_region_w / grid_w)) if grid_w > 0 else base_region_w
-                portion_h = max(1, int(grid_cell_size * base_region_h / grid_h)) if grid_h > 0 else base_region_h
+            # No zoom: entire base_region is visible as a viewport
+            vp_x = base_region_x
+            vp_y = base_region_y
+            vp_w = base_region_w
+            vp_h = base_region_h
+
+        # Step 2: Map cell position to viewport coordinates, then to image coordinates
+        # The cell is at widget_cell_x in the widget. Map it to the viewport region.
+        # viewport goes from 0 to grid_w in widget coordinates
+        # and corresponds to image region (vp_x, vp_y) to (vp_x+vp_w, vp_y+vp_h)
+
+        if grid_w > 0 and grid_h > 0:
+            # Position within the widget/viewport (in pixels)
+            cell_x_in_vp = widget_cell_x
+            cell_y_in_vp = widget_cell_y
+
+            # Map to viewport image coordinates
+            # cell_x_in_vp / grid_w maps to vp_x to vp_x+vp_w in image space
+            portion_x = int(vp_x + (cell_x_in_vp / grid_w) * vp_w)
+            portion_y = int(vp_y + (cell_y_in_vp / grid_h) * vp_h)
+            portion_w = max(1, int((cell_size / grid_w) * vp_w))
+            portion_h = max(1, int((cell_size / grid_h) * vp_h))
+
+            # DEBUG
+            if self.xCoord == 6 and self.yCoord == 4:
+                print(f"CELL MAPPING: cell_x_in_vp={cell_x_in_vp}, portion=({portion_x},{portion_y}) {portion_w}x{portion_h}")
+        else:
+            portion_x = vp_x
+            portion_y = vp_y
+            portion_w = vp_w
+            portion_h = vp_h
+
+        # Apply mode-specific adjustments for contain mode centring offset
+        if mode == 'contain':
+            # In contain mode, offset the portion by the centering offset
+            portion_x -= contain_offset_x
+            portion_y -= contain_offset_y
 
         # Clamp portion to stay within base_region bounds
         portion_w = min(portion_w, base_region_w - portion_x)
