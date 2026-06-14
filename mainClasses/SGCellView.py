@@ -59,13 +59,13 @@ class SGCellView(SGEntityView):
             viewportY: Viewport offset Y in grid coordinates
         """
         # DEBUG: Print entry point
-        if self.xCoord == 6 and self.yCoord == 5:
-            print(f">>> _drawBackgroundImagePortion CALLED for (6,5): mode={mode}, zoom={zoom}")
+        if self.xCoord == 6 and self.yCoord == 4:
+            print(f">>> _drawBackgroundImagePortion CALLED for (6,4): mode={mode}, zoom={zoom}")
 
         bg_pixmap = self.grid.getBackgroundImagePixmap()
         if bg_pixmap is None or bg_pixmap.isNull():
-            if self.xCoord == 6 and self.yCoord == 5:
-                print(f">>> (6,5) bg_pixmap is None or Null, returning")
+            if self.xCoord == 6 and self.yCoord == 4:
+                print(f">>> (6,4) bg_pixmap is None or Null, returning")
             return
 
         grid_w = self.grid.width()
@@ -85,9 +85,9 @@ class SGCellView(SGEntityView):
             grid_cell_x = base_x + (self.xCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
             grid_cell_y = base_y + (self.yCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
 
-        # DEBUG: Print for cell (6,5)
-        if self.xCoord == 6 and self.yCoord == 5:
-            print(f"\n=== CELL (6,5) DEBUG ===")
+        # DEBUG: Print for cell (6,4)
+        if self.xCoord == 6 and self.yCoord == 4:
+            print(f"\n=== CELL (6,4) DEBUG ===")
             print(f"xCoord={self.xCoord}, yCoord={self.yCoord}")
             print(f"grid_cell_x={grid_cell_x}, grid_cell_y={grid_cell_y}")
             print(f"saveSize={self.grid.saveSize}, saveGap={self.grid.saveGap}")
@@ -114,7 +114,7 @@ class SGCellView(SGEntityView):
         widget_cell_y = (grid_cell_y - viewportY) * zoom + frame_margin
 
         # DEBUG: Print widget coordinates
-        if self.xCoord == 6 and self.yCoord == 5:
+        if self.xCoord == 6 and self.yCoord == 4:
             print(f"widget_cell_x={widget_cell_x}, widget_cell_y={widget_cell_y}")
             print(f"frame_margin={frame_margin}, grid_w={grid_w}, grid_h={grid_h}")
 
@@ -188,7 +188,7 @@ class SGCellView(SGEntityView):
             cell_relative_y = widget_cell_y - contain_offset_y
 
             # DEBUG: Print contain mode details
-            if self.xCoord == 6 and self.yCoord == 5:
+            if self.xCoord == 6 and self.yCoord == 4:
                 print(f"MODE: contain, bounds_w={bounds_w}, bounds_h={bounds_h}")
                 print(f"contain_offset_x={contain_offset_x}, contain_offset_y={contain_offset_y}")
                 print(f"contain_scale={contain_scale}, scaled_w={scaled_w}, scaled_h={scaled_h}")
@@ -202,7 +202,7 @@ class SGCellView(SGEntityView):
                 portion_h = max(1, int(grid_cell_size * base_region_h / bounds_h))
 
                 # DEBUG: Print portions
-                if self.xCoord == 6 and self.yCoord == 5:
+                if self.xCoord == 6 and self.yCoord == 4:
                     print(f"portion_x={portion_x}, portion_y={portion_y}")
                     print(f"portion_w={portion_w}, portion_h={portion_h}")
             else:
@@ -243,7 +243,7 @@ class SGCellView(SGEntityView):
         src_h = min(src_h, img_h - src_y)
 
         # DEBUG: Print final source region
-        if self.xCoord == 6 and self.yCoord == 5:
+        if self.xCoord == 6 and self.yCoord == 4:
             print(f"FINAL: src_x={src_x}, src_y={src_y}, src_w={src_w}, src_h={src_h}")
             print(f"img dimensions: {img_w}x{img_h}")
             print(f"mode={mode}, zoom={zoom}")
@@ -278,6 +278,15 @@ class SGCellView(SGEntityView):
                 color = self.getColor()
                 qcolor = color if isinstance(color, QColor) else QColor(color)
                 is_transparent = qcolor.alpha() == 0
+
+                # DEBUG: Print actual cell value for (6,4)
+                if self.xCoord == 6 and self.yCoord == 4:
+                    try:
+                        cell_type = self.cell_model.getValue("type")
+                        print(f">>> CELL (6,4) MODEL VALUE: type='{cell_type}', getColor()={color}, alpha={qcolor.alpha()}, is_transparent={is_transparent}")
+                    except Exception as e:
+                        print(f">>> CELL (6,4) ERROR getting value: {e}")
+
                 if not is_transparent:
                     painter.setBrush(QBrush(color, Qt.SolidPattern))
                 # For transparent cells the brush is set to NoBrush below,
@@ -292,11 +301,11 @@ class SGCellView(SGEntityView):
             # In magnifier mode, don't recalculate position or move cell
             # Position is managed by grid's _updatePositionsForViewport()
             if hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier":
-                # DEBUG: Print for cell (6,5) in magnifier mode
-                if self.xCoord == 6 and self.yCoord == 5:
+                # DEBUG: Print for cell (6,4) in magnifier mode
+                if self.xCoord == 6 and self.yCoord == 4:
                     color = self.getColor()
                     color_qcolor = color if isinstance(color, QColor) else QColor(color)
-                    print(f"\n>>> CELL (6,5) IN MAGNIFIER MODE: is_transparent={is_transparent}, color alpha={color_qcolor.alpha()}")
+                    print(f"\n>>> CELL (6,4) IN MAGNIFIER MODE: is_transparent={is_transparent}, color alpha={color_qcolor.alpha()}")
 
                 if is_transparent:
                     pos = self.pos()
@@ -306,7 +315,7 @@ class SGCellView(SGEntityView):
                     viewportY = self.grid.viewportY if hasattr(self.grid, 'viewportY') else 0
 
                     # DEBUG: Print before calling _drawBackgroundImagePortion
-                    if self.xCoord == 6 and self.yCoord == 5:
+                    if self.xCoord == 6 and self.yCoord == 4:
                         print(f">>> Calling _drawBackgroundImagePortion: mode={mode}, zoom={zoom}")
 
                     self._drawBackgroundImagePortion(painter, pos.x(), pos.y(), current_size,
@@ -331,15 +340,15 @@ class SGCellView(SGEntityView):
                 # In resize mode, calculate position first (needed for bg image sampling)
                 self.calculatePosition()
 
-                # DEBUG: Print for cell (6,5) in resize mode
-                if self.xCoord == 6 and self.yCoord == 5:
-                    print(f"\n>>> CELL (6,5) IN RESIZE MODE: is_transparent={is_transparent}")
+                # DEBUG: Print for cell (6,4) in resize mode
+                if self.xCoord == 6 and self.yCoord == 4:
+                    print(f"\n>>> CELL (6,4) IN RESIZE MODE: is_transparent={is_transparent}")
 
                 if is_transparent:
                     mode = self.grid.gs_aspect.background_image_mode or 'stretch'
 
                     # DEBUG: Print before calling _drawBackgroundImagePortion
-                    if self.xCoord == 6 and self.yCoord == 5:
+                    if self.xCoord == 6 and self.yCoord == 4:
                         print(f">>> Calling _drawBackgroundImagePortion in RESIZE: mode={mode}")
 
                     self._drawBackgroundImagePortion(
