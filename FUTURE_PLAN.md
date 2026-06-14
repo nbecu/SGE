@@ -11,7 +11,11 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Refactor SGModel: Extract Game Action Export (lines 458-824) and Layout Management (lines 1271-1424) methods into separate classes using composition pattern
 
 ### User Interface & Display
-- [ ] Main window auto resize
+- [x] Main window auto resize (June 2026) ✅
+  - ✅ Added `autoResize` parameter to SGModel.__init__() (default: False for backward compatibility)
+  - ✅ When True: window automatically resizes to fit content via adjustSize()
+  - ✅ When False: uses fixed width/height as before (existing behavior preserved)
+  - ✅ Example: `examples/syntax_examples/ex_window_auto_resize.py`
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
 - [x] Background images in GameSpaces: add scaling modes (cover/contain/stretch) (June 2026) ✅ RELEASED
    - ✅ Added `gs_aspect.background_image_mode` with values: `cover`, `contain`, `stretch` (default: `stretch`)
