@@ -92,6 +92,11 @@ class SGCellView(SGEntityView):
 
         grid_cell_size = self.grid.saveSize
 
+        # Add frameMargin because the background image is drawn from (0,0) in the widget,
+        # but cells start at (frameMargin, frameMargin)
+        widget_cell_x = frame_margin + grid_cell_x
+        widget_cell_y = frame_margin + grid_cell_y
+
         # Calculate base region based on mode (same logic as SGGrid.paintEvent)
         base_region_x = 0
         base_region_y = 0
@@ -123,16 +128,17 @@ class SGCellView(SGEntityView):
         bounds_h = self.grid.getGridBoundsHeight() if hasattr(self.grid, 'getGridBoundsHeight') else grid_h
 
         # Calculate source region with viewport awareness
+        # Note: Use widget_cell_x/y which include frameMargin, so they map directly to image coordinates
         if bounds_w > 0 and bounds_h > 0:
-            # Map grid coordinates to base_region
-            portion_x = int(grid_cell_x * base_region_w / bounds_w)
-            portion_y = int(grid_cell_y * base_region_h / bounds_h)
-            portion_w = max(1, int(grid_cell_size * base_region_w / bounds_w))
-            portion_h = max(1, int(grid_cell_size * base_region_h / bounds_h))
+            # Map widget coordinates to base_region
+            portion_x = int(widget_cell_x * base_region_w / grid_w)
+            portion_y = int(widget_cell_y * base_region_h / grid_h)
+            portion_w = max(1, int(grid_cell_size * base_region_w / grid_w))
+            portion_h = max(1, int(grid_cell_size * base_region_h / grid_h))
         else:
             # Fallback to simple proportional sampling
-            portion_x = int(grid_cell_x * base_region_w / grid_w) if grid_w > 0 else 0
-            portion_y = int(grid_cell_y * base_region_h / grid_h) if grid_h > 0 else 0
+            portion_x = int(widget_cell_x * base_region_w / grid_w) if grid_w > 0 else 0
+            portion_y = int(widget_cell_y * base_region_h / grid_h) if grid_h > 0 else 0
             portion_w = max(1, int(grid_cell_size * base_region_w / grid_w)) if grid_w > 0 else base_region_w
             portion_h = max(1, int(grid_cell_size * base_region_h / grid_h)) if grid_h > 0 else base_region_h
 
