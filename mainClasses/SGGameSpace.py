@@ -517,7 +517,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """Discover all predefined theme classmethods in SGAspect dynamically."""
         excluded_methods = {
             'baseBorder', 'title1', 'title2', 'title3',
-            'text1', 'text2', 'text3', 'success', 'inactive'
+            'text1', 'text2', 'text3', 'success', 'inactive',
+            'applyToQFont', 'applyToQLabel'
         }
         theme_methods = {}
         for name in dir(SGAspect):

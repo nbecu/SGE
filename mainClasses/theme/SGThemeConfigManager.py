@@ -291,7 +291,7 @@ class SGThemeConfigManager(QObject):
     def _getPredefinedThemeNames(self):
         """
         Get list of predefined theme names by inspecting SGAspect.
-        
+
         Returns:
             list: List of predefined theme names
         """
@@ -299,7 +299,8 @@ class SGThemeConfigManager(QObject):
         excluded_methods = {
             '__init__', '__new__', '__repr__', '__str__', '__eq__', '__hash__',
             'baseBorder', 'title1', 'title2', 'title3',
-            'text1', 'text2', 'text3', 'success', 'inactive'
+            'text1', 'text2', 'text3', 'success', 'inactive',
+            'applyToQFont', 'applyToQLabel'
         }
         theme_names = []
         for name in dir(SGAspect):
