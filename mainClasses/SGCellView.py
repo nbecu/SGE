@@ -78,6 +78,15 @@ class SGCellView(SGEntityView):
         if self.grid.cellShape == "square":
             grid_cell_x = base_x + (self.xCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
             grid_cell_y = base_y + (self.yCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
+
+        # DEBUG: Print for cell (6,5)
+        if self.xCoord == 6 and self.yCoord == 5:
+            print(f"\n=== CELL (6,5) DEBUG ===")
+            print(f"xCoord={self.xCoord}, yCoord={self.yCoord}")
+            print(f"grid_cell_x={grid_cell_x}, grid_cell_y={grid_cell_y}")
+            print(f"saveSize={self.grid.saveSize}, saveGap={self.grid.saveGap}")
+            print(f"cell_x(widget)={cell_x}, cell_y(widget)={cell_y}")
+            print(f"zoom={zoom}, viewportX={viewportX}, viewportY={viewportY}")
         elif self.grid.cellShape == "hexagonal":
             grid_cell_x = base_x + (self.xCoord - 1) * (self.grid.saveSize + self.grid.saveGap) + self.grid.saveGap
             hex_factor = self.grid._get_hexagonal_vertical_factor()
@@ -97,6 +106,11 @@ class SGCellView(SGEntityView):
         # In resize/no-zoom: widget_x = grid_x + frameMargin (zoom=1.0, viewportX=0)
         widget_cell_x = (grid_cell_x - viewportX) * zoom + frame_margin
         widget_cell_y = (grid_cell_y - viewportY) * zoom + frame_margin
+
+        # DEBUG: Print widget coordinates
+        if self.xCoord == 6 and self.yCoord == 5:
+            print(f"widget_cell_x={widget_cell_x}, widget_cell_y={widget_cell_y}")
+            print(f"frame_margin={frame_margin}, grid_w={grid_w}, grid_h={grid_h}")
 
         # Calculate base region based on mode (same logic as SGGrid.paintEvent)
         base_region_x = 0
@@ -167,12 +181,24 @@ class SGCellView(SGEntityView):
             cell_relative_x = widget_cell_x - contain_offset_x
             cell_relative_y = widget_cell_y - contain_offset_y
 
+            # DEBUG: Print contain mode details
+            if self.xCoord == 6 and self.yCoord == 5:
+                print(f"MODE: contain, bounds_w={bounds_w}, bounds_h={bounds_h}")
+                print(f"contain_offset_x={contain_offset_x}, contain_offset_y={contain_offset_y}")
+                print(f"contain_scale={contain_scale}, scaled_w={scaled_w}, scaled_h={scaled_h}")
+                print(f"cell_relative_x={cell_relative_x}, cell_relative_y={cell_relative_y}")
+
             if bounds_w > 0 and bounds_h > 0:
                 # Map grid coordinates to image coordinates
                 portion_x = int(cell_relative_x * base_region_w / bounds_w)
                 portion_y = int(cell_relative_y * base_region_h / bounds_h)
                 portion_w = max(1, int(grid_cell_size * base_region_w / bounds_w))
                 portion_h = max(1, int(grid_cell_size * base_region_h / bounds_h))
+
+                # DEBUG: Print portions
+                if self.xCoord == 6 and self.yCoord == 5:
+                    print(f"portion_x={portion_x}, portion_y={portion_y}")
+                    print(f"portion_w={portion_w}, portion_h={portion_h}")
             else:
                 # Fallback to simple proportional sampling
                 portion_x = int(cell_relative_x * base_region_w / scaled_w) if scaled_w > 0 else 0
@@ -209,6 +235,13 @@ class SGCellView(SGEntityView):
         src_y = max(0, min(src_y, img_h - 1))
         src_w = min(src_w, img_w - src_x)
         src_h = min(src_h, img_h - src_y)
+
+        # DEBUG: Print final source region
+        if self.xCoord == 6 and self.yCoord == 5:
+            print(f"FINAL: src_x={src_x}, src_y={src_y}, src_w={src_w}, src_h={src_h}")
+            print(f"img dimensions: {img_w}x{img_h}")
+            print(f"mode={mode}, zoom={zoom}")
+            print("---")
 
         if src_w > 0 and src_h > 0:
             painter.drawPixmap(

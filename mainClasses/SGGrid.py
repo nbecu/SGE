@@ -101,6 +101,10 @@ class SGGrid(SGGameSpace):
                 scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
                     bg_pixmap, self.width(), self.height(), mode
                 )
+                # DEBUG: Print in contain mode
+                if mode == 'contain':
+                    print(f"[SGGrid] NON-ZOOM CONTAIN: target_rect={target_rect.x()},{target_rect.y()} {target_rect.width()}x{target_rect.height()}")
+                    print(f"[SGGrid] source_rect={source_rect.x()},{source_rect.y()} {source_rect.width()}x{source_rect.height()}")
                 painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
 
             elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0:
@@ -183,6 +187,11 @@ class SGGrid(SGGameSpace):
                         offset_y = (widget_h - scaled_region.height()) // 2
                         painter.drawPixmap(offset_x, offset_y, scaled_region)
                     else:
+                        # DEBUG: Print what SGGrid draws in magnifier zoom contain mode
+                        if mode == 'contain':
+                            print(f"[SGGrid] MAGNIFIER CONTAIN: src_x={src_x}, src_y={src_y}, src_w={src_w}, src_h={src_h}")
+                            print(f"[SGGrid] offset_x={offset_x}, offset_y={offset_y}")
+                            print(f"[SGGrid] zoom={self.zoom}, viewportX={self.viewportX}, viewportY={self.viewportY}")
                         painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
 
             else:
