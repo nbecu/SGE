@@ -24,7 +24,10 @@ This document contains the planned improvements and features for the SGE (Simula
    - ✅ **Code deduplication:** extracted `_calculateBackgroundImageViewport()` helper (single source of truth)
    - ✅ **Cover mode fix:** corrected negative offset coordinates in cover mode
    - ⏳ **Known limitation:** magnifier mode with `zoom_enabled=False` in complex scenarios (deferred to future iteration)
-- [ ] Bug on drag and move on SGGrid : impossible to drag by click and drag on the right border of the grid (although it works perfectly fine with the left top and bottom border of the grid)
+- [x] Bug on drag and move on SGGrid : impossible to drag on the right border (June 2026) ✅ FIXED
+   - ✅ **Root cause:** Cells in magnifier mode were getting Qt's default geometry (100x30px) instead of intended size (40x40px)
+   - ✅ **Fix:** Added explicit `cell.view.resize()` call in `_updatePositionsForViewport()` to set correct cell dimensions
+   - ✅ **Result:** Cells now fit within grid bounds (257px right edge <= 266px grid width), right border drag works
 - [ ] In SGGid, consider using getGridBoundsWidth()/getGridBoundsHeight() instead of getSizeXGlobal()/getSizeYGlobal(), because these two last methods add 1px for an undertermined reason
 
 ### POV System & Visual Elements
