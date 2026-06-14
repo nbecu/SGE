@@ -25,8 +25,9 @@ class SGThemeEditTableDialog(QDialog):
         from mainClasses.SGAspect import SGAspect
         # Known utility methods that are NOT themes
         excluded_methods = {
-            'baseBorder', 'title1', 'title2', 'title3', 
-            'text1', 'text2', 'text3', 'success', 'inactive'
+            'baseBorder', 'title1', 'title2', 'title3',
+            'text1', 'text2', 'text3', 'success', 'inactive',
+            'applyToQFont', 'applyToQLabel'
         }
         themes = []
         # Inspect all class methods
