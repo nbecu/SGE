@@ -104,6 +104,11 @@ class SGCellView(SGEntityView):
         base_region_w = img_w
         base_region_h = img_h
 
+        # For contain mode, calculate the centring offset (image is centred in widget)
+        contain_offset_x = 0
+        contain_offset_y = 0
+        contain_scale = 1.0
+
         if mode == 'cover':
             # Cover mode: scale to cover, centered (crop from center)
             scale = max(grid_w / img_w, grid_h / img_h)
@@ -118,6 +123,12 @@ class SGCellView(SGEntityView):
 
         elif mode == 'contain':
             # Contain mode: scale to fit, may have margins
+            # Image is centered in the widget, so we need to account for the centring offset
+            contain_scale = min(grid_w / img_w, grid_h / img_h)
+            scaled_w = int(img_w * contain_scale)
+            scaled_h = int(img_h * contain_scale)
+            contain_offset_x = (grid_w - scaled_w) // 2
+            contain_offset_y = (grid_h - scaled_h) // 2
             # base_region is entire image
             base_region_x = 0
             base_region_y = 0
@@ -129,19 +140,39 @@ class SGCellView(SGEntityView):
         bounds_h = self.grid.getGridBoundsHeight() if hasattr(self.grid, 'getGridBoundsHeight') else grid_h
 
         # Calculate source region with viewport awareness
-        # Note: Use widget_cell_x/y which include frameMargin, so they map directly to image coordinates
-        if bounds_w > 0 and bounds_h > 0:
-            # Map widget coordinates to base_region
-            portion_x = int(widget_cell_x * base_region_w / grid_w)
-            portion_y = int(widget_cell_y * base_region_h / grid_h)
-            portion_w = max(1, int(grid_cell_size * base_region_w / grid_w))
-            portion_h = max(1, int(grid_cell_size * base_region_h / grid_h))
+        # For contain mode, subtract the centring offset to get position relative to image
+        if mode == 'contain':
+            # In contain mode, the image starts at (contain_offset_x, contain_offset_y) in the widget
+            # So we need to subtract this offset to get the position RELATIVE to the image
+            cell_relative_x = widget_cell_x - contain_offset_x
+            cell_relative_y = widget_cell_y - contain_offset_y
+
+            if bounds_w > 0 and bounds_h > 0:
+                # Map grid coordinates to image coordinates
+                portion_x = int(cell_relative_x * base_region_w / bounds_w)
+                portion_y = int(cell_relative_y * base_region_h / bounds_h)
+                portion_w = max(1, int(grid_cell_size * base_region_w / bounds_w))
+                portion_h = max(1, int(grid_cell_size * base_region_h / bounds_h))
+            else:
+                # Fallback to simple proportional sampling
+                portion_x = int(cell_relative_x * base_region_w / scaled_w) if scaled_w > 0 else 0
+                portion_y = int(cell_relative_y * base_region_h / scaled_h) if scaled_h > 0 else 0
+                portion_w = max(1, int(grid_cell_size * base_region_w / scaled_w)) if scaled_w > 0 else base_region_w
+                portion_h = max(1, int(grid_cell_size * base_region_h / scaled_h)) if scaled_h > 0 else base_region_h
         else:
-            # Fallback to simple proportional sampling
-            portion_x = int(widget_cell_x * base_region_w / grid_w) if grid_w > 0 else 0
-            portion_y = int(widget_cell_y * base_region_h / grid_h) if grid_h > 0 else 0
-            portion_w = max(1, int(grid_cell_size * base_region_w / grid_w)) if grid_w > 0 else base_region_w
-            portion_h = max(1, int(grid_cell_size * base_region_h / grid_h)) if grid_h > 0 else base_region_h
+            # For stretch and cover modes
+            if bounds_w > 0 and bounds_h > 0:
+                # Map widget coordinates to base_region
+                portion_x = int(widget_cell_x * base_region_w / grid_w)
+                portion_y = int(widget_cell_y * base_region_h / grid_h)
+                portion_w = max(1, int(grid_cell_size * base_region_w / grid_w))
+                portion_h = max(1, int(grid_cell_size * base_region_h / grid_h))
+            else:
+                # Fallback to simple proportional sampling
+                portion_x = int(widget_cell_x * base_region_w / grid_w) if grid_w > 0 else 0
+                portion_y = int(widget_cell_y * base_region_h / grid_h) if grid_h > 0 else 0
+                portion_w = max(1, int(grid_cell_size * base_region_w / grid_w)) if grid_w > 0 else base_region_w
+                portion_h = max(1, int(grid_cell_size * base_region_h / grid_h)) if grid_h > 0 else base_region_h
 
         # Clamp portion to stay within base_region bounds
         portion_w = min(portion_w, base_region_w - portion_x)
