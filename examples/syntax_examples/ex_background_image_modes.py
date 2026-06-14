@@ -28,8 +28,8 @@ myModel = SGModel(1200, 750, windowTitle="Background Image Modes Demo")
 # Use a non-square image to clearly see the difference in scaling
 
 # Grid 1: stretch mode - may distort
-Cell1 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
-                               backgroundImage="./images/background_sea.jpg")
+Cell1 = myModel.newCellsOnGrid(5, 10, "square", size=40, gap=10,
+                               backgroundImage="./images/oranges.png")
 grid1 = Cell1.grid
 grid1.moveToCoords(40, 100)
 grid1.setStyle({
@@ -39,8 +39,8 @@ grid1.setStyle({
 })
 
 # Grid 2: cover mode - covers all area, may crop
-Cell2 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
-                               backgroundImage="./images/background_sea.jpg")
+Cell2 = myModel.newCellsOnGrid(5, 10, "square", size=40, gap=10,
+                               backgroundImage="./images/oranges.png")
 grid2 = Cell2.grid
 grid2.moveToCoords(450, 100)
 grid2.setStyle({
@@ -50,8 +50,9 @@ grid2.setStyle({
 })
 
 # Grid 3: contain mode - fits inside, may have margins
-Cell3 = myModel.newCellsOnGrid(5, 5, "square", size=40, gap=10,
-                               backgroundImage="./images/background_sea.jpg")
+Cell3 = myModel.newCellsOnGrid(5, 10, "square", size=40, gap=10,
+                               backgroundImage="./images/oranges.png")
+
 grid3 = Cell3.grid
 grid3.moveToCoords(860, 100)
 grid3.setStyle({
@@ -70,13 +71,10 @@ label2 = myModel.newLabel("Mode: cover\n(may crop)", position=(450, 340),
 label3 = myModel.newLabel("Mode: contain\n(may have margins)", position=(860, 340),
                           textStyle_specs="color: blue; font-weight: bold; font-size: 12px;")
 
-# Test zoom feature (Item B) on the first grid
-print("Grid 1 (stretch mode) has zoom enabled by default")
-print("  - Zoom in/out with mouse wheel to see background image scale with cells")
-print("  - Use setBackgroundImageZoom(False) to disable zoom")
-
-# Optional: disable zoom on grid2 to show the difference
+# Zoom feature disabled for now (Item B testing)
+# grid1.setBackgroundImageZoom(False)
 # grid2.setBackgroundImageZoom(False)
+# grid3.setBackgroundImageZoom(False)
 
 myModel.show()
 QtWidgets.QApplication.instance().exec()
