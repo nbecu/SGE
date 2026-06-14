@@ -788,6 +788,16 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.gs_aspect.background_image_zoom_enabled = bool(enabled)
         self.update()
 
+    def setBackgroundImageScalesWithZoom(self, scales):
+        """
+        Set whether background image scales when grid is zoomed.
+
+        Args:
+            scales (bool): True to scale image with grid zoom (default), False to keep static
+        """
+        self.gs_aspect.background_image_scales_with_zoom = bool(scales)
+        self.update()
+
     def _scaleBackgroundImage(self, pixmap, widget_width, widget_height, mode):
         """
         Scale background image according to scaling mode.
@@ -1203,6 +1213,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.setBackgroundImageMode(value)
             elif key == 'background_image_zoom_enabled':
                 self.setBackgroundImageZoom(value)
+            elif key == 'background_image_scales_with_zoom':
+                self.setBackgroundImageScalesWithZoom(value)
         self.applyContainerAspectStyle()
         self.update()
 

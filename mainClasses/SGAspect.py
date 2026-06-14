@@ -43,6 +43,7 @@ class SGAspect():
         self.background_image = None
         self.background_image_mode = 'cover'
         self.background_image_zoom_enabled = True
+        self.background_image_scales_with_zoom = True
         self.fixed_width = None
         self.fixed_height = None
         

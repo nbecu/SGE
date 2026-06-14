@@ -103,9 +103,9 @@ class SGGrid(SGGameSpace):
                 )
                 painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
 
-            elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0 and mode == 'stretch':
-                # Magnifier mode with zoom enabled (stretch mode only): scale background with zoom level
-                # For cover/contain modes, keep background static (Option C)
+            elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0 and self.gs_aspect.background_image_scales_with_zoom:
+                # Magnifier mode with zoom enabled: scale background with zoom level
+                # If background_image_scales_with_zoom is True, apply zoom to background
                 # In magnifier mode, only the visible cells are shown (via viewport clipping)
                 # We need to draw the background portion that matches the viewport at zoomed size
                 img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
