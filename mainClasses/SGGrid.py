@@ -101,6 +101,13 @@ class SGGrid(SGGameSpace):
                 scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
                     bg_pixmap, self.width(), self.height(), mode
                 )
+                # DEBUG: print initial alignment at zoom=1.0
+                if mode in ('cover', 'contain'):
+                    if source_rect.isNull():
+                        src_info = f"full({scaled_pixmap.width()}x{scaled_pixmap.height()})"
+                    else:
+                        src_info = f"({source_rect.x()},{source_rect.y()},{source_rect.width()}x{source_rect.height()})"
+                    print(f"[{mode.upper()} INIT zoom=1.0] scaled={scaled_pixmap.width()}x{scaled_pixmap.height()}, target={target_rect.x()},{target_rect.y()},{target_rect.width()}x{target_rect.height()}, source={src_info}", flush=True)
                 painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
 
             elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0:
