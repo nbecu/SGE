@@ -85,51 +85,34 @@ class SGCellView(SGEntityView):
         widget_cell_x = (grid_cell_x - viewportX) * zoom + frame_margin
         widget_cell_y = (grid_cell_y - viewportY) * zoom + frame_margin
 
-        # Use helper function to calculate viewport (shared logic with SGGrid)
-        vp_x, vp_y, vp_w, vp_h = self.grid._calculateBackgroundImageViewport(
+        # Get the base viewport (absolute image coordinates from helper)
+        base_src_x, base_src_y, base_src_w, base_src_h = self.grid._calculateBackgroundImageViewport(
             bg_pixmap, grid_w, grid_h, mode, zoom, viewportX, viewportY
         )
 
-        # Calculate contain mode centering offset if needed
-        contain_offset_x = 0
-        contain_offset_y = 0
-        if mode == 'contain':
-            contain_scale = min(grid_w / img_w, grid_h / img_h)
-            if zoom != 1.0:
-                scaled_vp_w = int(vp_w * contain_scale)
-                scaled_vp_h = int(vp_h * contain_scale)
-                contain_offset_x = (grid_w - scaled_vp_w) // 2
-                contain_offset_y = (grid_h - scaled_vp_h) // 2
-            else:
-                scaled_w = int(img_w * contain_scale)
-                scaled_h = int(img_h * contain_scale)
-                contain_offset_x = (grid_w - scaled_w) // 2
-                contain_offset_y = (grid_h - scaled_h) // 2
-
-        # Map cell position within viewport to image coordinates
+        # Map cell position within the viewport to image coordinates
         if grid_w > 0 and grid_h > 0:
-            portion_x = int(vp_x + (widget_cell_x / grid_w) * vp_w)
-            portion_y = int(vp_y + (widget_cell_y / grid_h) * vp_h)
-            portion_w = max(1, int((cell_size / grid_w) * vp_w))
-            portion_h = max(1, int((cell_size / grid_h) * vp_h))
+            # Proportional offset of cell within grid
+            cell_ratio_x = widget_cell_x / grid_w
+            cell_ratio_y = widget_cell_y / grid_h
+            cell_size_ratio = cell_size / grid_w
+
+            # Map to source region
+            src_x = int(base_src_x + cell_ratio_x * base_src_w)
+            src_y = int(base_src_y + cell_ratio_y * base_src_h)
+            src_w = max(1, int(cell_size_ratio * base_src_w))
+            src_h = max(1, int(cell_size_ratio * base_src_h))
         else:
-            portion_x = vp_x
-            portion_y = vp_y
-            portion_w = vp_w
-            portion_h = vp_h
+            src_x = base_src_x
+            src_y = base_src_y
+            src_w = base_src_w
+            src_h = base_src_h
 
-        # Apply contain mode centering offset
-        if mode == 'contain':
-            portion_x -= contain_offset_x
-            portion_y -= contain_offset_y
-
-        # Clamp to bounds and convert to final source rectangle
-        portion_w = min(portion_w, img_w - portion_x)
-        portion_h = min(portion_h, img_h - portion_y)
-        src_x = max(0, min(portion_x, img_w - 1))
-        src_y = max(0, min(portion_y, img_h - 1))
-        src_w = min(portion_w, img_w - src_x)
-        src_h = min(portion_h, img_h - src_y)
+        # Clamp to image bounds
+        src_w = min(src_w, img_w - src_x)
+        src_h = min(src_h, img_h - src_y)
+        src_x = max(0, min(src_x, img_w - 1))
+        src_y = max(0, min(src_y, img_h - 1))
 
         if src_w > 0 and src_h > 0:
             painter.drawPixmap(

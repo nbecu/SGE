@@ -936,7 +936,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             viewportY (int): Viewport offset Y in grid coordinates (default 0)
 
         Returns:
-            tuple: (vp_x, vp_y, vp_w, vp_h) — viewport rectangle in image coordinates
+            tuple: (src_x, src_y, src_w, src_h) — absolute source rectangle in image coordinates
         """
         img_w, img_h = pixmap.width(), pixmap.height()
 
@@ -969,21 +969,27 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         bounds_w = self.getGridBoundsWidth() if hasattr(self, 'getGridBoundsWidth') else widget_width
         bounds_h = self.getGridBoundsHeight() if hasattr(self, 'getGridBoundsHeight') else widget_height
 
-        # Calculate viewport within base region
+        # Calculate viewport offset within the base region
         if zoom != 1.0 and bounds_w > 0 and bounds_h > 0:
-            vp_x = int(viewportX * base_region_w / bounds_w)
-            vp_y = int(viewportY * base_region_h / bounds_h)
-            vp_w = int(widget_width / zoom * base_region_w / bounds_w)
-            vp_h = int(widget_height / zoom * base_region_h / bounds_h)
-            vp_w = min(vp_w, base_region_w - vp_x)
-            vp_h = min(vp_h, base_region_h - vp_y)
+            viewport_offset_x = int(viewportX * base_region_w / bounds_w)
+            viewport_offset_y = int(viewportY * base_region_h / bounds_h)
+            viewport_w = int(widget_width / zoom * base_region_w / bounds_w)
+            viewport_h = int(widget_height / zoom * base_region_h / bounds_h)
+            viewport_w = min(viewport_w, base_region_w - viewport_offset_x)
+            viewport_h = min(viewport_h, base_region_h - viewport_offset_y)
         else:
-            vp_x = base_region_x
-            vp_y = base_region_y
-            vp_w = base_region_w
-            vp_h = base_region_h
+            viewport_offset_x = 0
+            viewport_offset_y = 0
+            viewport_w = base_region_w
+            viewport_h = base_region_h
 
-        return vp_x, vp_y, vp_w, vp_h
+        # Return absolute coordinates in image space (including base_region offset)
+        src_x = base_region_x + viewport_offset_x
+        src_y = base_region_y + viewport_offset_y
+        src_w = viewport_w
+        src_h = viewport_h
+
+        return src_x, src_y, src_w, src_h
 
     def _drawBackgroundImage(self, painter):
         """

@@ -108,8 +108,8 @@ class SGGrid(SGGameSpace):
                 img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
                 widget_w, widget_h = self.width(), self.height()
 
-                # Calculate viewport using shared helper function
-                vp_x, vp_y, vp_w, vp_h = self._calculateBackgroundImageViewport(
+                # Calculate source rectangle using shared helper function (returns absolute image coords)
+                src_x, src_y, src_w, src_h = self._calculateBackgroundImageViewport(
                     bg_pixmap, widget_w, widget_h, mode, self.zoom, self.viewportX, self.viewportY
                 )
 
@@ -117,12 +117,6 @@ class SGGrid(SGGameSpace):
                 scale_factor = 1.0
                 if mode == 'contain':
                     scale_factor = min(widget_w / img_w, widget_h / img_h)
-
-                # Convert viewport to image coordinates
-                src_x = vp_x
-                src_y = vp_y
-                src_w = vp_w
-                src_h = vp_h
 
                 # Clamp to image bounds
                 src_x = max(0, min(src_x, img_w - 1))
