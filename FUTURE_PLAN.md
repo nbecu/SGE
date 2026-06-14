@@ -6,7 +6,6 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ### Core Architecture & Framework
 - [ ] Unify definition of `setValue` for the different classes
-- [ ] Migrate to PyQt6
 - [ ] Refactor getter methods in SGModel for consistent object retrieval by name (see REFACTORING_GETTER_METHODS.md)
 - [ ] Refactor SGModel: Extract Game Action Export (lines 458-824) and Layout Management (lines 1271-1424) methods into separate classes using composition pattern
 
@@ -47,6 +46,20 @@ This document contains the planned improvements and features for the SGE (Simula
 
 
 ## Completed Items
+
+- [x] Migrate to PyQt6 (June 2026) ✅
+  - ✅ Comprehensive PyQt6 migration scan performed (25+ patterns checked)
+  - ✅ Fixed 3 critical bugs:
+    - QLineEdit.Normal → QLineEdit.EchoMode.Normal (fixed in SGThemeCustomEditorDialog)
+    - QLayout.SetFixedSize → removed (doesn't exist in PyQt6, adjustSize() sufficient)
+    - applyToQFont/applyToQLabel → excluded from theme discovery (instance methods, not classmethods)
+  - ✅ Verified compatibility:
+    - QMessageBox.Yes/No, QDialog.Accepted/Rejected: work as-is
+    - Qt alignment flags, QColor constructors: compatible
+    - painter.drawText/drawPixmap: compatible
+    - Signal.connect() newStyle syntax: correct
+  - ✅ All examples and models run without errors
+  - ✅ Production-ready codebase
 
 - [x] Main window auto resize (June 2026) ✅
   - ✅ Added `autoResize` parameter to SGModel.__init__()
