@@ -787,110 +787,109 @@ class SGEntityType(AttributeAndValueFunctionalities):
     # ASPECT SYSTEM (HIERARCHICAL SYMBOLOGY) - NEW API
     # ============================================================================
 
-    def newSymbology(self, name, attribute, value_to_symbol_dict, symbol_type='color'):
+    @staticmethod
+    def _capitalize_attribute_name(attribute):
+        """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
+        return ''.join(word.capitalize() for word in attribute.split('_'))
+
+    def newSymbology(self, attribute, value_to_symbol_dict, symbol_type='color', name=None):
         """
         Declare a new symbology (visual representation) for this entity type.
 
-        This is the new API that replaces newPov(). Symbologies support multiple
-        visual properties (color, border, icon, pattern) and hierarchical resolution.
+        CASE 1 (Simple): Single symbology per attribute
+            newSymbology("health", {100: green, 50: red})
+            → name auto-derived: "Health"
+
+        CASE 2 (Complex): Multiple symbologies for same attribute
+            newSymbology("health", {...}, name="HealthColor")
+            newSymbology("health", {...}, name="HealthIcon")
+            → name must be explicitly provided
 
         Args:
-            name (str): Symbology name (e.g., 'Health', 'Owner')
             attribute (str): Entity attribute name (e.g., 'health', 'owner')
             value_to_symbol_dict (dict): Value-to-symbol mapping
-                - For 'color': {value: Qt.Color}
-                - For 'border': {value: {color: Qt.Color, width: int}}
+                - For 'color': {value: QColor}
+                - For 'border': {value: {color: QColor, width: int}}
             symbol_type (str): Type of symbol ('color', 'border', 'icon', 'pattern', 'transparency')
                 Default: 'color'
-        """
-        # Create or retrieve the symbology
-        if name not in self.symbologies:
-            self.symbologies[name] = SGSymbology(name)
+            name (str, optional): Symbology name
+                - If None: auto-derived from attribute (e.g., 'health' → 'Health')
+                - If provided: use explicitly (required for multiple symbologies per attribute)
 
-        symbology = self.symbologies[name]
+        Raises:
+            ValueError: If trying to create 2nd symbology with same auto-derived name
+        """
+        # Auto-derive name if not provided
+        if name is None:
+            name = self._capitalize_attribute_name(attribute)
+
+        # Check for conflict: 2nd symbology with same auto-derived name
+        auto_derived_name = self._capitalize_attribute_name(attribute)
+        if name == auto_derived_name and name in self.symbologies:
+            raise ValueError(
+                f"Cannot create 2nd symbology with auto-derived name '{name}' for attribute '{attribute}'. "
+                f"Use name= parameter to specify a unique name for the 2nd symbology. "
+                f"Example: newSymbology('{attribute}', ..., name='{name}Color')"
+            )
+
+        # Get or create symbology at Model level
+        if name not in self.model.symbologies:
+            self.model.symbologies[name] = SGSymbology(name)
+
+        symbology = self.model.symbologies[name]
 
         # Create the visual aspect
         aspect = SGVisualAspect(symbol_type, attribute, value_to_symbol_dict)
         symbology.add_aspect(aspect)
 
-        # Register in UI menu bar (backward compatibility with existing UI)
+        # Register in symbology_groups (auto-create group if needed)
+        if name not in self.model.symbology_groups:
+            self.model.symbology_groups[name] = SGSymbologyGroup(name)
+
+        group = self.model.symbology_groups[name]
+        group.add_symbology(self.name, symbology)
+
+        # Register in UI menu bar (backward compatibility)
         is_border = (symbol_type == 'border')
         self.model.addEntTypeSymbologyinMenuBar(self, name, isBorder=is_border)
 
         # Display by default if first symbology
-        if len(self.symbologies) == 1 and self.active_aspect_view is None:
+        if len(self.model.symbologies) == 1:
             self.displaySymbology(name)
 
-    def newSymbologyWithBorder(self, name, attribute, value_to_color_dict, border_width=3):
+    def newSymbologyWithBorder(self, attribute, value_to_color_dict, border_width=3, name=None):
         """
         Convenience method to create a symbology with both color and border.
 
         Args:
-            name (str): Symbology name
             attribute (str): Attribute name
             value_to_color_dict (dict): {value: color}
             border_width (int): Border width in pixels (default: 3)
+            name (str, optional): Symbology name (required if multiple symbologies for same attribute)
         """
         # Add color aspect
-        self.newSymbology(name, attribute, value_to_color_dict, symbol_type='color')
+        self.newSymbology(attribute, value_to_color_dict, symbol_type='color', name=name)
 
-        # Add border aspect with width
+        # Add border aspect with width (use custom name if provided)
+        if name is None:
+            border_name = f"{self._capitalize_attribute_name(attribute)}Border"
+        else:
+            border_name = f"{name}Border"
+
         value_to_dict = {}
         for value, color in value_to_color_dict.items():
             value_to_dict[value] = {'color': color, 'width': border_width}
-        self.newSymbology(name, attribute, value_to_dict, symbol_type='border')
-
-    def newAspectView(self, view_name, symbologies_list):
-        """
-        Create a view that groups multiple symbologies together.
-
-        Views allow users to toggle between different visual representations.
-        For example: "HealthView" shows health symbology, "PlayerView" shows health+owner.
-
-        Args:
-            view_name (str): View name (e.g., 'DefaultView', 'PlayerView')
-            symbologies_list (list): List of symbology names to include in this view
-        """
-        symbologies = []
-        for symb_name in symbologies_list:
-            if symb_name in self.symbologies:
-                symbologies.append(self.symbologies[symb_name])
-
-        view = SGAspectView(view_name, symbologies)
-        self.aspect_views[view_name] = view
-
-    def setActiveAspectView(self, view_name):
-        """
-        Activate a specific aspect view for this entity type.
-
-        Args:
-            view_name (str): Name of the view to activate
-        """
-        if view_name in self.aspect_views:
-            self.active_aspect_view = self.aspect_views[view_name]
-        else:
-            raise ValueError(f"Aspect view '{view_name}' not found for {self.name}")
-
-    def getActiveAspectView(self):
-        """
-        Get the currently active aspect view.
-
-        Returns:
-            SGAspectView or None
-        """
-        return self.active_aspect_view
+        self.newSymbology(attribute, value_to_dict, symbol_type='border', name=border_name)
 
     def displaySymbology(self, symbology_name):
         """
         Display a symbology (set it as active).
 
-        This is similar to the old displayPov() but works with symbologies.
-
         Args:
             symbology_name (str): Name of the symbology to display
         """
-        if symbology_name in self.symbologies:
-            self.active_aspect_view = SGAspectView('_current', [self.symbologies[symbology_name]])
+        if symbology_name in self.model.symbologies:
+            self.active_aspect_view = SGAspectView('_current', [self.model.symbologies[symbology_name]])
 
     # ============================================================================
     # LEGACY POV COMPATIBILITY WRAPPERS
