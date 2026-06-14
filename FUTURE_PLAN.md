@@ -13,14 +13,17 @@ This document contains the planned improvements and features for the SGE (Simula
 ### User Interface & Display
 - [ ] Main window auto resize
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
-- [ ] Background images in GameSpaces: add scaling modes (cover/contain/stretch)
-   - Add `gs_aspect.background_image_mode` with values: `cover`, `contain`, `stretch` (default: `stretch`)
-   - Implement rendering logic in each GameSpace `paintEvent` without breaking existing zoom/rendu (notably `SGGrid`)
-   - Expose modeler API: `setStyle({ 'background_image': 'path', 'background_image_mode': 'cover' })`
-- [ ] GameSpace background image zoom: when zooming a GameSpace with a background image, scale the background image proportionally with the zoom level (currently only the grid cells are scaled; background image stays fixed)
-   - **Default behavior:** background image scales with zoom (new behavior)
-   - **Configurable:** add `gs_aspect.background_image_zoom_enabled` (default: True); if False, background image stays fixed (current behavior)
-   - Expose modeler API: `setStyle({ 'background_image_zoom_enabled': False })`
+- [x] Background images in GameSpaces: add scaling modes (cover/contain/stretch) (June 2026) ✅ RELEASED
+   - ✅ Added `gs_aspect.background_image_mode` with values: `cover`, `contain`, `stretch` (default: `stretch`)
+   - ✅ Implemented rendering logic in all GameSpaces `paintEvent` with proper zoom integration
+   - ✅ Exposed modeler API: `setStyle({ 'background_image_mode': 'cover' })`
+- [x] GameSpace background image zoom: scale background image proportionally with zoom level (June 2026) ✅ RELEASED
+   - ✅ **Default behavior:** background image scales with zoom (resize & magnifier modes)
+   - ✅ **Configurable:** `setBackgroundImageZoom(False)` or `setStyle({ 'background_image_zoom_enabled': False })`
+   - ✅ **Transparent cells alignment:** fixed to properly align with background image during zoom
+   - ✅ **Code deduplication:** extracted `_calculateBackgroundImageViewport()` helper (single source of truth)
+   - ✅ **Cover mode fix:** corrected negative offset coordinates in cover mode
+   - ⏳ **Known limitation:** magnifier mode with `zoom_enabled=False` in complex scenarios (deferred to future iteration)
 - [ ] Bug on drag and move on SGGrid : impossible to drag by click and drag on the right border of the grid (although it works perfectly fine with the left top and bottom border of the grid)
 - [ ] In SGGid, consider using getGridBoundsWidth()/getGridBoundsHeight() instead of getSizeXGlobal()/getSizeYGlobal(), because these two last methods add 1px for an undertermined reason
 

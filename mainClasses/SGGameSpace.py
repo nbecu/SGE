@@ -762,7 +762,254 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                     return pix
             except Exception:
                 pass
-        return None    
+        return None
+
+    def setBackgroundImageMode(self, mode):
+        """
+        Set the background image scaling mode.
+
+        Args:
+            mode (str): Scaling mode — 'stretch' (default), 'cover', or 'contain'
+                - 'stretch': Scale to fill widget (may distort aspect ratio)
+                - 'cover': Scale to cover widget, maintain aspect (may crop)
+                - 'contain': Scale to fit inside widget, maintain aspect (may have margins)
+        """
+        if mode in ('stretch', 'cover', 'contain'):
+            self.gs_aspect.background_image_mode = mode
+            self.update()
+
+    def setBackgroundImageZoom(self, enabled):
+        """
+        Enable or disable background image zoom with grid zoom.
+
+        Args:
+            enabled (bool): True to scale background image with zoom level, False to keep fixed
+        """
+        self.gs_aspect.background_image_zoom_enabled = bool(enabled)
+        self.update()
+
+    def _scaleBackgroundImage(self, pixmap, widget_width, widget_height, mode):
+        """
+        Scale background image according to scaling mode.
+
+        Args:
+            pixmap (QPixmap): Original background image
+            widget_width (int): Target widget width
+            widget_height (int): Target widget height
+            mode (str): Scaling mode ('stretch', 'cover', 'contain')
+
+        Returns:
+            tuple: (scaled_pixmap, target_rect, source_rect) for drawPixmap
+                - scaled_pixmap: The scaled QPixmap to draw
+                - target_rect: QRect where to draw in widget coordinates
+                - source_rect: QRect to sample from pixmap (for clipping)
+        """
+        if pixmap.isNull() or widget_width <= 0 or widget_height <= 0:
+            return pixmap, QRect(0, 0, widget_width, widget_height), QRect()
+
+        img_w, img_h = pixmap.width(), pixmap.height()
+        target_rect = QRect(0, 0, widget_width, widget_height)
+        source_rect = QRect(0, 0, img_w, img_h)
+
+        if mode == 'stretch':
+            scaled = pixmap.scaled(widget_width, widget_height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            return scaled, target_rect, QRect()
+
+        elif mode == 'cover':
+            scale = max(widget_width / img_w, widget_height / img_h)
+            scaled_w = int(img_w * scale)
+            scaled_h = int(img_h * scale)
+            scaled = pixmap.scaled(scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            offset_x = max(0, (scaled_w - widget_width) // 2)
+            offset_y = max(0, (scaled_h - widget_height) // 2)
+            return scaled, target_rect, QRect(offset_x, offset_y, widget_width, widget_height)
+
+        elif mode == 'contain':
+            scale = min(widget_width / img_w, widget_height / img_h)
+            scaled_w = int(img_w * scale)
+            scaled_h = int(img_h * scale)
+            scaled = pixmap.scaled(scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            offset_x = (widget_width - scaled_w) // 2
+            offset_y = (widget_height - scaled_h) // 2
+            return scaled, QRect(offset_x, offset_y, scaled_w, scaled_h), source_rect
+
+        return pixmap, target_rect, source_rect
+
+    def _scaleBackgroundImageWithViewport(self, pixmap, source_region, widget_width, widget_height, mode):
+        """
+        Apply scaling mode to a specific region of the background image.
+
+        Used for both normal rendering and magnifier zoom rendering.
+        Allows the scaling mode to work correctly even when showing a zoomed portion.
+
+        Args:
+            pixmap (QPixmap): Full background image
+            source_region (QRect): Region of pixmap to show (None or empty = full image)
+            widget_width (int): Target widget width
+            widget_height (int): Target widget height
+            mode (str): Scaling mode ('stretch', 'cover', 'contain')
+
+        Returns:
+            tuple: (pixmap_to_draw, target_rect, source_rect) for painter.drawPixmap()
+        """
+        if pixmap.isNull() or widget_width <= 0 or widget_height <= 0:
+            return pixmap, QRect(0, 0, widget_width, widget_height), QRect()
+
+        # Use provided source region or default to full image
+        if source_region and not source_region.isNull():
+            region_w = source_region.width()
+            region_h = source_region.height()
+        else:
+            region_w = pixmap.width()
+            region_h = pixmap.height()
+
+        target_rect = QRect(0, 0, widget_width, widget_height)
+        source_rect = source_region if (source_region and not source_region.isNull()) else QRect(0, 0, pixmap.width(), pixmap.height())
+
+        if mode == 'stretch':
+            # Stretch: fill widget completely (may distort)
+            return pixmap, target_rect, source_rect
+
+        elif mode == 'cover':
+            # Cover: scale to cover widget, maintain aspect (may crop from source region)
+            scale = max(widget_width / region_w, widget_height / region_h)
+            # For cover, we need to crop from the center of the source region
+            if source_region and not source_region.isNull():
+                # Adjust source region to center it when scaling for cover
+                offset_x = int((region_w - widget_width / scale) // 2)
+                offset_y = int((region_h - widget_height / scale) // 2)
+                cropped_source = QRect(
+                    source_region.x() + offset_x,
+                    source_region.y() + offset_y,
+                    int(widget_width / scale),
+                    int(widget_height / scale)
+                )
+                return pixmap, target_rect, cropped_source
+            else:
+                # Full image: use existing cover logic
+                scaled_w = int(pixmap.width() * scale)
+                scaled_h = int(pixmap.height() * scale)
+                scaled = pixmap.scaled(scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                offset_x = (scaled_w - widget_width) // 2
+                offset_y = (scaled_h - widget_height) // 2
+                return scaled, target_rect, QRect(offset_x, offset_y, widget_width, widget_height)
+
+        elif mode == 'contain':
+            # Contain: scale to fit inside widget, maintain aspect (may have margins)
+            scale = min(widget_width / region_w, widget_height / region_h)
+            scaled_w = int(region_w * scale)
+            scaled_h = int(region_h * scale)
+
+            if source_region and not source_region.isNull():
+                # For viewport region, scale the region itself and center
+                scaled_source = pixmap.copy(source_region).scaled(
+                    scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
+                offset_x = (widget_width - scaled_w) // 2
+                offset_y = (widget_height - scaled_h) // 2
+                return scaled_source, QRect(offset_x, offset_y, scaled_w, scaled_h), QRect(0, 0, scaled_source.width(), scaled_source.height())
+            else:
+                # Full image: use existing contain logic
+                scaled = pixmap.scaled(scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                offset_x = (widget_width - scaled_w) // 2
+                offset_y = (widget_height - scaled_h) // 2
+                return scaled, QRect(offset_x, offset_y, scaled_w, scaled_h), QRect(0, 0, pixmap.width(), pixmap.height())
+
+        return pixmap, target_rect, source_rect
+
+    def _calculateBackgroundImageViewport(self, pixmap, widget_width, widget_height, mode,
+                                          zoom=1.0, viewportX=0, viewportY=0):
+        """
+        Calculate the viewport rectangle for background image rendering in magnifier zoom mode.
+
+        This helper encapsulates the shared viewport calculation logic used by both
+        SGGrid.paintEvent() and SGCellView._drawBackgroundImagePortion() to ensure
+        pixel-perfect alignment when rendering transparent cells.
+
+        Args:
+            pixmap (QPixmap): Background image
+            widget_width (int): Widget width in pixels
+            widget_height (int): Widget height in pixels
+            mode (str): Background image mode ('stretch', 'cover', 'contain')
+            zoom (float): Current zoom level (1.0 if no zoom, default 1.0)
+            viewportX (int): Viewport offset X in grid coordinates (default 0)
+            viewportY (int): Viewport offset Y in grid coordinates (default 0)
+
+        Returns:
+            tuple: (src_x, src_y, src_w, src_h) — absolute source rectangle in image coordinates
+        """
+        img_w, img_h = pixmap.width(), pixmap.height()
+
+        # Calculate base region based on mode
+        base_region_x = 0
+        base_region_y = 0
+        base_region_w = img_w
+        base_region_h = img_h
+
+        if mode == 'cover':
+            # Cover mode: scale to cover, centered (crop from center)
+            scale = max(widget_width / img_w, widget_height / img_h)
+            scaled_w = int(img_w * scale)
+            scaled_h = int(img_h * scale)
+            offset_x = (scaled_w - widget_width) // 2
+            offset_y = (scaled_h - widget_height) // 2
+            base_region_x = int(offset_x / scale)
+            base_region_y = int(offset_y / scale)
+            base_region_w = int(widget_width / scale)
+            base_region_h = int(widget_height / scale)
+
+        elif mode == 'contain':
+            # Contain mode: scale to fit, may have margins (base_region is entire image)
+            base_region_x = 0
+            base_region_y = 0
+            base_region_w = img_w
+            base_region_h = img_h
+
+        # Calculate grid bounds for proportional mapping
+        bounds_w = self.getGridBoundsWidth() if hasattr(self, 'getGridBoundsWidth') else widget_width
+        bounds_h = self.getGridBoundsHeight() if hasattr(self, 'getGridBoundsHeight') else widget_height
+
+        # Calculate viewport offset within the base region
+        if zoom != 1.0 and bounds_w > 0 and bounds_h > 0:
+            viewport_offset_x = int(viewportX * base_region_w / bounds_w)
+            viewport_offset_y = int(viewportY * base_region_h / bounds_h)
+            viewport_w = int(widget_width / zoom * base_region_w / bounds_w)
+            viewport_h = int(widget_height / zoom * base_region_h / bounds_h)
+            viewport_w = min(viewport_w, base_region_w - viewport_offset_x)
+            viewport_h = min(viewport_h, base_region_h - viewport_offset_y)
+        else:
+            viewport_offset_x = 0
+            viewport_offset_y = 0
+            viewport_w = base_region_w
+            viewport_h = base_region_h
+
+        # Return absolute coordinates in image space (including base_region offset)
+        src_x = base_region_x + viewport_offset_x
+        src_y = base_region_y + viewport_offset_y
+        src_w = viewport_w
+        src_h = viewport_h
+
+        return src_x, src_y, src_w, src_h
+
+    def _drawBackgroundImage(self, painter):
+        """
+        Draw background image with mode support (used by all GameSpaces).
+
+        This method centralizes background image rendering logic to avoid duplication
+        across the 11 GameSpace subclasses. Each GameSpace paintEvent calls this method
+        instead of reimplementing the same logic.
+
+        Args:
+            painter (QPainter): The painter to draw with
+        """
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            mode = self.gs_aspect.background_image_mode or 'stretch'
+            w, h = self.width(), self.height()
+            scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
+                bg_pixmap, w, h, mode
+            )
+            painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
 
     def setBorderColor(self, color):
         """
@@ -1070,10 +1317,39 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
 
     def setStyle(self, style_dict):
         """
-        Set multiple style properties at once.
-        
+        Set multiple style properties at once via a dictionary.
+
+        Applies styling properties to the GameSpace. Supports border, background, text,
+        layout, and background image configuration in a single call.
+
         Args:
-            style_dict (dict): Dictionary of style properties
+            style_dict (dict): Dictionary of style properties. Supported keys:
+                - 'border_color': QColor or color name (e.g., Qt.red, 'red', '#FF0000')
+                - 'border_size': int (pixels)
+                - 'border_radius': int (pixels, for rounded corners)
+                - 'background_color': QColor or color name
+                - 'background_image': QPixmap or file path string
+                - 'background_image_mode': 'stretch' (default), 'cover', or 'contain'
+                - 'background_image_zoom_enabled': bool (True = image zooms with grid)
+                - 'text_color': QColor or color name
+                - 'font_family': str (e.g., 'Arial', 'Georgia')
+                - 'font_size': int (pixels)
+                - 'font_weight': str ('normal', 'bold', 'lighter', etc.)
+                - 'font_style': str ('normal', 'italic', 'oblique')
+                - 'title_alignment': str ('Left', 'Right', 'Center', etc.)
+                - 'padding': int (padding in pixels)
+                - 'min_width': int (minimum width in pixels)
+                - 'min_height': int (minimum height in pixels)
+                - 'word_wrap': bool (enable text wrapping)
+
+        Example:
+            grid.setStyle({
+                'background_image': 'path/to/image.png',
+                'background_image_mode': 'cover',
+                'border_color': Qt.black,
+                'border_size': 2,
+                'border_radius': 5
+            })
         """
         for key, value in style_dict.items():
             if hasattr(self, f'set{key.title()}'):
@@ -1108,6 +1384,10 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.setWordWrap(value)
             elif key == 'background_image':
                 self.setBackgroundImage(value)
+            elif key == 'background_image_mode':
+                self.setBackgroundImageMode(value)
+            elif key == 'background_image_zoom_enabled':
+                self.setBackgroundImageZoom(value)
         self.applyContainerAspectStyle()
         self.update()
 

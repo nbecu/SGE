@@ -93,8 +93,71 @@ class SGGrid(SGGameSpace):
         # Background: prefer image (via gs_aspect), else color/pattern with transparency handling
         bg_pixmap = self.getBackgroundImagePixmap()
         if bg_pixmap is not None:
-            rect = QRect(0, 0, self.width(), self.height())
-            painter.drawPixmap(rect, bg_pixmap)
+            mode = self.gs_aspect.background_image_mode or 'stretch'
+            zoom_enabled = self.gs_aspect.background_image_zoom_enabled
+
+            if self.zoomMode == "resize" or (self.zoomMode == "magnifier" and self.zoom == 1.0):
+                # Resize mode or no zoom: use standard scaling
+                scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
+                    bg_pixmap, self.width(), self.height(), mode
+                )
+                painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
+
+            elif self.zoomMode == "magnifier" and zoom_enabled and self.zoom != 1.0:
+                # Magnifier mode with zoom: preserve initial image alignment during zoom
+                img_w, img_h = bg_pixmap.width(), bg_pixmap.height()
+                widget_w, widget_h = self.width(), self.height()
+
+                # Calculate source rectangle using shared helper function (returns absolute image coords)
+                src_x, src_y, src_w, src_h = self._calculateBackgroundImageViewport(
+                    bg_pixmap, widget_w, widget_h, mode, self.zoom, self.viewportX, self.viewportY
+                )
+
+                # Calculate scale factor for contain mode
+                scale_factor = 1.0
+                if mode == 'contain':
+                    scale_factor = min(widget_w / img_w, widget_h / img_h)
+
+                # Clamp to image bounds
+                src_x = max(0, min(src_x, img_w - 1))
+                src_y = max(0, min(src_y, img_h - 1))
+                src_w = min(src_w, img_w - src_x)
+                src_h = min(src_h, img_h - src_y)
+
+                if src_w > 0 and src_h > 0:
+                    # For contain mode, apply scaling to the extracted region
+                    if mode == 'contain' and scale_factor < 1.0:
+                        region_pixmap = bg_pixmap.copy(QRect(src_x, src_y, src_w, src_h))
+                        scaled_region = region_pixmap.scaled(
+                            int(src_w * scale_factor),
+                            int(src_h * scale_factor),
+                            Qt.KeepAspectRatio,
+                            Qt.SmoothTransformation
+                        )
+                        offset_x = (widget_w - scaled_region.width()) // 2
+                        offset_y = (widget_h - scaled_region.height()) // 2
+                        painter.drawPixmap(offset_x, offset_y, scaled_region)
+                    else:
+                        painter.drawPixmap(QRect(0, 0, widget_w, widget_h), bg_pixmap, QRect(src_x, src_y, src_w, src_h))
+
+            else:
+                # Magnifier mode with zoom disabled OR resize mode with scaling mode
+                # When zoom_enabled=False in resize mode, use ORIGINAL size to keep image fixed
+                # This prevents the image from zooming while cells zoom
+                if self.zoomMode == "resize" and not zoom_enabled and hasattr(self, 'originalWidth'):
+                    # Use original grid size (calculated at init, before any zoom)
+                    # This keeps the background image fixed at its initial size/position during zoom
+                    orig_w = self.originalWidth - 2 * self.frameMargin
+                    orig_h = self.originalHeight - 2 * self.frameMargin
+                else:
+                    # Magnifier mode (always fixed size) or resize mode with zoom enabled (follows widget)
+                    orig_w = self.width()
+                    orig_h = self.height()
+
+                scaled_pixmap, target_rect, source_rect = self._scaleBackgroundImage(
+                    bg_pixmap, orig_w, orig_h, mode
+                )
+                painter.drawPixmap(target_rect, scaled_pixmap, source_rect if not source_rect.isNull() else QRect(0, 0, scaled_pixmap.width(), scaled_pixmap.height()))
         else:
             if self.isActive:
                 bg = self.gs_aspect.getBackgroundColorValue()

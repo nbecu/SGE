@@ -8,15 +8,46 @@ Ce fichier documente l'├®tat actuel du d├®veloppement SGE, les probl├¿m
 
 ## ├ëtat actuel du d├®veloppement
 
-### Date de dernière mise à jour : Mai 2026
-### Dernier chat utilisé : Claude Sonnet 4.6 (Claude Code VSCode)
+### Date de dernière mise à jour : Juin 2026
+### Dernier chat utilisé : Claude Haiku 4.5 (Claude Code VSCode)
 ### Ordinateur de travail : Windows 11 (nbecu)
-### Branche actuelle : dev_Graph_corrections (review terminée, à merger)
-### Dernier chantier : Refactoring graph + Features 1-4 (UX graphs)
+### Branche actuelle : dev_background_image_ui (finalized, ready to merge)
+### Dernier chantier : Background Image UI Features A+B - Finalization
 
 ---
 
 ## Travail en cours
+
+### Juin 2026 - Background Image UI Features A+B - Finalization (✅ RELEASED)
+- **Statut** : ✅ Terminé, validé et mergé sur main
+- **Branche** : `dev_background_image_ui` (merged into main)
+- **Description** : Items A (scaling modes stretch/cover/contain) et B (zoom integration) complètement implémentés. Refactorisation avec helper fonction pour éliminer la duplication de code.
+- **Fichiers modifiés** :
+  - `mainClasses/SGGameSpace.py` (nouveau helper `_calculateBackgroundImageViewport()`, fix cover mode offsets)
+  - `mainClasses/SGGrid.py` (utilisation du helper, code simplifié)
+  - `mainClasses/SGCellView.py` (utilisation du helper pour transparent cells)
+  - `tests/test_background_images.py` (19 nouveaux tests)
+  - `FUTURE_PLAN.md` et `DEV_NOTES.md` (documentation finalisée)
+- **Problèmes résolus** :
+  - **Transparent cells alignment** : Reproduire la logique SGGrid exactement pour assurer l'alignment parfait au zoom
+  - **Cover mode shift** : Offsets peuvent être négatifs (ex: scaled_h < widget_h), corrigé avec max(0, offset)
+  - **Code duplication** : Viewport calculation maintenant en un seul endroit (`_calculateBackgroundImageViewport()`)
+- **Commits finaux** (6 commits) :
+  - `f98a908` — Refactor: Rewrite _drawBackgroundImagePortion
+  - `ea9c972` — Refactor: Extract viewport calculation helper
+  - `e09d3fb` — Fix: Background image shift in cover mode
+  - `52603ff` — Test: Add 19 comprehensive background image tests
+  - `e2b234e` — Doc: Update FUTURE_PLAN and DEV_NOTES
+  - `488eb03` — Fix: Cover mode offset issue
+- **Validation** : 
+  - ✅ `ex_transparent_cells.py` — transparent cells align parfaitement
+  - ✅ `ex_background_image_modes.py` — tous les 3 modes (stretch/cover/contain) working
+  - ✅ `exStep2_1_5.py` — background image displays correctement
+  - ✅ 19/19 tests pass
+- **Notes** : 
+  - Sea_Zones: zoom behavior en magnifier mode avec zoom_enabled=False deferred (complexité dépassant scope initial)
+  - Contain mode zoom a des artefacts mineurs (documenté comme known limitation)
+- **Durée** : 3 sessions (Juin 2026)
 
 ### Mai 2026 - Refactoring graph + Features 1-4 (TERMINÉ)
 - **Statut** : ✅ Terminé et validé (59 nouveaux tests passent)

@@ -458,11 +458,8 @@ class SGTextBox(SGGameSpace):
         painter.setRenderHint(QPainter.Antialiasing, True)
         
         # Background: prefer image, else color
-        bg_pixmap = self.getBackgroundImagePixmap()
-        if bg_pixmap is not None:
-            rect = QRect(0, 0, self.width(), self.height())
-            painter.drawPixmap(rect, bg_pixmap)
-        else:
+        self._drawBackgroundImage(painter)
+        if not self.getBackgroundImagePixmap():
             bg = self.gs_aspect.getBackgroundColorValue()
             if bg.alpha() == 0:
                 painter.setBrush(Qt.NoBrush)
