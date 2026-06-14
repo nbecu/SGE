@@ -72,7 +72,6 @@ class SGThemeCustomEditorDialog(QDialog):
 
         self.setLayout(layout)
         # Reduce dialog to its minimum height based on contents
-        layout.setSizeConstraint(QLayout.SetFixedSize)
         self.adjustSize()
         
         # Setup automatic preview updates
