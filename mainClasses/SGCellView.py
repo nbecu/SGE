@@ -92,10 +92,11 @@ class SGCellView(SGEntityView):
 
         grid_cell_size = self.grid.saveSize
 
-        # Add frameMargin because the background image is drawn from (0,0) in the widget,
-        # but cells start at (frameMargin, frameMargin)
-        widget_cell_x = frame_margin + grid_cell_x
-        widget_cell_y = frame_margin + grid_cell_y
+        # Transform grid coordinates to widget coordinates (same formula as _updatePositionsForViewport)
+        # In magnifier mode with zoom: widget_x = (grid_x - viewportX) * zoom + frameMargin
+        # In resize/no-zoom: widget_x = grid_x + frameMargin (zoom=1.0, viewportX=0)
+        widget_cell_x = (grid_cell_x - viewportX) * zoom + frame_margin
+        widget_cell_y = (grid_cell_y - viewportY) * zoom + frame_margin
 
         # Calculate base region based on mode (same logic as SGGrid.paintEvent)
         base_region_x = 0
