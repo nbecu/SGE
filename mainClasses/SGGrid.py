@@ -111,10 +111,12 @@ class SGGrid(SGGameSpace):
                 widget_w, widget_h = self.width(), self.height()
 
                 # Map viewport coordinates to image coordinates
-                src_x = int(self.viewportX * img_w / self.getBounds().width()) if self.getBounds().width() > 0 else 0
-                src_y = int(self.viewportY * img_h / self.getBounds().height()) if self.getBounds().height() > 0 else 0
-                src_w = int(widget_w / self.zoom * img_w / self.getBounds().width()) if self.getBounds().width() > 0 else img_w
-                src_h = int(widget_h / self.zoom * img_h / self.getBounds().height()) if self.getBounds().height() > 0 else img_h
+                bounds_w = self.getGridBoundsWidth()
+                bounds_h = self.getGridBoundsHeight()
+                src_x = int(self.viewportX * img_w / bounds_w) if bounds_w > 0 else 0
+                src_y = int(self.viewportY * img_h / bounds_h) if bounds_h > 0 else 0
+                src_w = int(widget_w / self.zoom * img_w / bounds_w) if bounds_w > 0 else img_w
+                src_h = int(widget_h / self.zoom * img_h / bounds_h) if bounds_h > 0 else img_h
 
                 # Clamp source rect to pixmap bounds
                 src_x = max(0, min(src_x, img_w - 1))
