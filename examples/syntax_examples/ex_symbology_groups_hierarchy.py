@@ -17,7 +17,7 @@ from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(windowTitle="Symbology Groups Example", width=800, 400)
+myModel = SGModel(windowTitle="Symbology Groups Example")
 
 # Create multiple entity types
 Cells = myModel.newCellsOnGrid(3, 3, "square", size=60)
@@ -26,7 +26,7 @@ Cells.setEntities("fertility", 0)
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
 Sheep.setDefaultValues({"fertility": lambda: 50})
 
-Cows = myModel.newAgentType("Cows", "squareAgent1")
+Cows = myModel.newAgentType("Cows", "squareAgent")
 Cows.setDefaultValues({"fertility": lambda: 75})
 
 # Define "Fertility" symbology for each type
