@@ -825,14 +825,20 @@ class SGEntityType(AttributeAndValueFunctionalities):
         PATTERN 2 (Category - with borders, same color as background):
             newSymbology("health", {100: QColor("green"), 50: QColor("red")}, border_width=2)
 
-        PATTERN 3 (Category - full control with SGAspect):
+        PATTERN 3 (Category - simplified dict for border customization):
+            newSymbology("health", {
+                100: {"bg": "green", "border": "darkgreen", "size": 2, "style": "solid"},
+                50: {"bg": "orange", "border": "darkorange", "size": 1, "style": "dashed"}
+            })
+
+        PATTERN 4 (Category - full control with SGAspect):
             aspect_100 = SGAspect()
             aspect_100.background_color = "green"
             aspect_100.border_color = "darkgreen"
             aspect_100.border_size = 2
             newSymbology("health", {100: aspect_100, ...})
 
-        PATTERN 4 (Rule-based): Lambda or function
+        PATTERN 5 (Rule-based): Lambda or function
             newSymbology("attr", rule_function=lambda e: SGAspect(
                 background_color="green" if e.health > 50 else "red"
             ))
@@ -845,8 +851,9 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 - If None: auto-derived from attribute (e.g., 'health' → 'Health')
                 - If provided: use explicitly (required for multiple symbologies per attribute)
             rule_function (callable, optional): function(entity) → SGAspect for rules
-            border_width (int, optional): Border width in pixels. If provided, adds border
-                                         with same color as background to each value.
+            border_width (int, optional): Border width in pixels (PATTERN 2 only).
+                                         If provided with QColor mapping, adds border with same color as background.
+                                         For more control per value, use PATTERN 3 (dict) or PATTERN 4 (SGAspect).
 
         Raises:
             ValueError: If trying to create 2nd symbology with same auto-derived name
@@ -880,12 +887,28 @@ class SGEntityType(AttributeAndValueFunctionalities):
                             aspect.border_color = aspect.background_color
                             aspect.border_size = border_width
                     adapted_mapping[value] = aspect
-                elif isinstance(symbol, dict) and 'color' in symbol:
-                    # Old border format: {'color': QColor, 'width': int}
-                    aspect = SGAspect()
-                    aspect.border_color = symbol['color']
-                    aspect.border_size = symbol.get('width', border_width or 1)
-                    adapted_mapping[value] = aspect
+                elif isinstance(symbol, dict):
+                    # New simplified format: {'bg': color, 'border': color, 'size': width, 'style': style}
+                    if 'bg' in symbol or 'border' in symbol:
+                        aspect = SGAspect()
+                        if 'bg' in symbol:
+                            aspect.background_color = symbol['bg']
+                        if 'border' in symbol:
+                            aspect.border_color = symbol['border']
+                        if 'size' in symbol:
+                            aspect.border_size = symbol['size']
+                        if 'style' in symbol:
+                            aspect.border_style = symbol['style']
+                        adapted_mapping[value] = aspect
+                    elif 'color' in symbol:
+                        # Old border format: {'color': QColor, 'width': int}
+                        aspect = SGAspect()
+                        aspect.border_color = symbol['color']
+                        aspect.border_size = symbol.get('width', border_width or 1)
+                        adapted_mapping[value] = aspect
+                    else:
+                        # Unknown dict format - skip
+                        adapted_mapping[value] = symbol
                 else:
                     # Old color format: QColor or color string
                     aspect = SGAspect()
