@@ -21,12 +21,15 @@ myModel = SGModel(windowTitle="Syntax Comparison Example", width=1000, height=40
 # Create three grids to show each approach
 grid_1 = myModel.newCellsOnGrid(3, 3, "square", size=50, name="Grid1")
 grid_1.setEntities("health", 100)
+grid_1.setEntities_randomChoicePerEntity("health", [100, 50, 25])
 
 grid_2 = myModel.newCellsOnGrid(3, 3, "square", size=50, name="Grid2")
 grid_2.setEntities("health", 100)
+grid_2.setEntities_randomChoicePerEntity("health", [100, 50, 25])
 
 grid_3 = myModel.newCellsOnGrid(3, 3, "square", size=50, name="Grid3")
 grid_3.setEntities("health", 100)
+grid_3.setEntities_randomChoicePerEntity("health", [100, 50, 25])
 
 # APPROACH 1: Dict syntax (simple and readable)
 grid_1.newSymbology("health", {

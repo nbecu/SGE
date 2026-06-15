@@ -23,6 +23,9 @@ myModel = SGModel(windowTitle="Multiple Symbologies Example", width=800, height=
 Cells = myModel.newCellsOnGrid(5, 5, "square", size=50)
 Cells.setEntities("health", 100)
 
+# Add variability: randomly assign different health values
+Cells.setEntities_randomChoicePerEntity("health", [100, 50, 25])
+
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
 Sheep.setDefaultValues({"health": lambda: 100})
 

@@ -23,6 +23,9 @@ myModel = SGModel(windowTitle="Symbology Groups Example")
 Cells = myModel.newCellsOnGrid(3, 3, "square", size=60)
 Cells.setEntities("fertility", 0)
 
+# Add variability to show symbology visually
+Cells.setEntities_randomChoicePerEntity("fertility", [0, 1])
+
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
 Sheep.setDefaultValues({"fertility": lambda: 50})
 

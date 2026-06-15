@@ -20,9 +20,9 @@ myModel = SGModel(windowTitle="Border Customization Example", width=800, height=
 # Create grid and agent type
 Cells = myModel.newCellsOnGrid(5, 5, "square", size=50, gap=5)
 Cells.setEntities("health", 100)
-Cells.setRandomEntities("health", 75, 5)
-Cells.setRandomEntities("health", 50, 5)
-Cells.setRandomEntities("health", 25, 5)
+
+# Add variability to visualize different border styles
+Cells.setEntities_randomChoicePerEntity("health", [100, 75, 50, 25])
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
 Sheep.setDefaultValues({"health": lambda: 100})
 

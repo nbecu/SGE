@@ -21,7 +21,10 @@ myModel = SGModel(windowTitle="Health Symbology Example", width=600, height=400)
 
 # Create grid with cells
 Cells = myModel.newCellsOnGrid(5, 5, "square", size=50)
-Cells.setEntities("health", 100)  # All cells start with health=100
+Cells.setEntities("health", 100)  # Initialize all cells
+
+# Add variability: randomly assign different health values to show symbology
+Cells.setEntities_randomChoicePerEntity("health", [100, 75, 50, 25])
 
 # Define health symbology (auto-derived name: "Health")
 Cells.newSymbology(
