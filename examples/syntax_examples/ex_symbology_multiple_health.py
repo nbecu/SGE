@@ -38,7 +38,9 @@ Cells.newSymbology(
         50: QColor("orange"),
         25: QColor("red"),
     },
-    border_size=3
+    border_size=3,
+    border_color="black"
+
 )
 
 # APPROACH 2: SGAspect shorthand (one-liner per value)

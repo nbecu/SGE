@@ -815,7 +815,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_size=None):
+    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_size=None, **aspect_defaults):
         """
         Declare a new symbology (visual representation) for this entity type.
 
@@ -854,6 +854,9 @@ class SGEntityType(AttributeAndValueFunctionalities):
             border_size (int, optional): Border width in pixels (PATTERN 2 only).
                                          If provided with QColor mapping, adds border with same color as background.
                                          For more control per value, use PATTERN 3 (dict) or PATTERN 4 (SGAspect).
+            **aspect_defaults: Default SGAspect properties applied to ALL values in mapping.
+                              Example: newSymbology("health", {...}, border_size=2, border_color="black")
+                              Will apply border_size=2 and border_color="black" to all health values.
 
         Raises:
             ValueError: If trying to create 2nd symbology with same auto-derived name
@@ -918,6 +921,33 @@ class SGEntityType(AttributeAndValueFunctionalities):
                         aspect.border_color = symbol  # Same color as background
                         aspect.border_size = border_size
                     adapted_mapping[value] = aspect
+
+        # Add border_size to defaults if provided
+        if border_size is not None and 'border_size' not in aspect_defaults and 'size' not in aspect_defaults:
+            aspect_defaults['size'] = border_size
+
+        # Apply aspect_defaults to all values in mapping
+        for value, aspect in adapted_mapping.items():
+            if isinstance(aspect, SGAspect):
+                # Apply defaults for any property not already set
+                for key, default_value in aspect_defaults.items():
+                    # Map common aliases to SGAspect properties
+                    if key == 'bg':
+                        if aspect.background_color is None:
+                            aspect.background_color = default_value
+                    elif key == 'border':
+                        if aspect.border_color is None:
+                            aspect.border_color = default_value
+                    elif key == 'size' or key == 'border_size':
+                        if aspect.border_size is None:
+                            aspect.border_size = default_value
+                    elif key == 'style' or key == 'border_style':
+                        if aspect.border_style is None:
+                            aspect.border_style = default_value
+                    else:
+                        # Direct SGAspect property name
+                        if hasattr(aspect, key) and getattr(aspect, key) is None:
+                            setattr(aspect, key, default_value)
 
         # Create unique symbology for this type
         symbology_key = f"{name}_{self.name}"
