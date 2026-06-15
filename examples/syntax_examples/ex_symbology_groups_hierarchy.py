@@ -68,6 +68,35 @@ if fertility_group:
         symb = fertility_group.get_symbology_for_type(type_name)
         print(f"  - {type_name}: {len(symb.mapping)} value(s) mapped")
 
+# Create agent instances to visualize symbologies
+print("\n" + "=" * 60)
+print("Creating agent instances...")
+print("=" * 60)
+
+# Create Sheep with varying fertility (note: grid coordinates start at 1, not 0)
+sheep1 = Sheep.newAgentAtCoords(1, 1)
+sheep1.setValue("fertility", 0)
+
+sheep2 = Sheep.newAgentAtCoords(2, 1)
+sheep2.setValue("fertility", 50)
+
+sheep3 = Sheep.newAgentAtCoords(3, 1)
+sheep3.setValue("fertility", 100)
+
+print(f"[OK] Created 3 Sheep with fertility: {sheep1.value('fertility')}, {sheep2.value('fertility')}, {sheep3.value('fertility')}")
+
+# Create Cows with varying fertility
+cow1 = Cows.newAgentAtCoords(1, 3)
+cow1.setValue("fertility", 0)
+
+cow2 = Cows.newAgentAtCoords(2, 3)
+cow2.setValue("fertility", 50)
+
+cow3 = Cows.newAgentAtCoords(3, 3)
+cow3.setValue("fertility", 100)
+
+print(f"[OK] Created 3 Cows with fertility: {cow1.value('fertility')}, {cow2.value('fertility')}, {cow3.value('fertility')}")
+
 # Demonstrate hierarchical resolution
 print("\n" + "=" * 60)
 print("Hierarchical Resolution: Entity > Type > Default")
