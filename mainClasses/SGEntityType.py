@@ -822,14 +822,20 @@ class SGEntityType(AttributeAndValueFunctionalities):
         PATTERN 1 (Category - colors only):
             newSymbology("health", {100: QColor("green"), 50: QColor("red")})
 
-        PATTERN 2 (Category - with borders):
+        PATTERN 2 (Category - with borders, same color as background):
             newSymbology("health", {100: QColor("green"), 50: QColor("red")}, border_width=2)
 
-        PATTERN 3 (Category - SGAspect):
-            newSymbology("health", {100: SGAspect(background_color="green"), ...})
+        PATTERN 3 (Category - full control with SGAspect):
+            aspect_100 = SGAspect()
+            aspect_100.background_color = "green"
+            aspect_100.border_color = "darkgreen"
+            aspect_100.border_size = 2
+            newSymbology("health", {100: aspect_100, ...})
 
         PATTERN 4 (Rule-based): Lambda or function
-            newSymbology("attr", rule_function=lambda e: SGAspect(...))
+            newSymbology("attr", rule_function=lambda e: SGAspect(
+                background_color="green" if e.health > 50 else "red"
+            ))
 
         Args:
             attribute (str): Entity attribute name (e.g., 'health')
@@ -922,24 +928,6 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if len(self.model.symbologies) == 1:
             self.displaySymbology(name)
 
-    def newSymbologyWithBorder(self, attribute, value_to_color_dict, border_width=3, name=None):
-        """
-        DEPRECATED: Use newSymbology() with border_width parameter instead.
-
-        Example:
-            # Old way (deprecated):
-            Type.newSymbologyWithBorder("health", {100: QColor("green")}, border_width=2)
-
-            # New way (preferred):
-            Type.newSymbology("health", {100: QColor("green")}, border_width=2)
-        """
-        import warnings
-        warnings.warn(
-            "newSymbologyWithBorder() is deprecated. Use newSymbology() with border_width parameter instead.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        self.newSymbology(attribute, mapping=value_to_color_dict, name=name, border_width=border_width)
 
     def displaySymbology(self, symbology_name):
         """
