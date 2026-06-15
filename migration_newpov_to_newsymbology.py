@@ -5,9 +5,15 @@ Migration helper: Convert newPov() calls to newSymbology()
 This script helps identify and document the migration needed from the legacy
 POV system to the new symbology system.
 
-Pattern:
-OLD:  entity_type.newPov("POV Name", "attribute", dict_colors)
-NEW:  entity_type.newSymbology("attribute", dict_colors, name="POV Name")
+Patterns:
+
+1. Simple color POV:
+   OLD:  entity_type.newPov("POV Name", "attribute", dict_colors)
+   NEW:  entity_type.newSymbology("attribute", dict_colors, name="POV Name")
+
+2. Border POV (now unified with border_width parameter):
+   OLD:  entity_type.newBorderPov("POV Name", "attribute", dict_colors, border_width)
+   NEW:  entity_type.newSymbology("attribute", dict_colors, border_width=N, name="POV Name")
 
 Usage:
   python migration_newpov_to_newsymbology.py <gamefile>
@@ -52,7 +58,7 @@ def migrate_file(filepath):
         dict_var = match.group(3)
         border_width = match.group(4) if match.group(4) else "3"
         old_call = match.group(0)
-        new_call = f'.newSymbologyWithBorder("{attribute}", {dict_var}, border_width={border_width}, name="{pov_name}")'
+        new_call = f'.newSymbology("{attribute}", {dict_var}, border_width={border_width}, name="{pov_name}")'
         migrations.append((old_call, new_call))
         print(f"[BORDER] {pov_name}")
         print(f"  OLD: {old_call}")
