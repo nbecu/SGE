@@ -253,7 +253,20 @@ class SGAspectResolver:
                 if color is not None:
                     return color
 
-        # 2. Try Model-level symbologies (now authoritative source)
+        # 2. Try Model-level symbologies via groups (type-specific resolution)
+        if hasattr(entity, 'model') and hasattr(entity.model, 'symbology_groups'):
+            if symbology_name in entity.model.symbology_groups:
+                group = entity.model.symbology_groups[symbology_name]
+                # Get the symbology specific to this entity type
+                symbology = group.get_symbology_for_type(entity.type.name)
+                if symbology:
+                    aspect = symbology.get_aspect_by_type('color')
+                    if aspect:
+                        color = aspect.get_symbol(value)
+                        if color is not None:
+                            return color
+
+        # 3. Fallback: Try Model-level symbologies directly (for non-grouped symbologies)
         if hasattr(entity, 'model') and hasattr(entity.model, 'symbologies'):
             if symbology_name in entity.model.symbologies:
                 symbology = entity.model.symbologies[symbology_name]
@@ -293,7 +306,20 @@ class SGAspectResolver:
                 if border_dict is not None:
                     return border_dict
 
-        # 2. Try Model-level symbologies (now authoritative source)
+        # 2. Try Model-level symbologies via groups (type-specific resolution)
+        if hasattr(entity, 'model') and hasattr(entity.model, 'symbology_groups'):
+            if symbology_name in entity.model.symbology_groups:
+                group = entity.model.symbology_groups[symbology_name]
+                # Get the symbology specific to this entity type
+                symbology = group.get_symbology_for_type(entity.type.name)
+                if symbology:
+                    aspect = symbology.get_aspect_by_type('border')
+                    if aspect:
+                        border_dict = aspect.get_symbol(value)
+                        if border_dict is not None:
+                            return border_dict
+
+        # 3. Fallback: Try Model-level symbologies directly (for non-grouped symbologies)
         if hasattr(entity, 'model') and hasattr(entity.model, 'symbologies'):
             if symbology_name in entity.model.symbologies:
                 symbology = entity.model.symbologies[symbology_name]
@@ -303,7 +329,7 @@ class SGAspectResolver:
                     if border_dict is not None:
                         return border_dict
 
-        # 3. Return default
+        # 4. Return default
         return {'color': default_color, 'width': default_width}
 
     @staticmethod

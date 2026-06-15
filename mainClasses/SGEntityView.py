@@ -85,25 +85,114 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             self.entity_model.saveSize = value
     
     def getColor(self):
-        """Get the color for display based on POV settings"""
-        if self.isDisplay == False: 
+        """Get the color for display, trying symbologies first, then POV for compatibility"""
+        if self.isDisplay == False:
             return Qt.transparent
-            
+
+        # Phase 2: Try symbology resolution first
+        if hasattr(self, 'entity_model') and self.entity_model and hasattr(self, 'model'):
+            symbology_color = self._getColorFromSymbology()
+            if symbology_color is not None:
+                return symbology_color
+
+        # Fallback: Use legacy POV system for compatibility
         aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.type.name)
         aPovDef = self.type.povShapeColor.get(aChoosenPov)
         aDefaultColor = self.type.defaultShapeColor
         return self.readColorFromPovDef(aPovDef, aDefaultColor)
 
+    def _getColorFromSymbology(self):
+        """Resolve color from symbology system. Returns None if no symbology is active."""
+        if not hasattr(self.model, 'active_symbologies_by_type'):
+            return None
+
+        # Get active symbology name for this entity type
+        symbology_name = self.model.active_symbologies_by_type.get(self.type.name)
+        if not symbology_name:
+            return None
+
+        # Get the symbology definition and extract attribute from first aspect
+        if not hasattr(self.model, 'symbologies'):
+            return None
+
+        symbology = self.model.symbologies.get(symbology_name)
+        if not symbology or not hasattr(symbology, 'aspects') or len(symbology.aspects) == 0:
+            return None
+
+        # Get attribute name from first aspect
+        first_aspect = symbology.aspects[0]
+        if not hasattr(first_aspect, 'attribute'):
+            return None
+
+        attr_name = first_aspect.attribute
+
+        # Resolve color using SGAspectResolver
+        from mainClasses.SGAspectSystem import SGAspectResolver
+        color = SGAspectResolver.resolve_color(
+            self.entity_model, symbology_name, attr_name, QColor("transparent")
+        )
+        if color and color.alpha() > 0:
+            return color
+
+        return None
+
     def getBorderColorAndWidth(self):
-        """Get the border color and width for display"""
-        if self.isDisplay == False: 
-            return Qt.transparent
-            
+        """Get the border color and width for display, trying symbologies first, then POV for compatibility"""
+        if self.isDisplay == False:
+            return {'color': Qt.transparent, 'width': 0}
+
+        # Phase 2: Try symbology resolution first
+        if hasattr(self, 'entity_model') and self.entity_model and hasattr(self, 'model'):
+            symbology_border = self._getBorderFromSymbology()
+            if symbology_border is not None:
+                return symbology_border
+
+        # Fallback: Use legacy POV system for compatibility
         aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.type.name, borderSymbology=True)
         aBorderPovDef = self.type.povBorderColorAndWidth.get(aChoosenPov)
         aDefaultColor = self.type.defaultBorderColor
         aDefaultWidth = self.type.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef, aDefaultColor, aDefaultWidth)
+
+    def _getBorderFromSymbology(self):
+        """Resolve border from symbology system. Returns None if no symbology is active."""
+        if not hasattr(self.model, 'active_symbologies_by_type'):
+            return None
+
+        # Get active symbology name for this entity type
+        symbology_name = self.model.active_symbologies_by_type.get(self.type.name)
+        if not symbology_name:
+            return None
+
+        # Get the symbology definition and extract attribute from first border aspect
+        if not hasattr(self.model, 'symbologies'):
+            return None
+
+        symbology = self.model.symbologies.get(symbology_name)
+        if not symbology or not hasattr(symbology, 'aspects') or len(symbology.aspects) == 0:
+            return None
+
+        # Look for border aspect
+        border_aspect = None
+        for aspect in symbology.aspects:
+            if hasattr(aspect, 'symbol_type') and aspect.symbol_type == 'border':
+                border_aspect = aspect
+                break
+
+        if not border_aspect:
+            return None
+
+        attr_name = border_aspect.attribute
+
+        # Resolve border using SGAspectResolver
+        from mainClasses.SGAspectSystem import SGAspectResolver
+        border = SGAspectResolver.resolve_border(
+            self.entity_model, symbology_name, attr_name, None
+        )
+        if border:
+            return {'color': border.get('color', Qt.black), 'width': border.get('width', 1)}
+
+        return None
     
     def getImage(self):
         """Get the image for display based on POV settings"""

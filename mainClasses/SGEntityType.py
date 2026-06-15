@@ -838,11 +838,20 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if auto_derived:
             self._auto_derived_symbologies.add(name)
 
-        # Get or create symbology at Model level
-        if name not in self.model.symbologies:
-            self.model.symbologies[name] = SGSymbology(name)
+        # Create a unique symbology for this type at Model level
+        # Use a type-prefixed key if it doesn't exist yet
+        # This ensures each entity type gets its own symbology instance
+        symbology_key = f"{name}_{self.name}"  # e.g., "Health_grid1", "Health_Sheep"
 
-        symbology = self.model.symbologies[name]
+        if symbology_key not in self.model.symbologies:
+            symbology = SGSymbology(name)  # Keep display name as just "Health"
+            self.model.symbologies[symbology_key] = symbology
+        else:
+            symbology = self.model.symbologies[symbology_key]
+
+        # Also register under plain name for backward compatibility (first type wins)
+        if name not in self.model.symbologies:
+            self.model.symbologies[name] = symbology
 
         # Create the visual aspect
         aspect = SGVisualAspect(symbol_type, attribute, value_to_symbol_dict)
