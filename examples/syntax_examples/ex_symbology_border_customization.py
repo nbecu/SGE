@@ -18,27 +18,29 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(windowTitle="Border Customization Example", width=800, height=400)
 
 # Create grid and agent type
-Cells = myModel.newCellsOnGrid(5, 5, "square", size=50)
+Cells = myModel.newCellsOnGrid(5, 5, "square", size=50, gap=5)
 Cells.setEntities("health", 100)
-
+Cells.setRandomEntities("health", 75, 5)
+Cells.setRandomEntities("health", 50, 5)
+Cells.setRandomEntities("health", 25, 5)
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
 Sheep.setDefaultValues({"health": lambda: 100})
 
 # SIMPLE SYNTAX: Dict with border customization keys
 # Keys: bg (background), border (color), size (width), style (solid/dashed/etc)
 Cells.newSymbology("health", {
-    100: {"bg": "green", "border": "darkgreen", "size": 2, "style": "solid"},
-    75: {"bg": "yellow", "border": "orange", "size": 2, "style": "solid"},
-    50: {"bg": "orange", "border": "darkorange", "size": 1, "style": "dashed"},
-    25: {"bg": "red", "border": "darkred", "size": 1, "style": "dashed"},
+    100: {"bg": "green", "border": "darkgreen", "size": 4, "style": "solid"},
+    75: {"bg": "yellow", "border": "blue", "size": 4, "style": "solid"},
+    50: {"bg": "orange", "border": "darkorange", "size": 2, "style": "dashed"},
+    25: {"bg": "red", "border": "white", "size": 2, "style": "dashed"},
 })
 
 # Same for Sheep (creates cross-type "Health" group)
 Sheep.newSymbology("health", {
-    100: {"bg": "lightgreen", "border": "darkgreen", "size": 2},
-    75: {"bg": "lightyellow", "border": "gold", "size": 2},
-    50: {"bg": "lightsalmon", "border": "orangered", "size": 1},
-    25: {"bg": "lightcoral", "border": "red", "size": 1},
+    100: {"bg": "lightgreen", "border": "darkgreen", "size": 4},
+    75: {"bg": "lightyellow", "border": "gold", "size": 4},
+    50: {"bg": "lightsalmon", "border": "orangered", "size": 2},
+    25: {"bg": "lightcoral", "border": "red", "size": 2},
 })
 
 # Create agents with varying health

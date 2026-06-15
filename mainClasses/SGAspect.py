@@ -5,12 +5,17 @@ from PyQt6.QtCore import *
 
             
 class SGAspect():
-    def __init__(self):
+    def __init__(self, bg=None, border=None, size=None, style=None, **kwargs):
         """Define the aspect a text and/or a frame -> text, border, background
 
-        Args:
+        Args (shorthand for symbologies):
+            bg (str, optional): Background color (alias for background_color)
+            border (str, optional): Border color
+            size (int, optional): Border size in pixels (alias for border_size)
+            style (str, optional): Border style (alias for border_style)
+
+        Args (full property names):
             font (str, optional): Font family. Options include "Times New Roman", "Georgia", "Garamond", "Baskerville", "Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Courier New", "Lucida Console", "Monaco", "Consolas", "Comic Sans MS", "Papyrus", "Impact".
-            size (int, optional): Font size in pixels.
             color (str, optional): Text color. Can be specified by name (e.g., "red", "orange", "navy", "gold"), hex code (e.g., "#FF0000", "#AB28F9"), RGB values (e.g., "rgb(127, 12, 0)"), or RGBA values for transparency (e.g., "rgba(154, 20, 8, 0.5)").
             text_decoration (str, optional): Text decoration style. Options include "none", "underline", "overline", "line-through", "blink".
             font_weight (str, optional): Font weight. Options include "normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900".
@@ -22,17 +27,17 @@ class SGAspect():
             background_color (str, optional): Same options as color.
         """
         # Définition des paramètres de style
-        self.font = None
-        self.size = None
-        self.color = None
-        self.text_decoration = "none"
-        self.font_weight = "normal"
-        self.font_style = "normal"
-        self.alignment = "Left"
-        self.border_style = None
-        self.border_size = None
-        self.border_color = None
-        self.background_color = None
+        self.font = kwargs.get('font', None)
+        self.size = kwargs.get('size', size)  # size param takes precedence
+        self.color = kwargs.get('color', None)
+        self.text_decoration = kwargs.get('text_decoration', "none")
+        self.font_weight = kwargs.get('font_weight', "normal")
+        self.font_style = kwargs.get('font_style', "normal")
+        self.alignment = kwargs.get('alignment', "Left")
+        self.border_style = kwargs.get('border_style', style)  # style param takes precedence
+        self.border_size = kwargs.get('border_size', size)  # size param takes precedence
+        self.border_color = kwargs.get('border_color', border)  # border param takes precedence
+        self.background_color = kwargs.get('background_color', bg)  # bg param takes precedence
         
         # Extended attributes from SGLabel and SGButton
         self.border_radius = None
