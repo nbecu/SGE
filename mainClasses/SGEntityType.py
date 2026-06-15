@@ -815,18 +815,21 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None):
+    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_width=None):
         """
         Declare a new symbology (visual representation) for this entity type.
 
-        PATTERN 1 (Category): Discrete value mapping
+        PATTERN 1 (Category - colors only):
+            newSymbology("health", {100: QColor("green"), 50: QColor("red")})
+
+        PATTERN 2 (Category - with borders):
+            newSymbology("health", {100: QColor("green"), 50: QColor("red")}, border_width=2)
+
+        PATTERN 3 (Category - SGAspect):
             newSymbology("health", {100: SGAspect(background_color="green"), ...})
 
-        PATTERN 2 (Rule-based): Lambda or function
+        PATTERN 4 (Rule-based): Lambda or function
             newSymbology("attr", rule_function=lambda e: SGAspect(...))
-
-        PATTERN 3 (Backward compat): Old format QColor
-            newSymbology("health", {100: QColor("green"), ...})  # Auto-converted to SGAspect
 
         Args:
             attribute (str): Entity attribute name (e.g., 'health')
@@ -836,6 +839,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 - If None: auto-derived from attribute (e.g., 'health' → 'Health')
                 - If provided: use explicitly (required for multiple symbologies per attribute)
             rule_function (callable, optional): function(entity) → SGAspect for rules
+            border_width (int, optional): Border width in pixels. If provided, adds border
+                                         with same color as background to each value.
 
         Raises:
             ValueError: If trying to create 2nd symbology with same auto-derived name
@@ -861,18 +866,28 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if mapping:
             for value, symbol in mapping.items():
                 if isinstance(symbol, SGAspect):
-                    # Already SGAspect, use as-is
-                    adapted_mapping[value] = symbol
+                    # Already SGAspect - optionally add border if border_width provided
+                    aspect = symbol
+                    if border_width is not None and aspect.border_color is None:
+                        # Add border if not already defined
+                        if aspect.background_color:
+                            aspect.border_color = aspect.background_color
+                            aspect.border_size = border_width
+                    adapted_mapping[value] = aspect
                 elif isinstance(symbol, dict) and 'color' in symbol:
                     # Old border format: {'color': QColor, 'width': int}
                     aspect = SGAspect()
                     aspect.border_color = symbol['color']
-                    aspect.border_size = symbol.get('width', 1)
+                    aspect.border_size = symbol.get('width', border_width or 1)
                     adapted_mapping[value] = aspect
                 else:
                     # Old color format: QColor or color string
                     aspect = SGAspect()
                     aspect.background_color = symbol
+                    # Add border if border_width provided
+                    if border_width is not None:
+                        aspect.border_color = symbol  # Same color as background
+                        aspect.border_size = border_width
                     adapted_mapping[value] = aspect
 
         # Create unique symbology for this type
@@ -909,28 +924,22 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
     def newSymbologyWithBorder(self, attribute, value_to_color_dict, border_width=3, name=None):
         """
-        Convenience method to create ONE symbology with both color and border aspects.
+        DEPRECATED: Use newSymbology() with border_width parameter instead.
 
-        Creates a single SGSymbology where each value maps to a complete SGAspect with
-        both background_color and border_size/color set.
+        Example:
+            # Old way (deprecated):
+            Type.newSymbologyWithBorder("health", {100: QColor("green")}, border_width=2)
 
-        Args:
-            attribute (str): Attribute name
-            value_to_color_dict (dict): {value: color}
-            border_width (int): Border width in pixels (default: 3)
-            name (str, optional): Symbology name (required if multiple symbologies for same attribute)
+            # New way (preferred):
+            Type.newSymbology("health", {100: QColor("green")}, border_width=2)
         """
-        # Build mapping of {value: SGAspect(color=..., border_size=...)}
-        mapping = {}
-        for value, color in value_to_color_dict.items():
-            aspect = SGAspect()
-            aspect.background_color = color
-            aspect.border_color = color  # Use same color for border
-            aspect.border_size = border_width
-            mapping[value] = aspect
-
-        # Create single symbology with both aspects
-        self.newSymbology(attribute, mapping=mapping, name=name)
+        import warnings
+        warnings.warn(
+            "newSymbologyWithBorder() is deprecated. Use newSymbology() with border_width parameter instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        self.newSymbology(attribute, mapping=value_to_color_dict, name=name, border_width=border_width)
 
     def displaySymbology(self, symbology_name):
         """

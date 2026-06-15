@@ -24,8 +24,8 @@ Cells.setEntities("health", 100)
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
 Sheep.setDefaultValues({"health": lambda: 100})
 
-# Create health symbology with color and border (best practice)
-Cells.newSymbologyWithBorder(
+# Create health symbology with color and border
+Cells.newSymbology(
     "health",
     {
         100: QColor("green"),
@@ -36,7 +36,7 @@ Cells.newSymbologyWithBorder(
 )
 
 # Same for Sheep (creates cross-type "Health" group)
-Sheep.newSymbologyWithBorder(
+Sheep.newSymbology(
     "health",
     {
         100: QColor("lightgreen"),
