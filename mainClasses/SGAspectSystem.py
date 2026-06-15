@@ -1,17 +1,15 @@
 """
-SGAspectSystem - Hierarchical aspect/symbology system for entities.
+SGAspectSystem - Hierarchical symbology system for entities.
 
-This module provides a structured way to manage visual representations (symbologies)
-of entities with support for:
-- Multiple visual properties (color, border, icon, pattern, transparency)
-- Hierarchical resolution (Entity → EntityType → Default)
+This module provides a unified visual representation framework for all entities:
+- Unified SGAspect for all visual properties (color, border, text, opacity, etc.)
+- Symbologies with category, gradient, interval, and rule-based support
+- Hierarchical resolution (Entity instance → Type-specific → Default)
 - Grouping of symbologies across entity types
-- Grouping of symbologies into views
-- Both color and border (color + width) representations
+- Aspect views for pre-configured visual representations
 
 Class hierarchy:
-- SGVisualAspect: Single visual property (color, border, icon, etc.)
-- SGSymbology: Collection of aspects (managed at Model level)
+- SGSymbology: Complete visual symbology (maps values or rules to SGAspect)
 - SGSymbologyGroup: Collection of same-named symbologies from different entity types
 - SGAspectView: Named group of symbologies to display together
 - SGAspectResolver: Hierarchical resolution engine
@@ -21,95 +19,57 @@ from PyQt6.QtGui import QColor
 from PyQt6.QtCore import Qt
 
 
-class SGVisualAspect:
-    """
-    Represents a single visual property for entities.
-
-    A visual aspect maps entity attribute values to visual symbols
-    (e.g., health=100 → green, health=50 → yellow, health=0 → red).
-    """
-
-    def __init__(self, symbol_type, attribute, mapping):
-        """
-        Args:
-            symbol_type (str): Type of symbol ('color', 'border', 'icon', 'pattern', 'transparency')
-            attribute (str): Entity attribute name (e.g., 'health', 'owner')
-            mapping (dict): Value-to-symbol mapping
-                - For 'color': {value: QColor}
-                - For 'border': {value: {color: QColor, width: int}}
-                - For 'icon': {value: filepath}
-        """
-        self.symbol_type = symbol_type
-        self.attribute = attribute
-        self.mapping = mapping or {}
-
-    def get_symbol(self, value, default=None):
-        """Get the symbol for a given attribute value.
-
-        Args:
-            value: The attribute value to look up
-            default: Default symbol if value not found
-
-        Returns:
-            The symbol (color, dict, icon, etc.) or default
-        """
-        return self.mapping.get(value, default)
-
-    def __repr__(self):
-        return f"SGVisualAspect({self.symbol_type}, {self.attribute})"
-
-
 class SGSymbology:
     """
-    Represents a complete visual representation (symbology) for an entity.
+    Represents a complete visual symbology for entities.
 
-    A symbology is a named collection of visual aspects. For example,
-    "Health" symbology might combine a color aspect and a border aspect.
+    A symbology maps entity attribute values (or computed rules) to complete visual styles (SGAspect).
+    Supports three patterns:
+    1. Category: {value: SGAspect} for discrete mappings
+    2. Rule-based: rule_function(entity) → SGAspect for complex logic
+    3. Gradient/Interval: (handled via mapping with interpolation/classification)
     """
 
-    def __init__(self, name):
+    def __init__(self, name, mapping=None, rule_function=None):
         """
         Args:
             name (str): Symbology name (e.g., 'Health', 'Owner', 'Status')
+            mapping (dict, optional): {value: SGAspect} for category/gradient/interval types
+            rule_function (callable, optional): function(entity) → SGAspect for rule-based
         """
         self.name = name
-        self.aspects = []  # List[SGVisualAspect]
+        self.mapping = mapping or {}  # {value: SGAspect}
+        self.rule_function = rule_function  # callable(entity) → SGAspect
+        self.interpolation = None  # 'linear', 'log', 'exp', 'sigmoid' (for gradients, Phase 3)
+        self.classification_method = None  # 'quantile', 'equidistant', 'jenks', 'manual' (Phase 3)
 
-    def add_aspect(self, aspect):
-        """Add a visual aspect to this symbology.
-
-        Args:
-            aspect (SGVisualAspect): The aspect to add
+    def resolve_aspect(self, entity=None, attribute_value=None):
         """
-        self.aspects.append(aspect)
-
-    def get_aspect_by_type(self, symbol_type):
-        """Get the first aspect of a given type.
+        Resolve which SGAspect applies to this entity/value.
 
         Args:
-            symbol_type (str): The type of aspect to find
+            entity (optional): Entity instance (required for rule_function)
+            attribute_value (optional): Attribute value (for category/gradient lookup)
 
         Returns:
-            SGVisualAspect or None
+            SGAspect or None
         """
-        for aspect in self.aspects:
-            if aspect.symbol_type == symbol_type:
-                return aspect
+        # Pattern 1: Rule-based symbology (highest priority)
+        if self.rule_function and entity:
+            try:
+                return self.rule_function(entity)
+            except Exception:
+                return None
+
+        # Pattern 2: Category/Gradient/Interval (value lookup)
+        if attribute_value is not None and attribute_value in self.mapping:
+            return self.mapping[attribute_value]
+
         return None
 
-    def get_all_aspects_by_type(self, symbol_type):
-        """Get all aspects of a given type.
-
-        Args:
-            symbol_type (str): The type of aspect to find
-
-        Returns:
-            List[SGVisualAspect]
-        """
-        return [a for a in self.aspects if a.symbol_type == symbol_type]
-
     def __repr__(self):
-        return f"SGSymbology({self.name}, {len(self.aspects)} aspects)"
+        pattern = "rule-based" if self.rule_function else "category"
+        return f"SGSymbology({self.name}, {pattern}, {len(self.mapping)} entries)"
 
 
 class SGSymbologyGroup:
@@ -217,119 +177,110 @@ class SGAspectView:
 
 class SGAspectResolver:
     """
-    Resolves visual aspects using hierarchical lookup.
+    Resolves complete visual styling (SGAspect) using hierarchical lookup.
 
     Resolution order:
-    1. Entity instance aspects (highest priority)
-    2. EntityType aspects
-    3. Default aspect (lowest priority)
+    1. Entity instance symbology override (highest priority)
+    2. Type-specific symbology from group
+    3. Base symbology (lowest priority)
 
-    This allows entities to override the symbology defined at their type level.
+    Returns complete SGAspect with all visual properties (color, border, text, etc.).
     """
 
     @staticmethod
-    def resolve_color(entity, symbology_name, attribute, default_color=None):
-        """Resolve a color from an entity's visual aspects.
+    def resolve_aspect(entity, symbology_name, attribute):
+        """
+        Resolve the complete visual aspect (SGAspect) for an entity.
 
-        Uses hierarchical resolution: Entity → EntityType → Model → default
+        Hierarchical resolution:
+        1. Entity.instance_aspects[symbology_name] (instance override)
+        2. Model.symbology_groups[symbology_name] for entity.type
+        3. Model.symbologies[symbology_name] (base)
+        4. None (no symbology found)
 
         Args:
-            entity: The entity to resolve for (has .instance_aspects, .type, .model)
-            symbology_name (str): Name of the symbology to look up
-            attribute (str): Attribute name to resolve
-            default_color: Color to return if not found
+            entity: Entity instance with .type, .model, .instance_aspects
+            symbology_name (str): Name of symbology to resolve
+            attribute (str): Attribute name (for value lookup in mapping)
+
+        Returns:
+            SGAspect or None
+        """
+        attr_value = entity.value(attribute) if hasattr(entity, 'value') else None
+
+        # 1. Try entity instance override first
+        if hasattr(entity, 'instance_aspects') and symbology_name in entity.instance_aspects:
+            symbology = entity.instance_aspects[symbology_name]
+            aspect = symbology.resolve_aspect(entity=entity, attribute_value=attr_value)
+            if aspect:
+                return aspect
+
+        # 2. Try type-specific symbology from group
+        if hasattr(entity, 'model') and hasattr(entity.model, 'symbology_groups'):
+            if symbology_name in entity.model.symbology_groups:
+                group = entity.model.symbology_groups[symbology_name]
+                symbology = group.get_symbology_for_type(entity.type.name)
+                if symbology:
+                    aspect = symbology.resolve_aspect(entity=entity, attribute_value=attr_value)
+                    if aspect:
+                        return aspect
+
+        # 3. Fallback to base symbology
+        if hasattr(entity, 'model') and hasattr(entity.model, 'symbologies'):
+            if symbology_name in entity.model.symbologies:
+                symbology = entity.model.symbologies[symbology_name]
+                aspect = symbology.resolve_aspect(entity=entity, attribute_value=attr_value)
+                if aspect:
+                    return aspect
+
+        return None
+
+    @staticmethod
+    def resolve_color(entity, symbology_name, attribute, default_color=None):
+        """
+        Resolve color from a symbology (convenience method).
+
+        Args:
+            entity: Entity instance
+            symbology_name (str): Symbology name
+            attribute (str): Attribute name for value lookup
+            default_color: Default color if not found
 
         Returns:
             QColor or None
         """
-        value = entity.value(attribute) if hasattr(entity, 'value') else None
-
-        # 1. Try entity instance aspects first
-        if hasattr(entity, 'instance_aspects') and symbology_name in entity.instance_aspects:
-            symbology = entity.instance_aspects[symbology_name]
-            aspect = symbology.get_aspect_by_type('color')
-            if aspect:
-                color = aspect.get_symbol(value)
-                if color is not None:
-                    return color
-
-        # 2. Try Model-level symbologies via groups (type-specific resolution)
-        if hasattr(entity, 'model') and hasattr(entity.model, 'symbology_groups'):
-            if symbology_name in entity.model.symbology_groups:
-                group = entity.model.symbology_groups[symbology_name]
-                # Get the symbology specific to this entity type
-                symbology = group.get_symbology_for_type(entity.type.name)
-                if symbology:
-                    aspect = symbology.get_aspect_by_type('color')
-                    if aspect:
-                        color = aspect.get_symbol(value)
-                        if color is not None:
-                            return color
-
-        # 3. Fallback: Try Model-level symbologies directly (for non-grouped symbologies)
-        if hasattr(entity, 'model') and hasattr(entity.model, 'symbologies'):
-            if symbology_name in entity.model.symbologies:
-                symbology = entity.model.symbologies[symbology_name]
-                aspect = symbology.get_aspect_by_type('color')
-                if aspect:
-                    color = aspect.get_symbol(value)
-                    if color is not None:
-                        return color
-
-        # 3. Return default
+        aspect = SGAspectResolver.resolve_aspect(entity, symbology_name, attribute)
+        if aspect and hasattr(aspect, 'background_color'):
+            color_value = aspect.background_color
+            if isinstance(color_value, QColor):
+                return color_value
+            elif color_value:
+                return QColor(color_value)
         return default_color
 
     @staticmethod
     def resolve_border(entity, symbology_name, attribute, default_color=None, default_width=1):
-        """Resolve a border (color + width) from an entity's visual aspects.
-
-        Uses hierarchical resolution: Entity → Model → default
+        """
+        Resolve border (color + width) from a symbology (convenience method).
 
         Args:
-            entity: The entity to resolve for
-            symbology_name (str): Name of the symbology to look up
-            attribute (str): Attribute name to resolve
-            default_color: Color to return if not found
-            default_width (int): Width to return if not found
+            entity: Entity instance
+            symbology_name (str): Symbology name
+            attribute (str): Attribute name for value lookup
+            default_color: Default border color
+            default_width (int): Default border width
 
         Returns:
             dict: {'color': QColor, 'width': int}
         """
-        value = entity.value(attribute) if hasattr(entity, 'value') else None
-
-        # 1. Try entity instance aspects first
-        if hasattr(entity, 'instance_aspects') and symbology_name in entity.instance_aspects:
-            symbology = entity.instance_aspects[symbology_name]
-            aspect = symbology.get_aspect_by_type('border')
-            if aspect:
-                border_dict = aspect.get_symbol(value)
-                if border_dict is not None:
-                    return border_dict
-
-        # 2. Try Model-level symbologies via groups (type-specific resolution)
-        if hasattr(entity, 'model') and hasattr(entity.model, 'symbology_groups'):
-            if symbology_name in entity.model.symbology_groups:
-                group = entity.model.symbology_groups[symbology_name]
-                # Get the symbology specific to this entity type
-                symbology = group.get_symbology_for_type(entity.type.name)
-                if symbology:
-                    aspect = symbology.get_aspect_by_type('border')
-                    if aspect:
-                        border_dict = aspect.get_symbol(value)
-                        if border_dict is not None:
-                            return border_dict
-
-        # 3. Fallback: Try Model-level symbologies directly (for non-grouped symbologies)
-        if hasattr(entity, 'model') and hasattr(entity.model, 'symbologies'):
-            if symbology_name in entity.model.symbologies:
-                symbology = entity.model.symbologies[symbology_name]
-                aspect = symbology.get_aspect_by_type('border')
-                if aspect:
-                    border_dict = aspect.get_symbol(value)
-                    if border_dict is not None:
-                        return border_dict
-
-        # 4. Return default
+        aspect = SGAspectResolver.resolve_aspect(entity, symbology_name, attribute)
+        if aspect:
+            color = aspect.border_color if hasattr(aspect, 'border_color') else default_color
+            width = aspect.border_size if hasattr(aspect, 'border_size') else default_width
+            if isinstance(color, QColor):
+                return {'color': color, 'width': width}
+            elif color:
+                return {'color': QColor(color), 'width': width}
         return {'color': default_color, 'width': default_width}
 
     @staticmethod

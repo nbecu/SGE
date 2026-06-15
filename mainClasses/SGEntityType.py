@@ -10,7 +10,8 @@ from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGModelAction import SGModelAction_OnEntities
 from mainClasses.SGStack import SGStack
 from mainClasses.SGExtensions import *
-from mainClasses.SGAspectSystem import SGVisualAspect, SGSymbology, SGSymbologyGroup, SGAspectView, SGAspectResolver
+from mainClasses.SGAspectSystem import SGSymbology, SGSymbologyGroup, SGAspectView, SGAspectResolver
+from mainClasses.SGAspect import SGAspect
 import numpy as np
 from collections import Counter, defaultdict
 import random
@@ -814,29 +815,27 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, value_to_symbol_dict, symbol_type='color', name=None):
+    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None):
         """
         Declare a new symbology (visual representation) for this entity type.
 
-        CASE 1 (Simple): Single symbology per attribute
-            newSymbology("health", {100: green, 50: red})
-            → name auto-derived: "Health"
+        PATTERN 1 (Category): Discrete value mapping
+            newSymbology("health", {100: SGAspect(background_color="green"), ...})
 
-        CASE 2 (Complex): Multiple symbologies for same attribute
-            newSymbology("health", {...}, name="HealthColor")
-            newSymbology("health", {...}, name="HealthIcon")
-            → name must be explicitly provided
+        PATTERN 2 (Rule-based): Lambda or function
+            newSymbology("attr", rule_function=lambda e: SGAspect(...))
+
+        PATTERN 3 (Backward compat): Old format QColor
+            newSymbology("health", {100: QColor("green"), ...})  # Auto-converted to SGAspect
 
         Args:
-            attribute (str): Entity attribute name (e.g., 'health', 'owner')
-            value_to_symbol_dict (dict): Value-to-symbol mapping
-                - For 'color': {value: QColor}
-                - For 'border': {value: {color: QColor, width: int}}
-            symbol_type (str): Type of symbol ('color', 'border', 'icon', 'pattern', 'transparency')
-                Default: 'color'
+            attribute (str): Entity attribute name (e.g., 'health')
+            mapping (dict, optional): {value: SGAspect} or {value: QColor} (auto-converts)
+            symbol_type (str): DEPRECATED - kept for backward compat. Use SGAspect instead.
             name (str, optional): Symbology name
                 - If None: auto-derived from attribute (e.g., 'health' → 'Health')
                 - If provided: use explicitly (required for multiple symbologies per attribute)
+            rule_function (callable, optional): function(entity) → SGAspect for rules
 
         Raises:
             ValueError: If trying to create 2nd symbology with same auto-derived name
@@ -847,58 +846,69 @@ class SGEntityType(AttributeAndValueFunctionalities):
             name = self._capitalize_attribute_name(attribute)
             auto_derived = True
 
-        # Check for conflict: THIS entity type trying to create 2nd symbology with same auto-derived name
+        # Check for conflict
         if auto_derived and name in self._auto_derived_symbologies:
             raise ValueError(
-                f"Cannot create 2nd symbology with auto-derived name '{name}' for attribute '{attribute}' in {self.name}. "
-                f"Use name= parameter to specify a unique name for the 2nd symbology. "
-                f"Example: newSymbology('{attribute}', ..., name='{name}Color')"
+                f"Cannot create 2nd symbology with auto-derived name '{name}' in {self.name}. "
+                f"Use name= parameter for explicit name. Example: newSymbology(..., name='{name}Alternate')"
             )
 
-        # Track auto-derived names for this entity type
         if auto_derived:
             self._auto_derived_symbologies.add(name)
 
-        # Create a unique symbology for this type at Model level
-        # Use a type-prefixed key if it doesn't exist yet
-        # This ensures each entity type gets its own symbology instance
-        symbology_key = f"{name}_{self.name}"  # e.g., "Health_grid1", "Health_Sheep"
+        # Adapter: Convert old-style mappings (value: QColor) to new-style (value: SGAspect)
+        adapted_mapping = {}
+        if mapping:
+            for value, symbol in mapping.items():
+                if isinstance(symbol, SGAspect):
+                    # Already SGAspect, use as-is
+                    adapted_mapping[value] = symbol
+                elif isinstance(symbol, dict) and 'color' in symbol:
+                    # Old border format: {'color': QColor, 'width': int}
+                    aspect = SGAspect()
+                    aspect.border_color = symbol['color']
+                    aspect.border_size = symbol.get('width', 1)
+                    adapted_mapping[value] = aspect
+                else:
+                    # Old color format: QColor or color string
+                    aspect = SGAspect()
+                    aspect.background_color = symbol
+                    adapted_mapping[value] = aspect
+
+        # Create unique symbology for this type
+        symbology_key = f"{name}_{self.name}"
 
         if symbology_key not in self.model.symbologies:
-            symbology = SGSymbology(name)  # Keep display name as just "Health"
+            symbology = SGSymbology(name, mapping=adapted_mapping, rule_function=rule_function)
             self.model.symbologies[symbology_key] = symbology
         else:
             symbology = self.model.symbologies[symbology_key]
 
-        # Also register under plain name for backward compatibility (first type wins)
+        # Register under plain name for backward compat (first type wins)
         if name not in self.model.symbologies:
             self.model.symbologies[name] = symbology
 
-        # Create the visual aspect
-        aspect = SGVisualAspect(symbol_type, attribute, value_to_symbol_dict)
-        symbology.add_aspect(aspect)
-
-        # Register in symbology_groups (auto-create group if needed)
+        # Auto-create group if needed
         if name not in self.model.symbology_groups:
             self.model.symbology_groups[name] = SGSymbologyGroup(name)
 
         group = self.model.symbology_groups[name]
         group.add_symbology(self.name, symbology)
 
-        # Phase 2: Register group in menu bar if not already done
+        # Register in menu bar
         self.model._addOrUpdateGroupMenuItem(name)
+        self.model.addEntTypeSymbologyinMenuBar(self, name, isBorder=False)
 
-        # Register in UI menu bar (backward compatibility)
-        is_border = (symbol_type == 'border')
-        self.model.addEntTypeSymbologyinMenuBar(self, name, isBorder=is_border)
-
-        # Display by default if first symbology
+        # Display first symbology by default
         if len(self.model.symbologies) == 1:
             self.displaySymbology(name)
 
     def newSymbologyWithBorder(self, attribute, value_to_color_dict, border_width=3, name=None):
         """
-        Convenience method to create a symbology with both color and border.
+        Convenience method to create ONE symbology with both color and border aspects.
+
+        Creates a single SGSymbology where each value maps to a complete SGAspect with
+        both background_color and border_size/color set.
 
         Args:
             attribute (str): Attribute name
@@ -906,19 +916,17 @@ class SGEntityType(AttributeAndValueFunctionalities):
             border_width (int): Border width in pixels (default: 3)
             name (str, optional): Symbology name (required if multiple symbologies for same attribute)
         """
-        # Add color aspect
-        self.newSymbology(attribute, value_to_color_dict, symbol_type='color', name=name)
-
-        # Add border aspect with width (use custom name if provided)
-        if name is None:
-            border_name = f"{self._capitalize_attribute_name(attribute)}Border"
-        else:
-            border_name = f"{name}Border"
-
-        value_to_dict = {}
+        # Build mapping of {value: SGAspect(color=..., border_size=...)}
+        mapping = {}
         for value, color in value_to_color_dict.items():
-            value_to_dict[value] = {'color': color, 'width': border_width}
-        self.newSymbology(attribute, value_to_dict, symbol_type='border', name=border_name)
+            aspect = SGAspect()
+            aspect.background_color = color
+            aspect.border_color = color  # Use same color for border
+            aspect.border_size = border_width
+            mapping[value] = aspect
+
+        # Create single symbology with both aspects
+        self.newSymbology(attribute, mapping=mapping, name=name)
 
     def displaySymbology(self, symbology_name):
         """

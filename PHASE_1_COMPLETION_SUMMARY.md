@@ -2,7 +2,32 @@
 
 **Completed:** 2026-06-14  
 **Branch:** `dev_aspect_system` (7 commits)  
-**Status:** ✅ COMPLETE & VALIDATED
+**Status:** ✅ COMPLETE & VALIDATED (⚠️ Phase 1 Extended pending)
+
+---
+
+## ⚠️ NOTICE: Phase 1 Extended Planned
+
+**Date:** 2026-06-15
+
+This summary documents original Phase 1. However, **Phase 1 Extended refactoring is planned** to:
+
+- Replace `SGVisualAspect` with unified `SGAspect` (reduces code duplication)
+- Support all visual properties: background, border, text, opacity, and more
+- Enable gradient interpolation, interval classification, and rule-based symbologies
+- Maintain 100% backward compatibility
+
+**See:** 
+- `ASPECT_SYSTEM_REFACTORING.md` — Architecture changes
+- `SYMBOLOGY_SPECIFICATION.md` — Complete feature specification
+
+**Impact on this document:**
+- Core concepts remain unchanged
+- API stays the same (with adapter layer)
+- Internal implementation differs (SGAspect instead of SGVisualAspect)
+- New features coming in Phase 1 Extended + Phase 3
+
+---
 
 ---
 

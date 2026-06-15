@@ -1,10 +1,9 @@
 """
-Multiple symbologies example: Different visual representations for same attribute (CASE 2)
+Multiple symbologies example: Different visual representations for same attribute
 
 Demonstrates:
-- Multiple symbologies for one attribute
-- Explicit naming required (name= parameter)
-- Combining different aspects (color + border)
+- Single symbology with multiple aspects (color + border)
+- Multiple different symbologies for one attribute (different visual views)
 """
 
 import sys
@@ -18,70 +17,37 @@ monApp = QtWidgets.QApplication([])
 
 myModel = SGModel(windowTitle="Multiple Symbologies Example", width=800, height=400)
 
-# Create grid
+# Create grid and agents
 Cells = myModel.newCellsOnGrid(5, 5, "square", size=50)
 Cells.setEntities("health", 100)
 
-# CASE 2: Multiple symbologies for "health" attribute
-# Each needs explicit name
-
-# Version 1: Color-based (name="HealthColor")
-Cells.newSymbology(
-    "health",
-    {
-        100: QColor("green"),
-        50: QColor("orange"),
-        25: QColor("red"),
-    },
-    name="HealthColor"  # EXPLICIT name required
-)
-
-print("Created 'HealthColor' symbology")
-
-# Version 2: Border-based (name="HealthBorder")
-Cells.newSymbology(
-    "health",
-    {
-        100: {"color": QColor("darkgreen"), "width": 3},
-        50: {"color": QColor("orange"), "width": 2},
-        25: {"color": QColor("red"), "width": 1},
-    },
-    symbol_type="border",
-    name="HealthBorder"  # EXPLICIT name required
-)
-
-print("Created 'HealthBorder' symbology")
-
-print(f"\nModel symbologies: {list(myModel.symbologies.keys())}")
-
-# What happens if we forget the name?
-print("\n--- Attempting to create 2nd auto-derived 'Health' ---")
-try:
-    Cells.newSymbology("health", {100: QColor("blue")})
-    print("[ERROR] Should have failed!")
-except ValueError as e:
-    print(f"[EXPECTED] Got error: {str(e)[:60]}...")
-
-# Different entity type CAN use same auto-derived name!
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
 Sheep.setDefaultValues({"health": lambda: 100})
 
-Sheep.newSymbology(
+# Create health symbology with color and border (best practice)
+Cells.newSymbologyWithBorder(
     "health",
     {
         100: QColor("green"),
         50: QColor("orange"),
         25: QColor("red"),
-    }
-    # No name= needed! Auto-derived "Health" is OK for different type
+    },
+    border_width=3
 )
 
-print("\nDifferent entity type (Sheep) can use auto-derived 'Health'")
-print(f"Groups now: {list(myModel.symbology_groups.keys())}")
-print(f"'Health' group types: {myModel.symbology_groups['Health'].get_all_entity_types()}")
+# Same for Sheep (creates cross-type "Health" group)
+Sheep.newSymbologyWithBorder(
+    "health",
+    {
+        100: QColor("lightgreen"),
+        50: QColor("yellow"),
+        25: QColor("red"),
+    },
+    border_width=2
+)
 
-# Create some sheep
-sheep = Sheep.newAgentAtCoords(Cells, 3, 3)
+# Create agents
+sheep = Sheep.newAgentAtCoords(Cells, 2, 2)
 sheep.setValue("health", 100)
 
 myModel.launch()

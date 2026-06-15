@@ -84,14 +84,31 @@ class SGEntity(AttributeAndValueFunctionalities):
             value_to_symbol_dict (dict): Value-to-symbol mapping
             symbol_type (str): Type of symbol ('color', 'border', etc.)
         """
-        from mainClasses.SGAspectSystem import SGVisualAspect, SGSymbology
+        from mainClasses.SGAspectSystem import SGSymbology
+        from mainClasses.SGAspect import SGAspect
+        from PyQt6.QtGui import QColor
+
+        # Adapt old-style mappings to SGAspect
+        adapted_mapping = {}
+        for value, symbol in value_to_symbol_dict.items():
+            if isinstance(symbol, SGAspect):
+                adapted_mapping[value] = symbol
+            elif isinstance(symbol, dict) and 'color' in symbol:
+                aspect = SGAspect()
+                aspect.border_color = symbol['color']
+                aspect.border_size = symbol.get('width', 1)
+                adapted_mapping[value] = aspect
+            else:
+                # Assume QColor or color string
+                aspect = SGAspect()
+                aspect.background_color = symbol
+                adapted_mapping[value] = aspect
 
         if symbology_name not in self.instance_aspects:
-            self.instance_aspects[symbology_name] = SGSymbology(symbology_name)
-
-        symbology = self.instance_aspects[symbology_name]
-        aspect = SGVisualAspect(symbol_type, attribute, value_to_symbol_dict)
-        symbology.add_aspect(aspect)
+            self.instance_aspects[symbology_name] = SGSymbology(symbology_name, mapping=adapted_mapping)
+        else:
+            # Update existing instance symbology
+            self.instance_aspects[symbology_name].mapping = adapted_mapping
 
     def clearInstanceSymbology(self, symbology_name):
         """
