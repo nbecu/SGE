@@ -67,6 +67,29 @@ Sheep.newSymbology(
     }
 )
 
+# APPROACH 3: Alternative symbology with explicit name
+# Demonstrates multiple symbologies for the same attribute
+# Use dict shorthand syntax for cleaner code
+Cells.newSymbology(
+    "health",
+    {
+        100: {"bg": "lightblue", "border": "darkblue", "size": 2, "style": "dashed"},
+        50: {"bg": "lightcyan", "border": "cyan", "size": 1, "style": "dashed"},
+        25: {"bg": "lightgray", "border": "gray", "size": 1},
+    },
+    name="HealthAlternate"
+)
+
+Sheep.newSymbology(
+    "health",
+    {
+        100: {"bg": "lightblue", "border": "darkblue", "size": 2},
+        50: {"bg": "lightcyan", "border": "cyan", "size": 1},
+        25: {"bg": "lightgray", "border": "gray", "size": 1},
+    },
+    name="HealthAlternate"
+)
+
 # Create agents
 sheep = Sheep.newAgentAtCoords(Cells, 2, 2)
 sheep.setValue("health", 100)
