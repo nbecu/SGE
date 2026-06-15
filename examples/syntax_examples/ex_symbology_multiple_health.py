@@ -41,29 +41,14 @@ Cells.newSymbology(
     border_width=3
 )
 
-# APPROACH 2: Advanced - Full control with SGAspect
+# APPROACH 2: SGAspect shorthand (one-liner per value)
 # Allows different border color and width per value
-aspect_100 = SGAspect()
-aspect_100.background_color = "lightgreen"
-aspect_100.border_color = "darkgreen"
-aspect_100.border_size = 3
-
-aspect_50 = SGAspect()
-aspect_50.background_color = "yellow"
-aspect_50.border_color = "orange"
-aspect_50.border_size = 2
-
-aspect_25 = SGAspect()
-aspect_25.background_color = "red"
-aspect_25.border_color = "darkred"
-aspect_25.border_size = 1
-
 Sheep.newSymbology(
     "health",
     {
-        100: aspect_100,
-        50: aspect_50,
-        25: aspect_25,
+        100: SGAspect(bg="lightgreen", border="darkgreen", size=3),
+        50: SGAspect(bg="yellow", border="orange", size=2),
+        25: SGAspect(bg="red", border="darkred", size=1),
     }
 )
 
