@@ -177,11 +177,15 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
 
         # Resolve border using SGAspectResolver
         from mainClasses.SGAspectSystem import SGAspectResolver
-        border = SGAspectResolver.resolve_border(
-            self.entity_model, symbology_name, attr_name, None
-        )
-        if border:
-            return {'color': border.get('color', Qt.black), 'width': border.get('width', 1)}
+        aspect = SGAspectResolver.resolve_aspect(self.entity_model, symbology_name, attr_name)
+
+        # Only return border if aspect has explicit border_color defined
+        if aspect and hasattr(aspect, 'border_color') and aspect.border_color is not None:
+            color = aspect.border_color
+            if not isinstance(color, QColor):
+                color = QColor(color)
+            width = aspect.border_size if hasattr(aspect, 'border_size') else 1
+            return {'color': color, 'width': width}
 
         return None
     
