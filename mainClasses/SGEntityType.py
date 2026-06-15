@@ -749,16 +749,37 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """
         Declare a new Point of View for the entityType.
 
+        DEPRECATED: Use newSymbology() instead.
+        This method is maintained for backward compatibility with existing games.
+
         Args:
             nameOfPov (str): name of POV, will appear in the interface
             concernedAtt (str): name of the attribut concerned by the declaration
-            dictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
-            
+            dictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color
+
         """
-        self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
-        self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov)
-        if len(self.povShapeColor)==1:
-            self.displayPov(nameOfPov)
+        # Phase 2: Delegate to newSymbology() with backward compat
+        # Convert POV name to symbology name (capitalize)
+        symbology_name = self._capitalize_attribute_name(nameOfPov)
+
+        # Check if we've already created a symbology with this auto-derived name
+        # If so, use an explicit name to avoid conflict
+        if symbology_name in self.model.symbologies:
+            # Fall back to old POV system for backward compat
+            self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
+            self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov)
+            if len(self.povShapeColor)==1:
+                self.displayPov(nameOfPov)
+        else:
+            # Use new symbology system
+            try:
+                self.newSymbology(concernedAtt, dictOfColor, symbol_type='color', name=symbology_name)
+            except ValueError:
+                # If newSymbology fails, fall back to old POV system
+                self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
+                self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov)
+                if len(self.povShapeColor)==1:
+                    self.displayPov(nameOfPov)
 
     
     def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):
