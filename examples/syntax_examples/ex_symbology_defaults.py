@@ -27,22 +27,18 @@ grid_2.setEntities("health", 100)
 grid_2.setEntities_randomChoicePerEntity("health", [100, 50, 25])
 
 # APPROACH 1: WITHOUT defaults (repetitive - shown for comparison)
-print("[APPROACH 1] WITHOUT defaults (repetitive)")
 grid_1.newSymbology("health", {
     100: {"bg": "green", "border": "darkgreen", "size": 2, "style": "solid"},
     50: {"bg": "orange", "border": "darkorange", "size": 2, "style": "solid"},
     25: {"bg": "red", "border": "darkred", "size": 2, "style": "solid"}
 }, name="HealthRepetitive")
-print("  Each value repeats border properties")
 
 # APPROACH 2: WITH defaults (clean and DRY)
-print("\n[APPROACH 2] WITH defaults (clean and DRY)")
 grid_2.newSymbology("health", {
     100: {"bg": "lightgreen"},
     50: {"bg": "lightyellow"},
     25: {"bg": "lightcoral"}
 }, border_size=2, border_color="black", border_style="solid", name="HealthDefaults")
-print("  Border properties defined ONCE, applied to ALL values")
 
 # Agents with alternative defaults
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
@@ -54,12 +50,6 @@ Sheep.newSymbology("health", {
     50: {"bg": "lightyellow"},
     25: {"bg": "lightcoral"}
 }, border_size=3, border_color="navy", border_style="dashed")
-
-print("\nBenefit of aspect_defaults:")
-print("  - Less code repetition")
-print("  - Easier to maintain (change border once, applies to all)")
-print("  - Still allows per-value customization")
-print("  - All defaults are optional")
 
 # Create agents to visualize
 for i in range(1, 4):
