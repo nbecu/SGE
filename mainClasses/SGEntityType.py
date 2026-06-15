@@ -855,6 +855,9 @@ class SGEntityType(AttributeAndValueFunctionalities):
         group = self.model.symbology_groups[name]
         group.add_symbology(self.name, symbology)
 
+        # Phase 2: Register group in menu bar if not already done
+        self.model._addOrUpdateGroupMenuItem(name)
+
         # Register in UI menu bar (backward compatibility)
         is_border = (symbol_type == 'border')
         self.model.addEntTypeSymbologyinMenuBar(self, name, isBorder=is_border)

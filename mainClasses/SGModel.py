@@ -16,7 +16,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtSvg import *
 from PyQt6.QtWidgets import QMenu, QMainWindow, QMessageBox, QApplication, QFileDialog, QInputDialog, QDialog
 from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QAction, QActionGroup
 from PyQt6 import QtWidgets
 from screeninfo import get_monitors
 
@@ -246,6 +246,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.symbologies = {}  # {name: SGSymbology} - definitions at model level
         self.symbology_groups = {}  # {name: SGSymbologyGroup} - groups of symbologies with same name across entity types
         self.active_symbology_groups = set()  # Names of currently active groups
+
+        # Phase 2: Menu UI state tracking
+        self.active_symbologies_by_type = {}  # {entity_type_name: active_symbology_name}
+        self.symbology_group_menu_items = {}  # {group_name: QAction} for group checkboxes
+        self.symbology_type_menu_items = {}  # {(type_name, symbology_name): QAction} for radio buttons
 
         self.initUI()
 
@@ -1501,20 +1506,42 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             return submenu
 
     def addEntTypeSymbologyinMenuBar(self, aType, nameOfSymbology, isBorder=False):
+        """Add symbology to BY TYPE section with radio buttons."""
         if self.symbologyMenu is None:
             return False
+
+        # Phase 2: Create BY TYPE section if needed
+        if not hasattr(self, '_by_type_menu_section_created'):
+            self.symbologyMenu.addSeparator()
+            self._by_type_menu_section_created = True
+            self._by_type_start_index = len(self.symbologyMenu.actions())
+
         submenu_name = aType.name
         if isBorder:
             submenu_name = submenu_name + self.keyword_borderSubmenu
+
         # get the submenu (or create it if it doesn't exist yet)
         submenu = self.getOrCreateSubmenuSymbology(submenu_name)
-        # create an element with checkbox
+
+        # Ensure submenu has a QActionGroup for radio button behavior
+        if not hasattr(submenu, '_symbology_action_group'):
+            submenu._symbology_action_group = QActionGroup(submenu)
+            submenu._symbology_action_group.setExclusive(True)
+
+        # create radio button action
         item = QAction(nameOfSymbology, self, checkable=True)
-        item.triggered.connect(self.menu_item_triggered)
-        # add the submenu to the menu
+        item.triggered.connect(lambda checked: self._onTypeSymbologyClicked(aType, nameOfSymbology))
+
+        # Add to action group (makes it radio button)
+        submenu._symbology_action_group.addAction(item)
         submenu.addAction(item)
-        # add actions to the submenu
+
+        # Track for legacy compatibility
         self.symbologiesInSubmenus[submenu].append(item)
+
+        # Phase 2: Store in type menu items tracking dict
+        key = (aType.name, nameOfSymbology)
+        self.symbology_type_menu_items[key] = item
 
     def checkSymbologyinMenuBar(self, aType, nameOfSymbology, borderSymbology=False):
         """
@@ -1539,6 +1566,89 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             else:
                 if not borderSymbology:
                     aSymbology.setChecked(False)
+
+    def _ensureSymbologyGroupsMenuSection(self):
+        """Create GROUPS section in symbology menu if not already created."""
+        if not hasattr(self, '_symbology_groups_menu_created'):
+            if self.symbologyMenu is None:
+                return
+            # Add separator and GROUPS header
+            self.symbologyMenu.addSeparator()
+            # Store reference to groups submenu area for later additions
+            self._symbology_groups_menu_created = True
+            self._symbology_groups_start_index = len(self.symbologyMenu.actions())
+
+    def _addOrUpdateGroupMenuItem(self, group_name):
+        """Add or update a group checkbox in the GROUPS section.
+
+        Only adds if the symbology is truly a group (exists in 2+ entity types).
+        """
+        self._ensureSymbologyGroupsMenuSection()
+        if self.symbologyMenu is None:
+            return
+
+        # Get the group and check if it's a real group (2+ entity types)
+        group = self.symbology_groups.get(group_name)
+        if not group or len(group.get_all_entity_types()) < 2:
+            return  # Not a group yet
+
+        # Check if group item already exists
+        if group_name in self.symbology_group_menu_items:
+            return  # Already exists
+
+        # Create checkbox action for group
+        item = QAction(f"{group_name}", self, checkable=True)
+        item.triggered.connect(lambda: self._onGroupSymbologyClicked(group_name))
+
+        # Add to menu and tracking dict
+        self.symbologyMenu.addAction(item)
+        self.symbology_group_menu_items[group_name] = item
+
+    def _onGroupSymbologyClicked(self, group_name):
+        """Handle group symbology checkbox click."""
+        group = self.symbology_groups.get(group_name)
+        if not group:
+            return
+
+        # Activate symbology for all types in the group
+        is_checked = self.symbology_group_menu_items[group_name].isChecked()
+
+        for type_name in group.get_all_entity_types():
+            entity_type = self.getEntityType(type_name)
+            if entity_type:
+                if is_checked:
+                    entity_type.displaySymbology(group_name)
+                    self.active_symbologies_by_type[type_name] = group_name
+                    # Update type menu checkboxes
+                    self._updateTypeMenuCheckbox(type_name, group_name)
+
+        # Update display
+        for aLegend in self.getLegends():
+            aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
+        self.update()
+
+    def _onTypeSymbologyClicked(self, entity_type, symbology_name):
+        """Handle type symbology radio button click."""
+        # Display this symbology for the type
+        entity_type.displaySymbology(symbology_name)
+        self.active_symbologies_by_type[entity_type.name] = symbology_name
+
+        # Update display
+        for aLegend in self.getLegends():
+            aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
+        self.update()
+
+    def _updateTypeMenuCheckbox(self, type_name, symbology_name):
+        """Update type menu to show active symbology via radio button."""
+        # Update the radio button for this type-symbology pair
+        key = (type_name, symbology_name)
+        if key in self.symbology_type_menu_items:
+            self.symbology_type_menu_items[key].setChecked(True)
+
+        # Uncheck other symbologies for this type
+        for (t_name, s_name), action in self.symbology_type_menu_items.items():
+            if t_name == type_name and s_name != symbology_name:
+                action.setChecked(False)
 
     def menu_item_triggered(self):
         # get the triggered QAction object
