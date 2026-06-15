@@ -66,7 +66,7 @@ if fertility_group:
     print(f"Entity types in group: {fertility_group.get_all_entity_types()}")
     for type_name in fertility_group.get_all_entity_types():
         symb = fertility_group.get_symbology_for_type(type_name)
-        print(f"  - {type_name}: {len(symb.aspects)} aspect(s)")
+        print(f"  - {type_name}: {len(symb.mapping)} value(s) mapped")
 
 # Demonstrate hierarchical resolution
 print("\n" + "=" * 60)

@@ -111,20 +111,18 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         if not symbology_name:
             return None
 
-        # Get the symbology definition and extract attribute from first aspect
-        if not hasattr(self.model, 'symbologies'):
+        # Get the symbology definition and attribute name
+        if not hasattr(self.model, 'symbologies') or not hasattr(self.model, 'symbology_to_attribute'):
             return None
 
         symbology = self.model.symbologies.get(symbology_name)
-        if not symbology or not hasattr(symbology, 'aspects') or len(symbology.aspects) == 0:
+        if not symbology:
             return None
 
-        # Get attribute name from first aspect
-        first_aspect = symbology.aspects[0]
-        if not hasattr(first_aspect, 'attribute'):
+        # Get attribute name from model's tracking
+        attr_name = self.model.symbology_to_attribute.get(symbology_name)
+        if not attr_name:
             return None
-
-        attr_name = first_aspect.attribute
 
         # Resolve color using SGAspectResolver
         from mainClasses.SGAspectSystem import SGAspectResolver
@@ -164,25 +162,18 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         if not symbology_name:
             return None
 
-        # Get the symbology definition and extract attribute from first border aspect
-        if not hasattr(self.model, 'symbologies'):
+        # Get the symbology definition and attribute name
+        if not hasattr(self.model, 'symbologies') or not hasattr(self.model, 'symbology_to_attribute'):
             return None
 
         symbology = self.model.symbologies.get(symbology_name)
-        if not symbology or not hasattr(symbology, 'aspects') or len(symbology.aspects) == 0:
+        if not symbology:
             return None
 
-        # Look for border aspect
-        border_aspect = None
-        for aspect in symbology.aspects:
-            if hasattr(aspect, 'symbol_type') and aspect.symbol_type == 'border':
-                border_aspect = aspect
-                break
-
-        if not border_aspect:
+        # Get attribute name from model's tracking
+        attr_name = self.model.symbology_to_attribute.get(symbology_name)
+        if not attr_name:
             return None
-
-        attr_name = border_aspect.attribute
 
         # Resolve border using SGAspectResolver
         from mainClasses.SGAspectSystem import SGAspectResolver

@@ -246,6 +246,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.symbologies = {}  # {name: SGSymbology} - definitions at model level
         self.symbology_groups = {}  # {name: SGSymbologyGroup} - groups of symbologies with same name across entity types
         self.active_symbology_groups = set()  # Names of currently active groups
+        self.symbology_to_attribute = {}  # {symbology_name: attribute_name} - mapping for resolver
 
         # Phase 2: Menu UI state tracking
         self.active_symbologies_by_type = {}  # {entity_type_name: active_symbology_name}

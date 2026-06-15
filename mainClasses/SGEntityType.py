@@ -888,6 +888,10 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if name not in self.model.symbologies:
             self.model.symbologies[name] = symbology
 
+        # Register attribute mapping for resolver
+        if name not in self.model.symbology_to_attribute:
+            self.model.symbology_to_attribute[name] = attribute
+
         # Auto-create group if needed
         if name not in self.model.symbology_groups:
             self.model.symbology_groups[name] = SGSymbologyGroup(name)
