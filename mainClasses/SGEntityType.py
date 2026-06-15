@@ -815,7 +815,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_width=None):
+    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_size=None):
         """
         Declare a new symbology (visual representation) for this entity type.
 
@@ -823,7 +823,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
             newSymbology("health", {100: QColor("green"), 50: QColor("red")})
 
         PATTERN 2 (Category - with borders, same color as background):
-            newSymbology("health", {100: QColor("green"), 50: QColor("red")}, border_width=2)
+            newSymbology("health", {100: QColor("green"), 50: QColor("red")}, border_size=2)
 
         PATTERN 3 (Category - simplified dict for border customization):
             newSymbology("health", {
@@ -851,7 +851,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 - If None: auto-derived from attribute (e.g., 'health' → 'Health')
                 - If provided: use explicitly (required for multiple symbologies per attribute)
             rule_function (callable, optional): function(entity) → SGAspect for rules
-            border_width (int, optional): Border width in pixels (PATTERN 2 only).
+            border_size (int, optional): Border width in pixels (PATTERN 2 only).
                                          If provided with QColor mapping, adds border with same color as background.
                                          For more control per value, use PATTERN 3 (dict) or PATTERN 4 (SGAspect).
 
@@ -879,13 +879,13 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if mapping:
             for value, symbol in mapping.items():
                 if isinstance(symbol, SGAspect):
-                    # Already SGAspect - optionally add border if border_width provided
+                    # Already SGAspect - optionally add border if border_size provided
                     aspect = symbol
-                    if border_width is not None and aspect.border_color is None:
+                    if border_size is not None and aspect.border_color is None:
                         # Add border if not already defined
                         if aspect.background_color:
                             aspect.border_color = aspect.background_color
-                            aspect.border_size = border_width
+                            aspect.border_size = border_size
                     adapted_mapping[value] = aspect
                 elif isinstance(symbol, dict):
                     # New simplified format: {'bg': color, 'border': color, 'size': width, 'style': style}
@@ -904,7 +904,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
                         # Old border format: {'color': QColor, 'width': int}
                         aspect = SGAspect()
                         aspect.border_color = symbol['color']
-                        aspect.border_size = symbol.get('width', border_width or 1)
+                        aspect.border_size = symbol.get('width', border_size or 1)
                         adapted_mapping[value] = aspect
                     else:
                         # Unknown dict format - skip
@@ -913,10 +913,10 @@ class SGEntityType(AttributeAndValueFunctionalities):
                     # Old color format: QColor or color string
                     aspect = SGAspect()
                     aspect.background_color = symbol
-                    # Add border if border_width provided
-                    if border_width is not None:
+                    # Add border if border_size provided
+                    if border_size is not None:
                         aspect.border_color = symbol  # Same color as background
-                        aspect.border_size = border_width
+                        aspect.border_size = border_size
                     adapted_mapping[value] = aspect
 
         # Create unique symbology for this type

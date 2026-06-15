@@ -2,7 +2,7 @@
 Multiple symbologies example: Different visual representations for same attribute
 
 Demonstrates:
-- Simple symbology with border_width (border uses same color as background)
+- Simple symbology with border_size (border uses same color as background)
 - Advanced symbology with SGAspect (separate border color per value)
 - Multiple different symbologies for one attribute (different visual views)
 """
@@ -38,7 +38,7 @@ Cells.newSymbology(
         50: QColor("orange"),
         25: QColor("red"),
     },
-    border_width=3
+    border_size=3
 )
 
 # APPROACH 2: SGAspect shorthand (one-liner per value)
