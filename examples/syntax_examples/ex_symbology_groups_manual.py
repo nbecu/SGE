@@ -38,22 +38,25 @@ for cell in Cells.entities:
     cell.setValue("fertility", random.randint(0, 100))
 
 # Create multiple symbologies
+
+
+
 # Health symbology: Green (healthy) → Red (sick)
-health_aspects = {
-    75: SGAspect(background_color=QColor("green"), text_content="H:{health}"),
-    50: SGAspect(background_color=QColor("yellow"), text_content="H:{health}"),
-    25: SGAspect(background_color=QColor("red"), text_content="H:{health}"),
-}
+Cells.newSymbology("health", 
+                {   75: SGAspect(background_color=QColor("green"), text_content="H:{health}"),
+                    50: SGAspect(background_color=QColor("yellow"), text_content="H:{health}"),
+                    25: SGAspect(background_color=QColor("red"), text_content="H:{health}"),
+                },
+                name="HealthStatus")
 
 # Fertility symbology: Brown (low) → Blue (high)
-fertility_aspects = {
-    75: SGAspect(background_color=QColor("blue"), text_content="F:{fertility}"),
-    50: SGAspect(background_color=QColor("lightblue"), text_content="F:{fertility}"),
-    25: SGAspect(background_color=QColor("brown"), text_content="F:{fertility}"),
-}
-
-Cells.newSymbology("health", health_aspects, name="HealthStatus")
-Cells.newSymbology("fertility", fertility_aspects, name="FertilityStatus")
+Cells.newSymbology("fertility", 
+                {
+                    75: SGAspect(background_color=QColor("blue"), text_content="F:{fertility}"),
+                    50: SGAspect(background_color=QColor("lightblue"), text_content="F:{fertility}"),
+                    25: SGAspect(background_color=QColor("brown"), text_content="F:{fertility}"),
+                },
+                name="FertilityStatus")
 
 # Create SGSymbologyGroups (manual mode) - thematic visualization groups
 # Each group can combine MULTIPLE symbologies with different names

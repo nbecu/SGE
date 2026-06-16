@@ -1635,7 +1635,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def _addOrUpdateGroupMenuItem(self, group_name):
         """Add or update a group radio button in the GROUPS section.
 
-        Only adds if the symbology is truly a group (exists in 2+ entity types).
+        Adds if:
+        - Automatic group: exists in 2+ entity types
+        - Manual group: has is_manual=True flag
+
         Groups are mutually exclusive (radio buttons via QActionGroup).
         Items are inserted BEFORE the separator to maintain GROUPS before BY TYPE order.
         """
@@ -1643,10 +1646,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if self.symbologyMenu is None:
             return
 
-        # Get the group and check if it's a real group (2+ entity types)
+        # Get the group and check if it's a valid group
         group = self.symbology_groups.get(group_name)
-        if not group or len(group.get_all_entity_types()) < 2:
-            return  # Not a group yet
+        if not group:
+            return  # Group doesn't exist
+
+        # Accept both automatic groups (2+ types) and manual groups (is_manual=True)
+        is_valid_group = len(group.get_all_entity_types()) >= 2 or (hasattr(group, 'is_manual') and group.is_manual)
+        if not is_valid_group:
+            return  # Not a valid group yet
 
         # Check if group item already exists
         if group_name in self.symbology_group_menu_items:
@@ -3232,10 +3240,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         group = SGSymbologyGroup(name, symbology_names=symbology_names, is_manual=True)
 
-        # Store the group for later access/activation
-        if not hasattr(self, 'symbology_groups_manual'):
-            self.symbology_groups_manual = {}
-        self.symbology_groups_manual[name] = group
+        # Store in symbology_groups (same as automatic groups) for consistency
+        self.symbology_groups[name] = group
+
+        # Register in menu (manual groups always get a menu item, unlike auto groups which need 2+ types)
+        self._addOrUpdateGroupMenuItem(name)
 
         return group
 
