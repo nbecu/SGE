@@ -35,7 +35,6 @@ class SGEntityType(AttributeAndValueFunctionalities):
         self.borderColorClassif = {}  # Classif will replace pov
 
         # Aspect system (hierarchical symbology management)
-        self.symbologies = {}  # {name: SGSymbology}
         self._auto_derived_symbologies = set()  # Track auto-derived names per EntityType (to catch duplicates)
 
         # Create default symbology from default colors

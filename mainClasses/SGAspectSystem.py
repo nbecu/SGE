@@ -305,9 +305,10 @@ class SGSymbologyGroup:
         if self.is_manual:
             # Manual mode: activate symbologies by name across all types that have them
             for symbology_name in self.symbology_names:
-                if hasattr(model, 'active_symbologies_by_type'):
-                    for entity_type in model.getAllEntityTypes():
-                        if symbology_name in entity_type.symbologies:
+                if hasattr(model, 'active_symbologies_by_type') and hasattr(model, 'symbologies'):
+                    if symbology_name in model.symbologies:
+                        # Activate for all entity types
+                        for entity_type in model.getEntityTypes():
                             model.active_symbologies_by_type[entity_type.name] = symbology_name
                             entity_type.displaySymbology(symbology_name)
         else:
