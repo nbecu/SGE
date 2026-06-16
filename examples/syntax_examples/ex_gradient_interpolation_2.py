@@ -61,14 +61,6 @@ for method in interpolation_methods:
         interpolation=method
     )
 
-print("Compare interpolation methods using the menu:")
-print("Menu > Symbology > By Type > Cells > Score[Linear/Log/Exp]")
-print("")
-print("Transitions:")
-print("- Linear: Uniform blue→purple→red gradient")
-print("- Log: Soft transition (more blue at start, gradual change)")
-print("- Exp: Fast transition (quick to red, slow at end)")
-
 # Launch
 myModel.launch()
 sys.exit(monApp.exec())
