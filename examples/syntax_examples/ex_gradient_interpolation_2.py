@@ -98,7 +98,9 @@ agent_status_aspects = {
 
 AgentType.newSymbology("status", agent_status_aspects, name="AgentStatus")
 
-# Create agents with different statuses using attributesAndValues parameter
+# Create agents with different statuses
+# Note: newAgentsAtCoords() creates all agents at same position, so we use a loop
+# for per-entity positions and attributes
 statuses = ["idle", "working", "paused", "idle", "working", "paused"]
 for i, status in enumerate(statuses):
     cell = Cells.entities[i % len(Cells.entities)]
