@@ -113,6 +113,9 @@ class SGLegend(SGGameSpace):
                             gradient_max_value=max_val
                         )
                         self.legendItems.append(anItem)
+                        # Gradient bar widget is 60px tall, while normal items are ~20px
+                        # Increment posYOfItems by 2 more to account for extra height
+                        self.posYOfItems += 2
                     else:
                         # DISCRETE/CLASSIFICATION: Show each class boundary
                         for value, aspect in symbology.mapping.items():
@@ -179,6 +182,9 @@ class SGLegend(SGGameSpace):
                             gradient_max_value=max_val
                         )
                         self.legendItems.append(anItem)
+                        # Gradient bar widget is 60px tall, while normal items are ~20px
+                        # Increment posYOfItems by 2 more to account for extra height
+                        self.posYOfItems += 2
                     else:
                         # DISCRETE: Show each value
                         for value, aspect in symbology.mapping.items():
