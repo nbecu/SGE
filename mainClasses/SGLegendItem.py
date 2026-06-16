@@ -217,9 +217,14 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.drawText(bar_rect.adjusted(5, bar_height + 2, -5, 20), Qt.AlignLeft, min_text)
                 painter.drawText(bar_rect.adjusted(5, bar_height + 2, -5, 20), Qt.AlignRight, max_text)
 
+                # Position the gradient bar properly
                 painter.end()
-                return  # Skip the rest of the painting for gradient bars
+                left_pad = getattr(self.legend, 'leftPadding', 10)
+                top_pad = getattr(self.legend, 'topPadding', 0)
+                self.move(left_pad, top_pad + self.posY * self.legend.heightOfLabels)
+                return
 
+            # Draw normal symbol (not a gradient bar)
             scale = getattr(self.legend, "symbolScale", 1.0)
             try:
                 scale = float(scale)
