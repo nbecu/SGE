@@ -8,7 +8,7 @@ from math import inf
 
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,text,typeOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",isBorderItem=False,borderColorAndWidth=None,gameAction=None):
+    def __init__(self,parent,type,text,typeOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",isBorderItem=False,borderColorAndWidth=None,gameAction=None,gradient_colors=None,gradient_min_value=None,gradient_max_value=None):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
@@ -31,6 +31,11 @@ class SGLegendItem(QtWidgets.QWidget):
             self.color = default_aspect.background_color if default_aspect else self.typeDef.defaultShapeColor
         self.remainNumber=int
         self.gameAction= gameAction
+        # Gradient bar support (Phase 3)
+        self.gradient_colors = gradient_colors  # List of QColor for gradient bar
+        self.gradient_min_value = gradient_min_value  # Min value for gradient label
+        self.gradient_max_value = gradient_max_value  # Max value for gradient label
+        self.is_gradient_bar = gradient_colors is not None
 
     def event(self, e):
         # Intercept tooltip event to show the number of remaining acions for gameActions
@@ -181,6 +186,41 @@ class SGLegendItem(QtWidgets.QWidget):
                     painter.setBrush(Qt.NoBrush)
                     painter.drawRect(rect.x(), rect.y(), rect.width() - 1, rect.height() - 1)
                 return True
+
+            # GRADIENT BAR (Phase 3) - Draw before symbols
+            if self.is_gradient_bar and self.gradient_colors:
+                from PyQt6.QtGui import QLinearGradient
+                # Draw gradient bar: 150px wide, 20px tall
+                bar_width = 150
+                bar_height = 20
+                bar_rect = QRect(0, 0, bar_width, bar_height)
+
+                # Create linear gradient
+                gradient = QLinearGradient(0, 0, bar_width, 0)
+                num_colors = len(self.gradient_colors)
+                for i, color in enumerate(self.gradient_colors):
+                    position = i / (num_colors - 1) if num_colors > 1 else 0
+                    gradient.setColorAt(position, color)
+
+                # Draw gradient bar
+                painter.setBrush(gradient)
+                painter.setPen(QPen(Qt.black, 1))
+                painter.drawRect(bar_rect)
+
+                # Draw min/max labels
+                from PyQt6.QtGui import QFont
+                font = QFont("Arial", 8)
+                painter.setFont(font)
+                painter.setPen(QPen(Qt.black, 1))
+
+                min_text = f"{self.gradient_min_value:.0f}" if self.gradient_min_value is not None else "Min"
+                max_text = f"{self.gradient_max_value:.0f}" if self.gradient_max_value is not None else "Max"
+
+                painter.drawText(bar_rect.adjusted(5, bar_height + 2, -5, 20), Qt.AlignLeft, min_text)
+                painter.drawText(bar_rect.adjusted(5, bar_height + 2, -5, 20), Qt.AlignRight, max_text)
+
+                painter.end()
+                return
 
             scale = getattr(self.legend, "symbolScale", 1.0)
             try:

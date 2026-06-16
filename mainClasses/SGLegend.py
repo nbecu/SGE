@@ -82,15 +82,15 @@ class SGLegend(SGGameSpace):
                     is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid')
 
                     if is_gradient and len(symbology.mapping) >= 2:
-                        # GRADIENT: Create a color bar with interpolated colors
+                        # GRADIENT: Create a single gradient bar
                         sorted_values = sorted(symbology.mapping.keys())
                         min_val = sorted_values[0]
                         max_val = sorted_values[-1]
 
-                        # Generate 10 intermediate samples to show gradient
-                        num_samples = 10
+                        # Generate 20 color samples for smooth gradient bar
+                        num_samples = 20
+                        gradient_colors = []
                         for i in range(num_samples):
-                            # Calculate interpolated value and color
                             t = i / (num_samples - 1)  # 0 to 1
                             sample_value = min_val + t * (max_val - min_val)
 
@@ -102,10 +102,17 @@ class SGLegend(SGGameSpace):
                             if isinstance(sample_color, str):
                                 sample_color = QColor(sample_color)
 
-                            # Create label showing value range
-                            label = f"{sample_value:.1f}" if i == 0 or i == num_samples-1 else ""
-                            anItem = SGLegendItem(self, 'symbol', label, type, sample_color, aAtt, sample_value)
-                            self.legendItems.append(anItem)
+                            gradient_colors.append(sample_color)
+
+                        # Create single gradient bar item
+                        anItem = SGLegendItem(
+                            self, 'symbol', '',
+                            type, Qt.black, aAtt, min_val,
+                            gradient_colors=gradient_colors,
+                            gradient_min_value=min_val,
+                            gradient_max_value=max_val
+                        )
+                        self.legendItems.append(anItem)
                     else:
                         # DISCRETE/CLASSIFICATION: Show each class boundary
                         for value, aspect in symbology.mapping.items():
@@ -145,13 +152,14 @@ class SGLegend(SGGameSpace):
                     is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid')
 
                     if is_gradient and len(symbology.mapping) >= 2:
-                        # GRADIENT: Create color samples
+                        # GRADIENT: Create a single gradient bar for borders
                         sorted_values = sorted(symbology.mapping.keys())
                         min_val = sorted_values[0]
                         max_val = sorted_values[-1]
 
-                        # Generate 10 intermediate samples
-                        num_samples = 10
+                        # Generate 20 color samples for smooth gradient bar
+                        num_samples = 20
+                        gradient_colors = []
                         for i in range(num_samples):
                             t = i / (num_samples - 1)
                             sample_value = min_val + t * (max_val - min_val)
@@ -159,11 +167,18 @@ class SGLegend(SGGameSpace):
                             border_color = sample_aspect.border_color if hasattr(sample_aspect, 'border_color') else Qt.black
                             if isinstance(border_color, str):
                                 border_color = QColor(border_color)
-                            border_size = sample_aspect.border_size if hasattr(sample_aspect, 'border_size') else 1
-                            border_info = {'color': border_color, 'width': border_size}
-                            label = f"{sample_value:.1f}" if i == 0 or i == num_samples-1 else ""
-                            anItem = SGLegendItem(self, 'symbol', label, type, nameOfAttribut=aAtt, valueOfAttribut=sample_value, isBorderItem=True, borderColorAndWidth=border_info)
-                            self.legendItems.append(anItem)
+                            gradient_colors.append(border_color)
+
+                        # Create single gradient bar item for borders
+                        anItem = SGLegendItem(
+                            self, 'symbol', '',
+                            type, nameOfAttribut=aAtt, valueOfAttribut=min_val,
+                            isBorderItem=True,
+                            gradient_colors=gradient_colors,
+                            gradient_min_value=min_val,
+                            gradient_max_value=max_val
+                        )
+                        self.legendItems.append(anItem)
                     else:
                         # DISCRETE: Show each value
                         for value, aspect in symbology.mapping.items():
