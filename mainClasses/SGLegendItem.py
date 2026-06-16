@@ -497,17 +497,25 @@ class SGLegendItem(QtWidgets.QWidget):
                 fm = QFontMetrics(font)
                 text_w = fm.boundingRect(self.text).width()
             # Compute minimum width from measured text + base_x and a small padding
-            try:
-                if self.type == "symbol" and (self.text is None or str(self.text) == ""):
-                    base_x = symbol_rect.width() + 2
-                    right_pad = 2
-                else:
-                    right_pad = 6
-                min_w = int(base_x + max(0, text_w) + right_pad)
-            except Exception:
-                min_w = 60
-            # Use heightOfLabels for item height to ensure proper clickable area
-            item_height = getattr(self.legend, 'heightOfLabels', 22)
+            # Special sizing for gradient bars (Phase 3)
+            if self.is_gradient_bar:
+                # Gradient bar is 150px wide + padding
+                min_w = 150 + 20  # Bar width + labels padding
+                # Height: bar (20px) + text below (15px) + margins
+                item_height = 20 + 18
+            else:
+                try:
+                    if self.type == "symbol" and (self.text is None or str(self.text) == ""):
+                        base_x = symbol_rect.width() + 2
+                        right_pad = 2
+                    else:
+                        right_pad = 6
+                    min_w = int(base_x + max(0, text_w) + right_pad)
+                except Exception:
+                    min_w = 60
+                # Use heightOfLabels for item height to ensure proper clickable area
+                item_height = getattr(self.legend, 'heightOfLabels', 22)
+
             self.setMinimumSize(min_w, item_height)
             self.resize(min_w, item_height)  # Ensure the widget has the correct size
             # Position items using panel paddings
