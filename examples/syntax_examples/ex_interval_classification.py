@@ -41,7 +41,9 @@ quantile_mapping = SGClassifier.classify_quantile(
 Cells.newSymbologyClassified(
     "pollution",
     quantile_mapping,
-    name="PollutionQuantile"
+    name="PollutionQuantile",
+    text_content="{pollution}",
+    text_size=7
 )
 
 # Method 2: Manual Classification (custom thresholds)
@@ -53,7 +55,9 @@ manual_mapping = SGClassifier.classify_manual(
 Cells.newSymbologyClassified(
     "pollution",
     manual_mapping,
-    name="PollutionManual"
+    name="PollutionManual",
+    text_content="{pollution}",
+    text_size=7
 )
 
 # Method 3: Equidistant Classification (equal width intervals)
@@ -66,12 +70,16 @@ equidistant_mapping = SGClassifier.classify_equidistant(
 Cells.newSymbologyClassified(
     "pollution",
     equidistant_mapping,
-    name="PollutionEquidistant"
+    name="PollutionEquidistant",
+    text_content="{pollution}",
+    text_size=7
 )
 
 # By default, quantile classification is active
 # To switch between classifications, use the menu:
 # Menu > Symbology > By Type > Cells > PollutionQuantile/Manual/Equidistant
+
+myModel.newLegend()  # Add legend for classified symbology
 
 # Launch
 myModel.launch()

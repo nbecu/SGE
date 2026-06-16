@@ -61,6 +61,8 @@ Cells.newSymbologyGradient(
     name="TemperatureGradient"
 )
 
+myModel.newLegend()  # Add legend for gradient symbology
+
 # Launch
 myModel.launch()
 sys.exit(monApp.exec())
