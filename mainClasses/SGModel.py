@@ -1854,6 +1854,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                             if not hasattr(self, '_last_selected_symbology_by_type'):
                                 self._last_selected_symbology_by_type = {}
                             self._last_selected_symbology_by_type[entity_type.name] = symbology_name
+                            # Update type menu checkboxes to match group activation
+                            self._updateTypeMenuCheckbox(entity_type.name, symbology_name)
             else:
                 # Automatic group: activate by type
                 for type_name in group.get_all_entity_types():
