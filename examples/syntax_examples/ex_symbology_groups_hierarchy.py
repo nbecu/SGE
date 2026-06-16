@@ -12,7 +12,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from mainClasses.SGSGE import *
-from mainClasses.SGAspectSystem import SGAspectResolver
 from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
@@ -72,22 +71,16 @@ cow2.setValue("fertility", 50)
 cow3 = Cows.newAgentAtCoords(3, 3)
 cow3.setValue("fertility", 100)
 
-# Demonstrate hierarchical resolution
-print("\n" + "=" * 60)
-print("Hierarchical Resolution: Entity > Type > Default")
-print("=" * 60)
-
+# Demonstrate instance symbology override
 cell = Cells.getCell(1, 1)
 cell.setValue("fertility", 0)
 
-# Type-level resolution (no instance override)
-color = SGAspectResolver.resolve_color(cell, "Fertility", "fertility", QColor("black"))
-print(f"Cell(1,1) fertility=0 >> Type resolution >> {color.name()}")
-
-# Instance override
+# Apply instance override to this specific cell
 cell.setInstanceSymbology("Fertility", "fertility", {0: QColor("purple"), 1: QColor("cyan")})
-color_override = SGAspectResolver.resolve_color(cell, "Fertility", "fertility", QColor("black"))
-print(f"After instance override >> {color_override.name()}")
+
+# Create legend to visualize symbologies
+# Question: Do instance symbologies appear in the legend?
+legend = myModel.newLegend()
 
 # Launch
 myModel.launch()
