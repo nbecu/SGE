@@ -121,7 +121,8 @@ class SGLegend(SGGameSpace):
                     else:
                         # DISCRETE/CLASSIFICATION: Show each class
                         if is_classification:
-                            # Show class intervals (e.g., "0-25", "25-50")
+                            # Show class intervals with proper notation: [min, max)
+                            # Last class uses [min, max] to include the maximum value
                             sorted_values = sorted(symbology.mapping.keys())
                             for i, value in enumerate(sorted_values):
                                 aspect = symbology.mapping[value]
@@ -129,12 +130,14 @@ class SGLegend(SGGameSpace):
                                 if isinstance(aColor, str):
                                     aColor = QColor(aColor)
 
-                                # Format interval label
+                                # Format interval label with mathematical notation
                                 if i < len(sorted_values) - 1:
                                     next_value = sorted_values[i + 1]
-                                    label = f"{value:.0f}-{next_value:.0f}"
+                                    # [min, max) - min included, max excluded
+                                    label = f"[{value:.0f}, {next_value:.0f})"
                                 else:
-                                    label = f"{value:.0f}+"
+                                    # [min, max] - last class includes max
+                                    label = f"[{value:.0f}]"
 
                                 anItem = SGLegendItem(self, 'symbol', label, type, aColor, aAtt, value)
                                 self.legendItems.append(anItem)
@@ -211,7 +214,8 @@ class SGLegend(SGGameSpace):
                     else:
                         # DISCRETE/CLASSIFICATION: Show each class
                         if is_classification:
-                            # Show class intervals (e.g., "0-25", "25-50")
+                            # Show class intervals with proper notation: [min, max)
+                            # Last class uses [min, max] to include the maximum value
                             sorted_values = sorted(symbology.mapping.keys())
                             for i, value in enumerate(sorted_values):
                                 aspect = symbology.mapping[value]
@@ -221,12 +225,14 @@ class SGLegend(SGGameSpace):
                                 border_size = aspect.border_size if hasattr(aspect, 'border_size') else 1
                                 border_info = {'color': border_color, 'width': border_size}
 
-                                # Format interval label
+                                # Format interval label with mathematical notation
                                 if i < len(sorted_values) - 1:
                                     next_value = sorted_values[i + 1]
-                                    label = f"{value:.0f}-{next_value:.0f}"
+                                    # [min, max) - min included, max excluded
+                                    label = f"[{value:.0f}, {next_value:.0f})"
                                 else:
-                                    label = f"{value:.0f}+"
+                                    # [min, max] - last class includes max
+                                    label = f"[{value:.0f}]"
 
                                 anItem = SGLegendItem(self, 'symbol', label, type, nameOfAttribut=aAtt, valueOfAttribut=value, isBorderItem=True, borderColorAndWidth=border_info)
                                 self.legendItems.append(anItem)
