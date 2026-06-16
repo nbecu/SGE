@@ -62,10 +62,122 @@ class SGSymbology:
                 return None
 
         # Pattern 2: Category/Gradient/Interval (value lookup)
-        if attribute_value is not None and attribute_value in self.mapping:
-            return self.mapping[attribute_value]
+        if attribute_value is not None:
+            # Exact match first
+            if attribute_value in self.mapping:
+                return self.mapping[attribute_value]
+
+            # If no exact match and interpolation is enabled, interpolate
+            if self.interpolation and len(self.mapping) > 0:
+                try:
+                    return self._interpolate_aspect(attribute_value)
+                except Exception:
+                    pass
 
         return None
+
+    def _interpolate_aspect(self, value):
+        """
+        Interpolate an SGAspect for a value between two mapping points.
+
+        Supports: 'linear', 'log', 'exp', 'sigmoid'
+
+        Returns:
+            SGAspect with interpolated properties
+        """
+        # Get sorted mapping keys (must be numeric)
+        try:
+            keys = sorted([k for k in self.mapping.keys() if isinstance(k, (int, float))])
+        except Exception:
+            return None
+
+        if len(keys) < 2:
+            return None
+
+        # Find the two points to interpolate between
+        lower_key = None
+        upper_key = None
+
+        for i, key in enumerate(keys):
+            if key <= value:
+                lower_key = key
+            if key > value and upper_key is None:
+                upper_key = key
+                break
+
+        if lower_key is None or upper_key is None:
+            # Value is outside the range, return nearest
+            if value < keys[0]:
+                return self.mapping[keys[0]]
+            if value > keys[-1]:
+                return self.mapping[keys[-1]]
+            return None
+
+        # Calculate interpolation factor (0-1)
+        lower_aspect = self.mapping[lower_key]
+        upper_aspect = self.mapping[upper_key]
+
+        # Linear interpolation
+        if self.interpolation == 'linear' or self.interpolation is None:
+            t = (value - lower_key) / (upper_key - lower_key)
+        # Log interpolation
+        elif self.interpolation == 'log':
+            t = (value - lower_key) / (upper_key - lower_key)
+            t = t ** 0.5  # Square root for log-like behavior
+        # Exp interpolation
+        elif self.interpolation == 'exp':
+            t = (value - lower_key) / (upper_key - lower_key)
+            t = t ** 2  # Square for exponential-like behavior
+        else:
+            t = (value - lower_key) / (upper_key - lower_key)
+
+        t = max(0, min(1, t))  # Clamp to 0-1
+
+        return self._blend_aspects(lower_aspect, upper_aspect, t)
+
+    def _blend_aspects(self, aspect_a, aspect_b, t):
+        """
+        Blend two aspects with interpolation factor t (0-1).
+
+        Returns a new SGAspect with blended properties.
+        """
+        from mainClasses.SGAspect import SGAspect
+
+        blended = SGAspect()
+
+        # Blend colors
+        if aspect_a.background_color and aspect_b.background_color:
+            color_a = QColor(aspect_a.background_color) if isinstance(aspect_a.background_color, str) else aspect_a.background_color
+            color_b = QColor(aspect_b.background_color) if isinstance(aspect_b.background_color, str) else aspect_b.background_color
+            blended_color = self._blend_colors(color_a, color_b, t)
+            blended.background_color = blended_color
+        else:
+            blended.background_color = aspect_a.background_color or aspect_b.background_color
+
+        # Blend borders
+        if aspect_a.border_color and aspect_b.border_color:
+            border_a = QColor(aspect_a.border_color) if isinstance(aspect_a.border_color, str) else aspect_a.border_color
+            border_b = QColor(aspect_b.border_color) if isinstance(aspect_b.border_color, str) else aspect_b.border_color
+            blended_border = self._blend_colors(border_a, border_b, t)
+            blended.border_color = blended_border
+        else:
+            blended.border_color = aspect_a.border_color or aspect_b.border_color
+
+        # Copy other properties from aspect_a (could be extended to interpolate size, etc.)
+        blended.border_size = aspect_a.border_size or aspect_b.border_size
+        blended.text_content = aspect_a.text_content or aspect_b.text_content
+        blended.text_color = aspect_a.text_color or aspect_b.text_color
+
+        return blended
+
+    @staticmethod
+    def _blend_colors(color_a, color_b, t):
+        """Blend two QColor objects with interpolation factor t (0-1)."""
+        r = int(color_a.red() * (1 - t) + color_b.red() * t)
+        g = int(color_a.green() * (1 - t) + color_b.green() * t)
+        b = int(color_a.blue() * (1 - t) + color_b.blue() * t)
+        a = int(color_a.alpha() * (1 - t) + color_b.alpha() * t)
+        return QColor(r, g, b, a)
 
     def __repr__(self):
         pattern = "rule-based" if self.rule_function else "category"

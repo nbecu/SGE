@@ -888,7 +888,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_size=None, **aspect_defaults):
+    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_size=None, interpolation=None, classification_method=None, **aspect_defaults):
         """
         Declare a new symbology (visual representation) for this entity type.
 
@@ -927,6 +927,13 @@ class SGEntityType(AttributeAndValueFunctionalities):
             border_size (int, optional): Border width in pixels (PATTERN 2 only).
                                          If provided with QColor mapping, adds border with same color as background.
                                          For more control per value, use PATTERN 3 (dict) or PATTERN 4 (SGAspect).
+            interpolation (str, optional): Interpolation method for continuous gradients (Phase 3).
+                                          Options: 'linear', 'log', 'exp', 'sigmoid'
+                                          Automatically interpolates between mapping points for values not in mapping.
+                                          Example: {0: blue, 100: red} with interpolation='linear' gives smooth gradient.
+            classification_method (str, optional): Classification method for interval symbologies (Phase 3).
+                                                  Options: 'quantile', 'equidistant', 'jenks', 'manual'
+                                                  Used to automatically classify continuous values into intervals.
             **aspect_defaults: Default SGAspect properties applied to ALL values in mapping.
                               Example: newSymbology("health", {...}, border_size=2, border_color="black")
                               Will apply border_size=2 and border_color="black" to all health values.
@@ -1027,6 +1034,11 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         if symbology_key not in self.model.symbologies:
             symbology = SGSymbology(name, mapping=adapted_mapping, rule_function=rule_function)
+            # Set interpolation and classification (Phase 3)
+            if interpolation:
+                symbology.interpolation = interpolation
+            if classification_method:
+                symbology.classification_method = classification_method
             self.model.symbologies[symbology_key] = symbology
         else:
             symbology = self.model.symbologies[symbology_key]
