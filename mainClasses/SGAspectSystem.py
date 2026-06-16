@@ -74,6 +74,18 @@ class SGSymbology:
                 except Exception:
                     pass
 
+            # For classifications (discrete classes), map value to appropriate class boundary
+            # Find the largest boundary <= the value
+            if getattr(self, 'is_classification', False) and len(self.mapping) > 0:
+                try:
+                    numeric_keys = sorted([k for k in self.mapping.keys() if isinstance(k, (int, float))])
+                    # Find largest key that is <= attribute_value
+                    for key in reversed(numeric_keys):
+                        if key <= attribute_value:
+                            return self.mapping[key]
+                except Exception:
+                    pass
+
         return None
 
     def _interpolate_aspect(self, value):
