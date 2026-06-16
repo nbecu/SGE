@@ -16,9 +16,7 @@ Example: Temperature & Humidity conditions
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from mainClasses.SGSGE import *
-from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
 
@@ -99,23 +97,5 @@ Cells.newSymbologyRule(
 myModel.newLegend()
 
 # Launch
-print("Rule-Based Symbology Example:")
-print("==============================")
-print("This example uses a custom function to determine cell appearance")
-print("based on temperature AND humidity conditions together.")
-print()
-print("Rules applied:")
-print("1. Hot & Dry (T > 30 & H < 50): Red background, thick border")
-print("2. Hot & Humid (T > 30 & H >= 50): Orange background, medium border")
-print("3. Cold (T <= 30): Blue background, thin border")
-print()
-print("Each cell displays its temperature and humidity values dynamically.")
-print()
-print("Key advantage of rule-based symbologies:")
-print("- Can evaluate multiple attributes simultaneously")
-print("- More flexible than simple conditional aspects (apply_if)")
-print("- Can perform complex logic and calculations")
-print("- Returns complete SGAspect with all properties customized")
-
 myModel.launch()
 sys.exit(monApp.exec())

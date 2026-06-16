@@ -78,11 +78,18 @@ class SGLegend(SGGameSpace):
                     # Get the attribute name associated with this symbology
                     aAtt = self.model.symbology_to_attribute.get(aShapeSymbology, aShapeSymbology)
 
+                    # Check if this is a rule-based symbology (has rule_function)
+                    is_rule_based = hasattr(symbology, 'rule_function') and symbology.rule_function is not None
+
                     # Check if this is a gradient or classification symbology (Phase 3)
                     is_classification = getattr(symbology, 'is_classification', False)
                     is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid') and not is_classification
 
-                    if is_gradient and len(symbology.mapping) >= 2:
+                    if is_rule_based:
+                        # RULE-BASED: Show generic rule indicator
+                        anItem = SGLegendItem(self, 'symbol', 'Rule-based', type, Qt.lightGray, aAtt, 'rule-based')
+                        self.legendItems.append(anItem)
+                    elif is_gradient and len(symbology.mapping) >= 2:
                         # GRADIENT: Create a single gradient bar
                         sorted_values = sorted(symbology.mapping.keys())
                         min_val = sorted_values[0]
