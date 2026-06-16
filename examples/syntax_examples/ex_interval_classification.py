@@ -41,27 +41,40 @@ quantile_mapping = SGClassifier.classify_quantile(
 Cells.newSymbology(
     "pollution",
     quantile_mapping,
-    name="PollutionQuantile"
+    name="PollutionQuantile",
+    interpolation="linear"  # Enable interpolation for intermediate values
 )
 
 # Method 2: Manual Classification (custom thresholds)
-print("Creating manual classification...")
 manual_mapping = SGClassifier.classify_manual(
     thresholds=[0, 33, 66, 100],
     colors=[QColor("green"), QColor("yellow"), QColor("red")]
 )
 
+Cells.newSymbology(
+    "pollution",
+    manual_mapping,
+    name="PollutionManual",
+    interpolation="linear"
+)
+
 # Method 3: Equidistant Classification (equal width intervals)
-print("Classifying with equidistant method...")
 equidistant_mapping = SGClassifier.classify_equidistant(
     Cells.entities,
     attribute="pollution",
     num_classes=4
 )
 
+Cells.newSymbology(
+    "pollution",
+    equidistant_mapping,
+    name="PollutionEquidistant",
+    interpolation="linear"
+)
+
 # By default, quantile classification is active
 # To switch between classifications, use the menu:
-# Menu > Symbology > By Type > Cells > PollutionQuantile
+# Menu > Symbology > By Type > Cells > PollutionQuantile/Manual/Equidistant
 
 # Launch
 myModel.launch()
