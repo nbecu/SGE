@@ -77,13 +77,44 @@ class SGLegend(SGGameSpace):
                     # New symbology system - found it
                     # Get the attribute name associated with this symbology
                     aAtt = self.model.symbology_to_attribute.get(aShapeSymbology, aShapeSymbology)
-                    for value, aspect in symbology.mapping.items():
-                        aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
-                        # Convert string colors to QColor
-                        if isinstance(aColor, str):
-                            aColor = QColor(aColor)
-                        anItem=SGLegendItem(self,'symbol',str(value),type,aColor,aAtt,value)
-                        self.legendItems.append(anItem)
+
+                    # Check if this is a gradient or classification symbology (Phase 3)
+                    is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid')
+
+                    if is_gradient and len(symbology.mapping) >= 2:
+                        # GRADIENT: Create a color bar with interpolated colors
+                        sorted_values = sorted(symbology.mapping.keys())
+                        min_val = sorted_values[0]
+                        max_val = sorted_values[-1]
+
+                        # Generate 10 intermediate samples to show gradient
+                        num_samples = 10
+                        for i in range(num_samples):
+                            # Calculate interpolated value and color
+                            t = i / (num_samples - 1)  # 0 to 1
+                            sample_value = min_val + t * (max_val - min_val)
+
+                            # Resolve aspect at this value (with interpolation)
+                            sample_aspect = symbology.resolve_aspect(sample_value, entity_type=type)
+                            sample_color = sample_aspect.background_color if hasattr(sample_aspect, 'background_color') else Qt.black
+
+                            # Convert string colors to QColor
+                            if isinstance(sample_color, str):
+                                sample_color = QColor(sample_color)
+
+                            # Create label showing value range
+                            label = f"{sample_value:.1f}" if i == 0 or i == num_samples-1 else ""
+                            anItem = SGLegendItem(self, 'symbol', label, type, sample_color, aAtt, sample_value)
+                            self.legendItems.append(anItem)
+                    else:
+                        # DISCRETE/CLASSIFICATION: Show each class boundary
+                        for value, aspect in symbology.mapping.items():
+                            aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
+                            # Convert string colors to QColor
+                            if isinstance(aColor, str):
+                                aColor = QColor(aColor)
+                            anItem = SGLegendItem(self, 'symbol', str(value), type, aColor, aAtt, value)
+                            self.legendItems.append(anItem)
                 elif aShapeSymbology in type.povShapeColor:
                     # Legacy POV system
                     aAtt = list(type.povShapeColor[aShapeSymbology].keys())[0]
@@ -109,15 +140,41 @@ class SGLegend(SGGameSpace):
                     # New symbology system - found it
                     # Get the attribute name associated with this symbology
                     aAtt = self.model.symbology_to_attribute.get(aBorderSymbology, aBorderSymbology)
-                    for value, aspect in symbology.mapping.items():
-                        border_color = aspect.border_color if hasattr(aspect, 'border_color') else Qt.black
-                        # Convert string colors to QColor
-                        if isinstance(border_color, str):
-                            border_color = QColor(border_color)
-                        border_size = aspect.border_size if hasattr(aspect, 'border_size') else 1
-                        border_info = {'color': border_color, 'width': border_size}
-                        anItem=SGLegendItem(self,'symbol',str(value),type,nameOfAttribut=aAtt,valueOfAttribut=value,isBorderItem=True,borderColorAndWidth=border_info)
-                        self.legendItems.append(anItem)
+
+                    # Check if this is a gradient symbology (Phase 3)
+                    is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid')
+
+                    if is_gradient and len(symbology.mapping) >= 2:
+                        # GRADIENT: Create color samples
+                        sorted_values = sorted(symbology.mapping.keys())
+                        min_val = sorted_values[0]
+                        max_val = sorted_values[-1]
+
+                        # Generate 10 intermediate samples
+                        num_samples = 10
+                        for i in range(num_samples):
+                            t = i / (num_samples - 1)
+                            sample_value = min_val + t * (max_val - min_val)
+                            sample_aspect = symbology.resolve_aspect(sample_value, entity_type=type)
+                            border_color = sample_aspect.border_color if hasattr(sample_aspect, 'border_color') else Qt.black
+                            if isinstance(border_color, str):
+                                border_color = QColor(border_color)
+                            border_size = sample_aspect.border_size if hasattr(sample_aspect, 'border_size') else 1
+                            border_info = {'color': border_color, 'width': border_size}
+                            label = f"{sample_value:.1f}" if i == 0 or i == num_samples-1 else ""
+                            anItem = SGLegendItem(self, 'symbol', label, type, nameOfAttribut=aAtt, valueOfAttribut=sample_value, isBorderItem=True, borderColorAndWidth=border_info)
+                            self.legendItems.append(anItem)
+                    else:
+                        # DISCRETE: Show each value
+                        for value, aspect in symbology.mapping.items():
+                            border_color = aspect.border_color if hasattr(aspect, 'border_color') else Qt.black
+                            # Convert string colors to QColor
+                            if isinstance(border_color, str):
+                                border_color = QColor(border_color)
+                            border_size = aspect.border_size if hasattr(aspect, 'border_size') else 1
+                            border_info = {'color': border_color, 'width': border_size}
+                            anItem = SGLegendItem(self, 'symbol', str(value), type, nameOfAttribut=aAtt, valueOfAttribut=value, isBorderItem=True, borderColorAndWidth=border_info)
+                            self.legendItems.append(anItem)
                 elif aBorderSymbology in type.povBorderColorAndWidth:
                     # Legacy POV system
                     aPovBorderDef = type.povBorderColorAndWidth.get(aBorderSymbology)

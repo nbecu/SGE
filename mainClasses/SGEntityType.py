@@ -983,7 +983,13 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
     def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_size=None, interpolation=None, classification_method=None, **aspect_defaults):
         """
-        Declare a new symbology (visual representation) for this entity type.
+        Declare a new symbology for discrete/nominal attribute values (DEPRECATED signature).
+
+        **For Phase 3 features, use specialized methods instead:**
+        - `newSymbologyGradient()` for continuous color gradients with interpolation
+        - `newSymbologyClassified()` for interval classification (quantiles, manual classes, etc.)
+
+        This method creates categorical (discrete) symbologies mapping specific values to visual aspects.
 
         PATTERN 1 (Category - colors only):
             newSymbology("health", {100: QColor("green"), 50: QColor("red")})
@@ -1020,13 +1026,10 @@ class SGEntityType(AttributeAndValueFunctionalities):
             border_size (int, optional): Border width in pixels (PATTERN 2 only).
                                          If provided with QColor mapping, adds border with same color as background.
                                          For more control per value, use PATTERN 3 (dict) or PATTERN 4 (SGAspect).
-            interpolation (str, optional): Interpolation method for continuous gradients (Phase 3).
-                                          Options: 'linear', 'log', 'exp', 'sigmoid'
-                                          Automatically interpolates between mapping points for values not in mapping.
-                                          Example: {0: blue, 100: red} with interpolation='linear' gives smooth gradient.
-            classification_method (str, optional): Classification method for interval symbologies (Phase 3).
-                                                  Options: 'quantile', 'equidistant', 'jenks', 'manual'
-                                                  Used to automatically classify continuous values into intervals.
+            interpolation (str, optional): **DEPRECATED** - Use `newSymbologyGradient()` instead for smooth color transitions.
+                                          Kept for backward compatibility with existing code.
+            classification_method (str, optional): **DEPRECATED** - Use `newSymbologyClassified()` instead for interval classification.
+                                                  Kept for backward compatibility with existing code.
             **aspect_defaults: Default SGAspect properties applied to ALL values in mapping.
                               Example: newSymbology("health", {...}, border_size=2, border_color="black")
                               Will apply border_size=2 and border_color="black" to all health values.
@@ -1179,6 +1182,91 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 if not hasattr(self.model, '_last_selected_symbology_by_type'):
                     self.model._last_selected_symbology_by_type = {}
                 self.model._last_selected_symbology_by_type[self.name] = symbology_name
+
+    def newSymbologyGradient(self, attribute, mapping, interpolation='linear', name=None, **aspect_defaults):
+        """
+        Create a gradient symbology with smooth color interpolation between key points.
+
+        Use this for continuous attributes that should display as color gradients.
+
+        Args:
+            attribute (str): Entity attribute name (e.g., 'temperature', 'pollution')
+            mapping (dict): {value: SGAspect} where value is a key point on the gradient
+                          - Intermediate values are automatically interpolated
+                          - Example: {0: blue_aspect, 100: red_aspect}
+            interpolation (str): Interpolation method between key points
+                               - 'linear': uniform color transition (default)
+                               - 'log': smooth transition (good for exponential data)
+                               - 'exp': fast start, slow end (good for power laws)
+                               - 'sigmoid': S-curve (good for bounded growth)
+            name (str, optional): Symbology name
+                                - If None: auto-derived from attribute (e.g., 'temperature' → 'Temperature')
+                                - If provided: use explicitly (required for multiple symbologies per attribute)
+            **aspect_defaults: Default SGAspect properties applied to all key points
+
+        Returns:
+            SGSymbology: The created symbology object
+
+        Example:
+            # Create a temperature gradient: cold (blue) → hot (red)
+            Cells.newSymbologyGradient(
+                "temperature",
+                {0: SGAspect(background_color="blue"),
+                 100: SGAspect(background_color="red")},
+                interpolation="sigmoid",
+                name="TemperatureGradient"
+            )
+        """
+        # Call newSymbology with interpolation enabled
+        return self.newSymbology(
+            attribute, mapping,
+            name=name,
+            interpolation=interpolation,
+            **aspect_defaults
+        )
+
+    def newSymbologyClassified(self, attribute, mapping, name=None, **aspect_defaults):
+        """
+        Create a classification symbology that maps discrete intervals to colors.
+
+        Use this for continuous attributes that should be binned into categories.
+        The mapping values typically come from SGClassifier methods.
+
+        Args:
+            attribute (str): Entity attribute name (e.g., 'income_level', 'risk_category')
+            mapping (dict): {interval_bound: SGAspect} representing class intervals
+                          - Keys are interval boundaries (from SGClassifier)
+                          - Each value gets the corresponding aspect color/style
+                          - Linear interpolation is automatically applied for intermediate values
+                          - Example (from quantile): {20: red_aspect, 40: yellow_aspect, 60: green_aspect}
+            name (str, optional): Symbology name
+                                - If None: auto-derived from attribute
+                                - If provided: use explicitly (required for multiple symbologies per attribute)
+            **aspect_defaults: Default SGAspect properties applied to all class intervals
+
+        Returns:
+            SGSymbology: The created symbology object
+
+        Example:
+            # Create classification from SGClassifier.classify_quantile()
+            quantile_mapping = SGClassifier.classify_quantile(
+                entities=Cells.entities,
+                attribute="salary",
+                num_classes=4
+            )
+            Cells.newSymbologyClassified(
+                "salary",
+                quantile_mapping,
+                name="SalaryQuantiles"
+            )
+        """
+        # Call newSymbology with linear interpolation (to fill gaps between boundaries)
+        return self.newSymbology(
+            attribute, mapping,
+            name=name,
+            interpolation='linear',
+            **aspect_defaults
+        )
 
     # ============================================================================
     # LEGACY POV COMPATIBILITY WRAPPERS
