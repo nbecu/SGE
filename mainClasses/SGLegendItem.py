@@ -226,7 +226,7 @@ class SGLegendItem(QtWidgets.QWidget):
 
                 # Use bar width for labels alignment (not full widget width)
                 # Bar is 150px wide, so labels align exactly with bar edges
-                labels_rect = QRect(0, bar_height + 2, bar_width, 35)
+                labels_rect = QRect(0, bar_height + 2, bar_width, 12)
                 painter.drawText(labels_rect, Qt.AlignLeft, min_text)
                 painter.drawText(labels_rect, Qt.AlignRight, max_text)
 
@@ -514,8 +514,8 @@ class SGLegendItem(QtWidgets.QWidget):
             if self.is_gradient_bar:
                 # Gradient bar is 150px wide + padding for min/max labels
                 min_w = 150 + 40  # Bar width + generous labels padding
-                # Height: bar (20px) + text area (35px) + top/bottom margins (5px)
-                item_height = 20 + 35 + 5
+                # Height: bar (20px) + gap (2px) + text (10px) + bottom margin (3px)
+                item_height = 20 + 2 + 10 + 3
             else:
                 try:
                     if self.type == "symbol" and (self.text is None or str(self.text) == ""):

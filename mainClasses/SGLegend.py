@@ -113,9 +113,9 @@ class SGLegend(SGGameSpace):
                             gradient_max_value=max_val
                         )
                         self.legendItems.append(anItem)
-                        # Gradient bar widget is 60px tall, while normal items are ~20px
-                        # Increment posYOfItems by 2 more to account for extra height
-                        self.posYOfItems += 2
+                        # Gradient bar widget is 35px tall, normal items are 20px (heightOfLabels)
+                        # So gradient bar takes ceil(35/20)=2 units, increment by 1 more
+                        self.posYOfItems += 1
                     else:
                         # DISCRETE/CLASSIFICATION: Show each class boundary
                         for value, aspect in symbology.mapping.items():
@@ -182,9 +182,9 @@ class SGLegend(SGGameSpace):
                             gradient_max_value=max_val
                         )
                         self.legendItems.append(anItem)
-                        # Gradient bar widget is 60px tall, while normal items are ~20px
-                        # Increment posYOfItems by 2 more to account for extra height
-                        self.posYOfItems += 2
+                        # Gradient bar widget is 35px tall, normal items are 20px (heightOfLabels)
+                        # So gradient bar takes ceil(35/20)=2 units, increment by 1 more
+                        self.posYOfItems += 1
                     else:
                         # DISCRETE: Show each value
                         for value, aspect in symbology.mapping.items():
@@ -251,7 +251,9 @@ class SGLegend(SGGameSpace):
         return max_width + 10
     
     def getSizeYGlobal(self):
-        return (self.heightOfLabels)*(len(self.legendItems)+1)
+        # Use posYOfItems instead of len(legendItems) to account for gradient bars
+        # which take multiple heightOfLabels units
+        return (self.heightOfLabels)*(self.posYOfItems+1)
 
     def updateSizeFromItems(self):
         """Update widget size based on current items."""
