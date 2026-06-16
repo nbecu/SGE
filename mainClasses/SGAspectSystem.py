@@ -63,12 +63,26 @@ class SGSymbology:
 
         # Pattern 2: Category/Gradient/Interval (value lookup)
         if attribute_value is not None:
-            # Exact match first
+            # Check if any aspect has visible_if condition (for conditional visibility)
+            has_visible_if = entity and any(
+                hasattr(aspect, 'visible_if') and aspect.visible_if
+                for aspect in self.mapping.values()
+                if isinstance(aspect, dict) is False
+            )
+
+            # Exact match: check if visible if has visible_if conditions
             if attribute_value in self.mapping:
-                return self.mapping[attribute_value]
+                matched_aspect = self.mapping[attribute_value]
+                # If no visible_if conditions, return exact match immediately
+                if not has_visible_if:
+                    return matched_aspect
+                # If has visible_if and this aspect is visible, return it
+                if hasattr(matched_aspect, 'is_visible') and matched_aspect.is_visible(entity):
+                    return matched_aspect
+                # If exact match exists but not visible, continue to search all visible aspects
 
             # If no exact match and interpolation is enabled, interpolate
-            if self.interpolation and len(self.mapping) > 0:
+            if self.interpolation and len(self.mapping) > 0 and not has_visible_if:
                 try:
                     return self._interpolate_aspect(attribute_value)
                 except Exception:
@@ -76,7 +90,7 @@ class SGSymbology:
 
             # For classifications (discrete classes), map value to appropriate class boundary
             # Find the largest key <= the value (with small tolerance for floating point)
-            if getattr(self, 'is_classification', False) and len(self.mapping) > 0:
+            if getattr(self, 'is_classification', False) and len(self.mapping) > 0 and not has_visible_if:
                 try:
                     numeric_keys = sorted([k for k in self.mapping.keys() if isinstance(k, (int, float))])
                     if numeric_keys:
@@ -89,6 +103,17 @@ class SGSymbology:
                         return self.mapping[numeric_keys[0]]
                 except Exception:
                     pass
+
+            # For nominal symbologies with visible_if conditions, search for first visible aspect
+            # This handles cases where aspects have conditional visibility based on entity attributes
+            if has_visible_if:
+                for aspect in self.mapping.values():
+                    # Filter out special keys like __max_value__
+                    if isinstance(aspect, dict) or not hasattr(aspect, 'is_visible'):
+                        continue
+                    # Return first aspect that is visible
+                    if aspect.is_visible(entity):
+                        return aspect
 
         return None
 
