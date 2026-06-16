@@ -58,7 +58,8 @@ def temperature_humidity_rule(entity):
             text_content=f"HOT\nDRY\nT:{temp}°\nH:{humidity}%",
             text_color="white",
             text_size=8,
-            text_weight="bold"
+            text_weight="bold",
+            legend_label="Hot & Dry"
         )
 
     # Rule 2: Hot & Humid
@@ -69,7 +70,8 @@ def temperature_humidity_rule(entity):
             border_size=2,
             text_content=f"HOT\nWET\nT:{temp}°\nH:{humidity}%",
             text_color="white",
-            text_size=8
+            text_size=8,
+            legend_label="Hot & Humid"
         )
 
     # Rule 3: Cold
@@ -80,7 +82,8 @@ def temperature_humidity_rule(entity):
             border_size=1,
             text_content=f"COLD\nT:{temp}°\nH:{humidity}%",
             text_color="darkblue",
-            text_size=8
+            text_size=8,
+            legend_label="Cold"
         )
 
     # Fallback (should not happen if rules are complete)

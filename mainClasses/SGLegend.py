@@ -118,8 +118,13 @@ class SGLegend(SGGameSpace):
                         # Display unique aspects found
                         if seen_colors:
                             for color_key, (color, aspect) in seen_colors.items():
-                                # Create label from aspect if available, otherwise from color
-                                label = getattr(aspect, 'text_content', '') or color_key
+                                # Determine label priority: legend_label > text_content > color_key
+                                label = (getattr(aspect, 'legend_label', None) or
+                                        getattr(aspect, 'text_content', None) or
+                                        color_key)
+                                # Use only first line if multi-line text
+                                if label and '\n' in str(label):
+                                    label = str(label).split('\n')[0]
                                 anItem = SGLegendItem(self, 'symbol', label, type, color, aAtt, color_key)
                                 self.legendItems.append(anItem)
                         else:

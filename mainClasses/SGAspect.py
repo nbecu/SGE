@@ -61,6 +61,11 @@ class SGAspect():
         self.text_alignment = kwargs.get('text_alignment', 'center')  # left, center, right
         self.text_opacity = kwargs.get('text_opacity', 1.0)  # 0-1
 
+        # Legend label for symbology groups (Phase 3)
+        # legend_label: custom label to display in legend (overrides auto-generated labels)
+        # Useful for rule-based and complex symbologies where auto-detection is insufficient
+        self.legend_label = kwargs.get('legend_label', None)  # e.g., "Hot & Dry", "Low Risk"
+
         # Conditional aspect application (Phase 3, Feature 5)
         # apply_if: condition expression to determine if this aspect should be applied
         # e.g., "health > 50", "{energy} < 20"
