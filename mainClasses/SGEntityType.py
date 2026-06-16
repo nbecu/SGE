@@ -682,7 +682,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
         for ent in self.getEntities(condition):
             ent.setValue_randomChoice(aAttribute, aValue)
 
-    def setEntities_withGradient(self, aAttribute, min_value, max_value, ordering_criteria=None, condition=None):
+    def setEntities_withGradient(self, aAttribute, min_value, max_value, ordering_criteria=None,
+                                 interpolation='linear', decimals=0, condition=None):
         """
         Set gradient values for entities (from min to max).
 
@@ -695,23 +696,30 @@ class SGEntityType(AttributeAndValueFunctionalities):
             max_value (int/float): Maximum value for the gradient
             ordering_criteria (str, optional): Attribute name to sort entities by.
                 If None, entities are sorted by ID (default).
+            interpolation (str, optional): Interpolation method ('linear', 'log', 'exp', 'sigmoid').
+                Default: 'linear'
+            decimals (int, optional): Number of decimal places for rounding.
+                Default: 0 (returns integers)
             condition (callable, optional): Condition function to filter entities.
                 Example: lambda e: e.value("type") == "active"
 
         Example:
-            # Set score from 0-100 across all cells (ordered by ID)
+            # Set score from 0-100 across all cells (ordered by ID, as integers)
             cellType.setEntities_withGradient("score", 0, 100)
 
-            # Set temperature from 10-40, ordered by x-coordinate
-            cellType.setEntities_withGradient("temperature", 10, 40, ordering_criteria="x")
+            # Set temperature from 10-40 with 1 decimal, ordered by x-coordinate
+            cellType.setEntities_withGradient("temperature", 10, 40,
+                                             ordering_criteria="xCoord", decimals=1)
 
-            # Set health from 50-100 only for alive entities
-            agentType.setEntities_withGradient("health", 50, 100,
-                                             condition=lambda a: a.value("alive"))
+            # Set health from 50-100 with log interpolation
+            agentType.setEntities_withGradient("health", 50, 100, interpolation='log')
 
-            # Set altitude from 0-1000, ordered by y-coordinate
-            cellType.setEntities_withGradient("altitude", 0, 1000, ordering_criteria="y")
+            # Set altitude from 0-1000 with exp curve, ordered by y-coordinate
+            cellType.setEntities_withGradient("altitude", 0, 1000,
+                                             ordering_criteria="yCoord", interpolation='exp')
         """
+        import math
+
         # Get entities matching condition
         entities = self.getEntities(condition)
 
@@ -733,13 +741,38 @@ class SGEntityType(AttributeAndValueFunctionalities):
         num_entities = len(entities)
         if num_entities == 1:
             # Single entity: use max value
-            entities[0].setValue(aAttribute, max_value)
+            value = round(max_value, decimals) if decimals > 0 else int(max_value)
+            entities[0].setValue(aAttribute, value)
         else:
             # Multiple entities: distribute across range
             for i, ent in enumerate(entities):
-                # Linear interpolation: value = min + (max - min) * (i / (n-1))
+                # Calculate progress (0 to 1)
                 progress = i / (num_entities - 1)
+
+                # Apply interpolation curve
+                if interpolation == 'log':
+                    # Logarithmic: soft start
+                    progress = math.log(progress + 1) / math.log(2)
+                elif interpolation == 'exp':
+                    # Exponential: fast start
+                    progress = progress ** 2
+                elif interpolation == 'sigmoid':
+                    # Sigmoid: slow → fast → slow
+                    progress = 1 / (1 + math.exp(-12 * (progress - 0.5)))
+                # else: linear (no transformation)
+
+                # Clamp progress to [0, 1]
+                progress = max(0, min(1, progress))
+
+                # Calculate value
                 value = min_value + (max_value - min_value) * progress
+
+                # Round to decimals
+                if decimals > 0:
+                    value = round(value, decimals)
+                else:
+                    value = int(round(value))
+
                 ent.setValue(aAttribute, value)
 
     def setTooltip(self, tooltipName, tooltipValue):
