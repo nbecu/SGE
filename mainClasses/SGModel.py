@@ -1700,7 +1700,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if hasattr(group, 'is_manual') and group.is_manual:
             # Manual group: reapply all symbologies in the group
             for symbology_name in group.symbology_names:
-                for entity_type in self.getAllEntityTypes():
+                for entity_type in self.getEntityTypes():
                     if symbology_name in entity_type.symbologies:
                         entity_type.displaySymbology(symbology_name)
                         self.active_symbologies_by_type[entity_type.name] = symbology_name
@@ -1760,7 +1760,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if hasattr(group, 'is_manual') and group.is_manual:
                 # Manual group: deactivate all symbologies in the group
                 for symbology_name in group.symbology_names:
-                    for entity_type in self.getAllEntityTypes():
+                    for entity_type in self.getEntityTypes():
                         if symbology_name in entity_type.symbologies:
                             self.active_symbologies_by_type[entity_type.name] = None
                             if hasattr(self, '_last_selected_symbology_by_type'):
@@ -1797,7 +1797,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if hasattr(group, 'is_manual') and group.is_manual:
                 # Manual group: activate all symbologies in the group
                 for symbology_name in group.symbology_names:
-                    for entity_type in self.getAllEntityTypes():
+                    for entity_type in self.getEntityTypes():
                         if symbology_name in entity_type.symbologies:
                             entity_type.displaySymbology(symbology_name)
                             self.active_symbologies_by_type[entity_type.name] = symbology_name
