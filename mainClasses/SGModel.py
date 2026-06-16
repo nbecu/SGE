@@ -278,7 +278,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.symbology_to_attribute = {}  # {symbology_name: attribute_name} - mapping for resolver
 
         # Phase 2: Menu UI state tracking
-        self.active_symbologies_by_type = {}  # {entity_type_name: active_symbology_name}
+        self.active_symbologies_by_type = {}  # {entity_type_name: [symbology_names]} - list allows multiple from groups
         self.symbology_group_menu_items = {}  # {group_name: QAction} for group checkboxes
         self.symbology_type_menu_items = {}  # {(type_name, symbology_name): QAction} for radio buttons
 
@@ -1604,6 +1604,50 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 if not borderSymbology:
                     aSymbology.setChecked(False)
 
+    def _setActiveSymbologies(self, entity_type_name, symbology_names):
+        """Set active symbologies for an entity type (exclusive - replaces all).
+
+        Used for manual menu selections where only one symbology should be active.
+
+        Args:
+            entity_type_name (str): Entity type name
+            symbology_names (str or list): Single symbology name or list of names
+        """
+        if isinstance(symbology_names, str):
+            symbology_names = [symbology_names] if symbology_names else []
+        self.active_symbologies_by_type[entity_type_name] = symbology_names
+
+    def _addActiveSymbologies(self, entity_type_name, symbology_names):
+        """Add symbologies to active list (cumulative - keeps existing).
+
+        Used for group activations where multiple symbologies can be active.
+
+        Args:
+            entity_type_name (str): Entity type name
+            symbology_names (str or list): Symbology name(s) to add
+        """
+        if isinstance(symbology_names, str):
+            symbology_names = [symbology_names]
+
+        current = self.active_symbologies_by_type.get(entity_type_name, [])
+        if not isinstance(current, list):
+            current = [current] if current else []
+
+        # Add new names not already present
+        for name in symbology_names:
+            if name not in current:
+                current.append(name)
+
+        self.active_symbologies_by_type[entity_type_name] = current
+
+    def _clearActiveSymbologies(self, entity_type_name):
+        """Clear all active symbologies for an entity type.
+
+        Args:
+            entity_type_name (str): Entity type name
+        """
+        self.active_symbologies_by_type[entity_type_name] = []
+
     def _ensureMenuStructureInitialized(self):
         """Initialize menu structure: GROUPS section, separator, BY TYPE section."""
         if hasattr(self, '_menu_structure_initialized'):
@@ -1698,15 +1742,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Reapply group symbology for all types
         if hasattr(group, 'is_manual') and group.is_manual:
-            # Manual group: reapply all symbologies in the group
+            # Manual group: reapply all symbologies in the group (cumulative)
             for symbology_name in group.symbology_names:
                 if symbology_name in self.symbologies:
-                    # Activate this symbology for all entity types
+                    # Add this symbology for all entity types (cumulative)
                     for entity_type in self.getEntityTypes():
-                        self.active_symbologies_by_type[entity_type.name] = symbology_name
+                        self._addActiveSymbologies(entity_type.name, symbology_name)
                         self._last_selected_symbology_by_type[entity_type.name] = symbology_name
-                        # Update type menu checkboxes
-                        self._updateTypeMenuCheckbox(entity_type.name, symbology_name)
         else:
             # Automatic group: reapply by type
             for type_name in group.get_all_entity_types():
@@ -1760,7 +1802,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if hasattr(group, 'is_manual') and group.is_manual:
                 # Manual group: deactivate all symbologies in the group
                 for entity_type in self.getEntityTypes():
-                    self.active_symbologies_by_type[entity_type.name] = None
+                    self._clearActiveSymbologies(entity_type.name)
                     if hasattr(self, '_last_selected_symbology_by_type'):
                         self._last_selected_symbology_by_type[entity_type.name] = None
                     # Uncheck radio buttons for this type
@@ -1793,18 +1835,17 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         elif is_checked:
             # Normal click: activate group symbology
             if hasattr(group, 'is_manual') and group.is_manual:
-                # Manual group: activate all symbologies in the group
+                # Manual group: activate all symbologies in the group (cumulative)
                 for symbology_name in group.symbology_names:
                     # For manual groups, symbologies are at the model level (self.symbologies)
                     if symbology_name in self.symbologies:
-                        # Activate this symbology for all entity types
+                        # Add this symbology for all entity types (cumulative via _addActiveSymbologies)
                         for entity_type in self.getEntityTypes():
-                            self.active_symbologies_by_type[entity_type.name] = symbology_name
+                            self._addActiveSymbologies(entity_type.name, symbology_name)
                             if not hasattr(self, '_last_selected_symbology_by_type'):
                                 self._last_selected_symbology_by_type = {}
                             self._last_selected_symbology_by_type[entity_type.name] = symbology_name
-                            # Update type menu checkboxes
-                            self._updateTypeMenuCheckbox(entity_type.name, symbology_name)
+                            # Don't uncheck other symbologies for this type (allow multiple from groups)
             else:
                 # Automatic group: activate by type
                 for type_name in group.get_all_entity_types():
@@ -1839,8 +1880,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Check if this is a toggle-off (clicking the same symbology again)
         if self._last_selected_symbology_by_type.get(type_name) == symbology_name:
-            # Toggle off: return to default display
-            self.active_symbologies_by_type[type_name] = None
+            # Toggle off: return to default display (exclusive selection)
+            self._clearActiveSymbologies(type_name)
             self._last_selected_symbology_by_type[type_name] = None
 
             # Uncheck all radio buttons for this type (block signals to prevent re-trigger)
@@ -1850,9 +1891,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     action.setChecked(False)
                     action.blockSignals(False)
         else:
-            # Normal click: activate symbology
+            # Normal click: activate symbology (exclusive selection - replaces any active)
             entity_type.displaySymbology(symbology_name)
-            self.active_symbologies_by_type[entity_type.name] = symbology_name
+            self._setActiveSymbologies(entity_type.name, symbology_name)
             self._last_selected_symbology_by_type[type_name] = symbology_name
 
         # Update display

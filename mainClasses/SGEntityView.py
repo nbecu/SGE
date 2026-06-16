@@ -106,36 +106,72 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         aDefaultColor = self.type.defaultShapeColor
         return self.readColorFromPovDef(aPovDef, aDefaultColor)
 
-    def _getColorFromSymbology(self):
-        """Resolve color from symbology system. Returns None if no symbology is active."""
+    def _resolveActiveSymbologies(self):
+        """Resolve all active symbologies for this entity and return combined aspect.
+
+        Handles both single symbology (from menu) and multiple (from groups).
+        Returns list of (symbology_name, aspect) tuples.
+        """
         if not hasattr(self.model, 'active_symbologies_by_type'):
-            return None
+            return []
 
-        # Get active symbology name for this entity type
-        symbology_name = self.model.active_symbologies_by_type.get(self.type.name)
-        if not symbology_name:
-            return None
+        # Get active symbology names (now a list)
+        symbology_names = self.model.active_symbologies_by_type.get(self.type.name, [])
+        if not isinstance(symbology_names, list):
+            # Backward compat: handle single string
+            symbology_names = [symbology_names] if symbology_names else []
 
-        # Get the symbology definition and attribute name
-        if not hasattr(self.model, 'symbologies') or not hasattr(self.model, 'symbology_to_attribute'):
-            return None
+        if not symbology_names:
+            return []
 
-        symbology = self.model.symbologies.get(symbology_name)
-        if not symbology:
-            return None
-
-        # Get attribute name from model's tracking
-        attr_name = self.model.symbology_to_attribute.get(symbology_name)
-        if not attr_name:
-            return None
-
-        # Resolve color using SGAspectResolver
+        # Resolve aspect for each active symbology
         from mainClasses.SGAspectSystem import SGAspectResolver
-        color = SGAspectResolver.resolve_color(
-            self.entity_model, symbology_name, attr_name, QColor("transparent")
-        )
-        if color and color.alpha() > 0:
-            return color
+        results = []
+        for symbology_name in symbology_names:
+            if not hasattr(self.model, 'symbologies') or not hasattr(self.model, 'symbology_to_attribute'):
+                continue
+
+            symbology = self.model.symbologies.get(symbology_name)
+            if not symbology:
+                continue
+
+            attr_name = self.model.symbology_to_attribute.get(symbology_name)
+            if not attr_name:
+                continue
+
+            aspect = SGAspectResolver.resolve_aspect(self.entity_model, symbology_name, attr_name)
+            if aspect:
+                results.append((symbology_name, aspect))
+
+        return results
+
+    def _getColorFromSymbology(self):
+        """Resolve color from symbology system. Blends colors if multiple symbologies active."""
+        aspects = self._resolveActiveSymbologies()
+        if not aspects:
+            return None
+
+        # Combine colors from all active symbologies
+        combined_color = None
+        for symbology_name, aspect in aspects:
+            if aspect and hasattr(aspect, 'background_color') and aspect.background_color:
+                color = aspect.background_color
+                if isinstance(color, str):
+                    color = QColor(color)
+
+                if combined_color is None:
+                    combined_color = color
+                else:
+                    # Blend colors: use simple average
+                    combined_color = QColor(
+                        (combined_color.red() + color.red()) // 2,
+                        (combined_color.green() + color.green()) // 2,
+                        (combined_color.blue() + color.blue()) // 2,
+                        max(combined_color.alpha(), color.alpha())
+                    )
+
+        if combined_color and combined_color.alpha() > 0:
+            return combined_color
 
         return None
 
@@ -168,74 +204,35 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef, aDefaultColor, aDefaultWidth)
 
     def _getBorderFromSymbology(self):
-        """Resolve border from symbology system. Returns None if no symbology is active."""
-        if not hasattr(self.model, 'active_symbologies_by_type'):
+        """Resolve border from symbology system. Uses first active symbology with border."""
+        aspects = self._resolveActiveSymbologies()
+        if not aspects:
             return None
 
-        # Get active symbology name for this entity type
-        symbology_name = self.model.active_symbologies_by_type.get(self.type.name)
-        if not symbology_name:
-            return None
-
-        # Get the symbology definition and attribute name
-        if not hasattr(self.model, 'symbologies') or not hasattr(self.model, 'symbology_to_attribute'):
-            return None
-
-        symbology = self.model.symbologies.get(symbology_name)
-        if not symbology:
-            return None
-
-        # Get attribute name from model's tracking
-        attr_name = self.model.symbology_to_attribute.get(symbology_name)
-        if not attr_name:
-            return None
-
-        # Resolve border using SGAspectResolver
-        from mainClasses.SGAspectSystem import SGAspectResolver
-        aspect = SGAspectResolver.resolve_aspect(self.entity_model, symbology_name, attr_name)
-
-        # Only return border if aspect has explicit border_color defined
-        if aspect and hasattr(aspect, 'border_color') and aspect.border_color is not None:
-            color = aspect.border_color
-            if not isinstance(color, QColor):
-                color = QColor(color)
-            width = aspect.getBorderSize() if hasattr(aspect, 'getBorderSize') else 0
-            # Only return border if width > 0
-            if width > 0:
-                return {'color': color, 'width': width}
+        # Use first symbology that has a border defined
+        for symbology_name, aspect in aspects:
+            if aspect and hasattr(aspect, 'border_color') and aspect.border_color is not None:
+                color = aspect.border_color
+                if not isinstance(color, QColor):
+                    color = QColor(color)
+                width = aspect.getBorderSize() if hasattr(aspect, 'getBorderSize') else 0
+                # Only return border if width > 0
+                if width > 0:
+                    return {'color': color, 'width': width}
 
         return None
 
     def _getAspectFromSymbology(self):
         """Resolve complete aspect from symbology system for text content rendering.
 
-        Returns the SGAspect object if a symbology is active, None otherwise.
+        Returns first active symbology's aspect. If multiple are active, returns the first one.
         """
-        if not hasattr(self.model, 'active_symbologies_by_type'):
+        aspects = self._resolveActiveSymbologies()
+        if not aspects:
             return None
 
-        # Get active symbology name for this entity type
-        symbology_name = self.model.active_symbologies_by_type.get(self.type.name)
-        if not symbology_name:
-            return None
-
-        # Get the symbology definition and attribute name
-        if not hasattr(self.model, 'symbologies') or not hasattr(self.model, 'symbology_to_attribute'):
-            return None
-
-        symbology = self.model.symbologies.get(symbology_name)
-        if not symbology:
-            return None
-
-        # Get attribute name from model's tracking
-        attr_name = self.model.symbology_to_attribute.get(symbology_name)
-        if not attr_name:
-            return None
-
-        # Resolve aspect using SGAspectResolver
-        from mainClasses.SGAspectSystem import SGAspectResolver
-        aspect = SGAspectResolver.resolve_aspect(self.entity_model, symbology_name, attr_name)
-        return aspect
+        # Return the first aspect (primary symbology for text rendering)
+        return aspects[0][1]
 
     def getImage(self):
         """Get the image for display based on POV settings"""
