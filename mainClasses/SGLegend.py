@@ -95,7 +95,7 @@ class SGLegend(SGGameSpace):
                             sample_value = min_val + t * (max_val - min_val)
 
                             # Resolve aspect at this value (with interpolation)
-                            sample_aspect = symbology.resolve_aspect(sample_value, entity_type=type)
+                            sample_aspect = symbology.resolve_aspect(attribute_value=sample_value)
                             sample_color = sample_aspect.background_color if hasattr(sample_aspect, 'background_color') else Qt.black
 
                             # Convert string colors to QColor
@@ -155,7 +155,7 @@ class SGLegend(SGGameSpace):
                         for i in range(num_samples):
                             t = i / (num_samples - 1)
                             sample_value = min_val + t * (max_val - min_val)
-                            sample_aspect = symbology.resolve_aspect(sample_value, entity_type=type)
+                            sample_aspect = symbology.resolve_aspect(attribute_value=sample_value)
                             border_color = sample_aspect.border_color if hasattr(sample_aspect, 'border_color') else Qt.black
                             if isinstance(border_color, str):
                                 border_color = QColor(border_color)
