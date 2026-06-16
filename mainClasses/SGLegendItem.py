@@ -189,7 +189,6 @@ class SGLegendItem(QtWidgets.QWidget):
 
             # GRADIENT BAR (Phase 3) - Draw before symbols
             if self.is_gradient_bar and self.gradient_colors:
-                from PyQt6.QtGui import QLinearGradient
                 # Draw gradient bar: 150px wide, 20px tall
                 bar_width = 150
                 bar_height = 20
@@ -208,7 +207,6 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.drawRect(bar_rect)
 
                 # Draw min/max labels
-                from PyQt6.QtGui import QFont
                 font = QFont("Arial", 8)
                 painter.setFont(font)
                 painter.setPen(QPen(Qt.black, 1))
@@ -220,7 +218,7 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.drawText(bar_rect.adjusted(5, bar_height + 2, -5, 20), Qt.AlignRight, max_text)
 
                 painter.end()
-                return
+                return  # Skip the rest of the painting for gradient bars
 
             scale = getattr(self.legend, "symbolScale", 1.0)
             try:
