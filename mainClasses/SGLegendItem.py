@@ -220,7 +220,8 @@ class SGLegendItem(QtWidgets.QWidget):
 
                 # Use full widget width for labels (not just bar width)
                 widget_width = self.width()
-                labels_rect = QRect(0, bar_height + 2, widget_width, 18)
+                # Increase rect height to prevent clipping of text at bottom
+                labels_rect = QRect(0, bar_height + 2, widget_width, 28)
                 painter.drawText(labels_rect, Qt.AlignLeft, min_text)
                 painter.drawText(labels_rect, Qt.AlignRight, max_text)
 
