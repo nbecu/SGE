@@ -92,5 +92,6 @@ print("")
 print("SGSymbologyGroup (manual mode) allows grouping multiple symbologies")
 print("to create thematic visualizations.")
 
+myModel.newLegend()
 myModel.launch()
 sys.exit(monApp.exec())

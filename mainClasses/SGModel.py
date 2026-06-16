@@ -1986,7 +1986,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return next((aSymbology.text() for aSymbology in symbologies if aSymbology.isChecked()), None)
 
     def getAllCheckedSymbologies(self, grid=None):
-        # return the active symbology of each type of entity
+        # return the active symbologies of each type of entity (now supports multiple per type)
         if grid is None:
             gridObject = self.getGrids()[0]
             cellType = self.getCellType(gridObject)
@@ -2001,10 +2001,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             gridObject = self.getGrid_withID(grid)
             cellType = self.getCellType(gridObject)
             entityTypes = [cellType] + list(self.agentTypes.values())
+
         selectedSymbologies = {}
         for type in entityTypes:
+            # Get active symbologies from active_symbologies_by_type (source of truth)
+            active_list = self.active_symbologies_by_type.get(type.name, [])
+            if not isinstance(active_list, list):
+                active_list = [active_list] if active_list else []
+
+            # For legend and UI compatibility, use first symbology if multiple are active
+            # This handles groups with multiple symbologies by showing the primary one
+            primary_symbology = active_list[0] if active_list else None
+
             selectedSymbologies[type] = {
-                'shape': self.getCheckedSymbologyOfEntity(type.name),
+                'shape': primary_symbology,  # First symbology (for legend)
                 'border': self.getCheckedSymbologyOfEntity(type.name, borderSymbology=True)
             }
         return selectedSymbologies
