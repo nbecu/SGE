@@ -86,9 +86,46 @@ class SGLegend(SGGameSpace):
                     is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid') and not is_classification
 
                     if is_rule_based:
-                        # RULE-BASED: Show generic rule indicator
-                        anItem = SGLegendItem(self, 'symbol', 'Rule-based', type, Qt.lightGray, aAtt, 'rule-based')
-                        self.legendItems.append(anItem)
+                        # RULE-BASED: Execute rule on entities and show unique aspects
+                        unique_aspects = {}  # {label: (color, aspect)}
+
+                        # Collect entities of this type
+                        entities = []
+                        if type.isAgentType:
+                            entities = type.entities if hasattr(type, 'entities') else []
+                        else:
+                            # For cell types, get all cells from all grids
+                            for grid in self.model.getGrids():
+                                cell_type = self.model.getCellType(grid)
+                                if cell_type == type:
+                                    entities = cell_type.entities if hasattr(cell_type, 'entities') else []
+                                    break
+
+                        # Execute rule on entities to collect unique aspects
+                        seen_colors = {}  # Track colors to deduplicate
+                        for entity in entities:
+                            aspect = symbology.resolve_aspect(entity=entity)
+                            if aspect and hasattr(aspect, 'background_color') and aspect.background_color:
+                                color = aspect.background_color
+                                if isinstance(color, str):
+                                    color = QColor(color)
+
+                                # Use color as key to deduplicate
+                                color_key = color.name() if isinstance(color, QColor) else str(color)
+                                if color_key not in seen_colors:
+                                    seen_colors[color_key] = (color, aspect)
+
+                        # Display unique aspects found
+                        if seen_colors:
+                            for color_key, (color, aspect) in seen_colors.items():
+                                # Create label from aspect if available, otherwise from color
+                                label = getattr(aspect, 'text_content', '') or color_key
+                                anItem = SGLegendItem(self, 'symbol', label, type, color, aAtt, color_key)
+                                self.legendItems.append(anItem)
+                        else:
+                            # Fallback if no entities or no colors found
+                            anItem = SGLegendItem(self, 'symbol', 'Rule-based', type, Qt.lightGray, aAtt, 'rule-based')
+                            self.legendItems.append(anItem)
                     elif is_gradient and len(symbology.mapping) >= 2:
                         # GRADIENT: Create a single gradient bar
                         sorted_values = sorted(symbology.mapping.keys())
