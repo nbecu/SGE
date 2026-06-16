@@ -1715,8 +1715,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """Handle group symbology radio button click with toggle-off support.
 
         Groups are mutually exclusive via QActionGroup (one radio selected at a time).
-        Clicking a selected radio again deselects it and returns to default display.
+        Normal click: toggle-off behavior (select/deselect).
+        Shift+click: reapply without toggle-off (handled by checking keyboardModifiers).
         """
+        # Check if Shift is pressed at signal time
+        if QApplication.instance().keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
+            # Shift+click: reapply group
+            self._onGroupSymbologyShiftClicked(group_name)
+            return
+
         group = self.symbology_groups.get(group_name)
         if not group:
             return
