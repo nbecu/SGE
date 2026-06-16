@@ -54,12 +54,12 @@ temperature_gradient = {
     ),
 }
 
-# Create symbology with linear gradient interpolation
-Cells.newSymbology(
+# Create gradient symbology with linear interpolation
+Cells.newSymbologyGradient(
     "temperature",
     temperature_gradient,
-    name="TemperatureGradient",
-    interpolation="linear"
+    interpolation="linear",
+    name="TemperatureGradient"
 )
 
 # Launch

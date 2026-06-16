@@ -52,11 +52,11 @@ score_gradient = {
 interpolation_methods = ['linear', 'log', 'exp']
 
 for method in interpolation_methods:
-    Cells.newSymbology(
+    Cells.newSymbologyGradient(
         "score",
         score_gradient.copy(),
-        name=f"Score{method.capitalize()}",
-        interpolation=method
+        interpolation=method,
+        name=f"Score{method.capitalize()}"
     )
 
 # Launch
