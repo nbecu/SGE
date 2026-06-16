@@ -152,6 +152,16 @@ class SGCellView(SGEntityView):
                 is_transparent = qcolor.alpha() == 0
 
                 if not is_transparent:
+                    # Apply animation effects if defined (Phase 3, Feature 7)
+                    aspect = self._getAspectFromSymbology()
+                    if aspect and aspect.animation:
+                        from mainClasses.SGAnimation import SGAnimationManager
+                        manager = SGAnimationManager.global_manager()
+                        factor = manager.get_animation_factor(self.cell_model.privateID)
+
+                        if aspect.animation == 'pulse':
+                            color = manager.apply_pulse_animation(color, factor)
+
                     painter.setBrush(QBrush(color, Qt.SolidPattern))
                 # For transparent cells the brush is set to NoBrush below,
                 # after calculatePosition() gives us the correct cell_x/cell_y.

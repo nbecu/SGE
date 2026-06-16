@@ -65,6 +65,13 @@ class SGAspect():
         # visible_if: condition expression, e.g., "health > 50", "{energy} < 20"
         self.visible_if = kwargs.get('visible_if', None)
 
+        # Animations (Phase 3, Feature 7)
+        # animation: type of animation ('pulse', 'flash', 'rotate', etc.)
+        # animation_duration: animation cycle duration in seconds
+        self.animation = kwargs.get('animation', None)  # 'pulse', 'flash', 'rotate'
+        self.animation_duration = kwargs.get('animation_duration', 1.0)  # seconds
+        self.animation_intensity = kwargs.get('animation_intensity', 0.5)  # 0-1
+
         # Hover states
         self.hover_text_color = None
         self.hover_background_color = None
