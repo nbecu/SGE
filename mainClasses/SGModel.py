@@ -1511,9 +1511,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if self.symbologyMenu is None:
             return False
 
+        # Ensure menu structure is initialized: GROUPS first, separator, then BY TYPE
+        self._ensureMenuStructureInitialized()
+
         # Phase 2: Create BY TYPE section if needed
         if not hasattr(self, '_by_type_menu_section_created'):
-            self.symbologyMenu.addSeparator()
             self._by_type_menu_section_created = True
             self._by_type_start_index = len(self.symbologyMenu.actions())
 
@@ -1568,23 +1570,37 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 if not borderSymbology:
                     aSymbology.setChecked(False)
 
+    def _ensureMenuStructureInitialized(self):
+        """Initialize menu structure: GROUPS section, separator, BY TYPE section."""
+        if hasattr(self, '_menu_structure_initialized'):
+            return
+
+        if self.symbologyMenu is None:
+            return
+
+        # Mark structure as initialized
+        self._menu_structure_initialized = True
+
+        # GROUPS section (will be empty initially, items added via _addOrUpdateGroupMenuItem)
+        self._symbology_groups_menu_created = True
+        self._symbology_groups_start_index = len(self.symbologyMenu.actions())
+
+        # Add separator between GROUPS and BY TYPE
+        self.symbologyMenu.addSeparator()
+
     def _ensureSymbologyGroupsMenuSection(self):
-        """Create GROUPS section in symbology menu if not already created."""
-        if not hasattr(self, '_symbology_groups_menu_created'):
-            if self.symbologyMenu is None:
-                return
-            # Add separator and GROUPS header
-            self.symbologyMenu.addSeparator()
-            # Store reference to groups submenu area for later additions
-            self._symbology_groups_menu_created = True
-            self._symbology_groups_start_index = len(self.symbologyMenu.actions())
+        """Ensure GROUPS section is initialized (structure created in _ensureMenuStructureInitialized)."""
+        if self.symbologyMenu is None:
+            return
+        self._ensureMenuStructureInitialized()
 
     def _addOrUpdateGroupMenuItem(self, group_name):
         """Add or update a group checkbox in the GROUPS section.
 
         Only adds if the symbology is truly a group (exists in 2+ entity types).
+        Items are inserted BEFORE the separator to maintain GROUPS before BY TYPE order.
         """
-        self._ensureSymbologyGroupsMenuSection()
+        self._ensureMenuStructureInitialized()
         if self.symbologyMenu is None:
             return
 
@@ -1601,27 +1617,58 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         item = QAction(f"{group_name}", self, checkable=True)
         item.triggered.connect(lambda: self._onGroupSymbologyClicked(group_name))
 
-        # Add to menu and tracking dict
-        self.symbologyMenu.addAction(item)
+        # Find separator and insert BEFORE it (to keep GROUPS before BY TYPE)
+        separator_action = None
+        for action in self.symbologyMenu.actions():
+            if action.isSeparator():
+                separator_action = action
+                break
+
+        if separator_action:
+            self.symbologyMenu.insertAction(separator_action, item)
+        else:
+            # Fallback if separator not found (shouldn't happen)
+            self.symbologyMenu.addAction(item)
+
         self.symbology_group_menu_items[group_name] = item
 
     def _onGroupSymbologyClicked(self, group_name):
-        """Handle group symbology checkbox click."""
+        """Handle group symbology checkbox click.
+
+        Checked: activate group symbology for all types in the group.
+        Unchecked: return to default display for all types.
+        """
         group = self.symbology_groups.get(group_name)
         if not group:
             return
 
-        # Activate symbology for all types in the group
         is_checked = self.symbology_group_menu_items[group_name].isChecked()
+
+        # Initialize tracking dict on first use
+        if not hasattr(self, '_last_selected_symbology_by_type'):
+            self._last_selected_symbology_by_type = {}
 
         for type_name in group.get_all_entity_types():
             entity_type = self.getEntityType(type_name)
             if entity_type:
                 if is_checked:
+                    # Activate group symbology for this type
                     entity_type.displaySymbology(group_name)
                     self.active_symbologies_by_type[type_name] = group_name
+                    self._last_selected_symbology_by_type[type_name] = group_name
                     # Update type menu checkboxes
                     self._updateTypeMenuCheckbox(type_name, group_name)
+                else:
+                    # Deactivate: return to default display
+                    entity_type.active_aspect_view = None
+                    self.active_symbologies_by_type[type_name] = None
+                    self._last_selected_symbology_by_type[type_name] = None
+                    # Uncheck all radio buttons for this type (block signals to prevent re-trigger)
+                    for (t_name, s_name), action in self.symbology_type_menu_items.items():
+                        if t_name == type_name:
+                            action.blockSignals(True)
+                            action.setChecked(False)
+                            action.blockSignals(False)
 
         # Update display
         for aLegend in self.getLegends():
@@ -1629,10 +1676,34 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.update()
 
     def _onTypeSymbologyClicked(self, entity_type, symbology_name):
-        """Handle type symbology radio button click."""
-        # Display this symbology for the type
-        entity_type.displaySymbology(symbology_name)
-        self.active_symbologies_by_type[entity_type.name] = symbology_name
+        """Handle type symbology radio button click with toggle-off support.
+
+        Clicking an already-selected radio button deselects it and returns to default display.
+        """
+        # Initialize tracking dict on first use
+        if not hasattr(self, '_last_selected_symbology_by_type'):
+            self._last_selected_symbology_by_type = {}
+
+        type_name = entity_type.name
+
+        # Check if this is a toggle-off (clicking the same symbology again)
+        if self._last_selected_symbology_by_type.get(type_name) == symbology_name:
+            # Toggle off: return to default display (active_aspect_view = None)
+            entity_type.active_aspect_view = None
+            self.active_symbologies_by_type[type_name] = None
+            self._last_selected_symbology_by_type[type_name] = None
+
+            # Uncheck all radio buttons for this type (block signals to prevent re-trigger)
+            for (t_name, s_name), action in self.symbology_type_menu_items.items():
+                if t_name == type_name:
+                    action.blockSignals(True)
+                    action.setChecked(False)
+                    action.blockSignals(False)
+        else:
+            # Normal click: activate symbology
+            entity_type.displaySymbology(symbology_name)
+            self.active_symbologies_by_type[entity_type.name] = symbology_name
+            self._last_selected_symbology_by_type[type_name] = symbology_name
 
         # Update display
         for aLegend in self.getLegends():
@@ -1641,10 +1712,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def _updateTypeMenuCheckbox(self, type_name, symbology_name):
         """Update type menu to show active symbology via radio button."""
+        # Initialize tracking dict on first use
+        if not hasattr(self, '_last_selected_symbology_by_type'):
+            self._last_selected_symbology_by_type = {}
+
         # Update the radio button for this type-symbology pair
         key = (type_name, symbology_name)
         if key in self.symbology_type_menu_items:
             self.symbology_type_menu_items[key].setChecked(True)
+            # Update tracking when a group activates a symbology
+            self._last_selected_symbology_by_type[type_name] = symbology_name
 
         # Uncheck other symbologies for this type
         for (t_name, s_name), action in self.symbology_type_menu_items.items():

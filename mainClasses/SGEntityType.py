@@ -992,6 +992,16 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if symbology_name in self.model.symbologies:
             self.active_aspect_view = SGAspectView('_current', [self.model.symbologies[symbology_name]])
 
+            # Update menu: check the corresponding radio button if it exists
+            key = (self.name, symbology_name)
+            if key in self.model.symbology_type_menu_items:
+                action = self.model.symbology_type_menu_items[key]
+                action.setChecked(True)
+                # Update tracking
+                if not hasattr(self.model, '_last_selected_symbology_by_type'):
+                    self.model._last_selected_symbology_by_type = {}
+                self.model._last_selected_symbology_by_type[self.name] = symbology_name
+
     # ============================================================================
     # LEGACY POV COMPATIBILITY WRAPPERS
     # ============================================================================
