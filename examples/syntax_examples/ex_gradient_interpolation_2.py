@@ -50,11 +50,10 @@ score_gradient = {
 
 # Create three gradient symbologies with different interpolation methods
 
-# Method 1: Linear interpolation (uniform color transition)
+# Method 1: Linear interpolation (uniform color transition - default)
 Cells.newSymbologyGradient(
     "score",
     score_gradient.copy(),
-    interpolation="linear",
     name="ScoreLinear"
 )
 
