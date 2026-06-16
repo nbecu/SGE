@@ -136,8 +136,9 @@ class SGLegend(SGGameSpace):
                                     # [min, max) - min included, max excluded
                                     label = f"[{value:.0f}, {next_value:.0f})"
                                 else:
-                                    # [min, max] - last class includes max
-                                    label = f"[{value:.0f}]"
+                                    # [min, max] - last class includes max value
+                                    max_value = sorted_values[-1]
+                                    label = f"[{value:.0f}, {max_value:.0f}]"
 
                                 anItem = SGLegendItem(self, 'symbol', label, type, aColor, aAtt, value)
                                 self.legendItems.append(anItem)
@@ -231,8 +232,9 @@ class SGLegend(SGGameSpace):
                                     # [min, max) - min included, max excluded
                                     label = f"[{value:.0f}, {next_value:.0f})"
                                 else:
-                                    # [min, max] - last class includes max
-                                    label = f"[{value:.0f}]"
+                                    # [min, max] - last class includes max value
+                                    max_value = sorted_values[-1]
+                                    label = f"[{value:.0f}, {max_value:.0f}]"
 
                                 anItem = SGLegendItem(self, 'symbol', label, type, nameOfAttribut=aAtt, valueOfAttribut=value, isBorderItem=True, borderColorAndWidth=border_info)
                                 self.legendItems.append(anItem)
