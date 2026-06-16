@@ -210,7 +210,7 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setPen(QPen(Qt.black, 1))
                 painter.drawRect(bar_rect)
 
-                # Draw min/max labels
+                # Draw min/max labels using full widget width
                 font = QFont("Arial", 8)
                 painter.setFont(font)
                 painter.setPen(QPen(Qt.black, 1))
@@ -218,8 +218,11 @@ class SGLegendItem(QtWidgets.QWidget):
                 min_text = f"{self.gradient_min_value:.0f}" if self.gradient_min_value is not None else "Min"
                 max_text = f"{self.gradient_max_value:.0f}" if self.gradient_max_value is not None else "Max"
 
-                painter.drawText(bar_rect.adjusted(5, bar_height + 2, -5, 20), Qt.AlignLeft, min_text)
-                painter.drawText(bar_rect.adjusted(5, bar_height + 2, -5, 20), Qt.AlignRight, max_text)
+                # Use full widget width for labels (not just bar width)
+                widget_width = self.width()
+                labels_rect = QRect(0, bar_height + 2, widget_width, 18)
+                painter.drawText(labels_rect, Qt.AlignLeft, min_text)
+                painter.drawText(labels_rect, Qt.AlignRight, max_text)
 
                 # Position the gradient bar properly
                 painter.end()
