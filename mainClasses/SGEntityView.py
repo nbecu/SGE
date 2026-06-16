@@ -153,7 +153,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         # Fallback: Use default symbology aspect
         default_aspect = self.type.get_default_aspect(entity=self.entity_model)
         if default_aspect:
-            return {'color': default_aspect.border_color, 'width': default_aspect.border_size}
+            return {'color': default_aspect.border_color, 'width': default_aspect.getBorderSize()}
 
         # Legacy POV system for compatibility
         aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.type.name, borderSymbology=True)
@@ -194,7 +194,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             color = aspect.border_color
             if not isinstance(color, QColor):
                 color = QColor(color)
-            width = aspect.border_size if hasattr(aspect, 'border_size') else 1
+            width = aspect.getBorderSize() if hasattr(aspect, 'getBorderSize') else 0
             return {'color': color, 'width': width}
 
         return None
