@@ -1740,7 +1740,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             for type_name in group.get_all_entity_types():
                 entity_type = self.getEntityType(type_name)
                 if entity_type:
-                    entity_type.active_aspect_view = None
                     self.active_symbologies_by_type[type_name] = None
                     if hasattr(self, '_last_selected_symbology_by_type'):
                         self._last_selected_symbology_by_type[type_name] = None
@@ -1791,8 +1790,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Check if this is a toggle-off (clicking the same symbology again)
         if self._last_selected_symbology_by_type.get(type_name) == symbology_name:
-            # Toggle off: return to default display (active_aspect_view = None)
-            entity_type.active_aspect_view = None
+            # Toggle off: return to default display
             self.active_symbologies_by_type[type_name] = None
             self._last_selected_symbology_by_type[type_name] = None
 

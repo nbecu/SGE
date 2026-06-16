@@ -5,13 +5,11 @@ This module provides a unified visual representation framework for all entities:
 - Unified SGAspect for all visual properties (color, border, text, opacity, etc.)
 - Symbologies with category, gradient, interval, and rule-based support
 - Hierarchical resolution (Entity instance → Type-specific → Default)
-- Grouping of symbologies across entity types
-- Aspect views for pre-configured visual representations
+- Grouping of symbologies across entity types (automatic or manual)
 
 Class hierarchy:
 - SGSymbology: Complete visual symbology (maps values or rules to SGAspect)
-- SGSymbologyGroup: Collection of same-named symbologies from different entity types
-- SGAspectView: Named group of symbologies to display together
+- SGSymbologyGroup: Unified group of symbologies (auto or manual modes)
 - SGAspectResolver: Hierarchical resolution engine
 """
 
@@ -433,35 +431,6 @@ class SGAspectResolver:
             elif color:
                 return {'color': QColor(color), 'width': width}
         return {'color': default_color, 'width': default_width}
-
-    @staticmethod
-    def get_active_view(entity_type):
-        """Get the currently active aspect view for an entity type.
-
-        Args:
-            entity_type: The entity type to check
-
-        Returns:
-            SGAspectView or None
-        """
-        if hasattr(entity_type, 'active_aspect_view'):
-            return entity_type.active_aspect_view
-        return None
-
-    @staticmethod
-    def get_symbologies_for_view(entity_type, view_name):
-        """Get all symbologies active in a specific view.
-
-        Args:
-            entity_type: The entity type
-            view_name (str): Name of the view
-
-        Returns:
-            List[SGSymbology]
-        """
-        if hasattr(entity_type, 'aspect_views') and view_name in entity_type.aspect_views:
-            return entity_type.aspect_views[view_name].get_symbologies()
-        return []
 
     @staticmethod
     def get_symbology_group(model, group_name):

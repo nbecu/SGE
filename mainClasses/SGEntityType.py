@@ -10,7 +10,7 @@ from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGModelAction import SGModelAction_OnEntities
 from mainClasses.SGStack import SGStack
 from mainClasses.SGExtensions import *
-from mainClasses.SGAspectSystem import SGSymbology, SGSymbologyGroup, SGAspectView, SGAspectResolver
+from mainClasses.SGAspectSystem import SGSymbology, SGSymbologyGroup, SGAspectResolver
 from mainClasses.SGAspect import SGAspect
 import numpy as np
 from collections import Counter, defaultdict
@@ -36,8 +36,6 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         # Aspect system (hierarchical symbology management)
         self.symbologies = {}  # {name: SGSymbology}
-        self.aspect_views = {}  # {name: SGAspectView}
-        self.active_aspect_view = None
         self._auto_derived_symbologies = set()  # Track auto-derived names per EntityType (to catch duplicates)
 
         # Create default symbology from default colors
@@ -1191,8 +1189,6 @@ class SGEntityType(AttributeAndValueFunctionalities):
             symbology_name (str): Name of the symbology to display
         """
         if symbology_name in self.model.symbologies:
-            self.active_aspect_view = SGAspectView('_current', [self.model.symbologies[symbology_name]])
-
             # Update menu: check the corresponding radio button if it exists
             key = (self.name, symbology_name)
             if key in self.model.symbology_type_menu_items:
