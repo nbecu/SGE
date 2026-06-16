@@ -64,34 +64,33 @@ Cells.newSymbology(
 )
 
 # Create agent type to show text on agents
-Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
-Sheep.setDefaultValues({"energy": lambda: 80})
+Sheep = myModel.newAgentType("Sheep", "triangleAgent1",defaultSize=40)
 
 # Add agents with dynamic text
 sheep1 = Sheep.newAgentAtCoords(1, 1)
-sheep1.setValue("energy", 100)
+sheep1.setValue("energy", 50)
 
 sheep2 = Sheep.newAgentAtCoords(2, 2)
-sheep2.setValue("energy", 50)
+sheep2.setValue("energy", 75)
 
 sheep3 = Sheep.newAgentAtCoords(3, 3)
-sheep3.setValue("energy", 30)
+sheep3.setValue("energy", 75)
 
 # Define energy symbology for agents with dynamic text
 energy_aspect_high = SGAspect(
     background_color="lightgreen",
-    text_content="E:{energy}",
+    text_content="{energy}",
     text_color="black",
     text_size=12,
-    text_alignment="center"
+    # text_alignment="top"
 )
 
 energy_aspect_low = SGAspect(
     background_color="orange",
-    text_content="E:{energy}",
+    text_content="{energy}",
     text_color="black",
     text_size=12,
-    text_alignment="center"
+    text_alignment="bottom"
 )
 
 Sheep.newSymbology(
