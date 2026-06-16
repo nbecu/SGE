@@ -79,7 +79,8 @@ class SGLegend(SGGameSpace):
                     aAtt = self.model.symbology_to_attribute.get(aShapeSymbology, aShapeSymbology)
 
                     # Check if this is a gradient or classification symbology (Phase 3)
-                    is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid')
+                    is_classification = getattr(symbology, 'is_classification', False)
+                    is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid') and not is_classification
 
                     if is_gradient and len(symbology.mapping) >= 2:
                         # GRADIENT: Create a single gradient bar
@@ -152,8 +153,9 @@ class SGLegend(SGGameSpace):
                     # Get the attribute name associated with this symbology
                     aAtt = self.model.symbology_to_attribute.get(aBorderSymbology, aBorderSymbology)
 
-                    # Check if this is a gradient symbology (Phase 3)
-                    is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid')
+                    # Check if this is a gradient or classification symbology (Phase 3)
+                    is_classification = getattr(symbology, 'is_classification', False)
+                    is_gradient = getattr(symbology, 'interpolation', None) in ('linear', 'log', 'exp', 'sigmoid') and not is_classification
 
                     if is_gradient and len(symbology.mapping) >= 2:
                         # GRADIENT: Create a single gradient bar for borders

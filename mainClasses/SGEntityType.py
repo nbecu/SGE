@@ -1162,6 +1162,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if len(self.model.symbologies) == 1:
             self.displaySymbology(name)
 
+        return symbology
+
 
     def displaySymbology(self, symbology_name):
         """
@@ -1261,12 +1263,15 @@ class SGEntityType(AttributeAndValueFunctionalities):
             )
         """
         # Call newSymbology with linear interpolation (to fill gaps between boundaries)
-        return self.newSymbology(
+        symbology = self.newSymbology(
             attribute, mapping,
             name=name,
             interpolation='linear',
             **aspect_defaults
         )
+        # Mark as classification so legend displays classes, not gradient bar
+        symbology.is_classification = True
+        return symbology
 
     # ============================================================================
     # LEGACY POV COMPATIBILITY WRAPPERS
