@@ -1635,6 +1635,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def _onGroupSymbologyClicked(self, group_name):
         """Handle group symbology checkbox click.
 
+        Groups are mutually exclusive: checking one unchecks all others.
         Checked: activate group symbology for all types in the group.
         Unchecked: return to default display for all types.
         """
@@ -1647,6 +1648,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize tracking dict on first use
         if not hasattr(self, '_last_selected_symbology_by_type'):
             self._last_selected_symbology_by_type = {}
+
+        if is_checked:
+            # Uncheck all other groups (mutual exclusivity)
+            for other_group_name, item in self.symbology_group_menu_items.items():
+                if other_group_name != group_name:
+                    item.blockSignals(True)
+                    item.setChecked(False)
+                    item.blockSignals(False)
 
         for type_name in group.get_all_entity_types():
             entity_type = self.getEntityType(type_name)
