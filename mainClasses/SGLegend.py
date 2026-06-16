@@ -119,14 +119,33 @@ class SGLegend(SGGameSpace):
                         # So gradient bar takes ceil(35/20)=2 units, increment by 1 more
                         self.posYOfItems += 1
                     else:
-                        # DISCRETE/CLASSIFICATION: Show each class boundary
-                        for value, aspect in symbology.mapping.items():
-                            aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
-                            # Convert string colors to QColor
-                            if isinstance(aColor, str):
-                                aColor = QColor(aColor)
-                            anItem = SGLegendItem(self, 'symbol', str(value), type, aColor, aAtt, value)
-                            self.legendItems.append(anItem)
+                        # DISCRETE/CLASSIFICATION: Show each class
+                        if is_classification:
+                            # Show class intervals (e.g., "0-25", "25-50")
+                            sorted_values = sorted(symbology.mapping.keys())
+                            for i, value in enumerate(sorted_values):
+                                aspect = symbology.mapping[value]
+                                aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
+                                if isinstance(aColor, str):
+                                    aColor = QColor(aColor)
+
+                                # Format interval label
+                                if i < len(sorted_values) - 1:
+                                    next_value = sorted_values[i + 1]
+                                    label = f"{value:.0f}-{next_value:.0f}"
+                                else:
+                                    label = f"{value:.0f}+"
+
+                                anItem = SGLegendItem(self, 'symbol', label, type, aColor, aAtt, value)
+                                self.legendItems.append(anItem)
+                        else:
+                            # Nominal: Show discrete values
+                            for value, aspect in symbology.mapping.items():
+                                aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
+                                if isinstance(aColor, str):
+                                    aColor = QColor(aColor)
+                                anItem = SGLegendItem(self, 'symbol', str(value), type, aColor, aAtt, value)
+                                self.legendItems.append(anItem)
                 elif aShapeSymbology in type.povShapeColor:
                     # Legacy POV system
                     aAtt = list(type.povShapeColor[aShapeSymbology].keys())[0]
@@ -190,16 +209,37 @@ class SGLegend(SGGameSpace):
                         # So gradient bar takes ceil(35/20)=2 units, increment by 1 more
                         self.posYOfItems += 1
                     else:
-                        # DISCRETE: Show each value
-                        for value, aspect in symbology.mapping.items():
-                            border_color = aspect.border_color if hasattr(aspect, 'border_color') else Qt.black
-                            # Convert string colors to QColor
-                            if isinstance(border_color, str):
-                                border_color = QColor(border_color)
-                            border_size = aspect.border_size if hasattr(aspect, 'border_size') else 1
-                            border_info = {'color': border_color, 'width': border_size}
-                            anItem = SGLegendItem(self, 'symbol', str(value), type, nameOfAttribut=aAtt, valueOfAttribut=value, isBorderItem=True, borderColorAndWidth=border_info)
-                            self.legendItems.append(anItem)
+                        # DISCRETE/CLASSIFICATION: Show each class
+                        if is_classification:
+                            # Show class intervals (e.g., "0-25", "25-50")
+                            sorted_values = sorted(symbology.mapping.keys())
+                            for i, value in enumerate(sorted_values):
+                                aspect = symbology.mapping[value]
+                                border_color = aspect.border_color if hasattr(aspect, 'border_color') else Qt.black
+                                if isinstance(border_color, str):
+                                    border_color = QColor(border_color)
+                                border_size = aspect.border_size if hasattr(aspect, 'border_size') else 1
+                                border_info = {'color': border_color, 'width': border_size}
+
+                                # Format interval label
+                                if i < len(sorted_values) - 1:
+                                    next_value = sorted_values[i + 1]
+                                    label = f"{value:.0f}-{next_value:.0f}"
+                                else:
+                                    label = f"{value:.0f}+"
+
+                                anItem = SGLegendItem(self, 'symbol', label, type, nameOfAttribut=aAtt, valueOfAttribut=value, isBorderItem=True, borderColorAndWidth=border_info)
+                                self.legendItems.append(anItem)
+                        else:
+                            # Nominal: Show discrete values
+                            for value, aspect in symbology.mapping.items():
+                                border_color = aspect.border_color if hasattr(aspect, 'border_color') else Qt.black
+                                if isinstance(border_color, str):
+                                    border_color = QColor(border_color)
+                                border_size = aspect.border_size if hasattr(aspect, 'border_size') else 1
+                                border_info = {'color': border_color, 'width': border_size}
+                                anItem = SGLegendItem(self, 'symbol', str(value), type, nameOfAttribut=aAtt, valueOfAttribut=value, isBorderItem=True, borderColorAndWidth=border_info)
+                                self.legendItems.append(anItem)
                 elif aBorderSymbology in type.povBorderColorAndWidth:
                     # Legacy POV system
                     aPovBorderDef = type.povBorderColorAndWidth.get(aBorderSymbology)
