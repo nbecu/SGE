@@ -238,7 +238,9 @@ class SGLegendItem(QtWidgets.QWidget):
 
                         # Draw value label below the bar
                         label_text = f"{value:.0f}"
-                        label_rect = QRect(x_pos - 10, bar_height + 2, 20, 12)
+                        # Shift first label (min value) right by 3px to prevent left clipping
+                        label_x_offset = 3 if value == self.gradient_min_value else 0
+                        label_rect = QRect(x_pos - 10 + label_x_offset, bar_height + 2, 20, 12)
                         painter.drawText(label_rect, Qt.AlignCenter, label_text)
 
                 # Position the gradient bar properly
