@@ -61,9 +61,11 @@ class SGAspect():
         self.text_alignment = kwargs.get('text_alignment', 'center')  # left, center, right
         self.text_opacity = kwargs.get('text_opacity', 1.0)  # 0-1
 
-        # Conditional visibility (Phase 3, Feature 5)
-        # visible_if: condition expression, e.g., "health > 50", "{energy} < 20"
-        self.visible_if = kwargs.get('visible_if', None)
+        # Conditional aspect application (Phase 3, Feature 5)
+        # apply_if: condition expression to determine if this aspect should be applied
+        # e.g., "health > 50", "{energy} < 20"
+        # If the condition evaluates to True, this aspect is applied to the entity
+        self.apply_if = kwargs.get('apply_if', None)
 
         # Animations (Phase 3, Feature 7)
         # animation: type of animation ('pulse', 'flash', 'rotate', etc.)
@@ -794,13 +796,13 @@ class SGAspect():
         Returns:
             bool: True if entity should be visible, False otherwise
         """
-        if not self.visible_if:
+        if not self.apply_if:
             return True
 
         if not entity:
             return True
 
-        condition = str(self.visible_if)
+        condition = str(self.apply_if)
 
         # Replace {attr_name} with entity.value(attr_name)
         import re
