@@ -29,7 +29,7 @@ myModel = SGModel(1200, 750, windowTitle="Background Image Modes Demo")
 
 # Grid 1: stretch mode - may distort
 Cell1 = myModel.newCellsOnGrid(5, 10, "square", size=40, gap=10,
-                               backgroundImage="./images/oranges.png")
+                               backgroundImage="./images/leaves.png")
 grid1 = Cell1.grid
 grid1.moveToCoords(40, 100)
 grid1.setStyle({
@@ -40,7 +40,7 @@ grid1.setStyle({
 
 # Grid 2: cover mode - covers all area, may crop
 Cell2 = myModel.newCellsOnGrid(5, 10, "square", size=40, gap=10,
-                               backgroundImage="./images/oranges.png")
+                               backgroundImage="./images/leaves.png")
 grid2 = Cell2.grid
 grid2.moveToCoords(450, 100)
 grid2.setStyle({
@@ -51,7 +51,7 @@ grid2.setStyle({
 
 # Grid 3: contain mode - fits inside, may have margins
 Cell3 = myModel.newCellsOnGrid(5, 10, "square", size=40, gap=10,
-                               backgroundImage="./images/oranges.png")
+                               backgroundImage="./images/leaves.png")
 
 grid3 = Cell3.grid
 grid3.moveToCoords(860, 100)
