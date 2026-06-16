@@ -401,7 +401,7 @@ class SGAspect():
         return self.border_style
 
     def getBorderSize(self):
-        return self.border_size
+        return self.border_size if self.border_size is not None else 0
 
     # def getBorderColor(self):
     #     return self.border_color
