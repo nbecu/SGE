@@ -1273,11 +1273,12 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 name="SalaryQuantiles"
             )
         """
-        # Call newSymbology with linear interpolation (to fill gaps between boundaries)
+        # Call newSymbology WITHOUT interpolation for discrete classes
+        # Each value is mapped to its class based on the boundary it falls into
         symbology = self.newSymbology(
             attribute, mapping,
             name=name,
-            interpolation='linear',
+            interpolation=None,
             **aspect_defaults
         )
         # Mark as classification so legend displays classes, not gradient bar
