@@ -25,7 +25,7 @@ Cells.setEntities("wealth", 50)
 # Set wealth values to create interesting pattern
 import random
 random.seed(42)
-for cell in Cells.getAllEntities():
+for cell in Cells.entities:
     wealth = random.randint(0, 100)
     cell.setValue("wealth", wealth)
 

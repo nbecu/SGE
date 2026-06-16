@@ -23,7 +23,7 @@ Cells = myModel.newCellsOnGrid(6, 6, "square", size=70)
 Cells.setEntities("temperature", 50)
 
 # Set temperature gradient across the grid
-for cell in Cells.getAllEntities():
+for cell in Cells.entities:
     # Cold on left (x=1), hot on right (x=6)
     temperature = int((cell.xCoord - 1) / 5 * 100)
     cell.setValue("temperature", temperature)

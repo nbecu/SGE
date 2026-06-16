@@ -24,7 +24,7 @@ Cells = myModel.newCellsOnGrid(4, 4, "square", size=80)
 Cells.setEntities("health", 50)
 
 # Add variability to show text changes
-for cell in Cells.getAllEntities():
+for cell in Cells.entities:
     health = 30 + (cell.xCoord + cell.yCoord) * 10
     if health > 100:
         health = 100

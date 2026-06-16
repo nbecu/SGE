@@ -62,7 +62,7 @@ Cells.newSymbology(
 )
 
 # Set some cells to high priority (will pulse)
-for i, cell in enumerate(Cells.getAllEntities()):
+for i, cell in enumerate(Cells.entities):
     if i % 3 == 0:
         cell.setValue("status", 2)  # High - pulsing
     elif i % 3 == 1:
@@ -72,7 +72,7 @@ for i, cell in enumerate(Cells.getAllEntities()):
 
 # Register animations for high-priority cells
 manager = SGAnimationManager.global_manager()
-for cell in Cells.getAllEntities():
+for cell in Cells.entities:
     if cell.value("status") == 2:
         manager.add_animation(cell.privateID, "pulse", duration=1.0)
 

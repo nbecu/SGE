@@ -26,14 +26,14 @@ Cells.setEntities("pollution", 50)
 # Set pollution values randomly to demonstrate classification
 import random
 random.seed(42)
-for cell in Cells.getAllEntities():
+for cell in Cells.entities:
     pollution = random.randint(0, 100)
     cell.setValue("pollution", pollution)
 
 # Method 1: Quantile Classification (equal count per class)
 print("Classifying with quantile method...")
 quantile_mapping = SGClassifier.classify_quantile(
-    Cells.getAllEntities(),
+    Cells.entities,
     attribute="pollution",
     num_classes=4
 )
@@ -54,7 +54,7 @@ manual_mapping = SGClassifier.classify_manual(
 # Method 3: Equidistant Classification (equal width intervals)
 print("Classifying with equidistant method...")
 equidistant_mapping = SGClassifier.classify_equidistant(
-    Cells.getAllEntities(),
+    Cells.entities,
     attribute="pollution",
     num_classes=4
 )

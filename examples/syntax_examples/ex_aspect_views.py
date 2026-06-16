@@ -27,7 +27,7 @@ Cells.setEntities("fertility", 50)
 # Add variability
 import random
 random.seed(42)
-for cell in Cells.getAllEntities():
+for cell in Cells.entities:
     cell.setValue("health", random.randint(0, 100))
     cell.setValue("fertility", random.randint(0, 100))
 
