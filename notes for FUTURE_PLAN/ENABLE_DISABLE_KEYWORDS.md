@@ -73,11 +73,83 @@ setShowIconsInContextMenu(True/False)
 - `SGTimeLabel.setDisplayPhaseNumber()` → `showPhaseNumber()` / `hidePhaseNumber()`
 - `SGTimeLabel.setDisplayRoundNumber()` → `showRoundNumber()` / `hideRoundNumber()`
 
-## Additional Keywords to Consider
+## Additional Keywords: `show`/`hide`
 
-If implementing `enable/disable`, consider also adding:
-- **`show`/`hide`** — for display-related toggles (clearer than enable/disable for visibility)
-- These are semantic variants better suited to UI visibility, while `enable/disable` suit feature toggles
+**Recommendation: Add `show`/`hide` as complementary keywords**
+
+Currently, `display` is the only UI-related keyword in README_developer.md. However, semantic analysis reveals three distinct intents:
+
+### Semantic Distinction
+
+```python
+# display : Afficher un nouvel élément/panel/dialog sur l'interface
+SGModel.displayAdminControlPanel()              # Show a new panel
+SGEndGameRule.displayEndGameConditions()        # Show conditions dialog
+
+# show/hide : Contrôler la visibilité d'une propriété/fonctionnalité
+SGControlPanel.showSectionTitles()              # Toggle visibility of titles
+SGModel.hideDefaultGraphMenuItems()             # Toggle visibility of menu items
+
+# enable/disable : Activer/Désactiver une fonctionnalité
+SGModel.enableBotPlayer()                       # Toggle feature on/off
+SGPlayer.disableActionPoints()                  # Toggle feature on/off
+```
+
+### Why `show`/`hide` Deserve Keywords Status
+
+1. **Different from `display`**: 
+   - `display` = create/show a new element (element didn't exist before)
+   - `show/hide` = toggle visibility of existing feature (element already exists)
+
+2. **Common in UI frameworks**:
+   - Qt uses `show()` / `hide()` on widgets
+   - Web frameworks use `show()` / `hide()` for visibility
+
+3. **Clearer intent than `set`**:
+   - `setShowSectionTitles(True/False)` vs `showSectionTitles()` / `hideSectionTitles()`
+   - The latter pair is immediately clear about toggle direction
+
+4. **Synergistic with `enable/disable`**:
+   - `enable/disable` — feature activation
+   - `show/hide` — visibility control
+   - They work together but express different concerns
+
+### Proposed Addition to README_developer.md
+
+```markdown
+- **display**: To display a new element on the SGE User Interface 
+  (e.g., `displayAdminControlPanel()`, `displayEndGameConditions()`).
+- **show/hide**: To toggle visibility of a property or UI feature 
+  (e.g., `showSectionTitles()`, `hideDefaultGraphMenuItems()`).
+```
+
+### Keywords Summary (Recommended)
+
+| Keyword | Purpose | Example |
+|---------|---------|---------|
+| `new` | Create new element/type | `newCellsOnGrid()` |
+| `get` | Retrieve element | `getPlayer()` |
+| `delete` | Remove element | `deleteEntity()` |
+| `set` | Modify property | `setName()` |
+| `add` | Add to existing | `addAction()` |
+| `nb` | Count elements | `nbAgents()` |
+| `is` | Boolean test | `isDeleted()` |
+| `do_` | Perform action | `do_move()` |
+| `display` | Show new element | `displayAdminControlPanel()` |
+| `show`/`hide` | Toggle visibility | `showSectionTitles()` / `hideSectionTitles()` |
+| `enable`/`disable` | Toggle feature | `enableBotPlayer()` / `disableBotPlayer()` |
+
+## Implementation Plan (Revised)
+
+1. **Update README_developer.md** — Add `show`/`hide` and `enable`/`disable` to keywords section
+2. **Update CONTEXT_SGE_FOR_CHATBOT.md** — Document new keywords
+3. **Recategorize 11 existing methods** — Move enable/disable to new keyword category
+4. **Refactor 8+ methods** — Use `show/hide` for visibility toggles:
+   - `SGControlPanel.setShowSectionTitles()` → `showSectionTitles()` / `hideSectionTitles()`
+   - `SGControlPanel.setShowSelectionBorder()` → `showSelectionBorder()` / `hideSelectionBorder()`
+   - etc.
+5. **Update method catalog** — Regenerate `sge_methods_catalog.json` with new categories
+6. **Update docstrings** — Clarify intent in method documentation
 
 ## Implementation Plan
 
