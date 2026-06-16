@@ -2,9 +2,10 @@
 Gradient Interpolation Example (Phase 3, Feature 3)
 
 Demonstrates:
-- Linear gradient from cold (blue) to hot (red) colors
-- Automatic color interpolation between defined points
+- Linear gradient with multiple color stops (5 points: dark blue → light blue → green → orange → red)
+- Automatic color interpolation between any number of defined points
 - Gradient applied to temperature attribute
+- You can define 2+ points at any values in the range
 """
 
 import sys
@@ -28,18 +29,33 @@ for cell in Cells.entities:
     temperature = int((cell.xCoord - 1) / 5 * 100)
     cell.setValue("temperature", temperature)
 
-# Define gradient with 3 key points
-# Temperature 0°C = Blue, 50°C = Green, 100°C = Red
+# Define gradient with 5 key points
+# You can specify any number of interpolation points (minimum 2)
+# Temperature: 0°C = Dark Blue, 25°C = Light Blue, 50°C = Green, 75°C = Orange, 100°C = Red
 temperature_gradient = {
     0: SGAspect(
-        background_color=QColor("blue"),
+        background_color=QColor("darkblue"),
+        text_content="{temperature}°C",
+        text_color="white",
+        text_size=12,
+        text_weight="bold"
+    ),
+    25: SGAspect(
+        background_color=QColor("lightblue"),
         text_content="{temperature}°C",
         text_color="white",
         text_size=12,
         text_weight="bold"
     ),
     50: SGAspect(
-        background_color=QColor("green"),
+        background_color=QColor("lime"),
+        text_content="{temperature}°C",
+        text_color="white",
+        text_size=12,
+        text_weight="bold"
+    ),
+    75: SGAspect(
+        background_color=QColor("orange"),
         text_content="{temperature}°C",
         text_color="white",
         text_size=12,
@@ -60,6 +76,8 @@ Cells.newSymbologyGradient(
     temperature_gradient,
     name="TemperatureGradient"
 )
+
+myModel.newLegend()
 
 # Launch
 myModel.launch()
