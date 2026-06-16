@@ -2004,17 +2004,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         selectedSymbologies = {}
         for type in entityTypes:
-            # Get active symbologies from active_symbologies_by_type (source of truth)
-            active_list = self.active_symbologies_by_type.get(type.name, [])
-            if not isinstance(active_list, list):
-                active_list = [active_list] if active_list else []
-
-            # For legend and UI compatibility, use first symbology if multiple are active
-            # This handles groups with multiple symbologies by showing the primary one
-            primary_symbology = active_list[0] if active_list else None
-
             selectedSymbologies[type] = {
-                'shape': primary_symbology,  # First symbology (for legend)
+                'shape': self.getCheckedSymbologyOfEntity(type.name),
                 'border': self.getCheckedSymbologyOfEntity(type.name, borderSymbology=True)
             }
         return selectedSymbologies
