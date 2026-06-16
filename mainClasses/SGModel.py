@@ -1700,9 +1700,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if hasattr(group, 'is_manual') and group.is_manual:
             # Manual group: reapply all symbologies in the group
             for symbology_name in group.symbology_names:
-                for entity_type in self.getEntityTypes():
-                    if symbology_name in entity_type.symbologies:
-                        entity_type.displaySymbology(symbology_name)
+                if symbology_name in self.symbologies:
+                    # Activate this symbology for all entity types
+                    for entity_type in self.getEntityTypes():
                         self.active_symbologies_by_type[entity_type.name] = symbology_name
                         self._last_selected_symbology_by_type[entity_type.name] = symbology_name
                         # Update type menu checkboxes
@@ -1759,18 +1759,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # Toggle off: return to default display for all types in group
             if hasattr(group, 'is_manual') and group.is_manual:
                 # Manual group: deactivate all symbologies in the group
-                for symbology_name in group.symbology_names:
-                    for entity_type in self.getEntityTypes():
-                        if symbology_name in entity_type.symbologies:
-                            self.active_symbologies_by_type[entity_type.name] = None
-                            if hasattr(self, '_last_selected_symbology_by_type'):
-                                self._last_selected_symbology_by_type[entity_type.name] = None
-                            # Uncheck radio buttons for this type
-                            for (t_name, s_name), action in self.symbology_type_menu_items.items():
-                                if t_name == entity_type.name:
-                                    action.blockSignals(True)
-                                    action.setChecked(False)
-                                    action.blockSignals(False)
+                for entity_type in self.getEntityTypes():
+                    self.active_symbologies_by_type[entity_type.name] = None
+                    if hasattr(self, '_last_selected_symbology_by_type'):
+                        self._last_selected_symbology_by_type[entity_type.name] = None
+                    # Uncheck radio buttons for this type
+                    for (t_name, s_name), action in self.symbology_type_menu_items.items():
+                        if t_name == entity_type.name:
+                            action.blockSignals(True)
+                            action.setChecked(False)
+                            action.blockSignals(False)
             else:
                 # Automatic group: deactivate by type
                 for type_name in group.get_all_entity_types():
@@ -1797,9 +1795,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if hasattr(group, 'is_manual') and group.is_manual:
                 # Manual group: activate all symbologies in the group
                 for symbology_name in group.symbology_names:
-                    for entity_type in self.getEntityTypes():
-                        if symbology_name in entity_type.symbologies:
-                            entity_type.displaySymbology(symbology_name)
+                    # For manual groups, symbologies are at the model level (self.symbologies)
+                    if symbology_name in self.symbologies:
+                        # Activate this symbology for all entity types
+                        for entity_type in self.getEntityTypes():
                             self.active_symbologies_by_type[entity_type.name] = symbology_name
                             if not hasattr(self, '_last_selected_symbology_by_type'):
                                 self._last_selected_symbology_by_type = {}
