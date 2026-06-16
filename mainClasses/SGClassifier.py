@@ -100,6 +100,9 @@ class SGClassifier:
             aspect = SGAspect(background_color=colors[i % len(colors)])
             mapping[quantile_value] = aspect
 
+        # Store max value for legend display
+        if values:
+            mapping['__max_value__'] = max(values)
         return mapping
 
     @staticmethod
