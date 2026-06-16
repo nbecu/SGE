@@ -75,14 +75,18 @@ class SGSymbology:
                     pass
 
             # For classifications (discrete classes), map value to appropriate class boundary
-            # Find the largest boundary <= the value
+            # Find the largest key <= the value (with small tolerance for floating point)
             if getattr(self, 'is_classification', False) and len(self.mapping) > 0:
                 try:
                     numeric_keys = sorted([k for k in self.mapping.keys() if isinstance(k, (int, float))])
-                    # Find largest key that is <= attribute_value
-                    for key in reversed(numeric_keys):
-                        if key <= attribute_value:
-                            return self.mapping[key]
+                    if numeric_keys:
+                        # Find largest key that is <= attribute_value (or very close)
+                        tolerance = 1e-6
+                        for key in reversed(numeric_keys):
+                            if key <= attribute_value + tolerance:
+                                return self.mapping[key]
+                        # If value is below all keys, use the first key
+                        return self.mapping[numeric_keys[0]]
                 except Exception:
                     pass
 
