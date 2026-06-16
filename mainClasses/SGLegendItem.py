@@ -508,8 +508,8 @@ class SGLegendItem(QtWidgets.QWidget):
             if self.is_gradient_bar:
                 # Gradient bar is 150px wide + padding for min/max labels
                 min_w = 150 + 40  # Bar width + generous labels padding
-                # Height: bar (20px) + text below (15px) + margins
-                item_height = 20 + 18
+                # Height: bar (20px) + text below (18px) + top/bottom margins (12px)
+                item_height = 20 + 18 + 12
             else:
                 try:
                     if self.type == "symbol" and (self.text is None or str(self.text) == ""):
