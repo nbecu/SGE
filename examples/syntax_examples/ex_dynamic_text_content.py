@@ -24,20 +24,16 @@ Cells = myModel.newCellsOnGrid(4, 4, "square", size=80)
 Cells.setEntities("health", 50)
 
 # Add variability to show text changes
-for cell in Cells.entities:
-    health = 30 + (cell.xCoord + cell.yCoord) * 10
-    if health > 100:
-        health = 100
-    cell.setValue("health", health)
+Cells.setEntities_randomChoicePerEntity("health", [25, 50, 75])
 
 # Define health symbology with dynamic text
 health_aspect_healthy = SGAspect(
     background_color="green",
     text_content="{health}",
     text_color="white",
-    text_size=16,
-    text_weight="bold",
-    text_alignment="center"
+    text_size=10,
+    # text_weight="bold",
+    text_alignment="bottom"
 )
 
 health_aspect_normal = SGAspect(

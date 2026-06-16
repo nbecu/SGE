@@ -276,14 +276,30 @@ class SGCellView(SGEntityView):
 
         painter.setPen(QPen(text_color))
 
-        # Calculate text alignment
-        alignment_map = {
-            'left': Qt.AlignLeft,
-            'center': Qt.AlignHCenter,
-            'right': Qt.AlignRight
-        }
-        alignment = alignment_map.get(aspect.text_alignment, Qt.AlignHCenter)
-        alignment |= Qt.AlignVCenter
+        # Calculate text alignment (horizontal and vertical)
+        # Supported formats: "left", "center", "right" (horizontal)
+        # With optional vertical: "top-left", "center", "bottom-right", etc.
+        alignment_text = aspect.text_alignment.lower() if aspect.text_alignment else "center"
+
+        # Parse horizontal alignment
+        h_align = Qt.AlignHCenter  # Default
+        if 'left' in alignment_text:
+            h_align = Qt.AlignLeft
+        elif 'right' in alignment_text:
+            h_align = Qt.AlignRight
+        elif 'center' in alignment_text or alignment_text == "center":
+            h_align = Qt.AlignHCenter
+
+        # Parse vertical alignment
+        v_align = Qt.AlignVCenter  # Default
+        if 'top' in alignment_text:
+            v_align = Qt.AlignTop
+        elif 'bottom' in alignment_text:
+            v_align = Qt.AlignBottom
+        elif 'vcenter' in alignment_text:
+            v_align = Qt.AlignVCenter
+
+        alignment = h_align | v_align
 
         # Draw text in cell bounds
         text_rect = QRect(0, 0, cell_size, cell_size)
