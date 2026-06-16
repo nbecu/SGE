@@ -54,6 +54,12 @@ class SGClassifier:
             aspect = SGAspect(background_color=colors[i % len(colors)])
             mapping[interval_key] = aspect
 
+        # Store max value for legend display (using special key to avoid conflicts)
+        if not values:
+            max_val = 0
+        else:
+            max_val = max(values)
+        mapping['__max_value__'] = max_val
         return mapping
 
     @staticmethod

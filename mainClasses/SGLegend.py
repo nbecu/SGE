@@ -123,7 +123,9 @@ class SGLegend(SGGameSpace):
                         if is_classification:
                             # Show class intervals with proper notation: [min, max)
                             # Last class uses [min, max] to include the maximum value
-                            sorted_values = sorted(symbology.mapping.keys())
+                            sorted_values = sorted([k for k in symbology.mapping.keys() if k != '__max_value__'])
+                            # Get max value from classifier (stored by classify_quantile, etc.)
+                            max_class_value = symbology.mapping.get('__max_value__', None)
                             for i, value in enumerate(sorted_values):
                                 aspect = symbology.mapping[value]
                                 aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
@@ -137,8 +139,9 @@ class SGLegend(SGGameSpace):
                                     label = f"[{value:.0f}, {next_value:.0f})"
                                 else:
                                     # [min, max] - last class includes max value
-                                    max_value = sorted_values[-1]
-                                    label = f"[{value:.0f}, {max_value:.0f}]"
+                                    # Use stored max value if available, otherwise use last key
+                                    upper_bound = max_class_value if max_class_value is not None else sorted_values[-1]
+                                    label = f"[{value:.0f}, {upper_bound:.0f}]"
 
                                 anItem = SGLegendItem(self, 'symbol', label, type, aColor, aAtt, value)
                                 self.legendItems.append(anItem)
@@ -217,7 +220,8 @@ class SGLegend(SGGameSpace):
                         if is_classification:
                             # Show class intervals with proper notation: [min, max)
                             # Last class uses [min, max] to include the maximum value
-                            sorted_values = sorted(symbology.mapping.keys())
+                            sorted_values = sorted([k for k in symbology.mapping.keys() if k != '__max_value__'])
+                            max_class_value = symbology.mapping.get('__max_value__', None)
                             for i, value in enumerate(sorted_values):
                                 aspect = symbology.mapping[value]
                                 border_color = aspect.border_color if hasattr(aspect, 'border_color') else Qt.black
