@@ -13,6 +13,7 @@ This document contains the planned improvements and features for the SGE (Simula
 ### User Interface & Display
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
 - [ ] In SGGid, consider using getGridBoundsWidth()/getGridBoundsHeight() instead of getSizeXGlobal()/getSizeYGlobal(), because these two last methods add 1px for an undertermined reason
+- [ ] Add instance symbologies legend to visualize entity-level overrides (points of interest) separately from type symbologies (see notes for FUTURE_PLAN/INSTANCE_SYMBOLOGIES_LEGEND.md)
 
 ### POV System & Visual Elements
 - [ ] Create a aspect system for entities to replace pov (résolution hierarchique des aspects) + create views to manage groups of symbologies

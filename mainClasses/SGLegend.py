@@ -61,21 +61,71 @@ class SGLegend(SGGameSpace):
                     default_aspect = type.get_default_aspect()
                     aColor = default_aspect.background_color if default_aspect else type.defaultShapeColor
                     anItem=SGLegendItem(self,'symbol','default',type,aColor)
-                    self.legendItems.append(anItem)    
-                aAtt = list(type.povShapeColor[aShapeSymbology].keys())[0]
-                dictSymbolNameAndColor= list(type.povShapeColor[aShapeSymbology].values())[0]
-                for aSymbolName, aColor in dictSymbolNameAndColor.items():
-                    anItem=SGLegendItem(self,'symbol',aSymbolName,type,aColor,aAtt,aSymbolName)
                     self.legendItems.append(anItem)
+
+                # Try new symbology system first, then fallback to legacy POV
+                # Look for type-specific symbology first, then fallback to plain name
+                symbology_key = f"{aShapeSymbology}_{type.name}"
+                if symbology_key in self.model.symbologies:
+                    symbology = self.model.symbologies[symbology_key]
+                elif aShapeSymbology in self.model.symbologies:
+                    symbology = self.model.symbologies[aShapeSymbology]
+                else:
+                    symbology = None
+
+                if symbology is not None:
+                    # New symbology system - found it
+                    # Get the attribute name associated with this symbology
+                    aAtt = self.model.symbology_to_attribute.get(aShapeSymbology, aShapeSymbology)
+                    for value, aspect in symbology.mapping.items():
+                        aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
+                        # Convert string colors to QColor
+                        if isinstance(aColor, str):
+                            aColor = QColor(aColor)
+                        anItem=SGLegendItem(self,'symbol',str(value),type,aColor,aAtt,value)
+                        self.legendItems.append(anItem)
+                elif aShapeSymbology in type.povShapeColor:
+                    # Legacy POV system
+                    aAtt = list(type.povShapeColor[aShapeSymbology].keys())[0]
+                    dictSymbolNameAndColor= list(type.povShapeColor[aShapeSymbology].values())[0]
+                    for aSymbolName, aColor in dictSymbolNameAndColor.items():
+                        anItem=SGLegendItem(self,'symbol',aSymbolName,type,aColor,aAtt,aSymbolName)
+                        self.legendItems.append(anItem)
             if aBorderSymbology is not None:
                 # Case 3: Border symbology - POV for border color and width, creates items for each symbol name
                 # This case corresponds to entities with border-based POV (e.g., ownership or status borders)
-                aPovBorderDef = type.povBorderColorAndWidth.get(aBorderSymbology)
-                aAtt = list(aPovBorderDef.keys())[0]
-                dictSymbolNameAndColorAndWidth= list(aPovBorderDef.values())[0]
-                for aSymbolName, aDictColorAndWidth in dictSymbolNameAndColorAndWidth.items():
-                    anItem=SGLegendItem(self,'symbol',aSymbolName,type,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
-                    self.legendItems.append(anItem)
+
+                # Try new symbology system first, then fallback to legacy POV
+                # Look for type-specific symbology first, then fallback to plain name
+                symbology_key = f"{aBorderSymbology}_{type.name}"
+                if symbology_key in self.model.symbologies:
+                    symbology = self.model.symbologies[symbology_key]
+                elif aBorderSymbology in self.model.symbologies:
+                    symbology = self.model.symbologies[aBorderSymbology]
+                else:
+                    symbology = None
+
+                if symbology is not None:
+                    # New symbology system - found it
+                    # Get the attribute name associated with this symbology
+                    aAtt = self.model.symbology_to_attribute.get(aBorderSymbology, aBorderSymbology)
+                    for value, aspect in symbology.mapping.items():
+                        border_color = aspect.border_color if hasattr(aspect, 'border_color') else Qt.black
+                        # Convert string colors to QColor
+                        if isinstance(border_color, str):
+                            border_color = QColor(border_color)
+                        border_size = aspect.border_size if hasattr(aspect, 'border_size') else 1
+                        border_info = {'color': border_color, 'width': border_size}
+                        anItem=SGLegendItem(self,'symbol',str(value),type,nameOfAttribut=aAtt,valueOfAttribut=value,isBorderItem=True,borderColorAndWidth=border_info)
+                        self.legendItems.append(anItem)
+                elif aBorderSymbology in type.povBorderColorAndWidth:
+                    # Legacy POV system
+                    aPovBorderDef = type.povBorderColorAndWidth.get(aBorderSymbology)
+                    aAtt = list(aPovBorderDef.keys())[0]
+                    dictSymbolNameAndColorAndWidth= list(aPovBorderDef.values())[0]
+                    for aSymbolName, aDictColorAndWidth in dictSymbolNameAndColorAndWidth.items():
+                        anItem=SGLegendItem(self,'symbol',aSymbolName,type,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
+                        self.legendItems.append(anItem)
 
         for anItem in self.legendItems:
             anItem.adjustSize()  #NEW

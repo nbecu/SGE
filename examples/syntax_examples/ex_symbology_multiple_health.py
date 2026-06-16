@@ -81,5 +81,7 @@ Sheep.newSymbology(
 sheep = Sheep.newAgentAtCoords(Cells, 2, 2)
 sheep.setValue("health", 100)
 
+myModel.newLegend()
+
 myModel.launch()
 sys.exit(monApp.exec())
