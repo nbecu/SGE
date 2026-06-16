@@ -8,6 +8,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Unify definition of `setValue` for the different classes
 - [ ] Refactor getter methods in SGModel for consistent object retrieval by name (see REFACTORING_GETTER_METHODS.md)
 - [ ] Refactor SGModel: Extract Game Action Export (lines 458-824) and Layout Management (lines 1271-1424) methods into separate classes using composition pattern
+- [ ] Add `enable`/`disable` keywords for API consistency — recategorize 11 existing methods and refactor 8+ `set...()` methods with display intent (see notes for FUTURE_PLAN/ENABLE_DISABLE_KEYWORDS.md)
 
 ### User Interface & Display
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
