@@ -198,7 +198,38 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             return {'color': color, 'width': width}
 
         return None
-    
+
+    def _getAspectFromSymbology(self):
+        """Resolve complete aspect from symbology system for text content rendering.
+
+        Returns the SGAspect object if a symbology is active, None otherwise.
+        """
+        if not hasattr(self.model, 'active_symbologies_by_type'):
+            return None
+
+        # Get active symbology name for this entity type
+        symbology_name = self.model.active_symbologies_by_type.get(self.type.name)
+        if not symbology_name:
+            return None
+
+        # Get the symbology definition and attribute name
+        if not hasattr(self.model, 'symbologies') or not hasattr(self.model, 'symbology_to_attribute'):
+            return None
+
+        symbology = self.model.symbologies.get(symbology_name)
+        if not symbology:
+            return None
+
+        # Get attribute name from model's tracking
+        attr_name = self.model.symbology_to_attribute.get(symbology_name)
+        if not attr_name:
+            return None
+
+        # Resolve aspect using SGAspectResolver
+        from mainClasses.SGAspectSystem import SGAspectResolver
+        aspect = SGAspectResolver.resolve_aspect(self.entity_model, symbology_name, attr_name)
+        return aspect
+
     def getImage(self):
         """Get the image for display based on POV settings"""
         if self.isDisplay == False: 

@@ -215,7 +215,62 @@ class SGCellView(SGEntityView):
             # Cell is deleted/hidden, don't draw anything
             pass
 
+        # Draw dynamic text content if defined (Phase 3)
+        if self.cell_model.isDisplay:
+            current_size = self.grid.size
+            self._drawDynamicText(painter, current_size)
+
         painter.end()
+
+    def _drawDynamicText(self, painter, cell_size):
+        """Draw dynamic text content on the cell if defined in active symbology.
+
+        Args:
+            painter (QPainter): The painter to draw with
+            cell_size (int): Size of the cell
+        """
+        # Get the aspect from active symbology
+        aspect = self._getAspectFromSymbology()
+        if not aspect or not aspect.text_content:
+            return
+
+        # Resolve the text content (handle {attr} substitutions)
+        text = aspect.resolve_text_content(self.entity_model)
+        if not text:
+            return
+
+        # Set up text rendering
+        font = QFont()
+        if aspect.text_font:
+            font.setFamily(aspect.text_font)
+        if aspect.text_size:
+            font.setPixelSize(int(aspect.text_size))
+        if aspect.text_weight == 'bold':
+            font.setBold(True)
+
+        painter.setFont(font)
+
+        # Set text color
+        text_color = aspect.text_color if aspect.text_color else Qt.black
+        if isinstance(text_color, str):
+            text_color = QColor(text_color)
+        elif not isinstance(text_color, QColor):
+            text_color = QColor(text_color) if text_color else Qt.black
+
+        painter.setPen(QPen(text_color))
+
+        # Calculate text alignment
+        alignment_map = {
+            'left': Qt.AlignLeft,
+            'center': Qt.AlignHCenter,
+            'right': Qt.AlignRight
+        }
+        alignment = alignment_map.get(aspect.text_alignment, Qt.AlignHCenter)
+        alignment |= Qt.AlignVCenter
+
+        # Draw text in cell bounds
+        text_rect = QRect(0, 0, cell_size, cell_size)
+        painter.drawText(text_rect, alignment, text)
 
     def calculatePosition(self):
         """

@@ -50,12 +50,22 @@ class SGAspect():
         self.background_image_zoom_enabled = True
         self.fixed_width = None
         self.fixed_height = None
-        
+
+        # Dynamic text content (Phase 3)
+        # text_content can be: static string, attribute reference {attr_name}, or expression
+        self.text_content = kwargs.get('text_content', None)  # e.g., "{health}", "42", "Health: {health}/100"
+        self.text_font = kwargs.get('text_font', None)
+        self.text_color = kwargs.get('text_color', None)
+        self.text_size = kwargs.get('text_size', None)
+        self.text_weight = kwargs.get('text_weight', 'normal')  # normal, bold
+        self.text_alignment = kwargs.get('text_alignment', 'center')  # left, center, right
+        self.text_opacity = kwargs.get('text_opacity', 1.0)  # 0-1
+
         # Hover states
         self.hover_text_color = None
         self.hover_background_color = None
         self.hover_border_color = None
-        
+
         # Button states
         self.pressed_color = None
         self.disabled_color = None
@@ -720,4 +730,40 @@ class SGAspect():
         except Exception:
             pass
 
-    
+    def resolve_text_content(self, entity=None):
+        """
+        Resolve dynamic text content for an entity.
+
+        Supports three patterns:
+        1. Static text: "Hello" → "Hello"
+        2. Attribute reference: "{health}" → entity.value("health")
+        3. Mixed expression: "Health: {health}/100" → "Health: 42/100"
+
+        Args:
+            entity (SGEntity, optional): Entity to resolve attributes from
+
+        Returns:
+            str: Resolved text content, or None if no content defined
+        """
+        if not self.text_content:
+            return None
+
+        text = str(self.text_content)
+
+        # If no entity, return as-is
+        if not entity:
+            return text
+
+        # Replace {attr_name} with entity.value(attr_name)
+        import re
+        def replace_attr(match):
+            attr_name = match.group(1)
+            try:
+                value = entity.value(attr_name)
+                return str(value) if value is not None else ""
+            except Exception:
+                return match.group(0)  # Return original if attribute not found
+
+        result = re.sub(r'\{(\w+)\}', replace_attr, text)
+        return result
+
