@@ -146,8 +146,10 @@ class SGLegend(SGGameSpace):
                                 anItem = SGLegendItem(self, 'symbol', label, type, aColor, aAtt, value)
                                 self.legendItems.append(anItem)
                         else:
-                            # Nominal: Show discrete values
+                            # Nominal: Show discrete values (skip __max_value__)
                             for value, aspect in symbology.mapping.items():
+                                if value == '__max_value__':
+                                    continue
                                 aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
                                 if isinstance(aColor, str):
                                     aColor = QColor(aColor)
@@ -243,8 +245,10 @@ class SGLegend(SGGameSpace):
                                 anItem = SGLegendItem(self, 'symbol', label, type, nameOfAttribut=aAtt, valueOfAttribut=value, isBorderItem=True, borderColorAndWidth=border_info)
                                 self.legendItems.append(anItem)
                         else:
-                            # Nominal: Show discrete values
+                            # Nominal: Show discrete values (skip __max_value__)
                             for value, aspect in symbology.mapping.items():
+                                if value == '__max_value__':
+                                    continue
                                 border_color = aspect.border_color if hasattr(aspect, 'border_color') else Qt.black
                                 if isinstance(border_color, str):
                                     border_color = QColor(border_color)
