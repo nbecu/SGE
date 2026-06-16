@@ -81,26 +81,28 @@ AgentType.setEntities("status", "idle")
 agent_status_aspects = {
     "idle": SGAspect(
         background_color=QColor("green"),
-        text_content="Idle"
+        text_content="Idle",
+        text_size=8,
     ),
     "working": SGAspect(
         background_color=QColor("yellow"),
-        text_content="Working"
+        text_content="Working",
+        text_size=8,
     ),
     "paused": SGAspect(
         background_color=QColor("red"),
-        text_content="Paused"
+        text_content="Paused",
+        text_size=8
     ),
 }
 
 AgentType.newSymbology("status", agent_status_aspects, name="AgentStatus")
 
-# Create agents with different statuses
+# Create agents with different statuses using attributesAndValues parameter
 statuses = ["idle", "working", "paused", "idle", "working", "paused"]
 for i, status in enumerate(statuses):
     cell = Cells.entities[i % len(Cells.entities)]
-    agent = AgentType.newAgentAtCoords(Cells, cell.xCoord, cell.yCoord)
-    agent.setValue("status", status)
+    AgentType.newAgentAtCoords(Cells, cell.xCoord, cell.yCoord, {"status": status})
 
 myModel.newLegend()
 
