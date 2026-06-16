@@ -224,10 +224,9 @@ class SGLegendItem(QtWidgets.QWidget):
                 min_text = f"{self.gradient_min_value:.0f}" if self.gradient_min_value is not None else "Min"
                 max_text = f"{self.gradient_max_value:.0f}" if self.gradient_max_value is not None else "Max"
 
-                # Use full widget width for labels (not just bar width)
-                widget_width = self.width()
-                # Large rect height to prevent clipping of text at bottom
-                labels_rect = QRect(0, bar_height + 2, widget_width, 35)
+                # Use bar width for labels alignment (not full widget width)
+                # Bar is 150px wide, so labels align exactly with bar edges
+                labels_rect = QRect(0, bar_height + 2, bar_width, 35)
                 painter.drawText(labels_rect, Qt.AlignLeft, min_text)
                 painter.drawText(labels_rect, Qt.AlignRight, max_text)
 
