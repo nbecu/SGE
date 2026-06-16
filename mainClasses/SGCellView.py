@@ -129,6 +129,13 @@ class SGCellView(SGEntityView):
         image = self.getImage()
         is_transparent = False
 
+        # Check conditional visibility from aspect (Phase 3, Feature 5)
+        aspect = self._getAspectFromSymbology()
+        if aspect and not aspect.is_visible(self.entity_model):
+            # Cell should be hidden based on visibility condition
+            painter.end()
+            return
+
         # Check if the cell should be displayed based on the model
         if self.cell_model.isDisplay == True:
             if self.defaultImage != None:

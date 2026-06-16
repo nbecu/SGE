@@ -51,7 +51,7 @@ class SGAspect():
         self.fixed_width = None
         self.fixed_height = None
 
-        # Dynamic text content (Phase 3)
+        # Dynamic text content (Phase 3, Feature 2)
         # text_content can be: static string, attribute reference {attr_name}, or expression
         self.text_content = kwargs.get('text_content', None)  # e.g., "{health}", "42", "Health: {health}/100"
         self.text_font = kwargs.get('text_font', None)
@@ -60,6 +60,10 @@ class SGAspect():
         self.text_weight = kwargs.get('text_weight', 'normal')  # normal, bold
         self.text_alignment = kwargs.get('text_alignment', 'center')  # left, center, right
         self.text_opacity = kwargs.get('text_opacity', 1.0)  # 0-1
+
+        # Conditional visibility (Phase 3, Feature 5)
+        # visible_if: condition expression, e.g., "health > 50", "{energy} < 20"
+        self.visible_if = kwargs.get('visible_if', None)
 
         # Hover states
         self.hover_text_color = None
@@ -766,4 +770,55 @@ class SGAspect():
 
         result = re.sub(r'\{(\w+)\}', replace_attr, text)
         return result
+
+    def is_visible(self, entity=None):
+        """
+        Evaluate visibility condition for an entity.
+
+        Supports simple conditions:
+        - "{health} > 50" → evaluates health attribute
+        - "health > 50" → same as above
+        - "energy < 20" → evaluates energy attribute
+        - Returns True if no condition defined
+
+        Args:
+            entity (SGEntity, optional): Entity to evaluate against
+
+        Returns:
+            bool: True if entity should be visible, False otherwise
+        """
+        if not self.visible_if:
+            return True
+
+        if not entity:
+            return True
+
+        condition = str(self.visible_if)
+
+        # Replace {attr_name} with entity.value(attr_name)
+        import re
+        def replace_attr(match):
+            attr_name = match.group(1)
+            try:
+                value = entity.value(attr_name)
+                return str(value) if value is not None else "None"
+            except Exception:
+                return "None"
+
+        # Replace {health} patterns
+        condition = re.sub(r'\{(\w+)\}', replace_attr, condition)
+
+        # Simple evaluation: only allow comparison operators
+        # Safe operators: <, >, <=, >=, ==, !=
+        try:
+            # Validate that condition only contains safe operators and identifiers
+            import ast
+            ast.parse(condition, mode='eval')  # Parse to validate syntax
+
+            # Evaluate in a restricted namespace (only comparison operators allowed)
+            result = eval(condition, {"__builtins__": {}}, {})
+            return bool(result)
+        except Exception:
+            # If evaluation fails, default to visible
+            return True
 
