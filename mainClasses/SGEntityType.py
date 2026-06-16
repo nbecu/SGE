@@ -662,25 +662,85 @@ class SGEntityType(AttributeAndValueFunctionalities):
     def setEntities_randomChoicePerEntity(self, aAttribute, aValue, condition=None):
         """
         Set random choice values for each entity individually.
-        
+
         This method sets a different randomly chosen value for each entity that matches
         the given condition. Each entity gets its own random choice from the list.
-        
+
         Args:
             aAttribute (str): The attribute name to set
             aValue (list or tuple): List/tuple of possible values to choose from
             condition (callable, optional): Condition function to filter entities
-            
+
         Example:
             # Set random health status for each agent individually
             agentType.setEntities_randomChoicePerEntity("health", ["good", "bad", "excellent"])
-            
+
             # Set random terrain for each forest cell individually
-            cellType.setEntities_randomChoicePerEntity("terrain", ["oak", "pine", "birch"], 
+            cellType.setEntities_randomChoicePerEntity("terrain", ["oak", "pine", "birch"],
                                                      condition=lambda c: c.getValue("type") == "forest")
         """
         for ent in self.getEntities(condition):
             ent.setValue_randomChoice(aAttribute, aValue)
+
+    def setEntities_withGradient(self, aAttribute, min_value, max_value, ordering_criteria=None, condition=None):
+        """
+        Set gradient values for entities (from min to max).
+
+        Distributes values progressively from min_value to max_value across all entities.
+        Entities are ordered by ID (default) or by a specified attribute.
+
+        Args:
+            aAttribute (str): The attribute name to set
+            min_value (int/float): Minimum value for the gradient
+            max_value (int/float): Maximum value for the gradient
+            ordering_criteria (str, optional): Attribute name to sort entities by.
+                If None, entities are sorted by ID (default).
+            condition (callable, optional): Condition function to filter entities.
+                Example: lambda e: e.value("type") == "active"
+
+        Example:
+            # Set score from 0-100 across all cells (ordered by ID)
+            cellType.setEntities_withGradient("score", 0, 100)
+
+            # Set temperature from 10-40, ordered by x-coordinate
+            cellType.setEntities_withGradient("temperature", 10, 40, ordering_criteria="x")
+
+            # Set health from 50-100 only for alive entities
+            agentType.setEntities_withGradient("health", 50, 100,
+                                             condition=lambda a: a.value("alive"))
+
+            # Set altitude from 0-1000, ordered by y-coordinate
+            cellType.setEntities_withGradient("altitude", 0, 1000, ordering_criteria="y")
+        """
+        # Get entities matching condition
+        entities = self.getEntities(condition)
+
+        if not entities:
+            return
+
+        # Sort entities by ordering criteria
+        if ordering_criteria:
+            try:
+                entities = sorted(entities, key=lambda e: e.value(ordering_criteria))
+            except Exception:
+                # If ordering fails, use original order
+                pass
+        else:
+            # Default: sort by ID
+            entities = sorted(entities, key=lambda e: e.id)
+
+        # Calculate gradient values and assign them
+        num_entities = len(entities)
+        if num_entities == 1:
+            # Single entity: use max value
+            entities[0].setValue(aAttribute, max_value)
+        else:
+            # Multiple entities: distribute across range
+            for i, ent in enumerate(entities):
+                # Linear interpolation: value = min + (max - min) * (i / (n-1))
+                progress = i / (num_entities - 1)
+                value = min_value + (max_value - min_value) * progress
+                ent.setValue(aAttribute, value)
 
     def setTooltip(self, tooltipName, tooltipValue):
         """
