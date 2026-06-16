@@ -1585,6 +1585,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._symbology_groups_menu_created = True
         self._symbology_groups_start_index = len(self.symbologyMenu.actions())
 
+        # Create QActionGroup for mutually exclusive group radio buttons
+        self._symbology_groups_action_group = QActionGroup(self.symbologyMenu)
+        self._symbology_groups_action_group.setExclusive(True)
+
         # Add separator between GROUPS and BY TYPE
         self.symbologyMenu.addSeparator()
 
@@ -1595,9 +1599,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._ensureMenuStructureInitialized()
 
     def _addOrUpdateGroupMenuItem(self, group_name):
-        """Add or update a group checkbox in the GROUPS section.
+        """Add or update a group radio button in the GROUPS section.
 
         Only adds if the symbology is truly a group (exists in 2+ entity types).
+        Groups are mutually exclusive (radio buttons via QActionGroup).
         Items are inserted BEFORE the separator to maintain GROUPS before BY TYPE order.
         """
         self._ensureMenuStructureInitialized()
@@ -1613,9 +1618,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if group_name in self.symbology_group_menu_items:
             return  # Already exists
 
-        # Create checkbox action for group
+        # Create radio button action for group (checkable)
         item = QAction(f"{group_name}", self, checkable=True)
         item.triggered.connect(lambda: self._onGroupSymbologyClicked(group_name))
+
+        # Add to action group (makes it mutually exclusive)
+        self._symbology_groups_action_group.addAction(item)
 
         # Find separator and insert BEFORE it (to keep GROUPS before BY TYPE)
         separator_action = None
@@ -1633,11 +1641,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.symbology_group_menu_items[group_name] = item
 
     def _onGroupSymbologyClicked(self, group_name):
-        """Handle group symbology checkbox click.
+        """Handle group symbology radio button click.
 
-        Groups are mutually exclusive: checking one unchecks all others.
-        Checked: activate group symbology for all types in the group.
-        Unchecked: return to default display for all types.
+        Groups are mutually exclusive via QActionGroup (one radio selected at a time).
+        Selected: activate group symbology for all types in the group.
+        Deselected: return to default display for all types.
         """
         group = self.symbology_groups.get(group_name)
         if not group:
@@ -1648,14 +1656,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize tracking dict on first use
         if not hasattr(self, '_last_selected_symbology_by_type'):
             self._last_selected_symbology_by_type = {}
-
-        if is_checked:
-            # Uncheck all other groups (mutual exclusivity)
-            for other_group_name, item in self.symbology_group_menu_items.items():
-                if other_group_name != group_name:
-                    item.blockSignals(True)
-                    item.setChecked(False)
-                    item.blockSignals(False)
 
         for type_name in group.get_all_entity_types():
             entity_type = self.getEntityType(type_name)
