@@ -50,26 +50,38 @@ Cells.newSymbology("health", health_aspects, name="HealthStatus")
 Cells.newSymbology("fertility", fertility_aspects, name="FertilityStatus")
 
 # Create Aspect Views (pre-configured visualization themes)
-# Note: AspectView groups symbologies to activate together
-# You can pass symbology objects or names
-health_view = SGAspectView(
-    name="HealthMonitor",
+# Each view can activate MULTIPLE symbologies with different names
+# This allows creating thematic visualizations
+
+# View 1: Show only health
+health_only_view = SGAspectView(
+    name="HealthOnly",
     symbologies=["HealthStatus"]
 )
 
-fertility_view = SGAspectView(
-    name="FertilityMonitor",
+# View 2: Show only fertility
+fertility_only_view = SGAspectView(
+    name="FertilityOnly",
     symbologies=["FertilityStatus"]
 )
 
-# You can manually activate views like this:
-# health_view.activate(myModel)
+# View 3: Show BOTH health and fertility together (combined theme)
+complete_view = SGAspectView(
+    name="CompleteAnalysis",
+    symbologies=["HealthStatus", "FertilityStatus"]
+)
 
-print("Two aspect views are defined:")
-print("- HealthMonitor: Shows health status")
-print("- FertilityMonitor: Shows fertility status")
+# You can manually activate views like this:
+# health_only_view.activate(myModel)
+# complete_view.activate(myModel)
+
+print("Three aspect views are defined:")
+print("- HealthOnly: Shows only health status")
+print("- FertilityOnly: Shows only fertility status")
+print("- CompleteAnalysis: Shows BOTH health AND fertility together")
 print("")
-print("Use the menu to switch between symbologies")
+print("AspectView allows grouping multiple symbologies with different names")
+print("to create thematic visualizations.")
 
 myModel.launch()
 sys.exit(monApp.exec())
