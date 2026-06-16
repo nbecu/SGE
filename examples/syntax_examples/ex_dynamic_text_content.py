@@ -33,7 +33,7 @@ health_aspect_healthy = SGAspect(
     text_color="white",
     text_size=10,
     # text_weight="bold",
-    text_alignment="bottom"
+    text_alignment="bottom_right"
 )
 
 health_aspect_normal = SGAspect(
@@ -51,7 +51,7 @@ health_aspect_low = SGAspect(
     text_color="white",
     text_size=16,
     text_weight="bold",
-    text_alignment="center"
+    text_alignment="top"
 )
 
 Cells.newSymbology(

@@ -264,9 +264,79 @@ class SGAgentView(SGEntityView):
                         painter.drawText(tx, ty, text)
         except Exception:
             pass
-                
+
+        # Draw dynamic text content if defined (Phase 3, Feature 2)
+        if self.isDisplay:
+            self._drawDynamicText(painter, self.size)
+
         painter.end()
     
+    def _drawDynamicText(self, painter, agent_size):
+        """Draw dynamic text content on the agent if defined in active symbology.
+
+        Args:
+            painter (QPainter): The painter to draw with
+            agent_size (int): Size of the agent
+        """
+        # Get the aspect from active symbology
+        aspect = self._getAspectFromSymbology()
+        if not aspect or not aspect.text_content:
+            return
+
+        # Resolve the text content (handle {attr} substitutions)
+        text = aspect.resolve_text_content(self.entity_model)
+        if not text:
+            return
+
+        # Set up text rendering
+        font = QFont()
+        if aspect.text_font:
+            font.setFamily(aspect.text_font)
+        if aspect.text_size:
+            font.setPixelSize(int(aspect.text_size))
+        if aspect.text_weight == 'bold':
+            font.setBold(True)
+
+        painter.setFont(font)
+
+        # Set text color
+        text_color = aspect.text_color if aspect.text_color else Qt.black
+        if isinstance(text_color, str):
+            text_color = QColor(text_color)
+        elif not isinstance(text_color, QColor):
+            text_color = QColor(text_color) if text_color else Qt.black
+
+        painter.setPen(QPen(text_color))
+
+        # Calculate text alignment
+        # Supported formats: "left", "center", "right" (horizontal)
+        # With optional vertical: "top-left", "center", "bottom-right", etc.
+        alignment_text = aspect.text_alignment.lower() if aspect.text_alignment else "center"
+
+        # Parse horizontal alignment
+        h_align = Qt.AlignHCenter  # Default
+        if 'left' in alignment_text:
+            h_align = Qt.AlignLeft
+        elif 'right' in alignment_text:
+            h_align = Qt.AlignRight
+        elif 'center' in alignment_text or alignment_text == "center":
+            h_align = Qt.AlignHCenter
+
+        # Parse vertical alignment
+        v_align = Qt.AlignVCenter  # Default
+        if 'top' in alignment_text:
+            v_align = Qt.AlignTop
+        elif 'bottom' in alignment_text:
+            v_align = Qt.AlignBottom
+        elif 'vcenter' in alignment_text:
+            v_align = Qt.AlignVCenter
+
+        alignment = h_align | v_align
+
+        # Draw text in agent bounds
+        text_rect = QRect(0, 0, agent_size, agent_size)
+        painter.drawText(text_rect, alignment, text)
+
     def getRegion(self):
         """Get the region for the agent shape"""
         agentShape = self.type.shape
