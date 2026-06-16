@@ -1835,17 +1835,25 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         elif is_checked:
             # Normal click: activate group symbology
             if hasattr(group, 'is_manual') and group.is_manual:
-                # Manual group: activate all symbologies in the group (cumulative)
+                # Manual group: clear previous group's symbologies, then add new group's
+                # (Groups replace each other, but symbols within a group can be multiple)
+                if self._last_selected_group and self._last_selected_group != group_name:
+                    # Clear previous group if it was manual
+                    prev_group = self.symbology_groups.get(self._last_selected_group)
+                    if prev_group and hasattr(prev_group, 'is_manual') and prev_group.is_manual:
+                        for entity_type in self.getEntityTypes():
+                            self._clearActiveSymbologies(entity_type.name)
+
+                # Add new group's symbologies
                 for symbology_name in group.symbology_names:
                     # For manual groups, symbologies are at the model level (self.symbologies)
                     if symbology_name in self.symbologies:
-                        # Add this symbology for all entity types (cumulative via _addActiveSymbologies)
+                        # Add this symbology for all entity types
                         for entity_type in self.getEntityTypes():
                             self._addActiveSymbologies(entity_type.name, symbology_name)
                             if not hasattr(self, '_last_selected_symbology_by_type'):
                                 self._last_selected_symbology_by_type = {}
                             self._last_selected_symbology_by_type[entity_type.name] = symbology_name
-                            # Don't uncheck other symbologies for this type (allow multiple from groups)
             else:
                 # Automatic group: activate by type
                 for type_name in group.get_all_entity_types():
