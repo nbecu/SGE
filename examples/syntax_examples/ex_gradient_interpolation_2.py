@@ -73,6 +73,37 @@ Cells.newSymbologyGradient(
     name="ScoreExp"
 )
 
+# Add agents with nominal symbology to test legend display with both gradients + nominal
+AgentType = myModel.newAgentType("Worker", "squareAgent", defaultSize=25)
+AgentType.setEntities("status", "idle")
+
+# Define nominal symbology for agent status
+agent_status_aspects = {
+    "idle": SGAspect(
+        background_color=QColor("green"),
+        text_content="Idle"
+    ),
+    "working": SGAspect(
+        background_color=QColor("yellow"),
+        text_content="Working"
+    ),
+    "paused": SGAspect(
+        background_color=QColor("red"),
+        text_content="Paused"
+    ),
+}
+
+AgentType.newSymbology("status", agent_status_aspects, name="AgentStatus")
+
+# Create agents with different statuses
+statuses = ["idle", "working", "paused", "idle", "working", "paused"]
+for i, status in enumerate(statuses):
+    cell = Cells.entities[i % len(Cells.entities)]
+    agent = AgentType.newAgentAtCoords(Cells, cell.xCoord, cell.yCoord)
+    agent.setValue("status", status)
+
+myModel.newLegend()
+
 # Launch
 myModel.launch()
 sys.exit(monApp.exec())
