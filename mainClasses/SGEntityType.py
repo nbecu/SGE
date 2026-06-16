@@ -1162,6 +1162,14 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if len(self.model.symbologies) == 1:
             self.displaySymbology(name)
 
+        # Mark symbology type if not already marked
+        if not hasattr(symbology, 'is_gradient'):
+            symbology.is_gradient = False
+        if not hasattr(symbology, 'is_classification'):
+            symbology.is_classification = False
+        if not symbology.is_gradient and not symbology.is_classification:
+            symbology.is_nominal = True
+
         return symbology
 
 
@@ -1220,12 +1228,15 @@ class SGEntityType(AttributeAndValueFunctionalities):
             )
         """
         # Call newSymbology with interpolation enabled
-        return self.newSymbology(
+        symbology = self.newSymbology(
             attribute, mapping,
             name=name,
             interpolation=interpolation,
             **aspect_defaults
         )
+        # Mark as gradient symbology for legend display
+        symbology.is_gradient = True
+        return symbology
 
     def newSymbologyClassified(self, attribute, mapping, name=None, **aspect_defaults):
         """
