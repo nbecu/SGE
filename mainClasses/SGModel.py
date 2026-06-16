@@ -1749,6 +1749,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     for entity_type in self.getEntityTypes():
                         self._addActiveSymbologies(entity_type.name, symbology_name)
                         self._last_selected_symbology_by_type[entity_type.name] = symbology_name
+                        # Update type menu checkboxes (don't uncheck others - allow multiple)
+                        self._updateTypeMenuCheckbox(entity_type.name, symbology_name, uncheck_others=False)
         else:
             # Automatic group: reapply by type
             for type_name in group.get_all_entity_types():
@@ -1854,8 +1856,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                             if not hasattr(self, '_last_selected_symbology_by_type'):
                                 self._last_selected_symbology_by_type = {}
                             self._last_selected_symbology_by_type[entity_type.name] = symbology_name
-                            # Update type menu checkboxes to match group activation
-                            self._updateTypeMenuCheckbox(entity_type.name, symbology_name)
+                            # Update type menu checkboxes to match group activation (don't uncheck others - allow multiple)
+                            self._updateTypeMenuCheckbox(entity_type.name, symbology_name, uncheck_others=False)
             else:
                 # Automatic group: activate by type
                 for type_name in group.get_all_entity_types():
@@ -1911,8 +1913,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
         self.update()
 
-    def _updateTypeMenuCheckbox(self, type_name, symbology_name):
-        """Update type menu to show active symbology via radio button."""
+    def _updateTypeMenuCheckbox(self, type_name, symbology_name, uncheck_others=True):
+        """Update type menu to show active symbology via radio button.
+
+        Args:
+            type_name: Entity type name
+            symbology_name: Symbology name to check
+            uncheck_others: If False, don't uncheck other symbologies (for groups with multiple)
+        """
         # Initialize tracking dict on first use
         if not hasattr(self, '_last_selected_symbology_by_type'):
             self._last_selected_symbology_by_type = {}
@@ -1924,10 +1932,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # Update tracking when a group activates a symbology
             self._last_selected_symbology_by_type[type_name] = symbology_name
 
-        # Uncheck other symbologies for this type
-        for (t_name, s_name), action in self.symbology_type_menu_items.items():
-            if t_name == type_name and s_name != symbology_name:
-                action.setChecked(False)
+        # Uncheck other symbologies for this type (unless in group mode)
+        if uncheck_others:
+            for (t_name, s_name), action in self.symbology_type_menu_items.items():
+                if t_name == type_name and s_name != symbology_name:
+                    action.setChecked(False)
 
     def menu_item_triggered(self):
         # get the triggered QAction object
