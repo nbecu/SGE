@@ -88,10 +88,10 @@ def temperature_humidity_rule(entity):
     # Fallback (should not happen if rules are complete)
     return SGAspect(background_color=QColor("gray"))
 
-# Create symbology using the rule function
-Cells.newSymbology(
+# Create rule-based symbology using the dedicated method
+Cells.newSymbologyRule(
     "temperature",  # attribute name (used for naming)
-    rule_function=temperature_humidity_rule,
+    temperature_humidity_rule,
     name="ClimateConditions"
 )
 

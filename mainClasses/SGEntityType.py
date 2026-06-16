@@ -1290,6 +1290,59 @@ class SGEntityType(AttributeAndValueFunctionalities):
         symbology.is_classification = True
         return symbology
 
+    def newSymbologyRule(self, attribute, rule_function, name=None, **aspect_defaults):
+        """
+        Create a rule-based symbology using a custom function.
+
+        Use this for complex logic that evaluates multiple attributes to determine appearance.
+        The rule function receives the entity and returns a complete SGAspect.
+
+        Args:
+            attribute (str): Primary attribute name (e.g., 'temperature')
+                           - Used for naming the symbology if name is not provided
+                           - Can evaluate multiple attributes inside the rule function
+            rule_function (callable): Function that determines appearance
+                                    - Signature: rule_function(entity) → SGAspect
+                                    - Receives the entity instance as parameter
+                                    - Can access any entity attributes via entity.value('attr_name')
+                                    - Must return a complete SGAspect object
+            name (str, optional): Symbology name
+                                - If None: auto-derived from attribute
+                                - If provided: use explicitly
+            **aspect_defaults: Default SGAspect properties (applied by newSymbology)
+
+        Returns:
+            SGSymbology: The created symbology object
+
+        Example:
+            # Create rule-based symbology for temperature + humidity conditions
+            def climate_rule(entity):
+                temp = entity.value("temperature")
+                humidity = entity.value("humidity")
+
+                if temp > 30 and humidity < 50:
+                    return SGAspect(background_color="red", border_color="darkred")
+                elif temp > 30 and humidity >= 50:
+                    return SGAspect(background_color="orange", border_color="darkorange")
+                else:
+                    return SGAspect(background_color="lightblue", border_color="darkblue")
+
+            Cells.newSymbologyRule(
+                "temperature",
+                climate_rule,
+                name="ClimateConditions"
+            )
+        """
+        # Call newSymbology with rule_function parameter
+        symbology = self.newSymbology(
+            attribute,
+            mapping=None,
+            name=name,
+            rule_function=rule_function,
+            **aspect_defaults
+        )
+        return symbology
+
     # ============================================================================
     # LEGACY POV COMPATIBILITY WRAPPERS
     # ============================================================================
