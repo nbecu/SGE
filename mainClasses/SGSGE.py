@@ -7,6 +7,7 @@ from mainClasses.SGExtensions import *
 import mainClasses.SGExtensions as _SGExtensions
 from mainClasses.SGCell import SGCell
 from mainClasses.SGBotPlayer import SGBotPlayer
+from mainClasses.SGAspect import SGAspect
 from PyQt6 import QtWidgets
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
@@ -64,6 +65,7 @@ __all__ = [
     "SGModel",
     "SGCell",
     "SGBotPlayer",
+    "SGAspect",
     "SGColors",
     "applySGELightTheme",
     "QtWidgets",
