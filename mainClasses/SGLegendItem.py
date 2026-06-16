@@ -193,6 +193,12 @@ class SGLegendItem(QtWidgets.QWidget):
 
             # GRADIENT BAR (Phase 3) - Draw before symbols
             if self.is_gradient_bar and self.gradient_colors:
+                # Size the widget first before painting (CRITICAL)
+                min_w = 150 + 40  # Bar width + generous labels padding
+                item_height = 20 + 35 + 5  # Bar (20px) + text area (35px) + margins (5px)
+                self.setMinimumSize(min_w, item_height)
+                self.resize(min_w, item_height)
+
                 # Draw gradient bar: 150px wide, 20px tall
                 bar_width = 150
                 bar_height = 20
