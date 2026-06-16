@@ -105,6 +105,10 @@ class SGLegendItem(QtWidgets.QWidget):
         return font
 
     def getRequiredWidth(self):
+        # Special case: gradient bar (Phase 3)
+        if self.is_gradient_bar:
+            return 150 + 20  # Bar width + label padding
+
         text = "" if self.text is None else str(self.text)
         if self.type == "Title1":
             aspect = getattr(self.legend, "title1_aspect", None)
