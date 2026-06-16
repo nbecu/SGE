@@ -8,7 +8,7 @@ from math import inf
 
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,text,typeOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",isBorderItem=False,borderColorAndWidth=None,gameAction=None,gradient_colors=None,gradient_min_value=None,gradient_max_value=None):
+    def __init__(self,parent,type,text,typeOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",isBorderItem=False,borderColorAndWidth=None,gameAction=None,gradient_colors=None,gradient_min_value=None,gradient_max_value=None,gradient_values=None):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
@@ -35,6 +35,7 @@ class SGLegendItem(QtWidgets.QWidget):
         self.gradient_colors = gradient_colors  # List of QColor for gradient bar
         self.gradient_min_value = gradient_min_value  # Min value for gradient label
         self.gradient_max_value = gradient_max_value  # Max value for gradient label
+        self.gradient_values = gradient_values  # All gradient values for intermediate labels
         self.is_gradient_bar = gradient_colors is not None
 
     def event(self, e):
@@ -216,19 +217,29 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setPen(QPen(Qt.black, 1))
                 painter.drawRect(bar_rect)
 
-                # Draw min/max labels using full widget width
-                font = QFont("Arial", 8)
+                # Draw labels for all gradient values at their correct positions
+                font = QFont("Arial", 7)
                 painter.setFont(font)
                 painter.setPen(QPen(Qt.black, 1))
 
-                min_text = f"{self.gradient_min_value:.0f}" if self.gradient_min_value is not None else "Min"
-                max_text = f"{self.gradient_max_value:.0f}" if self.gradient_max_value is not None else "Max"
+                # Draw tick marks and labels for each gradient value
+                if self.gradient_values and len(self.gradient_values) >= 2:
+                    value_range = self.gradient_max_value - self.gradient_min_value
+                    for value in self.gradient_values:
+                        # Calculate horizontal position for this value
+                        if value_range > 0:
+                            relative_pos = (value - self.gradient_min_value) / value_range
+                        else:
+                            relative_pos = 0
+                        x_pos = int(relative_pos * bar_width)
 
-                # Use bar width for labels alignment (not full widget width)
-                # Bar is 150px wide, so labels align exactly with bar edges
-                labels_rect = QRect(0, bar_height + 2, bar_width, 12)
-                painter.drawText(labels_rect, Qt.AlignLeft, min_text)
-                painter.drawText(labels_rect, Qt.AlignRight, max_text)
+                        # Draw small tick mark at top of bar
+                        painter.drawLine(x_pos, bar_height - 3, x_pos, bar_height)
+
+                        # Draw value label below the bar
+                        label_text = f"{value:.0f}"
+                        label_rect = QRect(x_pos - 10, bar_height + 2, 20, 12)
+                        painter.drawText(label_rect, Qt.AlignCenter, label_text)
 
                 # Position the gradient bar properly
                 painter.end()

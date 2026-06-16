@@ -110,7 +110,8 @@ class SGLegend(SGGameSpace):
                             type, Qt.black, aAtt, min_val,
                             gradient_colors=gradient_colors,
                             gradient_min_value=min_val,
-                            gradient_max_value=max_val
+                            gradient_max_value=max_val,
+                            gradient_values=sorted_values
                         )
                         self.legendItems.append(anItem)
                         # Gradient bar widget is 35px tall, normal items are 20px (heightOfLabels)
@@ -179,7 +180,8 @@ class SGLegend(SGGameSpace):
                             isBorderItem=True,
                             gradient_colors=gradient_colors,
                             gradient_min_value=min_val,
-                            gradient_max_value=max_val
+                            gradient_max_value=max_val,
+                            gradient_values=sorted_values
                         )
                         self.legendItems.append(anItem)
                         # Gradient bar widget is 35px tall, normal items are 20px (heightOfLabels)
