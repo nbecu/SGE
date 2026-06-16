@@ -77,6 +77,35 @@ path_icon = str(Path(__file__).parent.parent / 'icon')
 # Alternative method: uncomment the following line, and use an absolute path
 # Example of absolute path: 
 # path_icon = '/Users/.../Documents/.../SGE/icon/'
+# Event filter for symbology menu to detect Shift+click on group radios
+class SymbologyMenuEventFilter(QObject):
+    """Captures mouse events on symbology menu to detect Shift+click on group radios."""
+
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.MouseButtonPress:
+            # Get the action at the mouse position
+            action = obj.actionAt(event.pos())
+            if action:
+                # Check if this is a group radio (in symbology_group_menu_items)
+                group_name = None
+                for gname, item in self.model.symbology_group_menu_items.items():
+                    if item == action:
+                        group_name = gname
+                        break
+
+                if group_name:
+                    # Check if Shift is pressed
+                    if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                        # Handle Shift+click: reapply group without toggle-off
+                        self.model._onGroupSymbologyShiftClicked(group_name)
+                        return True
+
+        return super().eventFilter(obj, event)
+
 
 # Mother class of all the SGE System
 class SGModel(QMainWindow, SGEventHandlerGuide):
@@ -736,6 +765,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.symbologyMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/symbology.png"), "&Symbology")
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
+
+        # Install event filter for Shift+click detection on group radios
+        self._symbology_menu_event_filter = SymbologyMenuEventFilter(self)
+        self.symbologyMenu.installEventFilter(self._symbology_menu_event_filter)
+
         self.createGraphMenu()
 
         self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
@@ -1639,6 +1673,43 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.symbologyMenu.addAction(item)
 
         self.symbology_group_menu_items[group_name] = item
+
+    def _onGroupSymbologyShiftClicked(self, group_name):
+        """Handle Shift+click on group symbology radio button.
+
+        Reapplies the group symbology without toggle-off logic.
+        Useful for refreshing/reapplying the group.
+        """
+        group = self.symbology_groups.get(group_name)
+        if not group:
+            return
+
+        # Initialize tracking dict on first use
+        if not hasattr(self, '_last_selected_symbology_by_type'):
+            self._last_selected_symbology_by_type = {}
+
+        # Reapply group symbology for all types
+        for type_name in group.get_all_entity_types():
+            entity_type = self.getEntityType(type_name)
+            if entity_type:
+                entity_type.displaySymbology(group_name)
+                self.active_symbologies_by_type[type_name] = group_name
+                self._last_selected_symbology_by_type[type_name] = group_name
+                # Update type menu checkboxes
+                self._updateTypeMenuCheckbox(type_name, group_name)
+
+        # Ensure the group radio is checked
+        self.symbology_group_menu_items[group_name].blockSignals(True)
+        self.symbology_group_menu_items[group_name].setChecked(True)
+        self.symbology_group_menu_items[group_name].blockSignals(False)
+
+        # Update tracking
+        self._last_selected_group = group_name
+
+        # Update display
+        for aLegend in self.getLegends():
+            aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
+        self.update()
 
     def _onGroupSymbologyClicked(self, group_name):
         """Handle group symbology radio button click with toggle-off support.
