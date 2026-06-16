@@ -128,6 +128,8 @@ class SGClassifier:
             aspect = SGAspect(background_color=colors[i])
             mapping[threshold] = aspect
 
+        # Store max value for legend display (last threshold)
+        mapping['__max_value__'] = thresholds[-1]
         return mapping
 
     @staticmethod
