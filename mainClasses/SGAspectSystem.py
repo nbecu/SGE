@@ -77,7 +77,7 @@ class SGSymbology:
                 if not has_apply_if:
                     return matched_aspect
                 # If has apply_if and this aspect applies, return it
-                if hasattr(matched_aspect, 'is_visible') and matched_aspect.is_visible(entity):
+                if hasattr(matched_aspect, 'is_applicable') and matched_aspect.is_applicable(entity):
                     return matched_aspect
                 # If exact match exists but doesn't apply, continue to search all applying aspects
 
@@ -109,10 +109,10 @@ class SGSymbology:
             if has_apply_if:
                 for aspect in self.mapping.values():
                     # Filter out special keys like __max_value__
-                    if isinstance(aspect, dict) or not hasattr(aspect, 'is_visible'):
+                    if isinstance(aspect, dict) or not hasattr(aspect, 'is_applicable'):
                         continue
                     # Return first aspect that applies (apply_if condition is true)
-                    if aspect.is_visible(entity):
+                    if aspect.is_applicable(entity):
                         return aspect
 
         return None

@@ -780,10 +780,11 @@ class SGAspect():
         result = re.sub(r'\{(\w+)\}', replace_attr, text)
         return result
 
-    def is_visible(self, entity=None):
+    def is_applicable(self, entity=None):
         """
-        Evaluate visibility condition for an entity.
+        Evaluate application condition for an entity.
 
+        Determines if this aspect should be applied based on its apply_if condition.
         Supports simple conditions:
         - "{health} > 50" → evaluates health attribute
         - "health > 50" → same as above
@@ -794,7 +795,7 @@ class SGAspect():
             entity (SGEntity, optional): Entity to evaluate against
 
         Returns:
-            bool: True if entity should be visible, False otherwise
+            bool: True if this aspect should be applied, False otherwise
         """
         if not self.apply_if:
             return True
