@@ -111,8 +111,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
         aspect.border_size = self.defaultBorderWidth
         return aspect
 
-    def setDefaultAppearance(self, background_color=None, border_color=None, border_size=None):
-        """Redefine the default visual appearance for this entity type.
+    def setDefaultSymbology(self, background_color=None, border_color=None, border_size=None):
+        """Redefine the default symbology (visual style) for this entity type.
 
         This updates both the old-style properties (for backward compatibility) and
         recreates the default_symbology with the new colors.
@@ -123,7 +123,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
             border_size (int, optional): Border width in pixels
 
         Example:
-            Sheep.setDefaultAppearance(background_color="green", border_color="darkgreen", border_size=2)
+            Sheep.setDefaultSymbology(background_color="green", border_color="darkgreen", border_size=2)
         """
         # Update old-style properties for backward compatibility
         if background_color is not None:
