@@ -1560,11 +1560,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # get the submenu (or create it if it doesn't exist yet)
         submenu = self.getOrCreateSubmenuSymbology(submenu_name)
 
-        # Ensure submenu has a QActionGroup for grouping (but NOT exclusive - we handle exclusivity manually)
-        # This allows multiple symbologies from manual groups to be checked simultaneously
+        # Ensure submenu has a QActionGroup for radio button behavior
         if not hasattr(submenu, '_symbology_action_group'):
             submenu._symbology_action_group = QActionGroup(submenu)
-            submenu._symbology_action_group.setExclusive(False)  # MUST explicitly set to False!
+            submenu._symbology_action_group.setExclusive(True)
 
         # create radio button action
         item = QAction(nameOfSymbology, self, checkable=True)
@@ -1929,7 +1928,24 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Update the radio button for this type-symbology pair
         key = (type_name, symbology_name)
         if key in self.symbology_type_menu_items:
-            self.symbology_type_menu_items[key].setChecked(True)
+            action = self.symbology_type_menu_items[key]
+
+            # If we want to keep multiple symbologies checked, block signals from the action group
+            # to prevent it from auto-unchecking other actions
+            if not uncheck_others:
+                # Find the action group this action belongs to
+                for submenu in self.symbologiesInSubmenus:
+                    if hasattr(submenu, '_symbology_action_group'):
+                        submenu._symbology_action_group.blockSignals(True)
+
+            action.setChecked(True)
+
+            # Unblock signals
+            if not uncheck_others:
+                for submenu in self.symbologiesInSubmenus:
+                    if hasattr(submenu, '_symbology_action_group'):
+                        submenu._symbology_action_group.blockSignals(False)
+
             # Update tracking when a group activates a symbology
             self._last_selected_symbology_by_type[type_name] = symbology_name
 
@@ -1937,7 +1953,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if uncheck_others:
             for (t_name, s_name), action in self.symbology_type_menu_items.items():
                 if t_name == type_name and s_name != symbology_name:
+                    action.blockSignals(True)
                     action.setChecked(False)
+                    action.blockSignals(False)
 
     def menu_item_triggered(self):
         # get the triggered QAction object
