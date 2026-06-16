@@ -24,7 +24,9 @@ class SGEntity(AttributeAndValueFunctionalities):
         self.model = self.type.model
         self.shape = self.type.shape
         self.size = size
-        self.borderColor = self.type.defaultBorderColor
+        # Get border color from default symbology
+        default_aspect = self.type.get_default_aspect(entity=self)
+        self.borderColor = default_aspect.border_color if default_aspect else self.type.defaultBorderColor
         self.isDisplay = True
         
         # Define variables to handle the history 

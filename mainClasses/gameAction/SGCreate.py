@@ -104,7 +104,8 @@ class SGCreate(SGAbstractAction):
         # Use action_controler["controlPanel"] to determine if action should appear in ControlPanel
         if self.action_controler.get("controlPanel", True):
             if self.dictAttributs is None:
-                aColor = self.targetType.defaultShapeColor
+                default_aspect = self.targetType.get_default_aspect()
+                aColor = default_aspect.background_color if default_aspect else self.targetType.defaultShapeColor
                 return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]
             else:
                 aList = []

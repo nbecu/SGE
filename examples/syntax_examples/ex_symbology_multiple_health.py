@@ -17,7 +17,7 @@ from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(windowTitle="Multiple Symbologies Example", width=800, height=400)
+myModel = SGModel(windowTitle="Multiple Symbologies Example")
 
 # Create grid and agents
 Cells = myModel.newCellsOnGrid(5, 5, "square", size=50)

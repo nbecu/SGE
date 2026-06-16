@@ -27,7 +27,8 @@ class SGLegendItem(QtWidgets.QWidget):
         self.isBorderItem=isBorderItem
         if self.isBorderItem:
             self.borderColorAndWidth=borderColorAndWidth
-            self.color= self.typeDef.defaultShapeColor
+            default_aspect = self.typeDef.get_default_aspect()
+            self.color = default_aspect.background_color if default_aspect else self.typeDef.defaultShapeColor
         self.remainNumber=int
         self.gameAction= gameAction
 

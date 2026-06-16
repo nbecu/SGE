@@ -50,7 +50,8 @@ class SGActivate(SGAbstractAction):
                 return [SGLegendItem(aControlPanel,'symbol',displayText,None,Qt.gray,gameAction=self)]
             else:
                 # Regular entity actions
-                aColor = self.targetType.defaultShapeColor
+                default_aspect = self.targetType.get_default_aspect()
+                aColor = default_aspect.background_color if default_aspect else self.targetType.defaultShapeColor
                 return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]
     
     # ============================================================================

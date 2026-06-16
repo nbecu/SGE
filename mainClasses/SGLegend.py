@@ -45,10 +45,12 @@ class SGLegend(SGGameSpace):
             # aDictOfSymbology is a dict with keys 'shape' and 'border'
             aShapeSymbology = aDictOfSymbology['shape']
             aBorderSymbology = aDictOfSymbology['border']
-            if aShapeSymbology is None and aBorderSymbology is None:         
+            if aShapeSymbology is None and aBorderSymbology is None:
                 # Case 1: Default symbology - no POV defined, use entity's default shape color
                 # This case corresponds to entities without any POV defined, showing default appearance
-                anItem=SGLegendItem(self,'symbol','default',type,type.defaultShapeColor)
+                default_aspect = type.get_default_aspect()
+                aColor = default_aspect.background_color if default_aspect else type.defaultShapeColor
+                anItem=SGLegendItem(self,'symbol','default',type,aColor)
                 self.legendItems.append(anItem)
                 continue
             if aShapeSymbology is not None:
@@ -56,7 +58,9 @@ class SGLegend(SGGameSpace):
                 # This case corresponds to entities with shape-based POV (e.g., health status affecting color)
                 if self.alwaysDisplayDefaultAgentSymbology and type.isAgentType:
                     # Use default symbology for agents without attributes
-                    anItem=SGLegendItem(self,'symbol','default',type,type.defaultShapeColor)
+                    default_aspect = type.get_default_aspect()
+                    aColor = default_aspect.background_color if default_aspect else type.defaultShapeColor
+                    anItem=SGLegendItem(self,'symbol','default',type,aColor)
                     self.legendItems.append(anItem)    
                 aAtt = list(type.povShapeColor[aShapeSymbology].keys())[0]
                 dictSymbolNameAndColor= list(type.povShapeColor[aShapeSymbology].values())[0]

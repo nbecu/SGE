@@ -19,5 +19,6 @@ class SGDelete(SGAbstractAction):
     def generateLegendItems(self,aControlPanel):
         # Use action_controler["controlPanel"] to determine if action should appear in ControlPanel
         if self.action_controler.get("controlPanel", True):
-            aColor = self.targetType.defaultShapeColor
+            default_aspect = self.targetType.get_default_aspect()
+            aColor = default_aspect.background_color if default_aspect else self.targetType.defaultShapeColor
             return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]

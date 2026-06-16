@@ -14,7 +14,7 @@ from mainClasses.SGSGE import *
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(windowTitle="Menu Structure Test", width=800, height=400)
+myModel = SGModel(windowTitle="Menu Structure Test")
 
 # Create grid and agents
 Cells = myModel.newCellsOnGrid(3, 3, "square", size=50)
@@ -24,7 +24,7 @@ Cells.setEntities_randomChoicePerEntity("health", [100, 50, 25])
 Sheep = myModel.newAgentType("Sheep", "triangleAgent1")
 Sheep.setDefaultValues({"health": lambda: 100})
 
-Wolves = myModel.newAgentType("Wolves", "circleAgent1")
+Wolves = myModel.newAgentType("Wolves", "circleAgent")
 Wolves.setDefaultValues({"health": lambda: 100})
 
 # Create symbologies for Cell and Sheep (will form a GROUP)

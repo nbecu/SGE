@@ -122,7 +122,8 @@ class SGMove(SGAbstractAction):
     def generateLegendItems(self,aControlPanel):
         # Only generate legend items if controlPanel is enabled (default True)
         if self.action_controler.get("controlPanel", True):
-            aColor = self.targetType.defaultShapeColor
+            default_aspect = self.targetType.get_default_aspect()
+            aColor = default_aspect.background_color if default_aspect else self.targetType.defaultShapeColor
             return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]
         
     def chooseFeedbackTargetAmong(self,aListOfChoices):

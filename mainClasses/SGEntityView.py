@@ -95,7 +95,12 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             if symbology_color is not None:
                 return symbology_color
 
-        # Fallback: Use legacy POV system for compatibility
+        # Fallback: Use default symbology aspect
+        default_aspect = self.type.get_default_aspect(entity=self.entity_model)
+        if default_aspect and default_aspect.background_color:
+            return default_aspect.background_color
+
+        # Legacy POV system for compatibility
         aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.type.name)
         aPovDef = self.type.povShapeColor.get(aChoosenPov)
         aDefaultColor = self.type.defaultShapeColor
@@ -145,7 +150,12 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             if symbology_border is not None:
                 return symbology_border
 
-        # Fallback: Use legacy POV system for compatibility
+        # Fallback: Use default symbology aspect
+        default_aspect = self.type.get_default_aspect(entity=self.entity_model)
+        if default_aspect:
+            return {'color': default_aspect.border_color, 'width': default_aspect.border_size}
+
+        # Legacy POV system for compatibility
         aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.type.name, borderSymbology=True)
         aBorderPovDef = self.type.povBorderColorAndWidth.get(aChoosenPov)
         aDefaultColor = self.type.defaultBorderColor

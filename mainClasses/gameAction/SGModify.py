@@ -35,7 +35,8 @@ class SGModify(SGAbstractAction):
                 # If it's a border color, it returns a dict, not a color.
                 if isinstance(aColor,dict):
                     borderColorAndWidth = aColor
-                    aColor =  self.targetType.defaultShapeColor
+                    default_aspect = self.targetType.get_default_aspect()
+                    aColor = default_aspect.background_color if default_aspect else self.targetType.defaultShapeColor
                     #todo Modifs pour MTZC pour que ce soit plus simple
                     aList.append(SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,aAtt,aValue,isBorderItem = True, borderColorAndWidth = borderColorAndWidth , gameAction=self))
                 # If not, its a shape color

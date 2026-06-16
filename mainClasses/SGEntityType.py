@@ -39,6 +39,9 @@ class SGEntityType(AttributeAndValueFunctionalities):
         self.aspect_views = {}  # {name: SGAspectView}
         self.active_aspect_view = None
         self._auto_derived_symbologies = set()  # Track auto-derived names per EntityType (to catch duplicates)
+
+        # Create default symbology from default colors
+        self.default_symbology = self._create_default_symbology()
         
         # Type identification attributes
         self.isAgentType = False
@@ -63,10 +66,55 @@ class SGEntityType(AttributeAndValueFunctionalities):
         self.customTooltips = {}
 
     
+    def _create_default_symbology(self):
+        """Create the default symbology from default colors.
+
+        Returns:
+            SGSymbology: Default symbology that returns the same aspect for any value
+        """
+        from mainClasses.SGAspect import SGAspect
+        from mainClasses.SGAspectSystem import SGSymbology
+
+        # Create a default aspect with the default colors
+        default_aspect = SGAspect()
+        default_aspect.background_color = self.defaultShapeColor
+        default_aspect.border_color = self.defaultBorderColor
+        default_aspect.border_size = self.defaultBorderWidth
+
+        # Create a rule-based symbology that always returns the default aspect
+        def default_rule(entity):
+            return default_aspect
+
+        # Create symbology with rule function (returns same aspect for any entity)
+        symbology = SGSymbology("_default_", mapping=None, rule_function=default_rule)
+        return symbology
+
+    def get_default_aspect(self, entity=None):
+        """Get the default aspect (color, border, style) for this entity type.
+
+        Args:
+            entity (optional): Entity instance (required by symbology.resolve_aspect)
+
+        Returns:
+            SGAspect: Default visual aspect from default_symbology
+        """
+        if self.default_symbology:
+            aspect = self.default_symbology.resolve_aspect(entity=entity, attribute_value=None)
+            if aspect:
+                return aspect
+
+        # Fallback: create aspect from old-style defaults (should not happen in normal use)
+        from mainClasses.SGAspect import SGAspect
+        aspect = SGAspect()
+        aspect.background_color = self.defaultShapeColor
+        aspect.border_color = self.defaultBorderColor
+        aspect.border_size = self.defaultBorderWidth
+        return aspect
+
     def nextId(self):
         """
         Generate and return the next available ID for entities.
-        
+
         Returns:
             int: The next ID number
         """
