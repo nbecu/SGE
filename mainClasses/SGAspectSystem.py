@@ -291,65 +291,6 @@ class SGSymbologyGroup:
 
 class SGAspectView:
     """
-    Pre-configured view: a named collection of symbologies to activate together.
-
-    Allows modelers to create thematic visualizations:
-    - "Health View": shows Health + Stamina symbologies
-    - "Resource View": shows Food + Water + Energy symbologies
-    - "Ownership View": shows Owner + Territory symbologies
-    """
-
-    def __init__(self, name, symbology_names=None, description=None):
-        """
-        Args:
-            name (str): View name (e.g., 'HealthView', 'ResourceMonitor')
-            symbology_names (list, optional): List of symbology names to include
-            description (str, optional): Human-readable description
-        """
-        self.name = name
-        self.symbology_names = symbology_names or []
-        self.description = description or f"View: {name}"
-
-    def add_symbology(self, symbology_name):
-        """Add a symbology to this view.
-
-        Args:
-            symbology_name (str): Name of the symbology to include
-        """
-        if symbology_name not in self.symbology_names:
-            self.symbology_names.append(symbology_name)
-
-    def remove_symbology(self, symbology_name):
-        """Remove a symbology from this view.
-
-        Args:
-            symbology_name (str): Name of the symbology to remove
-        """
-        if symbology_name in self.symbology_names:
-            self.symbology_names.remove(symbology_name)
-
-    def activate(self, model):
-        """Activate this view on the model (activate all symbologies in the view).
-
-        Args:
-            model (SGModel): The model to activate on
-        """
-        for symbology_name in self.symbology_names:
-            # Find all entity types that have this symbology
-            if hasattr(model, 'active_symbologies_by_type'):
-                # Get entity types from the model
-                for entity_type in model.getAllEntityTypes():
-                    if symbology_name in entity_type.symbologies:
-                        model.active_symbologies_by_type[entity_type.name] = symbology_name
-                        entity_type.displaySymbology(symbology_name)
-
-    def __repr__(self):
-        syms = ', '.join(self.symbology_names)
-        return f"SGAspectView({self.name}, symbologies=[{syms}])"
-
-
-class SGAspectView:
-    """
     Represents a view that groups multiple symbologies.
 
     A view allows users to toggle between different visual representations.

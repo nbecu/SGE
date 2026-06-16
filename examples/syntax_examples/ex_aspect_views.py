@@ -50,16 +50,16 @@ Cells.newSymbology("health", health_aspects, name="HealthStatus")
 Cells.newSymbology("fertility", fertility_aspects, name="FertilityStatus")
 
 # Create Aspect Views (pre-configured visualization themes)
+# Note: AspectView groups symbologies to activate together
+# You can pass symbology objects or names
 health_view = SGAspectView(
     name="HealthMonitor",
-    symbology_names=["HealthStatus"],
-    description="Shows only health status"
+    symbologies=["HealthStatus"]
 )
 
 fertility_view = SGAspectView(
     name="FertilityMonitor",
-    symbology_names=["FertilityStatus"],
-    description="Shows only fertility status"
+    symbologies=["FertilityStatus"]
 )
 
 # You can manually activate views like this:
