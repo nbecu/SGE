@@ -1,10 +1,11 @@
 """
-Conditional Aspect Application Example (Phase 3, Feature 5)
+Conditional Aspect Application with Fallback Example (Phase 3, Feature 5)
 
 Demonstrates:
 - Applying different aspects based on attribute values
-- Using apply_if conditions to control which aspect is used
-- Fallback to default aspect when no conditions match
+- Using apply_if conditions to control aspect application
+- Fallback to default symbology when no conditions match
+- In this example, aspect_poor is omitted to show fallback behavior
 """
 
 import sys
@@ -22,6 +23,11 @@ myModel = SGModel(windowTitle="Conditional Visibility Example")
 Cells = myModel.newCellsOnGrid(6, 6, "square", size=70)
 Cells.setEntities("wealth", 50)
 
+Cells.setDefaultSymbology(
+    background_color=QColor("lightgray"),
+    border_size=0
+)
+
 # Set wealth values to create interesting pattern
 import random
 random.seed(42)
@@ -30,7 +36,7 @@ for cell in Cells.entities:
     cell.setValue("wealth", wealth)
 
 # Define aspects with apply_if conditions
-# Each aspect will be applied only if its condition evaluates to True
+# Note: aspect_poor is intentionally omitted to test fallback behavior
 aspect_rich = SGAspect(
     background_color=QColor("gold"),
     text_content="Rich: {wealth}",
@@ -60,16 +66,16 @@ Cells.newSymbology(
     "wealth",
     {
         70: aspect_rich,
-        30: aspect_poor,
+        # 30: aspect_poor,
         0: aspect_normal,
     }
 )
 
 # Launch
-print("The grid demonstrates conditional aspect application:")
+print("The grid demonstrates conditional aspect application with fallback:")
 print("- Gold cells: apply_if '{wealth} >= 70'")
-print("- Gray cells: apply_if '{wealth} < 30'")
 print("- Blue cells: apply_if '{wealth} >= 30'")
-print("- Unmatched cells: display default symbology (lightgray)")
+print("- Unmatched cells (wealth < 30): display default symbology (lightgray)")
+print("Note: aspect_poor is not in the symbology, so those cells fall back to default")
 myModel.launch()
 sys.exit(monApp.exec())
