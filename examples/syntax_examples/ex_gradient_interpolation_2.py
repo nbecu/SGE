@@ -48,16 +48,31 @@ score_gradient = {
     ),
 }
 
-# Create symbologies with different interpolation methods
-interpolation_methods = ['linear', 'log', 'exp']
+# Create three gradient symbologies with different interpolation methods
 
-for method in interpolation_methods:
-    Cells.newSymbologyGradient(
-        "score",
-        score_gradient.copy(),
-        interpolation=method,
-        name=f"Score{method.capitalize()}"
-    )
+# Method 1: Linear interpolation (uniform color transition)
+Cells.newSymbologyGradient(
+    "score",
+    score_gradient.copy(),
+    interpolation="linear",
+    name="ScoreLinear"
+)
+
+# Method 2: Logarithmic interpolation (smooth soft transition)
+Cells.newSymbologyGradient(
+    "score",
+    score_gradient.copy(),
+    interpolation="log",
+    name="ScoreLog"
+)
+
+# Method 3: Exponential interpolation (fast start, slow end)
+Cells.newSymbologyGradient(
+    "score",
+    score_gradient.copy(),
+    interpolation="exp",
+    name="ScoreExp"
+)
 
 # Launch
 myModel.launch()
