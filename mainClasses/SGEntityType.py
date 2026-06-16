@@ -1052,7 +1052,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         # Adapter: Convert old-style mappings (value: QColor) to new-style (value: SGAspect)
         # Store max value for classifications before processing mapping
-        max_value = mapping.get('__max_value__', None)
+        max_value = mapping.get('__max_value__', None) if mapping else None
 
         adapted_mapping = {}
         if mapping:
