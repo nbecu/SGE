@@ -106,6 +106,18 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ `addGraphPreset`: show the graph type icon in front of the preset name
   - ✅ `hideDefaultGraphMenuItems()` API to hide default entries (Linear Chart, Histogram, Pie Chart, Stack Plot)
 
+- [x] Phase 3: Advanced Symbology System (June 2026) ✅ RELEASED
+  - ✅ **Feature 1:** Dynamic text rendering with {attr_name} substitution in cells and agents
+  - ✅ **Feature 2:** Text properties (color, size, weight, alignment, opacity) via SGAspect
+  - ✅ **Feature 3:** Gradient interpolation with 4 curve modes (linear/log/exp/sigmoid)
+  - ✅ **Feature 4:** Automatic data classification (equidistant/quantile/manual via SGClassifier)
+  - ✅ **Feature 5:** Conditional visibility using `visible_if` expressions with safe evaluation
+  - ✅ **Feature 6:** Aspect views for pre-configured symbology themes
+  - ✅ **Feature 7:** Real-time animations (pulse/flash/rotate with controllable duration/intensity)
+  - ✅ **Modeler API:** 7 new methods in SGEntityType: `setEntities_withDynamicText()`, `newSymbology()` with interpolation, `setEntities_withGradient()`, `setEntities_withClassification()`, etc.
+  - ✅ **Examples:** 8 syntax examples demonstrating each feature
+  - ✅ **Integration:** Dynamic text works on both cells and agents; animations managed by SGAnimationManager singleton
+
 - [x] Implement BotPlayer system for automated gameplay and testing (June 2026) ✅
   - ✅ Created BotPlayer class for automated gameplay
   - ✅ Tested and validated on TicTacToe
