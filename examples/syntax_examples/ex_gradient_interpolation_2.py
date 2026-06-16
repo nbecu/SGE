@@ -25,10 +25,8 @@ myModel = SGModel(windowTitle="Gradient Interpolation Methods Comparison")
 Cells = myModel.newCellsOnGrid(12, 1, "square", size=60)
 Cells.setEntities("score", 50)
 
-# Set score values from 0 to 100 across the grid
-for i, cell in enumerate(Cells.entities):
-    score = int((i / (len(Cells.entities) - 1)) * 100) if len(Cells.entities) > 1 else 50
-    cell.setValue("score", score)
+# Set score values from 0 to 100 across the grid using gradient method
+Cells.setEntities_withGradient("score", 0, 100)
 
 # Define gradient with 2 key points (0=blue, 100=red)
 score_gradient = {
