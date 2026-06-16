@@ -1560,10 +1560,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # get the submenu (or create it if it doesn't exist yet)
         submenu = self.getOrCreateSubmenuSymbology(submenu_name)
 
-        # Ensure submenu has a QActionGroup for radio button behavior
+        # Ensure submenu has a QActionGroup for grouping (but NOT exclusive - we handle exclusivity manually)
+        # This allows multiple symbologies from manual groups to be checked simultaneously
         if not hasattr(submenu, '_symbology_action_group'):
             submenu._symbology_action_group = QActionGroup(submenu)
-            submenu._symbology_action_group.setExclusive(True)
+            submenu._symbology_action_group.setExclusive(False)  # MUST explicitly set to False!
 
         # create radio button action
         item = QAction(nameOfSymbology, self, checkable=True)
