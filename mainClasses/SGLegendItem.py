@@ -107,7 +107,7 @@ class SGLegendItem(QtWidgets.QWidget):
     def getRequiredWidth(self):
         # Special case: gradient bar (Phase 3)
         if self.is_gradient_bar:
-            return 150 + 20  # Bar width + label padding
+            return 150 + 40  # Bar width + generous label padding
 
         text = "" if self.text is None else str(self.text)
         if self.type == "Title1":
@@ -503,8 +503,8 @@ class SGLegendItem(QtWidgets.QWidget):
             # Compute minimum width from measured text + base_x and a small padding
             # Special sizing for gradient bars (Phase 3)
             if self.is_gradient_bar:
-                # Gradient bar is 150px wide + padding
-                min_w = 150 + 20  # Bar width + labels padding
+                # Gradient bar is 150px wide + padding for min/max labels
+                min_w = 150 + 40  # Bar width + generous labels padding
                 # Height: bar (20px) + text below (15px) + margins
                 item_height = 20 + 18
             else:
