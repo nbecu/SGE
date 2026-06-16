@@ -227,26 +227,37 @@ class SGSymbology:
 
 class SGSymbologyGroup:
     """
-    Represents a group of symbologies with the same name across different entity types.
+    Unified group for organizing symbologies in two modes:
 
-    When multiple entity types (Cell, Agent, Tile) define a symbology with the same name,
-    they automatically form a group. This allows activating a visual representation
-    globally across all entity types that have it.
+    MODE 1 - AUTOMATIC (cross-entity): Same-named symbologies across types
+        When multiple entity types define symbology with same name,
+        automatically creates a group to activate them together.
+        Example:
+            Cell.newSymbology("health", {...})
+            Agent.newSymbology("health", {...})
+            → Auto-creates SGSymbologyGroup("Health")
 
-    Example:
-        Cell.newSymbology("health", {100: green, 50: red})
-        Agent.newSymbology("health", {100: green, 50: red})
-        → Automatically creates SGSymbologyGroup("Health")
-        → Contains: Cell.Health and Agent.Health
+    MODE 2 - MANUAL (thematic): User-defined groups with different names
+        Modeler explicitly groups symbologies with different names
+        to create visualization themes.
+        Example:
+            model.newSymbologyGroup("EconomyView", ["Wealth", "Trade", "Production"])
+            → Creates group combining multiple symbologies
+
+    Both modes activate the same way: group.activate(model)
     """
 
-    def __init__(self, name):
+    def __init__(self, name, symbology_names=None, is_manual=False):
         """
         Args:
-            name (str): Group name (e.g., 'Health', 'Owner')
+            name (str): Group name (e.g., 'Health', 'EconomyView')
+            symbology_names (list, optional): Symbology names for manual mode
+            is_manual (bool): True for manual thematic groups, False for auto cross-entity
         """
         self.name = name
-        self.symbologies_by_type = {}  # {entity_type_name: SGSymbology}
+        self.is_manual = is_manual
+        self.symbology_names = symbology_names or []  # For manual mode
+        self.symbologies_by_type = {}  # For automatic cross-entity mode
 
     def add_symbology(self, entity_type_name, symbology):
         """Add a symbology to this group.
@@ -284,48 +295,35 @@ class SGSymbologyGroup:
         """
         return list(self.symbologies_by_type.values())
 
-    def __repr__(self):
-        types = ', '.join(self.get_all_entity_types())
-        return f"SGSymbologyGroup({self.name}, types=[{types}])"
+    def activate(self, model):
+        """Activate this group on the model.
 
-
-class SGAspectView:
-    """
-    Represents a view that groups multiple symbologies.
-
-    A view allows users to toggle between different visual representations.
-    For example: "HealthView" shows health symbology, "PlayerView" shows health+owner.
-    """
-
-    def __init__(self, name, symbologies=None):
-        """
-        Args:
-            name (str): View name (e.g., 'DefaultView', 'PlayerView')
-            symbologies (list): List of SGSymbology objects or symbology names
-        """
-        self.name = name
-        self.symbologies = symbologies or []  # Can be SGSymbology objects or names
-        self.is_active = True
-
-    def add_symbology(self, symbology):
-        """Add a symbology to this view.
+        MODE 1 (automatic): Activates all cross-entity symbologies for their types
+        MODE 2 (manual): Activates all named symbologies globally
 
         Args:
-            symbology (SGSymbology): The symbology to add
+            model (SGModel): The model to activate on
         """
-        if symbology not in self.symbologies:
-            self.symbologies.append(symbology)
-
-    def get_symbologies(self):
-        """Get all symbologies in this view.
-
-        Returns:
-            List[SGSymbology]
-        """
-        return self.symbologies
+        if self.is_manual:
+            # Manual mode: activate symbologies by name across all types that have them
+            for symbology_name in self.symbology_names:
+                if hasattr(model, 'active_symbologies_by_type'):
+                    for entity_type in model.getAllEntityTypes():
+                        if symbology_name in entity_type.symbologies:
+                            model.active_symbologies_by_type[entity_type.name] = symbology_name
+                            entity_type.displaySymbology(symbology_name)
+        else:
+            # Automatic mode: activate by type
+            for entity_type_name, symbology in self.symbologies_by_type.items():
+                if hasattr(model, 'active_symbologies_by_type'):
+                    model.active_symbologies_by_type[entity_type_name] = symbology.name
 
     def __repr__(self):
-        return f"SGAspectView({self.name}, {len(self.symbologies)} symbologies)"
+        if self.is_manual:
+            return f"SGSymbologyGroup({self.name}, manual, symbologies={self.symbology_names})"
+        else:
+            types = ', '.join(self.get_all_entity_types())
+            return f"SGSymbologyGroup({self.name}, cross-entity, types=[{types}])"
 
 
 class SGAspectResolver:

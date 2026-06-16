@@ -3214,7 +3214,32 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         return aProgressGauge
 
+    def newSymbologyGroup(self, name, symbology_names):
+        """
+        Create a manual symbology group by combining symbologies with different names.
 
+        This allows creating thematic visualizations by grouping multiple symbologies
+        to activate together. For example:
+            model.newSymbologyGroup("EconomyView", ["Wealth", "Trade", "Production"])
+            → Creates a group activating Wealth, Trade, and Production symbologies together
+
+        Args:
+            name (str): Group name (e.g., 'EconomyView', 'HealthAnalysis')
+            symbology_names (list): List of symbology names to include in this group
+
+        Returns:
+            SGSymbologyGroup: The created group
+        """
+        from mainClasses.SGAspectSystem import SGSymbologyGroup
+
+        group = SGSymbologyGroup(name, symbology_names=symbology_names, is_manual=True)
+
+        # Store the group for later access/activation
+        if not hasattr(self, 'symbology_groups_manual'):
+            self.symbology_groups_manual = {}
+        self.symbology_groups_manual[name] = group
+
+        return group
 
     # To create a Legend
     def newLegend(self, name='Legend', alwaysDisplayDefaultAgentSymbology=False):#, grid=None):

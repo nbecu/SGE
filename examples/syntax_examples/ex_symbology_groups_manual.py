@@ -1,10 +1,17 @@
 """
-Aspect Views Example (Phase 3, Feature 6)
+Symbology Groups - Manual Theme Example (Phase 3)
 
 Demonstrates:
-- Pre-configured views that activate multiple symbologies at once
-- Theme-based visualizations
+- Creating thematic visualization groups that combine multiple symbologies
+- Unified SGSymbologyGroup supporting both automatic (cross-entity) and manual (thematic) modes
 - Easy switching between different analytical perspectives
+
+Two modes of SGSymbologyGroup:
+1. AUTOMATIC: Same-named symbologies across different entity types
+   - Created automatically when Cell.newSymbology("health") + Agent.newSymbology("health")
+
+2. MANUAL: User-defined groups combining any symbologies by name
+   - Created via model.newSymbologyGroup("ThemeName", ["Symbology1", "Symbology2"])
 """
 
 import sys
@@ -12,7 +19,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from mainClasses.SGSGE import *
-from mainClasses.SGAspectSystem import SGAspectView
 from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
@@ -49,38 +55,38 @@ fertility_aspects = {
 Cells.newSymbology("health", health_aspects, name="HealthStatus")
 Cells.newSymbology("fertility", fertility_aspects, name="FertilityStatus")
 
-# Create Aspect Views (pre-configured visualization themes)
-# Each view can activate MULTIPLE symbologies with different names
-# This allows creating thematic visualizations
+# Create SGSymbologyGroups (manual mode) - thematic visualization groups
+# Each group can combine MULTIPLE symbologies with different names
+# This allows creating visualization themes
 
-# View 1: Show only health
-health_only_view = SGAspectView(
+# Group 1: Show only health
+health_only_group = myModel.newSymbologyGroup(
     name="HealthOnly",
-    symbologies=["HealthStatus"]
+    symbology_names=["HealthStatus"]
 )
 
-# View 2: Show only fertility
-fertility_only_view = SGAspectView(
+# Group 2: Show only fertility
+fertility_only_group = myModel.newSymbologyGroup(
     name="FertilityOnly",
-    symbologies=["FertilityStatus"]
+    symbology_names=["FertilityStatus"]
 )
 
-# View 3: Show BOTH health and fertility together (combined theme)
-complete_view = SGAspectView(
+# Group 3: Show BOTH health and fertility together (combined theme)
+complete_group = myModel.newSymbologyGroup(
     name="CompleteAnalysis",
-    symbologies=["HealthStatus", "FertilityStatus"]
+    symbology_names=["HealthStatus", "FertilityStatus"]
 )
 
-# You can manually activate views like this:
-# health_only_view.activate(myModel)
-# complete_view.activate(myModel)
+# You can manually activate groups like this:
+# health_only_group.activate(myModel)
+# complete_group.activate(myModel)
 
-print("Three aspect views are defined:")
+print("Three symbology groups are defined (manual mode):")
 print("- HealthOnly: Shows only health status")
 print("- FertilityOnly: Shows only fertility status")
 print("- CompleteAnalysis: Shows BOTH health AND fertility together")
 print("")
-print("AspectView allows grouping multiple symbologies with different names")
+print("SGSymbologyGroup (manual mode) allows grouping multiple symbologies")
 print("to create thematic visualizations.")
 
 myModel.launch()
