@@ -1054,9 +1054,15 @@ class SGEntityType(AttributeAndValueFunctionalities):
             self._auto_derived_symbologies.add(name)
 
         # Adapter: Convert old-style mappings (value: QColor) to new-style (value: SGAspect)
+        # Store max value for classifications before processing mapping
+        max_value = mapping.get('__max_value__', None)
+
         adapted_mapping = {}
         if mapping:
             for value, symbol in mapping.items():
+                # Skip the special __max_value__ key
+                if value == '__max_value__':
+                    continue
                 if isinstance(symbol, SGAspect):
                     # Already SGAspect - optionally add border if border_size provided
                     aspect = symbol
@@ -1124,6 +1130,10 @@ class SGEntityType(AttributeAndValueFunctionalities):
                         # Direct SGAspect property name
                         if hasattr(aspect, key) and getattr(aspect, key) is None:
                             setattr(aspect, key, default_value)
+
+        # Re-add max_value for classifications (if it existed in original mapping)
+        if max_value is not None:
+            adapted_mapping['__max_value__'] = max_value
 
         # Create unique symbology for this type
         symbology_key = f"{name}_{self.name}"
