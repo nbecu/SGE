@@ -112,14 +112,14 @@ class SGEntity(AttributeAndValueFunctionalities):
             # Update existing instance symbology
             self.instance_aspects[symbology_name].mapping = adapted_mapping
 
-    def clearInstanceSymbology(self, symbology_name):
+    def deleteInstanceSymbology(self, symbology_name):
         """
-        Clear the instance override for a symbology.
+        Delete the instance override for a symbology.
 
-        After clearing, the entity will use the EntityType definition.
+        After deletion, the entity will use the EntityType definition.
 
         Args:
-            symbology_name (str): Name of the symbology to clear
+            symbology_name (str): Name of the symbology to delete
         """
         if symbology_name in self.instance_aspects:
             del self.instance_aspects[symbology_name]
