@@ -226,10 +226,21 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         """Resolve complete aspect from symbology system for text content rendering.
 
         Returns first active symbology's aspect. If multiple are active, returns the first one.
+        Automatically registers animations with SGAnimationManager (Phase 3, Feature 7).
         """
         aspects = self._resolveActiveSymbologies()
         if not aspects:
             return None
+
+        # Auto-register animations (Phase 3, Feature 7)
+        # Register first active symbology with animation, if any
+        for symbology_name, aspect in aspects:
+            if aspect and hasattr(aspect, 'animation') and aspect.animation:
+                from mainClasses.SGAnimation import SGAnimationManager
+                manager = SGAnimationManager.global_manager()
+                duration = getattr(aspect, 'animation_duration', 1.0)
+                manager.add_animation(self.entity_model.privateID, aspect.animation, duration=duration)
+                break  # Only register first animated aspect
 
         # Return the first aspect (primary symbology for text rendering)
         return aspects[0][1]

@@ -150,6 +150,7 @@ class SGCellView(SGEntityView):
                 color = self.getColor()
                 qcolor = color if isinstance(color, QColor) else QColor(color)
                 is_transparent = qcolor.alpha() == 0
+                animation_rotation = 0  # Track rotation for later use
 
                 if not is_transparent:
                     # Apply animation effects if defined (Phase 3, Feature 7)
@@ -161,6 +162,10 @@ class SGCellView(SGEntityView):
 
                         if aspect.animation == 'pulse':
                             color = manager.apply_pulse_animation(color, factor)
+                        elif aspect.animation == 'flash':
+                            color = manager.apply_flash_animation(color, factor)
+                        elif aspect.animation == 'rotate':
+                            animation_rotation = factor  # factor is 0-360 for rotate
 
                     painter.setBrush(QBrush(color, Qt.SolidPattern))
                 # For transparent cells the brush is set to NoBrush below,
@@ -186,6 +191,14 @@ class SGCellView(SGEntityView):
                                                       mode, zoom, viewportX, viewportY)
                     painter.setBrush(Qt.NoBrush)
                 # Just draw the cell, position is managed by grid
+                # Apply rotation if needed (Phase 3, Feature 7)
+                if animation_rotation > 0:
+                    painter.save()
+                    center = current_size / 2
+                    painter.translate(center, center)
+                    painter.rotate(animation_rotation)
+                    painter.translate(-center, -center)
+
                 if(self.shape == "square"):
                     painter.drawRect(0, 0, current_size, current_size)
                     self.setMinimumSize(current_size, current_size + 1)
@@ -200,6 +213,9 @@ class SGCellView(SGEntityView):
                         QPoint(0, int(current_size / 4))
                     ])
                     painter.drawPolygon(points)
+
+                if animation_rotation > 0:
+                    painter.restore()
             else:
                 # In resize mode, calculate position first (needed for bg image sampling)
                 self.calculatePosition()
@@ -212,6 +228,14 @@ class SGCellView(SGEntityView):
                     painter.setBrush(Qt.NoBrush)
 
                 # Base of the gameBoard
+                # Apply rotation if needed (Phase 3, Feature 7)
+                if animation_rotation > 0:
+                    painter.save()
+                    center = current_size / 2
+                    painter.translate(center, center)
+                    painter.rotate(animation_rotation)
+                    painter.translate(-center, -center)
+
                 if(self.shape == "square"):
                     painter.drawRect(0, 0, current_size, current_size)
                     self.setMinimumSize(current_size, current_size + 1)
@@ -228,6 +252,9 @@ class SGCellView(SGEntityView):
                     ])
                     painter.drawPolygon(points)
                     self.move(self.startX, self.startY)
+
+                if animation_rotation > 0:
+                    painter.restore()
         else:
             # Cell is deleted/hidden, don't draw anything
             pass

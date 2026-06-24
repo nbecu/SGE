@@ -12,7 +12,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from mainClasses.SGSGE import *
-from mainClasses.SGAnimation import SGAnimationManager
 from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
@@ -35,7 +34,8 @@ aspect_high = SGAspect(
     text_size=12,
     animation="pulse",
     animation_duration=1.0,
-    animation_intensity=0.5
+    animation_intensity=0.5,
+    legend_label="High Priority"
 )
 
 aspect_normal = SGAspect(
@@ -70,17 +70,13 @@ for i, cell in enumerate(Cells.entities):
     else:
         cell.setValue("status", 0)  # Low - gray
 
-# Register animations for high-priority cells
-manager = SGAnimationManager.global_manager()
-for cell in Cells.entities:
-    if cell.value("status") == 2:
-        manager.add_animation(cell.privateID, "pulse", duration=1.0)
-
+# Animations are automatically registered when cells with animated aspects are rendered
 print("Red cells (high priority) are pulsing")
 print("Yellow cells are normal")
 print("Gray cells are low priority")
 print("")
 print("Watch the red cells pulse - this uses real-time animations")
 
+myModel.newLegend()
 myModel.launch()
 sys.exit(monApp.exec())

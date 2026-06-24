@@ -6,7 +6,7 @@ from PyQt6.QtCore import *
             
 class SGAspect():
     def __init__(self, bg=None, border=None, size=None, style=None, **kwargs):
-        """Define the aspect a text and/or a frame -> text, border, background
+        """Define the aspect of an entity -> text, border, background, and optional animations.
 
         Args (shorthand for symbologies):
             bg (str, optional): Background color (alias for background_color)
@@ -14,17 +14,56 @@ class SGAspect():
             size (int, optional): Border size in pixels (alias for border_size)
             style (str, optional): Border style (alias for border_style)
 
-        Args (full property names):
-            font (str, optional): Font family. Options include "Times New Roman", "Georgia", "Garamond", "Baskerville", "Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Courier New", "Lucida Console", "Monaco", "Consolas", "Comic Sans MS", "Papyrus", "Impact".
-            color (str, optional): Text color. Can be specified by name (e.g., "red", "orange", "navy", "gold"), hex code (e.g., "#FF0000", "#AB28F9"), RGB values (e.g., "rgb(127, 12, 0)"), or RGBA values for transparency (e.g., "rgba(154, 20, 8, 0.5)").
-            text_decoration (str, optional): Text decoration style. Options include "none", "underline", "overline", "line-through", "blink".
-            font_weight (str, optional): Font weight. Options include "normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900".
-            font_style (str, optional): Font style. Options include "normal", "italic", "oblique".
-            alignement (str, optional): Text alignment. Options include "Left", "Right, "HCenter", "Top", "Bottom", "VCenter", "Center", "Justify".
-            border_style (str, optional): Border style. Options include "solid", "dotted", "dashed", "double", "groove", "ridge", "inset".
+        Args (styling):
+            font (str, optional): Font family. Options: "Times New Roman", "Georgia", "Garamond", "Baskerville", "Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Courier New", "Lucida Console", "Monaco", "Consolas", "Comic Sans MS", "Papyrus", "Impact".
+            color (str, optional): Text color. Accepts color names ("red", "orange", "navy", "gold"), hex ("#FF0000", "#AB28F9"), RGB ("rgb(127, 12, 0)"), RGBA ("rgba(154, 20, 8, 0.5)").
+            text_decoration (str, optional): Text decoration. Options: "none", "underline", "overline", "line-through", "blink".
+            font_weight (str, optional): Font weight. Options: "normal", "bold", "bolder", "lighter", "100"-"900".
+            font_style (str, optional): Font style. Options: "normal", "italic", "oblique".
+            alignment (str, optional): Text alignment. Options: "Left", "Right", "HCenter", "Top", "Bottom", "VCenter", "Center", "Justify".
+            border_style (str, optional): Border style. Options: "solid", "dotted", "dashed", "double", "groove", "ridge", "inset".
             border_size (int, optional): Border size in pixels.
-            border_color (str, optional): Same options as color.
-            background_color (str, optional): Same options as color.
+            border_color (str, optional): Border color (same options as color).
+            background_color (str, optional): Background color (same options as color).
+            border_radius (int, optional): Rounded corner radius in pixels.
+            padding (int, optional): Internal padding in pixels.
+            word_wrap (bool, optional): Enable text word wrapping (default: False).
+
+        Args (dynamic text - Phase 3, Feature 2):
+            text_content (str, optional): Static text, attribute reference ({attr_name}), or expression. Examples: "Health: {hp}/100", "Active", "{energy}".
+            text_font (str, optional): Font family for this text.
+            text_color (str, optional): Text color.
+            text_size (int, optional): Text size in pixels.
+            text_weight (str, optional): Text weight. Options: "normal", "bold" (default: "normal").
+            text_alignment (str, optional): Text alignment. Options: "left", "center", "right" (default: "center").
+            text_opacity (float, optional): Text opacity 0-1 (default: 1.0).
+
+        Args (conditional aspects - Phase 3, Feature 5):
+            apply_if (str, optional): Condition expression to apply this aspect. Examples: "health > 50", "{energy} < 20", "status == 'active'".
+
+        Args (animations - Phase 3, Feature 7):
+            animation (str, optional): Animation type. Options: "pulse", "flash", "rotate".
+            animation_duration (float, optional): Animation cycle duration in seconds (default: 1.0).
+            animation_intensity (float, optional): Animation intensity 0-1 (default: 0.5).
+
+        Args (legends):
+            legend_label (str, optional): Custom label for legend display. Overrides auto-generated labels (useful for rule-based/complex symbologies).
+
+        Args (UI layout):
+            background_image (str, optional): Path to background image file.
+            background_image_mode (str, optional): Image scaling mode. Options: "stretch", "cover", "contain" (default: "stretch").
+            background_image_zoom_enabled (bool, optional): Enable image scaling with grid zoom (default: True).
+            fixed_width (int, optional): Fixed width in pixels.
+            fixed_height (int, optional): Fixed height in pixels.
+            min_width (int, optional): Minimum width in pixels.
+            min_height (int, optional): Minimum height in pixels.
+
+        Args (hover/button states):
+            hover_text_color (str, optional): Text color on hover.
+            hover_background_color (str, optional): Background color on hover.
+            hover_border_color (str, optional): Border color on hover.
+            pressed_color (str, optional): Color when pressed (buttons).
+            disabled_color (str, optional): Color when disabled.
         """
         # Définition des paramètres de style
         self.font = kwargs.get('font', None)

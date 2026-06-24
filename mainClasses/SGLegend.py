@@ -181,16 +181,20 @@ class SGLegend(SGGameSpace):
                                 if isinstance(aColor, str):
                                     aColor = QColor(aColor)
 
-                                # Format interval label with mathematical notation
-                                if i < len(sorted_values) - 1:
-                                    next_value = sorted_values[i + 1]
-                                    # [min, max) - min included, max excluded
-                                    label = f"[{value:.0f}, {next_value:.0f})"
+                                # Priority: legend_label > generated interval label
+                                if getattr(aspect, 'legend_label', None):
+                                    label = aspect.legend_label
                                 else:
-                                    # [min, max] - last class includes max value
-                                    # Use stored max value if available, otherwise use last key
-                                    upper_bound = max_class_value if max_class_value is not None else sorted_values[-1]
-                                    label = f"[{value:.0f}, {upper_bound:.0f}]"
+                                    # Format interval label with mathematical notation
+                                    if i < len(sorted_values) - 1:
+                                        next_value = sorted_values[i + 1]
+                                        # [min, max) - min included, max excluded
+                                        label = f"[{value:.0f}, {next_value:.0f})"
+                                    else:
+                                        # [min, max] - last class includes max value
+                                        # Use stored max value if available, otherwise use last key
+                                        upper_bound = max_class_value if max_class_value is not None else sorted_values[-1]
+                                        label = f"[{value:.0f}, {upper_bound:.0f}]"
 
                                 anItem = SGLegendItem(self, 'symbol', label, type, aColor, aAtt, value)
                                 self.legendItems.append(anItem)
@@ -202,7 +206,9 @@ class SGLegend(SGGameSpace):
                                 aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
                                 if isinstance(aColor, str):
                                     aColor = QColor(aColor)
-                                anItem = SGLegendItem(self, 'symbol', str(value), type, aColor, aAtt, value)
+                                # Priority: legend_label > value (text_content is for cell display, not legend)
+                                label = getattr(aspect, 'legend_label', None) or str(value)
+                                anItem = SGLegendItem(self, 'symbol', label, type, aColor, aAtt, value)
                                 self.legendItems.append(anItem)
                 elif aShapeSymbology in type.povShapeColor:
                     # Legacy POV system

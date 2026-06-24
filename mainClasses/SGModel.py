@@ -248,6 +248,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.listOfMajs = []
         self.processedMAJ = set()
         self.timer = QTimer()
+        self.animation_timer = None  # Timer for animation frame updates (Phase 3, Feature 7)
         self.haveToBeClose = False
         self.mqttMajType=None
 
@@ -444,6 +445,22 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         QApplication.processEvents()
         self.positionAllAgents()
         self.positionAllTiles()
+        self._setupAnimationTimer()
+
+    def _setupAnimationTimer(self):
+        """Setup timer to update animations at ~30 FPS (Phase 3, Feature 7)."""
+        if self.animation_timer is None:
+            self.animation_timer = QTimer()
+            self.animation_timer.timeout.connect(self._updateAnimations)
+        # Start timer at 30 FPS (33 ms interval)
+        self.animation_timer.start(33)
+
+    def _updateAnimations(self):
+        """Request redraw of all grids to animate active animations (Phase 3, Feature 7)."""
+        # Redraw all grids to update animation frames
+        for gameSpace in self.gameSpaces.values():
+            if isinstance(gameSpace, SGGrid):
+                gameSpace.update()
 
     def launch(self):
         """

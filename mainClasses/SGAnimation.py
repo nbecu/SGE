@@ -26,11 +26,18 @@ class SGAnimationManager:
             duration (float): Animation cycle duration in seconds
             intensity (float): Animation intensity (0-1)
         """
+        # Only set start_time on first registration; preserve it if animation already exists
+        # This prevents animation restart when add_animation is called multiple times per entity
+        if entity_id not in self.animations:
+            start_time = time.time()
+        else:
+            start_time = self.animations[entity_id].get('start_time', time.time())
+
         self.animations[entity_id] = {
             'type': animation_type,
             'duration': duration,
             'intensity': intensity,
-            'start_time': time.time(),
+            'start_time': start_time,
         }
 
     def remove_animation(self, entity_id):
@@ -89,6 +96,25 @@ class SGAnimationManager:
         color = QColor(base_color)
         new_alpha = int(base_color.alpha() * factor)
         color.setAlpha(max(50, new_alpha))  # Minimum opacity to stay visible
+        return color
+
+    def apply_flash_animation(self, base_color, factor):
+        """Apply flash animation to a color (on/off toggle).
+
+        Args:
+            base_color (QColor): Original color
+            factor (float): Animation factor (0-1, but used as boolean)
+
+        Returns:
+            QColor: Color with modified opacity (fully visible or dimmed)
+        """
+        if not isinstance(base_color, QColor):
+            base_color = QColor(base_color)
+
+        # Flash toggles between full opacity and dimmed (0.3)
+        color = QColor(base_color)
+        new_alpha = int(base_color.alpha() * factor)
+        color.setAlpha(max(30, new_alpha))  # Toggle between full and 30% opacity
         return color
 
     @staticmethod

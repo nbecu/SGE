@@ -937,7 +937,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         else:
             # Use new symbology system
             try:
-                self.newSymbology(concernedAtt, dictOfColor, symbol_type='color', name=symbology_name)
+                self.newSymbology(concernedAtt, dictOfColor, name=symbology_name)
             except ValueError:
                 # If newSymbology fails, fall back to old POV system
                 self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
@@ -978,13 +978,15 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, mapping=None, symbol_type='color', name=None, rule_function=None, border_size=None, interpolation=None, classification_method=None, **aspect_defaults):
+    def newSymbology(self, attribute, mapping=None, name=None, border_size=None, **aspect_defaults):
         """
-        Declare a new symbology for discrete/nominal attribute values (DEPRECATED signature).
+        Declare a new symbology for nominal/discrete attribute values.
 
-        **For Phase 3 features, use specialized methods instead:**
-        - `newSymbologyGradient()` for continuous color gradients with interpolation
-        - `newSymbologyClassified()` for interval classification (quantiles, manual classes, etc.)
+        **For different symbology types, use specialized methods:**
+        - `newSymbologyGradient()` for continuous color gradients
+        - `newSymbologyClassified()` for interval classification (quantiles, etc.)
+        - `newSymbologyRule()` for rule-based logic (custom functions)
+        - `newSymbology()` for discrete nominal values only
 
         This method creates categorical (discrete) symbologies mapping specific values to visual aspects.
 
@@ -1007,26 +1009,15 @@ class SGEntityType(AttributeAndValueFunctionalities):
             aspect_100.border_size = 2
             newSymbology("health", {100: aspect_100, ...})
 
-        PATTERN 5 (Rule-based): Lambda or function
-            newSymbology("attr", rule_function=lambda e: SGAspect(
-                background_color="green" if e.health > 50 else "red"
-            ))
-
         Args:
             attribute (str): Entity attribute name (e.g., 'health')
             mapping (dict, optional): {value: SGAspect} or {value: QColor} (auto-converts)
-            symbol_type (str): DEPRECATED - kept for backward compat. Use SGAspect instead.
             name (str, optional): Symbology name
                 - If None: auto-derived from attribute (e.g., 'health' → 'Health')
                 - If provided: use explicitly (required for multiple symbologies per attribute)
-            rule_function (callable, optional): function(entity) → SGAspect for rules
             border_size (int, optional): Border width in pixels (PATTERN 2 only).
                                          If provided with QColor mapping, adds border with same color as background.
                                          For more control per value, use PATTERN 3 (dict) or PATTERN 4 (SGAspect).
-            interpolation (str, optional): **DEPRECATED** - Use `newSymbologyGradient()` instead for smooth color transitions.
-                                          Kept for backward compatibility with existing code.
-            classification_method (str, optional): **DEPRECATED** - Use `newSymbologyClassified()` instead for interval classification.
-                                                  Kept for backward compatibility with existing code.
             **aspect_defaults: Default SGAspect properties applied to ALL values in mapping.
                               Example: newSymbology("health", {...}, border_size=2, border_color="black")
                               Will apply border_size=2 and border_color="black" to all health values.
@@ -1136,15 +1127,43 @@ class SGEntityType(AttributeAndValueFunctionalities):
         symbology_key = f"{name}_{self.name}"
 
         if symbology_key not in self.model.symbologies:
-            symbology = SGSymbology(name, mapping=adapted_mapping, rule_function=rule_function)
-            # Set interpolation and classification (Phase 3)
-            if interpolation:
-                symbology.interpolation = interpolation
-            if classification_method:
-                symbology.classification_method = classification_method
-            self.model.symbologies[symbology_key] = symbology
+            symbology = SGSymbology(name, mapping=adapted_mapping)
         else:
             symbology = self.model.symbologies[symbology_key]
+
+        # Register with model (common for all symbology types)
+        self._registerSymbologyWithModel(symbology, attribute, name, symbology_key)
+
+        # Mark symbology type if not already marked
+        if not hasattr(symbology, 'is_gradient'):
+            symbology.is_gradient = False
+        if not hasattr(symbology, 'is_classification'):
+            symbology.is_classification = False
+        if not symbology.is_gradient and not symbology.is_classification:
+            symbology.is_nominal = True
+
+        return symbology
+
+
+    def _registerSymbologyWithModel(self, symbology, attribute, name, symbology_key=None):
+        """Register a symbology with the model, groups, and menu bar.
+
+        This is a shared helper for all symbology creation methods.
+        Handles: registration, grouping, menu bar, and default display.
+
+        Args:
+            symbology (SGSymbology): The created symbology object
+            attribute (str): Entity attribute name
+            name (str): Symbology name (already auto-derived if needed)
+            symbology_key (str, optional): Pre-computed symbology key. If None, computed here.
+        """
+        # Compute symbology key if not provided
+        if symbology_key is None:
+            symbology_key = f"{name}_{self.name}"
+
+        # Register under type-specific key
+        if symbology_key not in self.model.symbologies:
+            self.model.symbologies[symbology_key] = symbology
 
         # Register under plain name for backward compat (first type wins)
         if name not in self.model.symbologies:
@@ -1168,17 +1187,6 @@ class SGEntityType(AttributeAndValueFunctionalities):
         # Display first symbology by default
         if len(self.model.symbologies) == 1:
             self.displaySymbology(name)
-
-        # Mark symbology type if not already marked
-        if not hasattr(symbology, 'is_gradient'):
-            symbology.is_gradient = False
-        if not hasattr(symbology, 'is_classification'):
-            symbology.is_classification = False
-        if not symbology.is_gradient and not symbology.is_classification:
-            symbology.is_nominal = True
-
-        return symbology
-
 
     def displaySymbology(self, symbology_name):
         """
@@ -1232,15 +1240,15 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 name="TemperatureGradient"
             )
         """
-        # Call newSymbology with interpolation enabled
+        # Call newSymbology (without interpolation parameter - set it after)
         symbology = self.newSymbology(
             attribute, mapping,
             name=name,
-            interpolation=interpolation,
             **aspect_defaults
         )
-        # Mark as gradient symbology for legend display
+        # Mark as gradient symbology and set interpolation
         symbology.is_gradient = True
+        symbology.interpolation = interpolation
         return symbology
 
     def newSymbologyClassified(self, attribute, mapping, name=None, **aspect_defaults):
@@ -1278,19 +1286,18 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 name="SalaryQuantiles"
             )
         """
-        # Call newSymbology WITHOUT interpolation for discrete classes
+        # Create symbology for discrete classes
         # Each value is mapped to its class based on the boundary it falls into
         symbology = self.newSymbology(
             attribute, mapping,
             name=name,
-            interpolation=None,
             **aspect_defaults
         )
         # Mark as classification so legend displays classes, not gradient bar
         symbology.is_classification = True
         return symbology
 
-    def newSymbologyRule(self, attribute, rule_function, name=None, **aspect_defaults):
+    def newSymbologyRule(self, attribute, rule_function, name=None):
         """
         Create a rule-based symbology using a custom function.
 
@@ -1309,7 +1316,6 @@ class SGEntityType(AttributeAndValueFunctionalities):
             name (str, optional): Symbology name
                                 - If None: auto-derived from attribute
                                 - If provided: use explicitly
-            **aspect_defaults: Default SGAspect properties (applied by newSymbology)
 
         Returns:
             SGSymbology: The created symbology object
@@ -1333,14 +1339,38 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 name="ClimateConditions"
             )
         """
-        # Call newSymbology with rule_function parameter
-        symbology = self.newSymbology(
-            attribute,
-            mapping=None,
-            name=name,
-            rule_function=rule_function,
-            **aspect_defaults
-        )
+        # Auto-derive name if not provided
+        auto_derived = False
+        if name is None:
+            name = self._capitalize_attribute_name(attribute)
+            auto_derived = True
+
+        # Check for conflict
+        if auto_derived and name in self._auto_derived_symbologies:
+            raise ValueError(
+                f"Cannot create 2nd symbology with auto-derived name '{name}' in {self.name}. "
+                f"Use name= parameter for explicit name. Example: newSymbologyRule(..., name='{name}Alternate')"
+            )
+
+        if auto_derived:
+            self._auto_derived_symbologies.add(name)
+
+        # Create unique symbology for this type with rule function
+        symbology_key = f"{name}_{self.name}"
+
+        if symbology_key not in self.model.symbologies:
+            # Create symbology with rule_function (no mapping for rule-based)
+            symbology = SGSymbology(name, mapping=None, rule_function=rule_function)
+        else:
+            symbology = self.model.symbologies[symbology_key]
+
+        # Register with model (common for all symbology types)
+        self._registerSymbologyWithModel(symbology, attribute, name, symbology_key)
+
+        # Mark as rule-based symbology (not gradient, not classification)
+        symbology.is_gradient = False
+        symbology.is_classification = False
+
         return symbology
 
     # ============================================================================
