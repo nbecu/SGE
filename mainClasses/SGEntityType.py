@@ -1050,13 +1050,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 if value == '__max_value__':
                     continue
                 if isinstance(symbol, SGAspect):
-                    # Already SGAspect - optionally add border if border_size provided
+                    # Already SGAspect
                     aspect = symbol
-                    if border_size is not None and aspect.border_color is None:
-                        # Add border if not already defined
-                        if aspect.background_color:
-                            aspect.border_color = aspect.background_color
-                            aspect.border_size = border_size
                     adapted_mapping[value] = aspect
                 elif isinstance(symbol, dict):
                     # New simplified format: {'bg': color, 'border': color, 'size': width, 'style': style}
@@ -1075,7 +1070,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
                         # Old border format: {'color': QColor, 'width': int}
                         aspect = SGAspect()
                         aspect.border_color = symbol['color']
-                        aspect.border_size = symbol.get('width', border_size or 1)
+                        aspect.border_size = symbol.get('width', 1)
                         adapted_mapping[value] = aspect
                     else:
                         # Unknown dict format - skip
