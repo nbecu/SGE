@@ -118,13 +118,8 @@ class SGLegend(SGGameSpace):
                         # Display unique aspects found
                         if seen_colors:
                             for color_key, (color, aspect) in seen_colors.items():
-                                # Determine label priority: legend_label > text_content > color_key
-                                label = (getattr(aspect, 'legend_label', None) or
-                                        getattr(aspect, 'text_content', None) or
-                                        color_key)
-                                # Use only first line if multi-line text
-                                if label and '\n' in str(label):
-                                    label = str(label).split('\n')[0]
+                                # Use helper to determine label with proper priority
+                                label = self._createLegendLabel(aspect, color_key)
                                 anItem = SGLegendItem(self, 'symbol', label, type, color, aAtt, color_key)
                                 self.legendItems.append(anItem)
                         else:
@@ -206,8 +201,8 @@ class SGLegend(SGGameSpace):
                                 aColor = aspect.background_color if hasattr(aspect, 'background_color') else Qt.black
                                 if isinstance(aColor, str):
                                     aColor = QColor(aColor)
-                                # Priority: legend_label > value (text_content is for cell display, not legend)
-                                label = getattr(aspect, 'legend_label', None) or str(value)
+                                # Use helper to determine label with proper priority
+                                label = self._createLegendLabel(aspect, value)
                                 anItem = SGLegendItem(self, 'symbol', label, type, aColor, aAtt, value)
                                 self.legendItems.append(anItem)
                 elif aShapeSymbology in type.povShapeColor:
@@ -325,6 +320,36 @@ class SGLegend(SGGameSpace):
             anItem.show()
         self.adjustSize()
         self.updateSizeFromItems()
+
+    def _createLegendLabel(self, aspect, fallback_value):
+        """Create legend label with priority: legend_label > text_content > fallback_value.
+
+        Args:
+            aspect (SGAspect): The aspect object
+            fallback_value: Default value to use if no label found
+
+        Returns:
+            str: The label to display in legend
+        """
+        if aspect and hasattr(aspect, 'legend_label') and aspect.legend_label:
+            return aspect.legend_label
+        if aspect and hasattr(aspect, 'text_content') and aspect.text_content:
+            # Use first line only
+            return str(aspect.text_content).split('\n')[0]
+        return str(fallback_value)
+
+    def _addLegendItem(self, label, color, entity_type, attribute, value):
+        """Add a single legend item with consistent formatting.
+
+        Args:
+            label (str): Label to display
+            color: Color for the symbol
+            entity_type: The entity type
+            attribute (str): Attribute name
+            value: Value key
+        """
+        anItem = SGLegendItem(self, 'symbol', label, entity_type, color, attribute, value)
+        self.legendItems.append(anItem)
 
     def showLegendItem(self, typeOfPov, aAttribut, aValue, color, aKeyOfGamespace, added_items, added_colors):
         item_key=aAttribut +' '+ str(aValue)
