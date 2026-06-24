@@ -3,15 +3,14 @@ Symbology Groups - Manual Theme Example (Phase 3)
 
 Demonstrates:
 - Creating thematic visualization groups that combine multiple symbologies
-- Unified SGSymbologyGroup supporting both automatic (cross-entity) and manual (thematic) modes
+- Manual mode: User-defined groups combining any symbologies by name
 - Easy switching between different analytical perspectives
+- How to activate groups to change visualization theme
 
-Two modes of SGSymbologyGroup:
-1. AUTOMATIC: Same-named symbologies across different entity types
-   - Created automatically when Cell.newSymbology("health") + Agent.newSymbology("health")
-
-2. MANUAL: User-defined groups combining any symbologies by name
-   - Created via model.newSymbologyGroup("ThemeName", ["Symbology1", "Symbology2"])
+SGSymbologyGroup (manual mode):
+- Allows grouping multiple DIFFERENT symbologies into a single "theme"
+- Useful for switching between analytical perspectives
+- Example: "Economic View" groups [Wealth, Trade, Production] symbologies together
 """
 
 import sys
@@ -23,7 +22,7 @@ from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(windowTitle="Aspect Views Example")
+myModel = SGModel(windowTitle="Symbology Groups - Manual Themes", width=1000, height=700)
 
 # Create cells with multiple attributes
 Cells = myModel.newCellsOnGrid(5, 5, "square", size=80)
@@ -37,12 +36,12 @@ for cell in Cells.entities:
     cell.setValue("health", random.randint(0, 100))
     cell.setValue("fertility", random.randint(0, 100))
 
-# Create multiple symbologies
-
-
+# ============================================================================
+# Create multiple symbologies for different analytical perspectives
+# ============================================================================
 
 # Health symbology: Green (healthy) → Red (sick)
-Cells.newSymbology("health", 
+Cells.newSymbology("health",
                 {   75: SGAspect(background_color=QColor("green"), text_content="H:{health}"),
                     50: SGAspect(background_color=QColor("yellow"), text_content="H:{health}"),
                     25: SGAspect(background_color=QColor("red"), text_content="H:{health}"),
@@ -50,7 +49,7 @@ Cells.newSymbology("health",
                 name="HealthStatus")
 
 # Fertility symbology: Brown (low) → Blue (high)
-Cells.newSymbology("fertility", 
+Cells.newSymbology("fertility",
                 {
                     75: SGAspect(background_color=QColor("blue"), text_content="F:{fertility}"),
                     50: SGAspect(background_color=QColor("lightblue"), text_content="F:{fertility}"),
@@ -58,9 +57,11 @@ Cells.newSymbology("fertility",
                 },
                 name="FertilityStatus")
 
-# Create SGSymbologyGroups (manual mode) - thematic visualization groups
-# Each group can combine MULTIPLE symbologies with different names
-# This allows creating visualization themes
+# ============================================================================
+# Create SGSymbologyGroups (manual mode) - thematic visualization themes
+# Each group combines MULTIPLE symbologies with different names
+# This allows switching visualization perspective with a single activation
+# ============================================================================
 
 # Group 1: Show only health
 health_only_group = myModel.newSymbologyGroup(
@@ -75,23 +76,46 @@ fertility_only_group = myModel.newSymbologyGroup(
 )
 
 # Group 3: Show BOTH health and fertility together (combined theme)
+# This is the power of groups: activate multiple symbologies at once
 complete_group = myModel.newSymbologyGroup(
     name="CompleteAnalysis",
     symbology_names=["HealthStatus", "FertilityStatus"]
 )
 
-# You can manually activate groups like this:
-# health_only_group.activate(myModel)
-# complete_group.activate(myModel)
+# ============================================================================
+# ACTIVATE the first group by default to show the visualization
+# ============================================================================
+# This is the KEY DIFFERENCE from before - groups are now ACTIVE!
+print("Activating HealthOnly group...")
+health_only_group.activate(myModel)
 
-print("Three symbology groups are defined (manual mode):")
-print("- HealthOnly: Shows only health status")
-print("- FertilityOnly: Shows only fertility status")
-print("- CompleteAnalysis: Shows BOTH health AND fertility together")
-print("")
-print("SGSymbologyGroup (manual mode) allows grouping multiple symbologies")
-print("to create thematic visualizations.")
+# Add information labels
+myModel.newLabel("Current Theme: Health Only", position=(50, 650),
+                textStyle_specs="color: green; font-weight: bold; font-size: 12px;")
+myModel.newLabel("Use menu to switch: Health Only | Fertility Only | Complete", position=(50, 670),
+                textStyle_specs="color: gray; font-size: 10px;")
 
+# ============================================================================
+# Add a way to switch groups (using control panel menu)
+# ============================================================================
 myModel.newLegend()
+
+print("\nSYMBOLOGY GROUPS (Manual Themes) - ACTIVE!")
+print("=" * 60)
+print("\nCurrently active: HealthOnly (shows only health status)")
+print("\nYou can switch themes using the menu bar:")
+print("  - HealthOnly: Analyze cell health")
+print("  - FertilityOnly: Analyze cell fertility")
+print("  - CompleteAnalysis: See both attributes together")
+print("\nWhat makes groups powerful:")
+print("  - Define a 'theme' ONCE (HealthOnly, CompleteAnalysis, etc.)")
+print("  - Activate it ONCE with group.activate(model)")
+print("  - All symbologies in the group activate together")
+print("  - Users can switch themes instantly from the menu")
+print("\nCompare with manual approach:")
+print("  - WITHOUT groups: activate each symbology one-by-one")
+print("  - WITH groups: activate entire 'theme' in one call")
+print("=" * 60)
+
 myModel.launch()
 sys.exit(monApp.exec())
