@@ -978,7 +978,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, mapping=None, name=None, border_size=None, **aspect_defaults):
+    def newSymbology(self, attribute, mapping=None, name=None, **aspect_defaults):
         """
         Declare a new symbology for nominal/discrete attribute values.
 
@@ -993,8 +993,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
         PATTERN 1 (Category - colors only):
             newSymbology("health", {100: QColor("green"), 50: QColor("red")})
 
-        PATTERN 2 (Category - with borders, same color as background):
-            newSymbology("health", {100: QColor("green"), 50: QColor("red")}, border_size=2)
+        PATTERN 2 (Category - with borders, via aspect_defaults):
+            newSymbology("health", {100: QColor("green"), 50: QColor("red")}, border_size=2, border_color="darkgreen")
 
         PATTERN 3 (Category - simplified dict for border customization):
             newSymbology("health", {
@@ -1015,12 +1015,10 @@ class SGEntityType(AttributeAndValueFunctionalities):
             name (str, optional): Symbology name
                 - If None: auto-derived from attribute (e.g., 'health' → 'Health')
                 - If provided: use explicitly (required for multiple symbologies per attribute)
-            border_size (int, optional): Border width in pixels (PATTERN 2 only).
-                                         If provided with QColor mapping, adds border with same color as background.
-                                         For more control per value, use PATTERN 3 (dict) or PATTERN 4 (SGAspect).
             **aspect_defaults: Default SGAspect properties applied to ALL values in mapping.
                               Example: newSymbology("health", {...}, border_size=2, border_color="black")
                               Will apply border_size=2 and border_color="black" to all health values.
+                              Supports any SGAspect property: text_color, text_size, border_size, border_color, etc.
 
         Raises:
             ValueError: If trying to create 2nd symbology with same auto-derived name
@@ -1086,15 +1084,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
                     # Old color format: QColor or color string
                     aspect = SGAspect()
                     aspect.background_color = symbol
-                    # Add border if border_size provided
-                    if border_size is not None:
-                        aspect.border_color = symbol  # Same color as background
-                        aspect.border_size = border_size
                     adapted_mapping[value] = aspect
-
-        # Add border_size to defaults if provided
-        if border_size is not None and 'border_size' not in aspect_defaults and 'size' not in aspect_defaults:
-            aspect_defaults['size'] = border_size
 
         # Apply aspect_defaults to all values in mapping
         for value, aspect in adapted_mapping.items():
