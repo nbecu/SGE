@@ -978,7 +978,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, mapping=None, name=None, **aspect_defaults):
+    def newSymbology(self, attribute, mapping=None, name=None, **shared_aspect):
         """
         Declare a new symbology for nominal/discrete attribute values.
 
@@ -1015,10 +1015,10 @@ class SGEntityType(AttributeAndValueFunctionalities):
             name (str, optional): Symbology name
                 - If None: auto-derived from attribute (e.g., 'health' → 'Health')
                 - If provided: use explicitly (required for multiple symbologies per attribute)
-            **aspect_defaults: Default SGAspect properties applied to ALL values in mapping.
-                              Example: newSymbology("health", {...}, border_size=2, border_color="black")
-                              Will apply border_size=2 and border_color="black" to all health values.
-                              Supports any SGAspect property: text_color, text_size, border_size, border_color, etc.
+            **shared_aspect: SGAspect properties applied to ALL values in mapping.
+                            Example: newSymbology("health", {...}, border_size=2, border_color="black")
+                            Will apply border_size=2 and border_color="black" to all health values.
+                            Supports any SGAspect property: text_color, text_size, border_size, border_color, etc.
 
         Raises:
             ValueError: If trying to create 2nd symbology with same auto-derived name
@@ -1081,11 +1081,11 @@ class SGEntityType(AttributeAndValueFunctionalities):
                     aspect.background_color = symbol
                     adapted_mapping[value] = aspect
 
-        # Apply aspect_defaults to all values in mapping
+        # Apply shared_aspect to all values in mapping
         for value, aspect in adapted_mapping.items():
             if isinstance(aspect, SGAspect):
-                # Apply defaults for any property not already set
-                for key, default_value in aspect_defaults.items():
+                # Apply shared properties for any property not already set
+                for key, default_value in shared_aspect.items():
                     # Map common aliases to SGAspect properties
                     if key == 'bg':
                         if aspect.background_color is None:
@@ -1191,7 +1191,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
                     self.model._last_selected_symbology_by_type = {}
                 self.model._last_selected_symbology_by_type[self.name] = symbology_name
 
-    def newSymbologyGradient(self, attribute, mapping, interpolation='linear', name=None, **aspect_defaults):
+    def newSymbologyGradient(self, attribute, mapping, interpolation='linear', name=None, **shared_aspect):
         """
         Create a gradient symbology with smooth color interpolation between key points.
 
@@ -1210,7 +1210,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
             name (str, optional): Symbology name
                                 - If None: auto-derived from attribute (e.g., 'temperature' → 'Temperature')
                                 - If provided: use explicitly (required for multiple symbologies per attribute)
-            **aspect_defaults: Default SGAspect properties applied to all key points
+            **shared_aspect: SGAspect properties applied to all key points
 
         Returns:
             SGSymbology: The created symbology object
@@ -1229,14 +1229,14 @@ class SGEntityType(AttributeAndValueFunctionalities):
         symbology = self.newSymbology(
             attribute, mapping,
             name=name,
-            **aspect_defaults
+            **shared_aspect
         )
         # Mark as gradient symbology and set interpolation
         symbology.is_gradient = True
         symbology.interpolation = interpolation
         return symbology
 
-    def newSymbologyClassified(self, attribute, mapping, name=None, **aspect_defaults):
+    def newSymbologyClassified(self, attribute, mapping, name=None, **shared_aspect):
         """
         Create a classification symbology that maps discrete intervals to colors.
 
@@ -1253,7 +1253,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
             name (str, optional): Symbology name
                                 - If None: auto-derived from attribute
                                 - If provided: use explicitly (required for multiple symbologies per attribute)
-            **aspect_defaults: Default SGAspect properties applied to all class intervals
+            **shared_aspect: SGAspect properties applied to all class intervals
 
         Returns:
             SGSymbology: The created symbology object
@@ -1276,7 +1276,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         symbology = self.newSymbology(
             attribute, mapping,
             name=name,
-            **aspect_defaults
+            **shared_aspect
         )
         # Mark as classification so legend displays classes, not gradient bar
         symbology.is_classification = True
