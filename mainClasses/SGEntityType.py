@@ -978,7 +978,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
         return ''.join(word.capitalize() for word in attribute.split('_'))
 
-    def newSymbology(self, attribute, mapping=None, name=None, **shared_aspect):
+    def newSymbology(self, attribute, value_aspects=None, name=None, **shared_aspect):
         """
         Declare a new symbology for nominal/discrete attribute values.
 
@@ -1011,7 +1011,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         Args:
             attribute (str): Entity attribute name (e.g., 'health')
-            mapping (dict, optional): {value: SGAspect} or {value: QColor} (auto-converts)
+            value_aspects (dict, optional): {value: SGAspect} or {value: QColor} (auto-converts)
             name (str, optional): Symbology name
                 - If None: auto-derived from attribute (e.g., 'health' → 'Health')
                 - If provided: use explicitly (required for multiple symbologies per attribute)
@@ -1039,13 +1039,13 @@ class SGEntityType(AttributeAndValueFunctionalities):
         if auto_derived:
             self._auto_derived_symbologies.add(name)
 
-        # Adapter: Convert old-style mappings (value: QColor) to new-style (value: SGAspect)
-        # Store max value for classifications before processing mapping
-        max_value = mapping.get('__max_value__', None) if mapping else None
+        # Adapter: Convert old-style aspects (value: QColor) to new-style (value: SGAspect)
+        # Store max value for classifications before processing value_aspects
+        max_value = value_aspects.get('__max_value__', None) if value_aspects else None
 
         adapted_mapping = {}
-        if mapping:
-            for value, symbol in mapping.items():
+        if value_aspects:
+            for value, symbol in value_aspects.items():
                 # Skip the special __max_value__ key
                 if value == '__max_value__':
                     continue
@@ -1191,7 +1191,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
                     self.model._last_selected_symbology_by_type = {}
                 self.model._last_selected_symbology_by_type[self.name] = symbology_name
 
-    def newSymbologyGradient(self, attribute, mapping, interpolation='linear', name=None, **shared_aspect):
+    def newSymbologyGradient(self, attribute, value_aspects, interpolation='linear', name=None, **shared_aspect):
         """
         Create a gradient symbology with smooth color interpolation between key points.
 
@@ -1199,9 +1199,9 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         Args:
             attribute (str): Entity attribute name (e.g., 'temperature', 'pollution')
-            mapping (dict): {value: SGAspect} where value is a key point on the gradient
-                          - Intermediate values are automatically interpolated
-                          - Example: {0: blue_aspect, 100: red_aspect}
+            value_aspects (dict): {value: SGAspect} where value is a key point on the gradient
+                               - Intermediate values are automatically interpolated
+                               - Example: {0: blue_aspect, 100: red_aspect}
             interpolation (str): Interpolation method between key points
                                - 'linear': uniform color transition (default)
                                - 'log': smooth transition (good for exponential data)
@@ -1227,7 +1227,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """
         # Call newSymbology (without interpolation parameter - set it after)
         symbology = self.newSymbology(
-            attribute, mapping,
+            attribute, value_aspects,
             name=name,
             **shared_aspect
         )
@@ -1236,7 +1236,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         symbology.interpolation = interpolation
         return symbology
 
-    def newSymbologyClassified(self, attribute, mapping, name=None, **shared_aspect):
+    def newSymbologyClassified(self, attribute, value_aspects, name=None, **shared_aspect):
         """
         Create a classification symbology that maps discrete intervals to colors.
 
@@ -1245,11 +1245,11 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         Args:
             attribute (str): Entity attribute name (e.g., 'income_level', 'risk_category')
-            mapping (dict): {interval_bound: SGAspect} representing class intervals
-                          - Keys are interval boundaries (from SGClassifier)
-                          - Each value gets the corresponding aspect color/style
-                          - Linear interpolation is automatically applied for intermediate values
-                          - Example (from quantile): {20: red_aspect, 40: yellow_aspect, 60: green_aspect}
+            value_aspects (dict): {interval_bound: SGAspect} representing class intervals
+                               - Keys are interval boundaries (from SGClassifier)
+                               - Each value gets the corresponding aspect color/style
+                               - Linear interpolation is automatically applied for intermediate values
+                               - Example (from quantile): {20: red_aspect, 40: yellow_aspect, 60: green_aspect}
             name (str, optional): Symbology name
                                 - If None: auto-derived from attribute
                                 - If provided: use explicitly (required for multiple symbologies per attribute)
@@ -1274,7 +1274,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         # Create symbology for discrete classes
         # Each value is mapped to its class based on the boundary it falls into
         symbology = self.newSymbology(
-            attribute, mapping,
+            attribute, value_aspects,
             name=name,
             **shared_aspect
         )
