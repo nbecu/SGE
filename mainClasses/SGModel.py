@@ -763,7 +763,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Add the 'play' button
         if sys.platform == "darwin":
             # For Mac compatibility: add the play button in a submenu
-            self.startGame = mb.addMenu(QIcon(f"{path_icon}/play.png"), "")
+            self.startGame = mb.addMenu(QIcon(f"{path_icon}/play.png"), " ")
             startGame = QAction(" &Next step", self)
             self.startGame.addAction(startGame)
             startGame.triggered.connect(self.nextTurn)
