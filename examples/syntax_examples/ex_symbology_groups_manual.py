@@ -22,7 +22,7 @@ from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(windowTitle="Symbology Groups - Manual Themes", width=1000, height=700)
+myModel = SGModel(windowTitle="Symbology Groups - Manual Themes")
 
 # Create cells with multiple attributes
 Cells = myModel.newCellsOnGrid(5, 5, "square", size=80)
@@ -86,34 +86,20 @@ complete_group = myModel.newSymbologyGroup(
 # ACTIVATE the first group by default to show the visualization
 # ============================================================================
 # This is the KEY DIFFERENCE from before - groups are now ACTIVE!
-print("Activating HealthOnly group...")
 health_only_group.activate(myModel)
 
-# Add information labels
+myModel.newLegend()
+
+# Add information labels (no border)
 myModel.newLabel("Use menu to switch: HealthOnly | FertilityOnly | CompleteAnalysis", position=(20, 20),
                 textStyle_specs="color: gray; font-size: 10px;")
+
 
 # ============================================================================
 # Add a way to switch groups (using control panel menu)
 # ============================================================================
-myModel.newLegend()
 
-print("\nSYMBOLOGY GROUPS (Manual Themes) - ACTIVE!")
-print("=" * 60)
-print("\nCurrently active: HealthOnly (shows only health status)")
-print("\nYou can switch themes using the menu bar:")
-print("  - HealthOnly: Analyze cell health")
-print("  - FertilityOnly: Analyze cell fertility")
-print("  - CompleteAnalysis: See both attributes together")
-print("\nWhat makes groups powerful:")
-print("  - Define a 'theme' ONCE (HealthOnly, CompleteAnalysis, etc.)")
-print("  - Activate it ONCE with group.activate(model)")
-print("  - All symbologies in the group activate together")
-print("  - Users can switch themes instantly from the menu")
-print("\nCompare with manual approach:")
-print("  - WITHOUT groups: activate each symbology one-by-one")
-print("  - WITH groups: activate entire 'theme' in one call")
-print("=" * 60)
+
 
 myModel.launch()
 sys.exit(monApp.exec())
