@@ -755,10 +755,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # Create the menu of the menu
     def createMenu(self):
+        # Fix menu bar height to prevent icons from being replaced by text when menus open
+        mb = self.menuBar()
+        mb.setMinimumHeight(50)
+        mb.setMaximumHeight(50)
+
         # Add the 'play' button
         if sys.platform == "darwin":
             # For Mac compatibility: add the play button in a submenu
-            self.startGame = self.menuBar().addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
+            self.startGame = mb.addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
             startGame = QAction(" &Next step", self)
             self.startGame.addAction(startGame)
             startGame.triggered.connect(self.nextTurn)
@@ -766,20 +771,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # for all other platforms than Mac, direct action on play icon
             aAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
             aAction.triggered.connect(self.nextTurn)
-            self.menuBar().addAction(aAction)
+            mb.addAction(aAction)
 
-        self.menuBar().addSeparator()
+        mb.addSeparator()
         aAction = QAction(QIcon(f"{path_icon}/zoomPlus.png"), " &zoomPlus", self)
         aAction.triggered.connect(self.zoomPlusModel)
-        self.menuBar().addAction(aAction)
+        mb.addAction(aAction)
         aAction = QAction(QIcon(f"{path_icon}/zoomLess.png"), " &zoomLess", self)
         aAction.triggered.connect(self.zoomLessModel)
-        self.menuBar().addAction(aAction)
+        mb.addAction(aAction)
         aAction = QAction(QIcon(f"{path_icon}/zoomToFit.png"), " &zoomToFit", self)
         aAction.triggered.connect(self.zoomFitModel)
-        self.menuBar().addAction(aAction)
-        self.menuBar().addSeparator()
-        self.symbologyMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/symbology.png"), "&Symbology")
+        mb.addAction(aAction)
+        mb.addSeparator()
+        self.symbologyMenu = mb.addMenu(QIcon(f"{path_icon}/symbology.png"), "&Symbology")
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
 
@@ -789,7 +794,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         self.createGraphMenu()
 
-        self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
+        self.settingsMenu = mb.addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
         # Create menu items in the desired order:
         # 1. Entity Tooltips
         self.createTooltipMenu()
