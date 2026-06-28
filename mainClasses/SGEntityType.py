@@ -36,6 +36,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         # Aspect system (hierarchical symbology management)
         self._auto_derived_symbologies = set()  # Track auto-derived names per EntityType (to catch duplicates)
+        self._first_symbology_by_attribute = {}  # Track which attributes have had their first symbology auto-displayed
 
         # Create default symbology from default colors
         self.default_symbology = self._create_default_symbology()
@@ -429,9 +430,19 @@ class SGEntityType(AttributeAndValueFunctionalities):
         self.model._addOrUpdateGroupMenuItem(name)
         self.model.addEntTypeSymbologyinMenuBar(self, name, isBorder=False)
 
-        # Display first symbology by default
-        if len(self.model.symbologies) == 1:
-            self.displaySymbology(name)
+        # Auto-display first symbology created for each attribute
+        # Subsequent symbologies for the same attribute don't auto-display (user can switch via menu)
+        if attribute not in self._first_symbology_by_attribute:
+            self._first_symbology_by_attribute[attribute] = name
+            # Only call displaySymbology if this is ALSO the first symbology for this entity type
+            # This ensures multiple attributes can have their first symbologies auto-active
+            current_active = self.model.active_symbologies_by_type.get(self.name, [])
+            if not current_active:
+                # No symbologies active yet for this type, use displaySymbology which handles menu updates
+                self.displaySymbology(name)
+            else:
+                # Already have active symbologies, add this one (cumulative for different attributes)
+                self.model._addActiveSymbologies(self.name, name)
     
     # ============================================================================
     # OLD POV SYSTEM METHODS - DEPRECTAED

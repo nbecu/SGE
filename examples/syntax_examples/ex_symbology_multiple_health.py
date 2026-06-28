@@ -13,21 +13,20 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from mainClasses.SGSGE import *
-from PyQt6.QtGui import QColor
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(windowTitle="Multiple Symbologies - Same Grid Example", width=900, height=700)
+myModel = SGModel(windowTitle="Multiple Symbologies - Same Grid Example",nb_columns=2)
 
+myModel.newLabel("Switch symbology in menu: HealthSimple | HealthDetailed | HealthPastels", position=(20, 20),
+                textStyle_specs="color: gray; font-size: 10px;")
 # ============================================================================
 # Create ONE grid with health values (will be visualized 3 different ways)
 # ============================================================================
 Cells = myModel.newCellsOnGrid(5, 5, "square", size=60)
 Cells.setEntities("health", 100)
+Cells.setLayoutOrder(3)
 
-# Set random health values to show symbology variation
-import random
-random.seed(42)
 for cell in Cells.entities:
     cell.setValue("health", random.choice([100, 75, 50, 25]))
 
@@ -87,9 +86,9 @@ Cells.newSymbology(
 )
 
 # ============================================================================
-# Display the first symbology by default
+# NOTE: First symbology (HealthSimple) is auto-displayed automatically
+# No need to call displaySymbology() - it happens in newSymbology()!
 # ============================================================================
-Cells.displaySymbology("HealthSimple")
 
 # ============================================================================
 # Add agents to show same concept works for other entity types
@@ -115,14 +114,9 @@ for i in range(1, 4):
     sheep = Sheep.newAgentAtCoords(Cells, i, 1)
     sheep.setValue("health", 100 - (i * 25))
 
-# ============================================================================
-# Add information labels
-# ============================================================================
-myModel.newLabel("SAME GRID - THREE DIFFERENT SYMBOLOGIES", position=(50, 650),
-                textStyle_specs="color: darkblue; font-weight: bold; font-size: 13px;")
-myModel.newLabel("Switch views in menu: HealthSimple | HealthDetailed | HealthPastels", position=(50, 670),
-                textStyle_specs="color: gray; font-size: 10px;")
 
-myModel.newLegend()
+leg=myModel.newLegend()
+leg.setLayoutOrder(4)
+
 myModel.launch()
 sys.exit(monApp.exec())
