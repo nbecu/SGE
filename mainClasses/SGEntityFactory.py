@@ -79,22 +79,7 @@ class SGEntityFactory:
         # Note: agent_view.show() will be called later in positionAllAgents()
         
         return agent_model, agent_view
-    
-    @staticmethod
-    def newCell(cellDef, x, y): #todo this method is not used anymore. Consider removing it.
-        """
-        Create a cell with Model-View architecture (standard method)
-        
-        Args:
-            cellDef: The cell definition
-            x: X coordinate
-            y: Y coordinate
-            
-        Returns:
-            tuple: (cell_model, cell_view)
-        """
-        return SGEntityFactory.newCellWithModelView(cellDef, x, y)
-    
+
     @staticmethod
     def newTileWithModelView(tileDef, cell, attributesAndValues=None, face="front",
                              frontImage=None, backImage=None, frontColor=None, backColor=None):
