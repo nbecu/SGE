@@ -489,7 +489,25 @@ pytest tests/test_simulation_cycle.py -v  # single file
 
 ---
 
-## 11. Additional Information
+## 11. Recent Updates (June 2026)
+
+### Phase 3 Symbology Refinements — Branch `dev_aspect_system`
+
+**Auto-Display Feature**: First symbology created for each attribute now auto-displays without explicit `displaySymbology()` call. Implemented in `SGEntityType._registerSymbologyWithModel()` with cumulative activation for multi-attribute cases.
+
+**Bug Fixes**:
+- Fixed `generateCellsForGrid()` calling non-existent `newCell()` → changed to `newCellWithModelView()`
+- Removed unused `newCell()` wrapper from `SGEntityFactory`
+- Fixed menu icons being replaced by text when menus open (stylesheet + space-only text)
+- Label positioning fixed (moved from off-screen to top of window)
+
+**Testing**: 20/20 tests passing (5 auto-display + 15 symbology integration tests)
+
+**Status**: Production-ready, 11 commits, all examples functional.
+
+---
+
+## 12. Additional Information
 
 For more information about SGE usage and modeling, see `README_modeler.md`.
 
