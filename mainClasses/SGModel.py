@@ -2056,7 +2056,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.cellTypes[grid.id] = CellType
         for row in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):
-                CellType.newCell(col, row)
+                CellType.newCellWithModelView(col, row)
         return CellType
 
     def getGrid(self, anObject):
