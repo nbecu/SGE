@@ -784,7 +784,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aAction.triggered.connect(self.zoomFitModel)
         mb.addAction(aAction)
         mb.addSeparator()
-        self.symbologyMenu = mb.addMenu(QIcon(f"{path_icon}/symbology.png"), "")
+        self.symbologyMenu = mb.addMenu(QIcon(f"{path_icon}/symbology.png"), " ")
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
 
@@ -794,7 +794,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         self.createGraphMenu()
 
-        self.settingsMenu = mb.addMenu(QIcon(f"{path_icon}/settings.png"), "")
+        self.settingsMenu = mb.addMenu(QIcon(f"{path_icon}/settings.png"), " ")
         # Create menu items in the desired order:
         # 1. Entity Tooltips
         self.createTooltipMenu()
@@ -1262,7 +1262,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     }
 
     def createGraphMenu(self):
-        self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "")
+        self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), " ")
 
         # Menu order (top → bottom):
         #   [multi-graph entries]  ← inserted before _multi_graph_separator
