@@ -16,7 +16,8 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Add instance symbologies legend to visualize entity-level overrides (points of interest) separately from type symbologies (see notes for FUTURE_PLAN/INSTANCE_SYMBOLOGIES_LEGEND.md)
 
 ### POV System & Visual Elements
-- [ ] Create a aspect system for entities to replace pov (résolution hierarchique des aspects) + create views to manage groups of symbologies
+- [x] Create a aspect system for entities to replace pov (résolution hierarchique des aspects) + create views to manage groups of symbologies (June 2026) ✅
+  - ✅ Implemented in Phase 3: Advanced Symbology System — see completed items below
 - [ ] Add possibility to integrate image icons in dashboards and progressGauge
 
 ### New Entities & Features
