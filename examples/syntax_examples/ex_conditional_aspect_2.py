@@ -72,10 +72,5 @@ Cells.newSymbology(
 )
 
 # Launch
-print("The grid demonstrates conditional aspect application with fallback:")
-print("- Gold cells: apply_if '{wealth} >= 70'")
-print("- Blue cells: apply_if '{wealth} >= 30'")
-print("- Unmatched cells (wealth < 30): display default symbology (lightgray)")
-print("Note: aspect_poor is not in the symbology, so those cells fall back to default")
 myModel.launch()
 sys.exit(monApp.exec())

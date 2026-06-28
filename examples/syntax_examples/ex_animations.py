@@ -70,12 +70,6 @@ for i, cell in enumerate(Cells.entities):
     else:
         cell.setValue("status", 0)  # Low - gray
 
-# Animations are automatically registered when cells with animated aspects are rendered
-print("Red cells (high priority) are pulsing")
-print("Yellow cells are normal")
-print("Gray cells are low priority")
-print("")
-print("Watch the red cells pulse - this uses real-time animations")
 
 myModel.newLegend()
 myModel.launch()

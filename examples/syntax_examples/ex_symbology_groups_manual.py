@@ -91,7 +91,7 @@ health_only_group.activate(myModel)
 myModel.newLegend()
 
 # Add information labels (no border)
-myModel.newLabel("Use menu to switch: HealthOnly | FertilityOnly | CompleteAnalysis", position=(20, 20),
+myModel.newLabel("Use menu to switch: HealthOnly | FertilityOnly | CompleteAnalysis", position=(220, 0),
                 textStyle_specs="color: gray; font-size: 10px;",
                 borderStyle_specs="border: 0px solid transparent;")
 
