@@ -123,27 +123,6 @@ myModel.newLabel("SAME GRID - THREE DIFFERENT SYMBOLOGIES", position=(50, 650),
 myModel.newLabel("Switch views in menu: HealthSimple | HealthDetailed | HealthPastels", position=(50, 670),
                 textStyle_specs="color: gray; font-size: 10px;")
 
-# ============================================================================
-# Print explanation
-# ============================================================================
-print("=" * 70)
-print("MULTIPLE SYMBOLOGIES - SAME GRID, DIFFERENT VIEWS")
-print("=" * 70)
-print("\nThis example shows 3 different symbologies for the SAME health attribute:")
-print("\n1. HealthSimple: Clean stoplight colors (green-yellow-orange-red)")
-print("   Best for: quick understanding of health status")
-print("\n2. HealthDetailed: Colors WITH borders (emphasizes values)")
-print("   Best for: detailed analysis, seeing every cell clearly")
-print("   Demonstrates shared_aspect: border applied to ALL values once")
-print("\n3. HealthPastels: Softer colors (alternative presentation)")
-print("   Best for: presentations, aesthetics, different audience")
-print("\nSwitch between views using the menu WITHOUT recreating data.")
-print("Same data, different perspectives — that's the power of multiple symbologies!")
-print("\nKey insight:")
-print("  - shared_aspect reduces repetition (border defined once, applies to all)")
-print("  - Multiple symbologies allow flexibility without code duplication")
-print("=" * 70)
-
 myModel.newLegend()
 myModel.launch()
 sys.exit(monApp.exec())
