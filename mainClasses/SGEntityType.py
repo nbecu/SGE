@@ -108,30 +108,6 @@ class SGEntityType(AttributeAndValueFunctionalities):
         aspect.border_size = self.defaultBorderWidth
         return aspect
 
-    def setDefaultSymbology(self, background_color=None, border_color=None, border_size=None):
-        """Redefine the default symbology (visual style) for this entity type.
-
-        This updates both the old-style properties (for backward compatibility) and
-        recreates the default_symbology with the new colors.
-
-        Args:
-            background_color (str or QColor, optional): Background color
-            border_color (str or QColor, optional): Border color
-            border_size (int, optional): Border width in pixels
-
-        Example:
-            Sheep.setDefaultSymbology(background_color="green", border_color="darkgreen", border_size=2)
-        """
-        # Update old-style properties for backward compatibility
-        if background_color is not None:
-            self.defaultShapeColor = background_color
-        if border_color is not None:
-            self.defaultBorderColor = border_color
-        if border_size is not None:
-            self.defaultBorderWidth = border_size
-
-        # Recreate default_symbology with new colors
-        self.default_symbology = self._create_default_symbology()
 
     def nextId(self):
         """
@@ -406,13 +382,156 @@ class SGEntityType(AttributeAndValueFunctionalities):
             result[attr] = list(values)
         
         return result
+    
+        
+    @staticmethod
+    def _capitalize_attribute_name(attribute):
+        """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
+        return ''.join(word.capitalize() for word in attribute.split('_'))
+    
+    
+    def _registerSymbologyWithModel(self, symbology, attribute, name, symbology_key=None):
+        """Register a symbology with the model, groups, and menu bar.
+
+        This is a shared helper for all symbology creation methods.
+        Handles: registration, grouping, menu bar, and default display.
+
+        Args:
+            symbology (SGSymbology): The created symbology object
+            attribute (str): Entity attribute name
+            name (str): Symbology name (already auto-derived if needed)
+            symbology_key (str, optional): Pre-computed symbology key. If None, computed here.
+        """
+        # Compute symbology key if not provided
+        if symbology_key is None:
+            symbology_key = f"{name}_{self.name}"
+
+        # Register under type-specific key
+        if symbology_key not in self.model.symbologies:
+            self.model.symbologies[symbology_key] = symbology
+
+        # Register under plain name for backward compat (first type wins)
+        if name not in self.model.symbologies:
+            self.model.symbologies[name] = symbology
+
+        # Register attribute mapping for resolver
+        if name not in self.model.symbology_to_attribute:
+            self.model.symbology_to_attribute[name] = attribute
+
+        # Auto-create group if needed
+        if name not in self.model.symbology_groups:
+            self.model.symbology_groups[name] = SGSymbologyGroup(name)
+
+        group = self.model.symbology_groups[name]
+        group.add_symbology(self.name, symbology)
+
+        # Register in menu bar
+        self.model._addOrUpdateGroupMenuItem(name)
+        self.model.addEntTypeSymbologyinMenuBar(self, name, isBorder=False)
+
+        # Display first symbology by default
+        if len(self.model.symbologies) == 1:
+            self.displaySymbology(name)
+    
+    # ============================================================================
+    # OLD POV SYSTEM METHODS - DEPRECTAED
+    # ============================================================================
+    # LEGACY POV COMPATIBILITY WRAPPERS
+    # ============================================================================
+
+    def newPov(self,nameOfPov,concernedAtt,dictOfColor):
+        """
+        Declare a new Point of View for the entityType.
+
+        DEPRECATED: Use newSymbology() instead.
+        This method is maintained for backward compatibility with existing games.
+
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            concernedAtt (str): name of the attribut concerned by the declaration
+            dictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color
+
+        """
+        # Phase 2: Delegate to newSymbology() with backward compat
+        # Convert POV name to symbology name (capitalize)
+        symbology_name = self._capitalize_attribute_name(nameOfPov)
+
+        # Check if we've already created a symbology with this auto-derived name
+        # If so, use an explicit name to avoid conflict
+        if symbology_name in self.model.symbologies:
+            # Fall back to old POV system for backward compat
+            self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
+            self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov)
+            if len(self.povShapeColor)==1:
+                self.displayPov(nameOfPov)
+        else:
+            # Use new symbology system
+            try:
+                self.newSymbology(concernedAtt, dictOfColor, name=symbology_name)
+            except ValueError:
+                # If newSymbology fails, fall back to old POV system
+                self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
+                self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov)
+                if len(self.povShapeColor)==1:
+                    self.displayPov(nameOfPov)
+
+    
+    def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):
+        """
+        Declare a new Point of View (only for border color).
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            aAtt (str): name of the attribut
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)        """
+        dictOfColorAndWidth = self.addWidthInPovDictOfColors(borderWidth,dictOfColor)
+        self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
+        self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov,isBorder=True)
+
+    def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):
+        """
+        Declare a new Point of View (only for border color).
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            aAtt (str): name of the attribut
+            DictofColorsAndWidth (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+        """
+        dictOfColorAndWidth = self.reformatDictOfColorAndWidth(dictOfColorAndWidth)
+        self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
+        self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov,isBorder=True)
+
+    def displayPov(self,nameOfPov):
+        """
+        Displays the symbology for the specified Point of View.
+        Args:
+            nameOfPov (str): The name of the Point of View to display.
+        """
+        self.model.checkSymbologyinMenuBar(self,nameOfPov)
+
+
+    def displayBorderPov(self,nameOfBorderPov):
+        """
+        Displays the border symbology for the specified Point of View.
+        Args:
+            nameOfBorderPov (str): The name of the border Point of View to display.
+        """
+        self.model.checkSymbologyinMenuBar(self,nameOfBorderPov,borderSymbology=True)
+
 
     # ============================================================================
     # MODELER METHODS
     # ============================================================================
+     # ============================================================================
+    def __MODELER_METHODS__(self):
+        pass
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
+    # ============================================================================
+    # SET METHODS
+    # ============================================================================
+    def __MODELER_METHODS__SET__(self):
+        pass
+
     def setDefaultValue(self, aAtt, aDefaultValue):
         """
         Set a default value for a specific attribute.
@@ -908,75 +1027,56 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
     #todo could be interesting to add a method to copy value of one entity to another entity (or to entities compliant with a condition)
 
-    # ============================================================================
-    def newPov(self,nameOfPov,concernedAtt,dictOfColor):
-        """
-        Declare a new Point of View for the entityType.
 
-        DEPRECATED: Use newSymbology() instead.
-        This method is maintained for backward compatibility with existing games.
+    def setDefaultSymbology(self, background_color=None, border_color=None, border_size=None):
+        """Redefine the default symbology (visual style) for this entity type.
+
+        This updates both the old-style properties (for backward compatibility) and
+        recreates the default_symbology with the new colors.
 
         Args:
-            nameOfPov (str): name of POV, will appear in the interface
-            concernedAtt (str): name of the attribut concerned by the declaration
-            dictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color
+            background_color (str or QColor, optional): Background color
+            border_color (str or QColor, optional): Border color
+            border_size (int, optional): Border width in pixels
 
+        Example:
+            Sheep.setDefaultSymbology(background_color="green", border_color="darkgreen", border_size=2)
         """
-        # Phase 2: Delegate to newSymbology() with backward compat
-        # Convert POV name to symbology name (capitalize)
-        symbology_name = self._capitalize_attribute_name(nameOfPov)
+        # Update old-style properties for backward compatibility
+        if background_color is not None:
+            self.defaultShapeColor = background_color
+        if border_color is not None:
+            self.defaultBorderColor = border_color
+        if border_size is not None:
+            self.defaultBorderWidth = border_size
 
-        # Check if we've already created a symbology with this auto-derived name
-        # If so, use an explicit name to avoid conflict
-        if symbology_name in self.model.symbologies:
-            # Fall back to old POV system for backward compat
-            self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
-            self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov)
-            if len(self.povShapeColor)==1:
-                self.displayPov(nameOfPov)
-        else:
-            # Use new symbology system
-            try:
-                self.newSymbology(concernedAtt, dictOfColor, name=symbology_name)
-            except ValueError:
-                # If newSymbology fails, fall back to old POV system
-                self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
-                self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov)
-                if len(self.povShapeColor)==1:
-                    self.displayPov(nameOfPov)
+        # Recreate default_symbology with new colors
+        self.default_symbology = self._create_default_symbology()
 
     
-    def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):
-        """
-        Declare a new Point of View (only for border color).
-        Args:
-            nameOfPov (str): name of POV, will appear in the interface
-            aAtt (str): name of the attribut
-            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)        """
-        dictOfColorAndWidth = self.addWidthInPovDictOfColors(borderWidth,dictOfColor)
-        self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
-        self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov,isBorder=True)
-
-    def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):
-        """
-        Declare a new Point of View (only for border color).
-        Args:
-            nameOfPov (str): name of POV, will appear in the interface
-            aAtt (str): name of the attribut
-            DictofColorsAndWidth (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
-        """
-        dictOfColorAndWidth = self.reformatDictOfColorAndWidth(dictOfColorAndWidth)
-        self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
-        self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov,isBorder=True)
-
     # ============================================================================
-    # ASPECT SYSTEM (HIERARCHICAL SYMBOLOGY) - NEW API
+    # NEW METHODS  # ASPECT SYSTEM (HIERARCHICAL SYMBOLOGY) - NEW API
     # ============================================================================
+    def __MODELER_METHODS__NEW__(self):
+        pass
 
-    @staticmethod
-    def _capitalize_attribute_name(attribute):
-        """Convert attribute name to symbology name: 'health' → 'Health', 'resource_count' → 'ResourceCount'"""
-        return ''.join(word.capitalize() for word in attribute.split('_'))
+    def newModelAction(self, actions=None, conditions=None, feedbacks=None):
+        """
+        Create an SGModelAction_OnEntities targeting entities of this definition.
+
+        Args:
+            actions (callable | list[callable]): Action(s) with signature action(aEntity)
+            conditions (callable | list[callable]): Condition(s) with signature condition(aEntity)
+            feedbacks (callable | list[callable] | SGModelAction): Feedback action(s)
+        """
+        actions = actions or []
+        conditions = conditions or []
+        feedbacks = feedbacks or []
+        model_action = SGModelAction_OnEntities(sgModel=self.model, actions=actions, conditions=conditions, feedbacks=feedbacks, entities= (lambda: self.getEntities()))
+        self.model.id_modelActions += 1
+        model_action.id = self.model.id_modelActions
+        return model_action
+    
 
     def newSymbology(self, attribute, value_aspects=None, name=None, **shared_aspect):
         """
@@ -1129,67 +1229,6 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         return symbology
 
-
-    def _registerSymbologyWithModel(self, symbology, attribute, name, symbology_key=None):
-        """Register a symbology with the model, groups, and menu bar.
-
-        This is a shared helper for all symbology creation methods.
-        Handles: registration, grouping, menu bar, and default display.
-
-        Args:
-            symbology (SGSymbology): The created symbology object
-            attribute (str): Entity attribute name
-            name (str): Symbology name (already auto-derived if needed)
-            symbology_key (str, optional): Pre-computed symbology key. If None, computed here.
-        """
-        # Compute symbology key if not provided
-        if symbology_key is None:
-            symbology_key = f"{name}_{self.name}"
-
-        # Register under type-specific key
-        if symbology_key not in self.model.symbologies:
-            self.model.symbologies[symbology_key] = symbology
-
-        # Register under plain name for backward compat (first type wins)
-        if name not in self.model.symbologies:
-            self.model.symbologies[name] = symbology
-
-        # Register attribute mapping for resolver
-        if name not in self.model.symbology_to_attribute:
-            self.model.symbology_to_attribute[name] = attribute
-
-        # Auto-create group if needed
-        if name not in self.model.symbology_groups:
-            self.model.symbology_groups[name] = SGSymbologyGroup(name)
-
-        group = self.model.symbology_groups[name]
-        group.add_symbology(self.name, symbology)
-
-        # Register in menu bar
-        self.model._addOrUpdateGroupMenuItem(name)
-        self.model.addEntTypeSymbologyinMenuBar(self, name, isBorder=False)
-
-        # Display first symbology by default
-        if len(self.model.symbologies) == 1:
-            self.displaySymbology(name)
-
-    def displaySymbology(self, symbology_name):
-        """
-        Display a symbology (set it as active).
-
-        Args:
-            symbology_name (str): Name of the symbology to display
-        """
-        if symbology_name in self.model.symbologies:
-            # Update menu: check the corresponding radio button if it exists
-            key = (self.name, symbology_name)
-            if key in self.model.symbology_type_menu_items:
-                action = self.model.symbology_type_menu_items[key]
-                action.setChecked(True)
-                # Update tracking
-                if not hasattr(self.model, '_last_selected_symbology_by_type'):
-                    self.model._last_selected_symbology_by_type = {}
-                self.model._last_selected_symbology_by_type[self.name] = symbology_name
 
     def newSymbologyGradient(self, attribute, value_aspects, interpolation='linear', name=None, **shared_aspect):
         """
@@ -1358,11 +1397,26 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         return symbology
 
+
+
     # ============================================================================
-    # LEGACY POV COMPATIBILITY WRAPPERS
+    # DELETE METHODS
+    # ============================================================================
+    def __MODELER_METHODS__DELETE__(self):
+        pass    
+    
+    def deleteAllEntities(self):
+        """
+        Delete all entities of the entity type.
+        """
+        for ent in self.entities[:]:
+            self.deleteEntity(ent)
     # ============================================================================
     # GET/NB METHODS
     # ============================================================================
+    def __MODELER_METHODS__GET__(self):
+        pass
+
     def getEntity(self, x, y=None):
         """
         Return an entity identified by its id or its coordinates on a grid
@@ -1517,78 +1571,37 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """
         return self.getRandomEntities(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValueNot(att, val))
 
-    def nbOfEntities(self):
-        """
-        Get the total number of entities in this definition.
-        
-        Returns:
-            int: Total number of entities
-        """
-        return len(self.getEntities())
-
-    def nb_withValue(self, att, value):
-        """
-        Get the number of entities that have a specific attribute value.
-        
-        Args:
-            att (str): Attribute name
-            value: Value to count
-            
-        Returns:
-            int: Number of entities with the specified value
-        """
-        return len(self.getEntities_withValue(att, value))
-
-   
-
-    # ============================================================================
-    # DELETE METHODS
-    # ============================================================================
-    def deleteAllEntities(self):
-        """
-        Delete all entities of the entity type.
-        """
-        for ent in self.entities[:]:
-            self.deleteEntity(ent)
-
     # ============================================================================
     # DO/DISPLAY METHODS
     # ============================================================================
-    def displayPov(self,nameOfPov):
+    def __MODELER_METHODS__DO_DISPLAY__(self):
+        pass
+    
+    def displaySymbology(self, symbology_name):
         """
-        Displays the symbology for the specified Point of View.
+        Display a symbology (set it as active and update visual display).
+
         Args:
-            nameOfPov (str): The name of the Point of View to display.
+            symbology_name (str): Name of the symbology to display
         """
-        self.model.checkSymbologyinMenuBar(self,nameOfPov)
+        if symbology_name in self.model.symbologies:
+            # 1. Activate the symbology (tells system to display it)
+            self.model._setActiveSymbologies(self.name, symbology_name)
 
+            # 2. Update menu: check the corresponding radio button if it exists
+            key = (self.name, symbology_name)
+            if key in self.model.symbology_type_menu_items:
+                action = self.model.symbology_type_menu_items[key]
+                action.setChecked(True)
+                # Update tracking
+                if not hasattr(self.model, '_last_selected_symbology_by_type'):
+                    self.model._last_selected_symbology_by_type = {}
+                self.model._last_selected_symbology_by_type[self.name] = symbology_name
 
-    def displayBorderPov(self,nameOfBorderPov):
-        """
-        Displays the border symbology for the specified Point of View.
-        Args:
-            nameOfBorderPov (str): The name of the border Point of View to display.
-        """
-        self.model.checkSymbologyinMenuBar(self,nameOfBorderPov,borderSymbology=True)
+            # 3. Redraw the grid to apply the symbology visually
+            self.model.update()
 
-
-
-    def displayAttributeValueInContextualMenu(self, aAttribut, label=None):
-        """
-        Set an attribute to be displayed in the contextual menu.
-        
-        Args:
-            aAttribut (str): Name of the attribute to display
-            label (str, optional): Custom label for the attribute (defaults to attribute name)
-       
-        """
-
-        aDict={}
-        aDict['att']=aAttribut
-        aDict['label']= (label if label is not None else (aAttribut + "="))
-        self.attributesToDisplayInContextualMenu.append(aDict)
-
-
+                
     def displayTooltip(self, type=None):    
         """
         Method to control the display of entity tooltips
@@ -1644,27 +1657,53 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 if hasattr(entity, 'view') and entity.view:
                     entity.view.setToolTip('')
 
-
-    def newModelAction(self, actions=None, conditions=None, feedbacks=None):
+    
+    def displayAttributeValueInContextualMenu(self, aAttribut, label=None):
         """
-        Create an SGModelAction_OnEntities targeting entities of this definition.
-
+        Set an attribute to be displayed in the contextual menu.
+        
         Args:
-            actions (callable | list[callable]): Action(s) with signature action(aEntity)
-            conditions (callable | list[callable]): Condition(s) with signature condition(aEntity)
-            feedbacks (callable | list[callable] | SGModelAction): Feedback action(s)
+            aAttribut (str): Name of the attribute to display
+            label (str, optional): Custom label for the attribute (defaults to attribute name)
+       
         """
-        actions = actions or []
-        conditions = conditions or []
-        feedbacks = feedbacks or []
-        model_action = SGModelAction_OnEntities(sgModel=self.model, actions=actions, conditions=conditions, feedbacks=feedbacks, entities= (lambda: self.getEntities()))
-        self.model.id_modelActions += 1
-        model_action.id = self.model.id_modelActions
-        return model_action
+
+        aDict={}
+        aDict['att']=aAttribut
+        aDict['label']= (label if label is not None else (aAttribut + "="))
+        self.attributesToDisplayInContextualMenu.append(aDict)
+
+
 
     # ============================================================================
     # METRIC METHODS
     # ============================================================================
+    def __MODELER_METHODS__NB_METRICS__(self):
+        pass
+
+    def nbOfEntities(self):
+        """
+        Get the total number of entities in this definition.
+        
+        Returns:
+            int: Total number of entities
+        """
+        return len(self.getEntities())
+
+    def nb_withValue(self, att, value):
+        """
+        Get the number of entities that have a specific attribute value.
+        
+        Args:
+            att (str): Attribute name
+            value: Value to count
+            
+        Returns:
+            int: Number of entities with the specified value
+        """
+        return len(self.getEntities_withValue(att, value))
+
+   
     def metricOnEntities(self, metric, attribute, value=None):
         """
         Get metrics for all entities.
@@ -1744,28 +1783,6 @@ class SGCellType(SGEntityType):
         self.deletedCells = []
         self.defaultImage = defaultImage
 
-    def newCell(self, x, y):
-        """
-        Create a new cell using Model-View architecture (standard method)
-        
-        Args:
-            x (int): Column position in grid (1-indexed)
-            y (int): Row position in grid (1-indexed)
-            
-        Returns:
-            cell_model: The cell model (for modelers)
-        """
-        # Utiliser la méthode Model-View
-        result = self.newCellWithModelView(x, y)
-        
-        if result is None:
-            return None
-            
-        # Extraire seulement le modèle du tuple
-        cell_model, cell_view = result
-        
-        # Retourner seulement la cellule pour les modelers
-        return cell_model
 
     def newCellWithModelView(self, x, y):
         """
@@ -1820,13 +1837,20 @@ class SGCellType(SGEntityType):
         return x + (self.grid.columns * (y - 1))
 
     
-    # ============================================================================
+     # ============================================================================
     # MODELER METHODS
     # ============================================================================
+     # ============================================================================
+    def __MODELER_METHODS__(self):
+        pass
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
-    
+    # ============================================================================
+    # SET METHODS
+    # ============================================================================
+    def __MODELER_METHODS__SET__(self):
+        pass
     
 
     def setCell(self, x, y, aAttribute, aValue):
@@ -1836,6 +1860,9 @@ class SGCellType(SGEntityType):
     # ============================================================================
     # GET METHODS
     # ============================================================================
+    def __MODELER_METHODS__GET__(self):
+        pass
+    
     def getCell(self, x, y=None) -> SGCell:
         """
         Retrieve a cell object from the grid.
@@ -1987,6 +2014,8 @@ class SGCellType(SGEntityType):
     # ============================================================================
     # DELETE METHODS
     # ============================================================================
+    def __MODELER_METHODS__DELETE__(self):
+        pass
 
     def deleteEntity(self, aCell):
         """
@@ -2012,6 +2041,8 @@ class SGCellType(SGEntityType):
     # ============================================================================
     # DO/DISPLAY METHODS
     # ============================================================================
+    def __MODELER_METHODS__DO_DISPLAY__(self):
+        pass
     
     def setLayoutOrder(self, order):
         """
@@ -2099,9 +2130,14 @@ class SGAgentType(SGEntityType):
     # ============================================================================
     # MODELER METHODS
     # ============================================================================
+    def __MODELER_METHODS__(self):
+        pass
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
+    def __MODELER_METHODS__NEW__(self):
+        pass
+
     def newAgentOnCell(self, aCell, attributesAndValues=None, image=None, popupImage=None) -> SGAgent:
         """
         Create a new agent on a specific cell.
@@ -2296,6 +2332,8 @@ class SGAgentType(SGEntityType):
     # ============================================================================
     # GET METHODS
     # ============================================================================
+    def __MODELER_METHODS__GET_(self):
+        pass
 
     def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGAgent:
         """
@@ -2311,6 +2349,8 @@ class SGAgentType(SGEntityType):
     # ============================================================================
     # DELETE METHODS
     # ============================================================================
+    def __MODELER_METHODS__DELETE_(self):
+        pass
 
     def deleteEntity(self, aAgent):
         """
@@ -2345,6 +2385,9 @@ class SGAgentType(SGEntityType):
     # ============================================================================
     # DO/DISPLAY METHODS
     # ============================================================================
+    def __MODELER_METHODS__DO_DISPLAY_(self):
+        pass
+
     def moveRandomly(self, numberOfMovement=1,condition=None):
         """
         All agents of this type move randomly.
@@ -2642,9 +2685,14 @@ class SGTileType(SGEntityType):
     # ============================================================================
     # MODELER METHODS
     # ============================================================================
+    def __MODELER_METHODS__(self):
+        pass
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
+    def __MODELER_METHODS__NEW__(self):
+        pass
+
     def newTileOnCell(self, aCell, face=None, attributesAndValues=None, frontImage=None, backImage=None) -> SGTile:
         """
         Create a new tile on a specific cell.
@@ -3303,6 +3351,8 @@ class SGTileType(SGEntityType):
     # ============================================================================
     # GET METHODS
     # ============================================================================
+    def __MODELER_METHODS__GET__(self):
+        pass
 
     def getAllTiles(self):
         """Get all tiles of this type"""
@@ -3342,6 +3392,8 @@ class SGTileType(SGEntityType):
     # ============================================================================
     # DELETE METHODS
     # ============================================================================
+    def __MODELER_METHODS__DELETE__(self):
+        pass
 
     def deleteTile(self, aTile):
         """
