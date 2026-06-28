@@ -120,30 +120,6 @@ myModel.newLabel("Cells (brown-green) | Sheep (gray-white-black) | Cows (gray-br
 # ============================================================================
 legend = myModel.newLegend()
 
-# ============================================================================
-# Print information
-# ============================================================================
-print("=" * 70)
-print("AUTOMATIC SYMBOLOGY GROUPS - Cross-Entity Type Example")
-print("=" * 70)
-print("\nHow automatic groups work:")
-print("  1. You define symbology 'Fertility' for Cells")
-print("  2. You define symbology 'Fertility' for Sheep (same name!)")
-print("  3. You define symbology 'Fertility' for Cows (same name!)")
-print("  → Automatically creates group 'Fertility' spanning all 3 types")
-print("\nWhat you see:")
-print("  - Cells: Fertility as brown (0) → green (1)")
-print("  - Sheep: Fertility as gray (0) → white (50) → black (100)")
-print("  - Cows: Fertility as gray (0) → brown (50) → red (100)")
-print("\nKey insight:")
-print("  - ONE attribute (fertility) visualized across entity types")
-print("  - Each type shows fertility in its own way")
-print("  - BUT they're coordinated in one 'Fertility' group")
-print("  - Users can activate/deactivate the whole group")
-print("\nCompare: Automatic vs Manual groups")
-print("  - AUTOMATIC: Same-named symbologies → auto-grouped")
-print("  - MANUAL: Different-named symbologies → user-grouped (see ex_symbology_groups_manual.py)")
-print("=" * 70)
 
 myModel.launch()
 sys.exit(monApp.exec())
