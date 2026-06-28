@@ -110,11 +110,9 @@ cell.setInstanceSymbology("Fertility", "fertility", {0: QColor("purple"), 1: QCo
 # ============================================================================
 # Add informational labels
 # ============================================================================
-myModel.newLabel("AUTOMATIC GROUPS Example", position=(50, 650),
-                textStyle_specs="color: darkblue; font-weight: bold; font-size: 14px;")
-myModel.newLabel("Look at the Fertility symbology in the menu:", position=(50, 670),
-                textStyle_specs="color: gray; font-size: 10px;")
-myModel.newLabel("Cells (brown-green) | Sheep (gray-white-black) | Cows (gray-brown-red)", position=(50, 685),
+myModel.newLabel("AUTOMATIC GROUPS: Fertility shown across entity types", position=(20, 20),
+                textStyle_specs="color: darkblue; font-weight: bold; font-size: 12px;")
+myModel.newLabel("Cells (brown-green) | Sheep (gray-white-black) | Cows (gray-brown-red)", position=(20, 40),
                 textStyle_specs="color: gray; font-size: 10px;")
 
 # ============================================================================

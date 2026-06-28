@@ -90,9 +90,7 @@ print("Activating HealthOnly group...")
 health_only_group.activate(myModel)
 
 # Add information labels
-myModel.newLabel("Current Theme: Health Only", position=(50, 650),
-                textStyle_specs="color: green; font-weight: bold; font-size: 12px;")
-myModel.newLabel("Use menu to switch: Health Only | Fertility Only | Complete", position=(50, 670),
+myModel.newLabel("Use menu to switch: HealthOnly | FertilityOnly | CompleteAnalysis", position=(20, 20),
                 textStyle_specs="color: gray; font-size: 10px;")
 
 # ============================================================================
