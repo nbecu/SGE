@@ -760,6 +760,18 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         mb.setMinimumHeight(50)
         mb.setMaximumHeight(50)
 
+        # Apply stylesheet to keep menu icons visible when selected/opened
+        mb.setStyleSheet("""
+            QMenuBar::item:selected {
+                background-color: transparent;
+                border: none;
+            }
+            QMenuBar::item:pressed {
+                background-color: transparent;
+                border: none;
+            }
+        """)
+
         # Add the 'play' button
         if sys.platform == "darwin":
             # For Mac compatibility: add the play button in a submenu
