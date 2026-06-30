@@ -778,10 +778,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # Create the menu of the menu
     def createMenu(self):
-        # Fix menu bar height to prevent icons from being replaced by text when menus open
+        # Set menu bar height for proper icon display (21px for standard icon size)
         mb = self.menuBar()
-        mb.setMinimumHeight(50)
-        mb.setMaximumHeight(50)
+        mb.setMinimumHeight(21)
+        mb.setMaximumHeight(21)
 
         # Apply stylesheet to keep menu icons visible when selected/opened
         mb.setStyleSheet("""
