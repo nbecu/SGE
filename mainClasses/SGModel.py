@@ -452,6 +452,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         QApplication.processEvents()
         self.positionAllAgents()
         self.positionAllTiles()
+        self._centerWindow()  # Center window after everything is laid out
         self._setupAnimationTimer()
 
     def _setupAnimationTimer(self):
@@ -498,7 +499,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # Normal local launch
             self.initBeforeShowing()
             self.show()
-            self._centerWindow()  # Center after show() so move() is respected
             self.initAfterOpening()
 
     def launch_withMQTT(self, majType, broker_host="localhost", broker_port=1883, session_id=None):
