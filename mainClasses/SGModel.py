@@ -170,13 +170,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         screensize = width_screen, height_screen
 
         if not self.autoResize:
-            # Fixed size: center window with specified dimensions
-            self.setGeometry(
-                int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
+            # Fixed size: set window size (centering will be done later in _centerWindow after show())
+            self.resize(width, height)
         else:
             # Auto-resize mode: set minimal initial size, will be adjusted later based on content
-            self.setGeometry(
-                int(screensize[0]/2), int(screensize[1]/2), 400, 300)
+            self.resize(400, 300)
         # Init of variable of the Model
         self.name = name
         # Unique identifier for this application instance
@@ -350,25 +348,31 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.timer.stop()
 
     def _centerWindow(self):
-        """Center the window on the primary monitor after it's been shown."""
+        """Center the window on screen using Qt6 recommended approach (frameGeometry + QTimer.singleShot(0))."""
         from PyQt6.QtCore import QTimer
 
-        if self.autoResize and hasattr(self, '_auto_resize_width') and hasattr(self, '_auto_resize_height'):
-            primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
-            if primary_monitor:
-                screen_width = primary_monitor.width
-                screen_height = primary_monitor.height
-                final_width = self._auto_resize_width
-                final_height = self._auto_resize_height
-                # Calculate centered position
-                x = int((screen_width - final_width) / 2)
-                y = int((screen_height - final_height) / 2)
-                # Use a longer delay and force activation to ensure Windows respects the positioning
-                def _do_center():
-                    self.setGeometry(x, y, final_width, final_height)
-                    self.raise_()
-                    self.activateWindow()
-                QTimer.singleShot(500, _do_center)
+        # Center using Qt6's recommended pattern with QTimer.singleShot(0)
+        # This defers centering to the event loop, ensuring Windows DWM has fully processed show()
+        QTimer.singleShot(0, self._do_center)
+
+    def _do_center(self):
+        """Actually perform the window centering (called via QTimer.singleShot(0))."""
+        from PyQt6.QtGui import QGuiApplication
+
+        # Use frameGeometry() which includes window decorations (title bar, borders)
+        # This is crucial on Windows where DWM controls the frame
+        qr = self.frameGeometry()
+
+        # Get PRIMARY SCREEN (not self.screen() which may be virtual/scaled)
+        primary_screen = QGuiApplication.primaryScreen()
+        available_rect = primary_screen.availableGeometry()
+        cp = available_rect.center()
+
+        # Move the frame center to screen center
+        qr.moveCenter(cp)
+
+        # Finally, move the window
+        self.move(qr.topLeft())
 
     def initBeforeShowing(self):
         """Initialize components that need to be ready before the window is shown"""

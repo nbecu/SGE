@@ -156,7 +156,8 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         for symbology_name, aspect in aspects:
             if aspect and hasattr(aspect, 'background_color') and aspect.background_color:
                 color = aspect.background_color
-                if isinstance(color, str):
+                # Convert to QColor if needed (handles str, GlobalColor, etc.)
+                if not isinstance(color, QColor):
                     color = QColor(color)
 
                 if combined_color is None:
