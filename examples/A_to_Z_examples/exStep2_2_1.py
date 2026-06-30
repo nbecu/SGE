@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(windowTitle="Define several points of view")
+myModel=SGModel(windowTitle="Define multiple symbologies")
 
 Cell = myModel.newCellsOnGrid(10, 10, "square", size=50)
 Cell.setEntities("landUse", "grass")
