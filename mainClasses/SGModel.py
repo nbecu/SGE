@@ -351,6 +351,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def _centerWindow(self):
         """Center the window on the primary monitor after it's been shown."""
+        from PyQt6.QtCore import QTimer
+
         if self.autoResize and hasattr(self, '_auto_resize_width') and hasattr(self, '_auto_resize_height'):
             primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
             if primary_monitor:
@@ -361,7 +363,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 # Calculate centered position
                 x = int((screen_width - final_width) / 2)
                 y = int((screen_height - final_height) / 2)
-                self.move(x, y)
+                # Use a longer delay and force activation to ensure Windows respects the positioning
+                def _do_center():
+                    self.setGeometry(x, y, final_width, final_height)
+                    self.raise_()
+                    self.activateWindow()
+                QTimer.singleShot(500, _do_center)
 
     def initBeforeShowing(self):
         """Initialize components that need to be ready before the window is shown"""
@@ -395,6 +402,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Auto-resize window to fit content if enabled
         if self.autoResize:
+            # Minimum reasonable size
+            min_width = 300
+            min_height = 250
+            final_width = min_width
+            final_height = min_height
+
             # GameSpaces use absolute positioning, not layout, so calculate bounding box
             if self.gameSpaces:
                 # Find the bounding box of all gameSpaces (including non-visible ones)
@@ -413,15 +426,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 required_height = max_bottom + margins
 
                 # Ensure minimum reasonable size (but don't force if content is smaller)
-                min_width = 300
-                min_height = 250
                 final_width = max(required_width, min_width)
                 final_height = max(required_height, min_height)
 
-                self.resize(final_width, final_height)
-                # Store final size for centering after show()
-                self._auto_resize_width = final_width
-                self._auto_resize_height = final_height
+            # Always resize and store dimensions (even if gameSpaces is empty)
+            self.resize(final_width, final_height)
+            self._auto_resize_width = final_width
+            self._auto_resize_height = final_height
 
         # Load pending theme configuration if one was memorized by applyThemeConfig()
         if self._pending_theme_config:
