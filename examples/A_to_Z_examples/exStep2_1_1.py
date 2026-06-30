@@ -21,7 +21,13 @@ Cell.setEntities_withColumn("landUse", "forest", 2)
 Cell.setRandomEntities("landUse", "shrub", 10)
 
 # Symbology allows to specify the visual representation (color, shape, etc.) of cells based on attribute values
-Cell.newSymbology("landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+Cell.newSymbology("landUse",
+                    {
+                      "grass":Qt.green,
+                      "shrub":Qt.yellow,
+                      "forest":Qt.darkGreen
+                    }
+                )
 
 myModel.launch() 
 

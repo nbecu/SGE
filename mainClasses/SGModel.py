@@ -348,12 +348,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.timer.stop()
 
     def _centerWindow(self):
-        """Center the window on screen using Qt6 recommended approach (frameGeometry + QTimer.singleShot(0))."""
-        from PyQt6.QtCore import QTimer
-
-        # Center using Qt6's recommended pattern with QTimer.singleShot(0)
-        # This defers centering to the event loop, ensuring Windows DWM has fully processed show()
-        QTimer.singleShot(0, self._do_center)
+        """Center the window on screen immediately after show() — called from launch()."""
+        self._do_center()
 
     def _do_center(self):
         """Actually perform the window centering (called via QTimer.singleShot(0))."""
@@ -514,6 +510,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # Normal local launch
             self.initBeforeShowing()
             self.show()
+            self._do_center()  # Center IMMEDIATELY after show() — critical timing!
             self.initAfterOpening()
 
     def launch_withMQTT(self, majType, broker_host="localhost", broker_port=1883, session_id=None):

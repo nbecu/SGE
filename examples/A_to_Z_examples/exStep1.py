@@ -8,9 +8,11 @@ from mainClasses.SGSGE import *
 monApp = QtWidgets.QApplication([])
 
 # This is your model.
-# You need to set size of the window of the model
-# You can specify the model name, the typeOfLayout name and the windowTitle
-myModel = SGModel(550, 550)
+myModel = SGModel()
+# You can set size of the window of the model
+# myModel = SGModel(550, 550)
+# You can also specify the model name, the typeOfLayout name and the windowTitle
+
 
 # This launchs your model and it will ALWAYS be the last two lines of the code.
 myModel.launch()

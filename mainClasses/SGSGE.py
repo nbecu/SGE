@@ -2,7 +2,11 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Suppress Windows Qt geometry warnings that clutter console output
+# Suppress Windows Qt geometry and rendering warnings at Qt level
+import os
+os.environ['QT_LOGGING_RULES'] = 'qt.qpa.windows.debug=false'
+
+# Also filter stderr for any remaining messages
 import io
 import contextlib
 
@@ -11,8 +15,9 @@ class StderrFilter:
         self.original_stderr = original_stderr
 
     def write(self, message):
-        # Suppress Windows geometry warnings
-        if 'QWindowsWindow::setGeometry' not in message and 'QBackingStore::endPaint' not in message:
+        # Suppress Windows geometry and rendering warnings
+        if ('QWindowsWindow::setGeometry' not in message and
+            'QBackingStore::endPaint' not in message):
             self.original_stderr.write(message)
 
     def flush(self):
