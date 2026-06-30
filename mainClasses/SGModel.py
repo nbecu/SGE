@@ -349,6 +349,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.label.hide()
             self.timer.stop()
 
+    def _centerWindow(self):
+        """Center the window on the primary monitor after it's been shown."""
+        if self.autoResize and hasattr(self, '_auto_resize_width') and hasattr(self, '_auto_resize_height'):
+            primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
+            if primary_monitor:
+                screen_width = primary_monitor.width
+                screen_height = primary_monitor.height
+                final_width = self._auto_resize_width
+                final_height = self._auto_resize_height
+                # Calculate centered position
+                x = int((screen_width - final_width) / 2)
+                y = int((screen_height - final_height) / 2)
+                self.move(x, y)
+
     def initBeforeShowing(self):
         """Initialize components that need to be ready before the window is shown"""
         # Initialize tooltip menu with all entity definitions
@@ -405,16 +419,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 final_height = max(required_height, min_height)
 
                 self.resize(final_width, final_height)
-
-                # Center the window after resizing
-                primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
-                if primary_monitor:
-                    screen_width = primary_monitor.width
-                    screen_height = primary_monitor.height
-                    # Calculate centered position
-                    x = int((screen_width - final_width) / 2)
-                    y = int((screen_height - final_height) / 2)
-                    self.move(x, y)
+                # Store final size for centering after show()
+                self._auto_resize_width = final_width
+                self._auto_resize_height = final_height
 
         # Load pending theme configuration if one was memorized by applyThemeConfig()
         if self._pending_theme_config:
@@ -491,6 +498,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # Normal local launch
             self.initBeforeShowing()
             self.show()
+            self._centerWindow()  # Center after show() so move() is respected
             self.initAfterOpening()
 
     def launch_withMQTT(self, majType, broker_host="localhost", broker_port=1883, session_id=None):
