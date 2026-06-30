@@ -2,6 +2,27 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+# Suppress Windows Qt geometry warnings that clutter console output
+import io
+import contextlib
+
+class StderrFilter:
+    def __init__(self, original_stderr):
+        self.original_stderr = original_stderr
+
+    def write(self, message):
+        # Suppress Windows geometry warnings
+        if 'QWindowsWindow::setGeometry' not in message and 'QBackingStore::endPaint' not in message:
+            self.original_stderr.write(message)
+
+    def flush(self):
+        self.original_stderr.flush()
+
+    def isatty(self):
+        return self.original_stderr.isatty()
+
+sys.stderr = StderrFilter(sys.stderr)
+
 from mainClasses.SGModel import SGModel
 from mainClasses.SGExtensions import *
 import mainClasses.SGExtensions as _SGExtensions
